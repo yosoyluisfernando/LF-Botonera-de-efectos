@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Botonera de Efectos</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <div class="tabs-container">
+    <div id="tabs" class="tabs"></div>
+    <button id="add-tab" class="btn-add-tab" title="Nueva Pestaña">+</button>
+    <button id="btn-profiles" class="btn-profile" title="Opciones de Perfiles">👤 Principal</button>
+    <button id="btn-settings" class="btn-settings" title="Configuración">⚙️</button>
+  </div>
+
+  <div id="mapping-banner" class="hidden mapping-banner">
+    ✏️ MODO MAPEO: Haz clic en cualquier Botón o Pestaña para asignarle un atajo de teclado. (Presiona ESC para salir)
+  </div>
+
+  <div id="grid" class="grid-container"></div>
+
+  <div id="prelisten-player" class="hidden">
+    <div class="prelisten-header"><span>Escucha previa</span><button id="close-prelisten" class="close-btn" style="color: white;">X</button></div>
+    <div class="prelisten-body">
+      <div id="prelisten-name" class="prelisten-name">AUDIO</div>
+      <div class="prelisten-progress-bg"><div id="prelisten-progress" class="prelisten-progress-fill"></div></div>
+      <div class="prelisten-controls">
+        <input type="range" id="prelisten-volume" min="0" max="1" step="0.01" value="1">
+        <span id="prelisten-time">00:00 / 00:00</span>
+      </div>
+      <div class="prelisten-footer"><button id="btn-stop-prelisten" class="btn-dark">Stop</button></div>
+    </div>
+  </div>
+
+  <div id="context-menu" class="hidden context-style">
+    <ul>
+      <li id="menu-editar">Editar...</li>
+      <li id="menu-limpiar">Limpiar</li>
+      <hr>
+      <li id="menu-bucle" class="checkbox-item"><span id="check-bucle" class="check-icon"></span> Bucle</li>
+      <li id="menu-overlap" class="checkbox-item"><span id="check-overlap" class="check-icon"></span> Reproducción superpuesta</li>
+      <li id="menu-detener" class="checkbox-item"><span id="check-detener" class="check-icon"></span> Detener al presionar otro sonido</li>
+      <hr>
+      <li id="menu-previa">Escucha previa</li>
+    </ul>
+  </div>
+
+  <div id="tab-context-menu" class="hidden context-style">
+    <ul>
+      <li id="tab-menu-editar">Editar Pestaña...</li>
+      <li id="tab-menu-exportar">Exportar (.bdelf)</li>
+      <li id="tab-menu-importar">Importar (.bdelf)</li>
+      <hr>
+      <li id="tab-menu-eliminar" style="color: #ff5555;">Eliminar Pestaña</li>
+    </ul>
+  </div>
+
+  <div id="profile-context-menu" class="hidden context-style" style="z-index: 4000;">
+    <ul>
+      <li id="menu-new-profile">Nuevo Perfil...</li>
+      <li id="menu-edit-profile">Editar Perfil actual...</li>
+      <hr>
+      <li id="menu-import-profile">Importar Perfil (.bdeplf)</li>
+      <li id="menu-export-profile">Exportar Perfil (.bdeplf)</li>
+      <hr>
+      <li id="menu-delete-profile" style="color: #ff5555;">Eliminar Perfil actual</li>
+      <hr>
+      <div id="profile-list"></div>
+    </ul>
+  </div>
+
+  <div id="edit-modal" class="hidden modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Editar efecto</h3><button id="close-modal" class="close-btn">X</button></div>
+      <div class="modal-body">
+        <label>Ruta del archivo:</label>
+        <div class="file-input-group"><input type="text" id="edit-filepath" readonly><button id="btn-select-file">...</button></div>
+        <div class="row"><div class="col"><label>Nombre:</label><input type="text" id="edit-name"></div><div class="col"><label>Volumen:</label><input type="range" id="edit-volume" min="0" max="1" step="0.01" value="1"></div></div>
+        <div class="row"><div class="col"><label>Color de fondo:</label><input type="color" id="edit-bg-color" value="#444444"></div><div class="col"><label>Color de texto:</label><input type="color" id="edit-text-color" value="#FFFFFF"></div></div>
+        <div class="row"><div class="col"><label>Tecla de Atajo (Haz clic y presiona la tecla):</label><input type="text" id="edit-shortcut" readonly placeholder="Ninguna" class="key-input"></div></div>
+      </div>
+      <div class="modal-footer"><button id="btn-prelisten" class="btn-dark">Prelisten</button><button id="btn-save-edit" class="btn-blue">Aceptar</button><button id="btn-cancel-edit" class="btn-dark">Cancelar</button></div>
+    </div>
+  </div>
+
+  <div id="tab-modal" class="hidden modal-overlay">
+    <div class="modal-content" style="width: 320px;">
+      <div class="modal-header"><h3 id="tab-modal-title">Configurar Botonera</h3><button id="close-tab-modal" class="close-btn">X</button></div>
+      <div class="modal-body">
+        <label>Nombre de la pestaña:</label><input type="text" id="tab-name" style="margin-bottom: 10px;">
+        <div class="row" style="margin-top: 5px;"><div class="col"><label>Vertical (V):</label><input type="number" id="tab-v" min="1" max="20" value="5"></div><div class="col"><label>Horizontal (H):</label><input type="number" id="tab-h" min="1" max="20" value="5"></div></div>
+        <hr style="border-color: #444; margin: 15px 0;">
+        <div class="row" style="margin-top: 5px;"><div class="col"><label>Color Fondo:</label><input type="color" id="tab-bg-color" value="#3a3f44"></div><div class="col"><label>Color Texto:</label><input type="color" id="tab-text-color" value="#cccccc"></div></div>
+        <div style="text-align: right; margin-top: 5px;"><button id="btn-tab-default-colors" class="btn-dark" style="font-size: 10px; padding: 3px 8px;">Predeterminado</button></div>
+        <div class="row" style="margin-top: 15px;"><div class="col"><label>Salida de Audio (Esta pestaña):</label><select id="tab-audio-out" class="audio-select"></select></div></div>
+      </div>
+      <div class="modal-footer"><button id="btn-save-tab" class="btn-blue">Guardar</button></div>
+    </div>
+  </div>
+
+  <div id="profile-modal" class="hidden modal-overlay" style="z-index: 3000;">
+    <div class="modal-content" style="width: 320px;">
+      <div class="modal-header"><h3 id="profile-modal-title">Configurar Perfil</h3><button id="close-profile-modal" class="close-btn">X</button></div>
+      <div class="modal-body">
+        <label>Nombre del Perfil:</label><input type="text" id="profile-name" style="margin-bottom: 15px;">
+        <div class="row">
+          <div class="col"><label>Color Fondo:</label><input type="color" id="profile-bg-color" value="#008c3a"></div>
+          <div class="col"><label>Color Texto:</label><input type="color" id="profile-text-color" value="#ffffff"></div>
+        </div>
+        <div style="text-align: right; margin-top: 5px;"><button id="btn-profile-default-colors" class="btn-dark" style="font-size: 10px; padding: 3px 8px;">Predeterminado</button></div>
+      </div>
+      <div class="modal-footer"><button id="btn-save-profile" class="btn-blue">Guardar Perfil</button></div>
+    </div>
+  </div>
+
+  <div id="settings-modal" class="hidden modal-overlay">
+    <div class="modal-content" style="width: 500px;">
+      <div class="modal-header"><h3>⚙️ Configuración Global</h3><button id="close-settings-modal" class="close-btn">X</button></div>
+      <div class="settings-tabs"><button class="s-tab active" data-target="s-audio">Salidas de Audio</button><button class="s-tab" data-target="s-atajos">Atajos del Teclado</button><button class="s-tab" data-target="s-about">Acerca de</button></div>
+      <div class="modal-body" style="min-height: 200px;">
+        <div id="s-audio" class="s-panel"><label>Salida Principal (Botoneras):</label><select id="config-out-main" class="audio-select" style="margin-bottom: 15px;"></select><label>Salida de Pre-escucha (Prelisten):</label><select id="config-out-pre" class="audio-select"></select></div>
+        <div id="s-atajos" class="s-panel hidden"><div style="margin-bottom: 20px; text-align: center;"><button id="btn-enter-mapping" class="btn-blue" style="width: 100%; padding: 10px; font-size: 14px; background: #008c3a; border-color:#00ff55;">✏️ Asignar atajos haciendo clic (Modo Mapeo)</button></div><hr style="border-color: #444; margin-bottom: 15px;"><p style="color:#aaa; font-size:11px; margin-top:0;">Haz clic en el cuadro y presiona la tecla que desees asignar.</p><div class="row"><div class="col"><label>Detener TODOS los sonidos:</label><input type="text" id="config-key-stop" class="key-input" readonly placeholder="Ninguna"></div></div><div class="row"><div class="col"><label>Pestaña Siguiente:</label><input type="text" id="config-key-next" class="key-input" readonly placeholder="Ninguna"></div><div class="col"><label>Pestaña Anterior:</label><input type="text" id="config-key-prev" class="key-input" readonly placeholder="Ninguna"></div></div></div>
+        
+        <div id="s-about" class="s-panel hidden" style="text-align: center; padding: 20px;">
+          <h2>Botonera de Efectos</h2>
+          <p>Versión 1.0</p>
+          <p style="color: #00FF55; font-weight: bold; margin-top: 20px;">Un programa creado por Luis Fernando Velásquez.</p>
+          <p style="color: #aaa; font-style: italic;">Este es un software gratuito, prohibida su venta.</p>
+          <button id="btn-donate" class="btn-blue" style="margin-top: 20px; font-weight: bold; background-color: #0079C1; border-color: #00457C; border-radius: 5px; padding: 10px 20px; font-size: 14px; cursor: pointer;">☕ Apoya al creador aquí</button>
+        </div>
+
+      </div>
+      <div class="modal-footer"><button id="btn-save-settings" class="btn-blue">Guardar Configuración</button></div>
+    </div>
+  </div>
+
+  <div id="capture-modal" class="hidden modal-overlay" style="z-index: 3000;">
+    <div class="modal-content" style="width: 300px; text-align: center;">
+      <div class="modal-header" style="justify-content: center;"><h3 style="color:#00FF55;">Asignar Atajo</h3></div>
+      <div class="modal-body"><p id="capture-target-name" style="font-weight: bold; font-size: 14px; margin-bottom: 15px;"></p><input type="text" id="capture-key-input" class="key-input" readonly placeholder="Presiona una tecla..."></div>
+      <div class="modal-footer" style="justify-content: center;"><button id="btn-save-capture" class="btn-blue">Guardar Atajo</button><button id="btn-cancel-capture" class="btn-dark">Cancelar</button></div>
+    </div>
+  </div>
+
+  <script src="./renderer.js"></script>
+</body>
+</html>
