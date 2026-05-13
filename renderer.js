@@ -1,6 +1,9 @@
 const electron = require('electron');
 const { ipcRenderer, shell } = electron;
 const webUtils = electron.webUtils; 
+const path = require('path');
+const { pathToFileURL } = require('url');
+const AudioEngine = require('./audioEngine');
 
 let appState = { activeProfileId: 'default', profiles: [] };
 let state = null; 
@@ -97,8 +100,6 @@ async function init() {
           if (!p.shortcut) p.shortcut = ''; 
           if (!p.tabBg) p.tabBg = DEFAULT_TAB_BG; if (!p.tabText) p.tabText = DEFAULT_TAB_TEXT;
           p.botones.forEach(b => { 
-              b.audioElement = null; 
-              b.clones = []; 
               if(!b.shortcut) b.shortcut = ''; 
               if(b.overlap === undefined) b.overlap = false; 
           });
@@ -196,7 +197,6 @@ document.getElementById('menu-import-profile').onclick = async () => {
     if (imported && imported.name && imported.paletas) {
         imported.id = Date.now().toString(); 
         if(!imported.bg) imported.bg = DEFAULT_PROFILE_BG; if(!imported.text) imported.text = DEFAULT_PROFILE_TEXT;
-        imported.paletas.forEach(p => p.botones.forEach(b => { b.audioElement = null; b.clones = []; }));
         appState.profiles.push(imported); cambiarPerfil(imported.id);
     }
 };
@@ -227,18 +227,14 @@ function poblarSelectAudio(selectElement, opcionExtra = null, valorSeleccionado 
   selectElement.value = valorSeleccionado;
 }
 
-async function enrutarAudio(audioElement, tipo, paletaIndex = null) {
-    if (!audioElement || typeof audioElement.setSinkId !== 'function') return; 
+function obtenerSinkId(tipo, paletaIndex = null) {
     let sinkId = 'default';
     if (tipo === 'prelisten') { sinkId = state.config.outPre || 'default'; } 
     else {
         const paleta = state.paletas[paletaIndex !== null ? paletaIndex : activeTabIndex];
         sinkId = (paleta && paleta.audioOut && paleta.audioOut !== 'global') ? paleta.audioOut : (state.config.outMain || 'default');
     }
-    try { 
-        const realSinkId = (sinkId === 'default' || sinkId === 'global') ? '' : sinkId;
-        await audioElement.setSinkId(realSinkId); 
-    } catch (e) { console.warn("Error al enrutar:", e); }
+    return sinkId;
 }
 
 function obtenerEstadoLimpioPerfil() {
@@ -287,10 +283,7 @@ function ajustarBotonesPaleta(paleta, v, h) {
 function actualizarEstadoPestañasVisibles() {
   const tabsDOM = document.querySelectorAll('#tabs .tab');
   state.paletas.forEach((paleta, index) => {
-    const isPlaying = paleta.botones.some(b => 
-        (b.audioElement && !b.audioElement.paused) || 
-        (b.clones && b.clones.length > 0)
-    );
+    const isPlaying = paleta.botones.some(b => AudioEngine.isPlaying(b));
     const tabEl = tabsDOM[index];
     if (tabEl) {
       if (isPlaying && index !== activeTabIndex) tabEl.classList.add('tab-playing');
@@ -333,10 +326,10 @@ function abrirEdicion(btnInfo) {
     contextMenu.classList.add('hidden'); editModal.classList.remove('hidden'); editName.focus();
 }
 
-editVolume.addEventListener('input', (e) => { if (botonSeleccionado && botonSeleccionado.audioElement) { botonSeleccionado.audioElement.volume = parseFloat(e.target.value); } });
+editVolume.addEventListener('input', (e) => { if (botonSeleccionado) { AudioEngine.setVolume(botonSeleccionado, parseFloat(e.target.value)); } });
 
 function cancelarEdicion() {
-    if (botonSeleccionado && botonSeleccionado.audioElement) { botonSeleccionado.audioElement.volume = volumenOriginalAlEditar; }
+    if (botonSeleccionado) { AudioEngine.setVolume(botonSeleccionado, volumenOriginalAlEditar); }
     editModal.classList.add('hidden');
 }
 
@@ -350,7 +343,7 @@ function renderGrid() {
     
     if (btnInfo.bg) btn.style.backgroundColor = btnInfo.bg; if (btnInfo.text) btn.style.color = btnInfo.text;
     
-    const isPlayingUI = (btnInfo.audioElement && !btnInfo.audioElement.paused) || (btnInfo.clones && btnInfo.clones.length > 0);
+    const isPlayingUI = AudioEngine.isPlaying(btnInfo);
     if (isPlayingUI) btn.classList.add('playing');
     
     let shortcutHtml = btnInfo.shortcut ? `<span style="position:absolute; top:5px; right:5px; font-size:10px; background:rgba(0,0,0,0.6); padding:2px 5px; border-radius:3px;">${btnInfo.shortcut}</span>` : '';
@@ -396,8 +389,7 @@ function renderGrid() {
         const prepararYABrirEdicion = (targetBtn) => {
            abrirEdicion(targetBtn);
            editFilepath.value = filePath; 
-           let nombre = filePath.split('\\').pop().split('/').pop(); 
-           if(nombre.includes('.')) nombre = nombre.substring(0, nombre.lastIndexOf('.'));
+           let nombre = path.parse(filePath).name;
            editName.value = nombre.toUpperCase();
         };
         
@@ -428,42 +420,18 @@ function renderGrid() {
     });
     grid.appendChild(btn);
 
-    if (btnInfo.audioElement) {
-      const audio = btnInfo.audioElement;
-      let paletaIndex = activeTabIndex; 
-      
-      if (audio.duration && !audio.paused) {
-        const pb = document.getElementById(`progress-${btnInfo.id}`); const tt = document.getElementById(`timer-${btnInfo.id}`);
-        if(pb) pb.style.width = `${(audio.currentTime / audio.duration) * 100}%`; if(tt) tt.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
-      }
-      audio.ontimeupdate = () => {
-        if (audio.duration) {
-          if (activeTabIndex === paletaIndex) {
-            const pb = document.getElementById(`progress-${btnInfo.id}`); const tt = document.getElementById(`timer-${btnInfo.id}`);
-            if (pb && tt) { pb.style.width = `${(audio.currentTime / audio.duration) * 100}%`; tt.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`; }
-          }
-        }
-      };
-      audio.onended = () => { 
-        if (!btnInfo.loop) {
-            if (!btnInfo.clones || btnInfo.clones.length === 0) detenerAudio(btnInfo);
-        }
-        actualizarEstadoPestañasVisibles(); 
-      };
+    const timeInfo = AudioEngine.getTime(btnInfo);
+    if (timeInfo) {
+      const pb = btn.querySelector('.progress-bar'); 
+      const tt = btn.querySelector('.timer');
+      if (pb) pb.style.width = `${(timeInfo.currentTime / timeInfo.duration) * 100}%`; 
+      if (tt) tt.innerText = `${formatTime(timeInfo.currentTime)} / ${formatTime(timeInfo.duration)}`;
     }
   });
 }
 
 function detenerAudio(btnInfo) {
-  if (btnInfo.audioElement && typeof btnInfo.audioElement.pause === 'function') { 
-      btnInfo.audioElement.pause(); 
-      btnInfo.audioElement.currentTime = 0; 
-  }
-  
-  if (btnInfo.clones && btnInfo.clones.length > 0) {
-      btnInfo.clones.forEach(c => { c.pause(); c.currentTime = 0; });
-      btnInfo.clones = [];
-  }
+  AudioEngine.stop(btnInfo);
 
   let paletaIndex = state.paletas.findIndex(p => p.botones.includes(btnInfo));
   if (activeTabIndex === paletaIndex) {
@@ -482,93 +450,83 @@ function detenerAudio(btnInfo) {
 async function reproducirAudio(btnInfo, btnDOM) {
   if (!btnInfo.file) return;
 
-  if (btnInfo.audioElement && typeof btnInfo.audioElement.paused !== 'undefined' && !btnInfo.audioElement.paused) { 
-      if (btnInfo.overlap) {
-          let clone = new Audio('file:///' + btnInfo.file.replace(/\\/g, '/'));
-          clone.volume = btnInfo.vol;
-          clone.loop = btnInfo.loop;
-          if (!btnInfo.clones) btnInfo.clones = [];
-          btnInfo.clones.push(clone);
-          
-          let paletaIndex = state.paletas.findIndex(p => p.botones.includes(btnInfo));
-          await enrutarAudio(clone, 'main', paletaIndex !== -1 ? paletaIndex : activeTabIndex);
-          
-          clone.onended = () => { 
-              btnInfo.clones = btnInfo.clones.filter(c => c !== clone); 
-              if (btnInfo.audioElement && btnInfo.audioElement.paused && btnInfo.clones.length === 0) {
-                  detenerAudio(btnInfo);
-              }
-              actualizarEstadoPestañasVisibles();
-          };
-          clone.play().catch(e => console.error("Error reproduciendo clon:", e));
-          return; 
-      } else {
-          detenerAudio(btnInfo); 
-          return; 
+  if (AudioEngine.isPlaying(btnInfo)) {
+      if (!btnInfo.overlap) {
+          detenerAudio(btnInfo);
+          return;
       }
   }
 
   if (btnInfo.stopOther) {
-    state.paletas[activeTabIndex].botones.forEach(b => { if (b.audioElement && !b.audioElement.paused && b.id !== btnInfo.id && b.stopOther === true) detenerAudio(b); });
+      state.paletas[activeTabIndex].botones.forEach(b => { 
+          if (AudioEngine.isPlaying(b) && b.id !== btnInfo.id && b.stopOther === true) detenerAudio(b); 
+      });
   }
-  
-  if (!btnInfo.audioElement || !btnInfo.audioElement.play) { btnInfo.audioElement = new Audio('file:///' + btnInfo.file.replace(/\\/g, '/')); }
-  const audio = btnInfo.audioElement; audio.volume = btnInfo.vol; audio.loop = btnInfo.loop;
-  
-  let paletaIndex = state.paletas.findIndex(p => p.botones.includes(btnInfo));
-  await enrutarAudio(audio, 'main', paletaIndex !== -1 ? paletaIndex : activeTabIndex);
 
-  audio.ontimeupdate = () => {
-    if (audio.duration) {
-      if (activeTabIndex === paletaIndex) {
-        const pb = document.getElementById(`progress-${btnInfo.id}`); const tt = document.getElementById(`timer-${btnInfo.id}`);
-        if (pb && tt) { pb.style.width = `${(audio.currentTime / audio.duration) * 100}%`; tt.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`; }
+  let paletaIndex = state.paletas.findIndex(p => p.botones.includes(btnInfo));
+  if (paletaIndex === -1) paletaIndex = activeTabIndex;
+
+  if (!btnDOM && activeTabIndex === paletaIndex) {
+      btnDOM = document.getElementById(`btn-dom-${btnInfo.id}`);
+  }
+
+  await AudioEngine.play(btnInfo, btnInfo.file, {
+      volume: btnInfo.vol,
+      loop: btnInfo.loop,
+      overlap: btnInfo.overlap,
+      sinkId: obtenerSinkId('main', paletaIndex),
+      onTimeUpdate: (currentTime, duration) => {
+          if (activeTabIndex === paletaIndex) {
+              const pb = document.getElementById(`progress-${btnInfo.id}`); 
+              const tt = document.getElementById(`timer-${btnInfo.id}`);
+              if (pb && tt) { 
+                  pb.style.width = `${(currentTime / duration) * 100}%`; 
+                  tt.innerText = `${formatTime(currentTime)} / ${formatTime(duration)}`; 
+              }
+          }
+      },
+      onEnded: () => {
+          actualizarEstadoPestañasVisibles();
+          if (activeTabIndex === paletaIndex) {
+              const btnDOM = document.getElementById(`btn-dom-${btnInfo.id}`);
+              if (btnDOM) btnDOM.classList.remove('playing');
+              const pb = document.getElementById(`progress-${btnInfo.id}`);
+              const tt = document.getElementById(`timer-${btnInfo.id}`);
+              if (pb) pb.style.width = '0%';
+              if (tt) tt.innerText = btnInfo.file ? 'LISTO' : '';
+          }
       }
-    }
-  };
-  audio.onended = () => { 
-    if (!btnInfo.loop) {
-        if (!btnInfo.clones || btnInfo.clones.length === 0) detenerAudio(btnInfo);
-    }
-    actualizarEstadoPestañasVisibles(); 
-  };
-  
-  if(!btnDOM && activeTabIndex === paletaIndex) btnDOM = document.getElementById(`btn-dom-${btnInfo.id}`);
-  audio.play().then(() => { 
-    if(btnDOM) btnDOM.classList.add('playing'); 
-    actualizarEstadoPestañasVisibles();
-  }).catch(e => console.error("Error reproduciendo:", e));
+  });
+
+  if (btnDOM) btnDOM.classList.add('playing');
+  actualizarEstadoPestañasVisibles();
 }
 
 function detenerTodoGlobal() { state.paletas.forEach(p => p.botones.forEach(b => detenerAudio(b))); }
 
 async function iniciarPrelisten(ruta, nombre, volumenBase) {
-  if (prelistenAudio) detenerPrelisten();
   if (!ruta) return;
-  prelistenAudio = new Audio('file:///' + ruta.replace(/\\/g, '/'));
-  prelistenAudio.volume = volumenBase; document.getElementById('prelisten-volume').value = volumenBase;
-  await enrutarAudio(prelistenAudio, 'prelisten');
+  document.getElementById('prelisten-volume').value = volumenBase;
   document.getElementById('prelisten-name').innerText = nombre || 'AUDIO';
   document.getElementById('prelisten-player').classList.remove('hidden');
 
-  prelistenAudio.ontimeupdate = () => {
-      if (prelistenAudio.duration) {
+  await AudioEngine.playPrelisten(ruta, volumenBase, obtenerSinkId('prelisten'), 
+      (currentTime, duration) => {
           const pb = document.getElementById('prelisten-progress'); const tt = document.getElementById('prelisten-time');
-          if(pb && tt) { pb.style.width = `${(prelistenAudio.currentTime / prelistenAudio.duration) * 100}%`; tt.innerText = `${formatTime(prelistenAudio.currentTime)} / ${formatTime(prelistenAudio.duration)}`; }
-      }
-  };
-  prelistenAudio.onended = detenerPrelisten;
-  prelistenAudio.play().catch(e => console.error("Error prelisten:", e));
+          if (pb && tt) { pb.style.width = `${(currentTime / duration) * 100}%`; tt.innerText = `${formatTime(currentTime)} / ${formatTime(duration)}`; }
+      },
+      detenerPrelisten
+  );
 }
 
 function detenerPrelisten() {
-  if (prelistenAudio) { prelistenAudio.pause(); prelistenAudio = null; }
+  AudioEngine.stopPrelisten();
   document.getElementById('prelisten-player').classList.add('hidden');
 }
 
 document.getElementById('close-prelisten').onclick = detenerPrelisten;
 document.getElementById('btn-stop-prelisten').onclick = detenerPrelisten;
-document.getElementById('prelisten-volume').addEventListener('input', (e) => { if (prelistenAudio) prelistenAudio.volume = e.target.value; });
+document.getElementById('prelisten-volume').addEventListener('input', (e) => { AudioEngine.setPrelistenVolume(e.target.value); });
 
 document.getElementById('menu-previa').onclick = () => { iniciarPrelisten(botonSeleccionado.file, botonSeleccionado.name, botonSeleccionado.vol); contextMenu.classList.add('hidden'); };
 document.getElementById('btn-prelisten').onclick = () => { iniciarPrelisten(editFilepath.value, editName.value, parseFloat(editVolume.value)); };
@@ -646,33 +604,8 @@ document.addEventListener('keydown', (e) => {
 
   if (e.ctrlKey && e.key.toLowerCase() === 'z') { 
       if (undoStack.length > 0) { 
-          const restoredState = undoStack.pop();
-          
-          state.paletas.forEach(currentPaleta => {
-              currentPaleta.botones.forEach(currentBtn => {
-                  if (currentBtn.clones && currentBtn.clones.length > 0) {
-                      currentBtn.clones.forEach(c => { c.pause(); c.currentTime = 0; });
-                      currentBtn.clones = [];
-                  }
-
-                  if (currentBtn.file && currentBtn.audioElement && !currentBtn.audioElement.paused) {
-                      let transferred = false;
-                      for (let rPaleta of restoredState.paletas) {
-                          let rBtn = rPaleta.botones.find(b => b.file === currentBtn.file && b.file !== '');
-                          if (rBtn) {
-                              rBtn.audioElement = currentBtn.audioElement;
-                              transferred = true;
-                              break;
-                          }
-                      }
-                      if (!transferred) { currentBtn.audioElement.pause(); currentBtn.audioElement.currentTime = 0; }
-                  } else {
-                      if (currentBtn.audioElement) { currentBtn.audioElement.pause(); currentBtn.audioElement = null; }
-                  }
-              });
-          });
-
-          state = restoredState; 
+          detenerTodoGlobal();
+          state = undoStack.pop();
           guardarMemoria(); updateProfileButton(); renderTabs(); renderGrid(); 
       } 
       return; 
@@ -714,7 +647,7 @@ document.getElementById('tab-menu-importar').onclick = async () => {
   tabContextMenu.classList.add('hidden');
   const importedData = await ipcRenderer.invoke('importar-bdelf');
   if (importedData && importedData.nombre && Array.isArray(importedData.botones)) {
-    guardarEstadoPrevio(); importedData.audioOut = 'global'; importedData.tabBg = DEFAULT_TAB_BG; importedData.tabText = DEFAULT_TAB_TEXT; importedData.botones.forEach(b => b.audioElement = null);
+    guardarEstadoPrevio(); importedData.audioOut = 'global'; importedData.tabBg = DEFAULT_TAB_BG; importedData.tabText = DEFAULT_TAB_TEXT; 
     state.paletas.push(importedData); activeTabIndex = state.paletas.length - 1; guardarMemoria(); renderTabs(); renderGrid();
   }
 };
@@ -764,23 +697,23 @@ document.getElementById('btn-save-tab').onclick = () => {
 };
 
 document.getElementById('menu-editar').onclick = () => abrirEdicion(botonSeleccionado);
-document.getElementById('menu-limpiar').onclick = () => { guardarEstadoPrevio(); detenerAudio(botonSeleccionado); botonSeleccionado.file = ''; botonSeleccionado.name = ''; botonSeleccionado.bg = ''; botonSeleccionado.shortcut = ''; botonSeleccionado.overlap = false; guardarMemoria(); renderGrid(); contextMenu.classList.add('hidden'); };
-document.getElementById('menu-bucle').onclick = () => { guardarEstadoPrevio(); botonSeleccionado.loop = !botonSeleccionado.loop; if(botonSeleccionado.audioElement) botonSeleccionado.audioElement.loop = botonSeleccionado.loop; guardarMemoria(); contextMenu.classList.add('hidden'); };
+document.getElementById('menu-limpiar').onclick = () => { guardarEstadoPrevio(); detenerAudio(botonSeleccionado); AudioEngine.limpiarBoton(botonSeleccionado); botonSeleccionado.file = ''; botonSeleccionado.name = ''; botonSeleccionado.bg = ''; botonSeleccionado.shortcut = ''; botonSeleccionado.overlap = false; guardarMemoria(); renderGrid(); contextMenu.classList.add('hidden'); };
+document.getElementById('menu-bucle').onclick = () => { guardarEstadoPrevio(); botonSeleccionado.loop = !botonSeleccionado.loop; AudioEngine.setLoop(botonSeleccionado, botonSeleccionado.loop); guardarMemoria(); contextMenu.classList.add('hidden'); };
 document.getElementById('menu-detener').onclick = () => { guardarEstadoPrevio(); botonSeleccionado.stopOther = !botonSeleccionado.stopOther; guardarMemoria(); contextMenu.classList.add('hidden'); };
 
 document.getElementById('close-modal').onclick = cancelarEdicion; document.getElementById('btn-cancel-edit').onclick = cancelarEdicion;
 
 document.getElementById('btn-select-file').onclick = async () => {
   const ruta = await ipcRenderer.invoke('abrir-explorador');
-  if (ruta) { editFilepath.value = ruta; const nombre = ruta.split('\\').pop().split('/').pop(); editName.value = (nombre.substring(0, nombre.lastIndexOf('.')) || nombre).toUpperCase(); }
+  if (ruta) { editFilepath.value = ruta; const nombre = path.parse(ruta).name; editName.value = nombre.toUpperCase(); }
 };
 
 document.getElementById('btn-save-edit').onclick = () => {
   guardarEstadoPrevio(); 
-  if (botonSeleccionado.file !== editFilepath.value) { detenerAudio(botonSeleccionado); botonSeleccionado.audioElement = null; }
+  if (botonSeleccionado.file !== editFilepath.value) { detenerAudio(botonSeleccionado); AudioEngine.limpiarBoton(botonSeleccionado); }
   botonSeleccionado.file = editFilepath.value; botonSeleccionado.name = editName.value; botonSeleccionado.vol = parseFloat(editVolume.value); 
   botonSeleccionado.bg = editBgColor.value; botonSeleccionado.text = editTextColor.value; botonSeleccionado.shortcut = editShortcut.value;
-  if (botonSeleccionado.audioElement) botonSeleccionado.audioElement.volume = botonSeleccionado.vol;
+  AudioEngine.setVolume(botonSeleccionado, botonSeleccionado.vol);
   guardarMemoria(); renderGrid(); editModal.classList.add('hidden');
 };
 

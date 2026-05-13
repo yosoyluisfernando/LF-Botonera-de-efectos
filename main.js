@@ -4,10 +4,16 @@ const fs = require('fs');
 
 const configPath = path.join(app.getPath('userData'), 'botonera_config.json');
 
+const osPlatform = process.platform;
+const isWindows = osPlatform === 'win32';
+const isLinux = osPlatform === 'linux';
+console.log(`Botonera ejecutándose en: ${osPlatform} (${isWindows ? 'Windows' : isLinux ? 'Linux' : 'Otro'})`);
+
 function createWindow () {
   const win = new BrowserWindow({
     width: 1000,
     height: 700,
+    title: 'LF Botonera de efectos',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
