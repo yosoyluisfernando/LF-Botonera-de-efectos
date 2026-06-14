@@ -1,0 +1,251 @@
+/*
+ * Archivo: bottomBar.css
+ * Propósito: Barra inferior con reloj/contador, vúmetro estéreo y modos de reproducción.
+ */
+
+#bottom-bar {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    height: 86px;
+    padding: 6px 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    flex-shrink: 0;
+}
+
+/* ── Reloj / Contador ── */
+#clock-widget {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    /* Ancho fijo para que el layout no se mueva al cambiar entre hora y cuenta atrás */
+    width: 168px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    padding-right: 10px;
+    border-right: 1px solid var(--border-color);
+    cursor: default;
+    user-select: none;
+}
+
+.clock-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 28px;
+    font-weight: bold;
+    color: #00a8ff;
+    line-height: 1;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    /* Ancho igual al texto más largo posible (HH:MM:SS = 8 chars monospace) */
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+/* ── Menú contextual de formato del reloj ── */
+.clock-fmt-menu {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 4px 0;
+    min-width: 160px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.clock-fmt-item {
+    padding: 7px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.clock-fmt-item::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.clock-fmt-item.active {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.clock-fmt-item.active::before {
+    background: #00a8ff;
+    border-color: #00a8ff;
+}
+
+.clock-fmt-item:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.clock-date {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 155px;
+}
+
+/* ── Lado derecho: vúmetro + botones ── */
+#bottom-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 0;
+}
+
+/* ── Vúmetro estéreo ── */
+#vu-meter {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-top: 2px;
+}
+
+/* Fondo del canal visible cuando el nivel es 0 (sin señal). */
+.vu-channel {
+    height: 11px;
+    background: var(--bg-primary);
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+/* Gradiente a ANCHO FIJO (100% del canal), revelado con clip-path.
+   Los porcentajes de color son absolutos respecto al ancho total.
+   inset(0 X% 0 0) oculta X% desde la derecha: X=100=silencio, X=0=máximo. */
+.vu-level {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to right,
+        #27ae60 0%,   #27ae60 79.5%,
+        #f39c12 79.5%,#f39c12 89.7%,
+        #e74c3c 89.7%,#e74c3c 100%);
+    clip-path: inset(0 100% 0 0);
+    will-change: clip-path;
+}
+
+/* ── Botones de modo de reproducción ── */
+#playback-modes {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.pb-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    height: 42px;
+    min-width: 54px;
+    padding: 4px 10px;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.pb-icon {
+    font-size: 15px;
+    line-height: 1;
+}
+
+.pb-label {
+    font-size: 8px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pb-btn:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.pb-btn.active {
+    background: #3c3c3c;
+    color: var(--text-primary);
+    border-color: #505050;
+    box-shadow: none;
+}
+
+.pb-btn-stop {
+    background: #4a1515;
+    color: #ff6b6b;
+    border-color: #7c3030;
+    margin-left: auto;
+    min-width: 60px;
+}
+
+.pb-btn-stop:hover {
+    background: #c0392b;
+    color: #ffffff;
+    border-color: #c0392b;
+}
+
+/* ── Modo claro ── */
+:root[data-theme="light"] #bottom-bar {
+    background: #e8e8e8;
+    border-color: #bbb;
+}
+
+:root[data-theme="light"] .vu-channel {
+    background: #cccccc;
+    border-color: #bbb;
+}
+
+:root[data-theme="light"] .pb-btn {
+    background: #d8d8d8;
+    border-color: #b0b0b0;
+    color: #444444;
+}
+
+:root[data-theme="light"] .pb-btn:hover {
+    background: #c4c4c4;
+    color: #111111;
+    border-color: #888888;
+}
+
+:root[data-theme="light"] .pb-btn.active {
+    background: #c4c4c4;
+    color: var(--text-primary);
+    border-color: #999999;
+    box-shadow: none;
+}
+
+:root[data-theme="light"] .pb-btn-stop {
+    background: #f5c6c6;
+    color: #b91c1c;
+    border-color: #ef9898;
+}
+
+:root[data-theme="light"] .pb-btn-stop:hover {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #dc2626;
+}

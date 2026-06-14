@@ -1,0 +1,203 @@
+/*
+ * Archivo: grid.css
+ * Propósito: Estilos para la estructura principal de la botonera (Pestañas y Cuadrícula).
+ */
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+}
+
+/* --- CONTENEDOR DE PESTAÑAS --- */
+.tabs-container {
+  display: flex;
+  background: var(--bg-tertiary);
+  padding: 5px 5px 0 5px;
+  border-radius: 5px 5px 0 0;
+  flex-shrink: 0;
+  align-items: flex-end;
+}
+
+.tabs-scroll {
+  display: flex;
+  overflow-x: auto;
+  flex-grow: 1;
+  scrollbar-width: thin;
+}
+
+.tab {
+  padding: 8px 15px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-bottom: none;
+  cursor: pointer;
+  border-radius: 5px 5px 0 0;
+  margin-right: 2px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.tab.active {
+  background: var(--bg-primary);
+  border-style: dashed;
+  color: var(--text-primary);
+}
+
+.btn-add-tab {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 0 15px;
+  font-size: 16px;
+  height: 32px;
+  border-radius: 5px 5px 0 0;
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+.btn-add-tab:hover {
+  background: var(--accent-hover);
+}
+
+/* --- CUADRÍCULA (GRID) --- */
+.grid-container {
+  display: grid;
+  gap: 2px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  padding: 2px;
+  flex-grow: 1;
+  min-height: 0;
+}
+
+.grid-item {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  overflow: hidden;
+  transition: filter 0.1s;
+  color: var(--text-primary);
+}
+
+.grid-item:hover {
+  filter: brightness(1.15);
+}
+
+.grid-item:active {
+  filter: brightness(0.8);
+}
+
+.grid-item.playing {
+  background-color: var(--success-color) !important;
+  color: #000000 !important;
+}
+
+/* Botón "+" de nueva pestaña: más vivo en modo claro */
+:root[data-theme="light"] .btn-add-tab { background: #0078d4; }
+:root[data-theme="light"] .btn-add-tab:hover { background: #1084df; }
+
+/* ── Ajustes de MODO CLARO (sin tocar los colores guardados) ──
+   Los colores se eligen pensando en fondo oscuro: en claro se les
+   sube la saturación para que no se vean lavados. */
+:root[data-theme="light"] .grid-item[data-id] {
+  filter: saturate(1.4);
+}
+
+/* Hover en claro: tinte azul translúcido MEZCLADO sobre el color del botón
+   (la sombra interior pinta encima del fondo y debajo del texto) */
+:root[data-theme="light"] .grid-item:hover {
+  filter: saturate(1.4);
+  box-shadow: inset 0 0 0 999px rgba(0, 90, 158, 0.22);
+}
+
+:root[data-theme="light"] .grid-item:active {
+  filter: saturate(1.4) brightness(0.85);
+}
+
+/* Verde de reproducción más intenso en claro */
+:root[data-theme="light"] .grid-item.playing {
+  background-color: #00c853 !important;
+}
+
+/* Etiquetas del botón */
+.grid-item .index {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 10px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  color: #fff;
+}
+
+/* Tiempo restante: centrado y legible, justo encima de la barra */
+.grid-item .timer {
+  position: absolute;
+  bottom: 9px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+  color: #fff;
+}
+
+.grid-item.playing .timer {
+  color: #000;
+  text-shadow: none;
+}
+
+/* Barra de tiempo restante: solo visible durante la reproducción.
+   Empieza llena (roja) y se vacía hasta cero. */
+.progress-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: rgba(0,0,0,0.3);
+  display: none;
+}
+
+.grid-item.playing .progress-container {
+  display: block;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 100%;
+  background: #e03131;
+  transition: width 0.1s linear;
+}
+
+/* Badge de atajo de teclado: siempre blanco sobre negro,
+   incluso cuando la celda está en reproducción (texto negro) */
+.grid-item .shortcut-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 10px;
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+/* Estado visual mientras un archivo se arrastra sobre la celda */
+.grid-item.drag-over {
+  border: 2px dashed var(--accent-color) !important;
+  filter: brightness(1.4);
+}

@@ -1,31 +1,17 @@
 {
-  "name": "lf-botonera-de-efectos",
+  "name": "lf-botonera",
+  "private": true,
   "version": "1.0.0",
-  "main": "main.js",
+  "type": "module",
+  "license": "GPL-3.0-or-later",
   "author": "Luis Fernando Velásquez",
-  "description": "Un software de botonera de efectos gratuito.",
   "scripts": {
-    "start": "electron .",
-    "build:win": "electron-builder --win --x64",
-    "build:linux": "electron-builder --linux AppImage"
+    "dev": "vite",
+    "build": "vite build",
+    "tauri": "tauri"
   },
-  "build": {
-    "appId": "com.luisfernando.botonera",
-    "productName": "LF Botonera de efectos",
-    "directories": {
-      "output": "dist"
-    },
-    "win": {
-      "target": "nsis"
-    },
-    "linux": {
-      "target": "AppImage",
-      "category": "Audio"
-    }
-  },
-  "dependencies": {},
   "devDependencies": {
-    "electron": "^29.0.0",
-    "electron-builder": "^24.9.1"
+    "@tauri-apps/cli": "^2",
+    "vite": "^8.0.16"
   }
 }

@@ -1,19 +1,54 @@
+# ══════════════════════════════════════════════════════════════════
+# LF Botonera — al repositorio va SOLO el código fuente.
+# Nada de binarios, cachés, configuraciones personales ni datos del
+# usuario (la configuración de la app vive en %APPDATA%, fuera del repo).
+# ══════════════════════════════════════════════════════════════════
+
+# ── Binarios e instaladores compilados ──
+Compilados/
+
+# ── Dependencias JS ──
 node_modules/
+
+# ── Salidas de build ──
+# Vite → src/dist/   |   Cargo → src-tauri/target/   (este último lo cubre src-tauri/.gitignore)
+dist/
+dist-ssr/
+src/dist/
+
+# ── Rust/Tauri (cubiertos también por src-tauri/.gitignore) ──
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# ── Configuración personal de editores ──
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ── Logs y temporales ──
+logs/
 *.log
-.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tmp
+
+# ── Datos del usuario exportados (no son código) ──
 *.bdelf
 *.bdeplf
-.vscode/
 
-# Ejecutables, empaquetados y compilaciones
-dist/
-dist-win/
-dist-mac/
-dist-linux/
-release/
+# ── Sistema operativo ──
+.DS_Store
+Thumbs.db
+desktop.ini
 
-# Scripts locales de usuario
-Subir_a_GitHub.bat
-
-# Carpetas de respaldo
-Respaldo/
+# ── Archivos locales de trabajo (no van al repositorio) ──
+Iniciar_Dev.bat
+SUBIR_A_GITHUB.bat
+Resumen.md
+*.local

@@ -1,0 +1,186 @@
+/**
+ * Archivo: settingsModal.js
+ * Propósito: Controla el modal de Configuración Global (salidas de audio,
+ * atajos de teclado, acerca de). Delega audio a Rust (Regla 4).
+ */
+
+import { invoke } from './api.js';
+import { applyTheme } from './theme.js';
+import { t } from './i18n.js';
+import { initLocutionsPanel, loadLocutionsPanel, saveLocutions } from './settingsLocutions.js';
+
+let _onSaved         = null;
+let _currentOutMain  = null; // Tarjeta vigente al abrir el modal
+let _currentLanguage = null; // Idioma vigente al abrir el modal
+
+/** Inicializa el modal de ajustes y el sistema de captura de teclas. */
+export function initSettingsModal(onSaved) {
+    _onSaved = onSaved;
+    document.getElementById('btn-settings').addEventListener('click', _openSettings);
+    document.getElementById('btn-save-settings').addEventListener('click', _saveSettings);
+
+    // Pestañas internas del modal
+    document.querySelectorAll('.s-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.s-panel').forEach(p => p.classList.add('hidden'));
+            tab.classList.add('active');
+            document.getElementById(tab.getAttribute('data-target'))?.classList.remove('hidden');
+        });
+    });
+
+    initLocutionsPanel();
+    _wireKeyInputs();
+    _wireDonateButton();
+
+    // Tema: applyTheme gestiona localStorage, listener de SO y data-theme (Regla 7)
+    document.getElementById('config-theme').addEventListener('change', async e => {
+        const theme = e.target.value;
+        applyTheme(theme);
+        try { await invoke('set_theme', { theme }); } catch (err) { console.error(err); }
+    });
+}
+
+async function _openSettings() {
+    const [devices, config, version] = await Promise.all([
+        invoke('get_audio_devices').catch(() => ['default']),
+        invoke('get_config').catch(() => null),
+        invoke('get_app_version').catch(() => '?'),
+    ]);
+    document.getElementById('app-version-number').textContent = version;
+
+    if (!config) return;
+    const profile = config.profiles.find(p => p.id === config.active_profile_id);
+    const outMain = profile?.audio?.out_main || 'default';
+    const outPre  = profile?.audio?.out_pre  || 'default';
+    _currentOutMain = outMain;
+
+    _fillDeviceSelect('config-out-main', devices, outMain);
+    _fillDeviceSelect('config-out-pre',  devices, outPre);
+
+    // Atajos globales guardados en el perfil
+    document.getElementById('config-key-stop').value = profile?.audio?.key_stop || '';
+    document.getElementById('config-key-next').value = profile?.audio?.key_next || '';
+    document.getElementById('config-key-prev').value = profile?.audio?.key_prev || '';
+
+    document.getElementById('config-theme').value    = config.theme    || 'dark';
+    document.getElementById('config-language').value = config.language || 'es';
+    _currentLanguage = config.language || 'es';
+
+    loadLocutionsPanel(config);
+    _renderOrphanedShortcuts(config);
+    document.getElementById('settings-modal').classList.remove('hidden');
+}
+
+async function _saveSettings() {
+    const outMain = document.getElementById('config-out-main').value;
+    try {
+        // Solo aplicar si la tarjeta cambió: re-aplicarla detendría el audio
+        if (outMain !== _currentOutMain) {
+            await invoke('set_audio_device', { deviceName: outMain });
+        }
+        await invoke('set_global_keys', {
+            keyStop: document.getElementById('config-key-stop').value,
+            keyNext: document.getElementById('config-key-next').value,
+            keyPrev: document.getElementById('config-key-prev').value,
+        });
+        await saveLocutions();
+
+        // Idioma: persistir y recargar la UI solo si cambió
+        const lang = document.getElementById('config-language').value;
+        if (lang !== _currentLanguage) {
+            await invoke('set_language', { language: lang });
+            window.location.reload();
+            return;
+        }
+        _onSaved?.();
+    } catch (e) { console.error('Error al guardar ajustes:', e); }
+    document.getElementById('settings-modal').classList.add('hidden');
+}
+
+function _fillDeviceSelect(id, devices, current) {
+    const select = document.getElementById(id);
+    select.innerHTML = '';
+    devices.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        if (d === current) opt.selected = true;
+        select.appendChild(opt);
+    });
+}
+
+/** Convierte inputs de clase .key-input en captores de teclas. */
+function _wireKeyInputs() {
+    document.querySelectorAll('.key-input').forEach(input => {
+        input.addEventListener('keydown', e => {
+            e.preventDefault();
+            if (['Escape', 'Backspace', 'Delete'].includes(e.key)) {
+                input.value = '';
+                return;
+            }
+            // Enter es reservada: cierra/guarda el modal, no se captura como tecla
+            if (['Control', 'Alt', 'Shift', 'Meta', 'Enter'].includes(e.key)) return;
+            let key = '';
+            if (e.ctrlKey)  key += 'Ctrl+';
+            if (e.altKey)   key += 'Alt+';
+            if (e.shiftKey) key += 'Shift+';
+            key += e.key.toUpperCase();
+            input.value = key;
+        });
+    });
+}
+
+function _wireDonateButton() {
+    document.getElementById('btn-donate')?.addEventListener('click', () => {
+        window.__TAURI__?.opener?.openUrl('https://www.paypal.com/paypalme/yosoyluisfernando')
+            .catch(console.error);
+    });
+}
+
+/** Muestra atajos asignados a botones sin archivo de audio en el panel Atajos. */
+function _renderOrphanedShortcuts(config) {
+    const section = document.getElementById('shortcuts-orphan-section');
+    if (!section) return;
+    section.innerHTML = '';
+
+    const profile = config.profiles?.find(p => p.id === config.active_profile_id);
+    const orphans = [];
+    for (const paleta of (profile?.paletas ?? [])) {
+        for (const btn of (paleta.botones ?? [])) {
+            if (btn.shortcut && !btn.path) {
+                orphans.push({ paletaId: paleta.id, paletaNombre: paleta.nombre, btn });
+            }
+        }
+    }
+
+    if (!orphans.length) {
+        const p = document.createElement('p');
+        p.className = 'hint';
+        p.textContent = t('settings.no_orphaned');
+        section.appendChild(p);
+        return;
+    }
+
+    const hint = document.createElement('p');
+    hint.className = 'hint danger';
+    hint.textContent = t('settings.orphaned_hint');
+    section.appendChild(hint);
+
+    orphans.forEach(({ paletaId, paletaNombre, btn }) => {
+        const row = document.createElement('div');
+        row.className = 'orphan-row';
+        const lbl = document.createElement('span');
+        lbl.innerHTML = `${paletaNombre} — ${btn.label}: <code>${btn.shortcut}</code>`;
+        const clrBtn = document.createElement('button');
+        clrBtn.className = 'btn-xs-danger';
+        clrBtn.textContent = t('settings.clear_shortcut');
+        clrBtn.addEventListener('click', async () => {
+            await invoke('clear_button_shortcut', { paletaId, index: btn.index });
+            row.remove();
+        });
+        row.appendChild(lbl);
+        row.appendChild(clrBtn);
+        section.appendChild(row);
+    });
+}

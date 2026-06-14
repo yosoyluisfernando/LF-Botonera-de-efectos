@@ -1,0 +1,176 @@
+{
+    "app": {
+        "title": "LF Botonera",
+        "loading": "Cargando motor de audio..."
+    },
+    "titlebar": {
+        "minimize": "Minimizar",
+        "maximize": "Maximizar / Restaurar",
+        "close":    "Cerrar"
+    },
+    "wizard": {
+        "welcome": "¡Bienvenido a la LF Botonera!",
+        "module_question": "¿Deseas activar el módulo de Locuciones Dinámicas (Clima y Hora)?",
+        "module_desc": "Útil para emisoras de radio. Si solo usarás efectos de sonido, déjalo desactivado.",
+        "link_question": "¿Tienes el 'LF Automatizador' instalado en esta máquina?",
+        "link_desc": "Esto activará la conexión por red (WebSockets) para usarse como segunda pantalla remota.",
+        "btn_start": "Comenzar"
+    },
+    "tabs": {
+        "default_name": "BOTONERA 1",
+        "add_tooltip": "Nueva Pestaña",
+        "context": {
+            "edit":   "Editar Pestaña...",
+            "export": "Exportar (.bdelf)",
+            "import": "Importar (.bdelf)",
+            "delete": "Eliminar Pestaña"
+        }
+    },
+    "tab_modal": {
+        "title_new":    "Nueva Botonera",
+        "title_edit":   "Editar Botonera",
+        "name_label":   "Nombre de la pestaña:",
+        "rows_label":   "Filas (V):",
+        "cols_label":   "Columnas (H):",
+        "audio_out":    "Salida de Audio (Esta pestaña):",
+        "audio_global": "Usar Salida Principal (Global)",
+        "save":         "Guardar"
+    },
+    "profiles": {
+        "tooltip": "Opciones de Perfiles",
+        "new":     "Nuevo Perfil...",
+        "edit":    "Editar Perfil actual...",
+        "import":  "Importar Perfil (.bdeplf)",
+        "export":  "Exportar Perfil (.bdeplf)",
+        "delete":  "Eliminar Perfil actual"
+    },
+    "profile_modal": {
+        "default_name": "Perfil",
+        "title_new":   "Nuevo Perfil",
+        "title_edit":  "Editar Perfil",
+        "name_label":  "Nombre del Perfil:",
+        "bg_color":    "Color Fondo:",
+        "text_color":  "Color Texto:",
+        "default_btn": "Predeterminado",
+        "save":        "Guardar Perfil"
+    },
+    "settings": {
+        "title":       "Configuración Global",
+        "tab_main":    "Principal",
+        "tab_keys":    "Atajos del Teclado",
+        "tab_locutions": "Hora y Clima",
+        "tab_about":   "Acerca de",
+        "theme":       "Tema:",
+        "theme_system": "Predeterminado del sistema",
+        "theme_dark":   "Oscuro",
+        "theme_light":  "Claro",
+        "language":    "Idioma:",
+        "out_main":    "Salida Principal (Botoneras):",
+        "out_pre":     "Salida de Pre-escucha (Prelisten):",
+        "mapping_btn": "✏️ Asignar atajos haciendo clic (Modo Mapeo)",
+        "mapping_hint":"Haz clic en el cuadro y presiona la tecla que deseas asignar.",
+        "key_stop":    "Detener TODOS los sonidos:",
+        "key_next":    "Pestaña Siguiente:",
+        "key_prev":    "Pestaña Anterior:",
+        "key_none":    "Ninguna",
+        "save":           "Guardar Configuración",
+        "no_orphaned":    "Todos los atajos de botón están activos.",
+        "orphaned_hint":  "Atajos asignados a botones sin archivo de audio:",
+        "clear_shortcut": "Limpiar",
+        "about_version_label": "Versión",
+        "about_author":  "Desarrollado por Luis Fernando Velásquez.",
+        "about_license": "Software libre bajo licencia GPL-3.0. Todo software derivado de este proyecto debe ser también software libre.",
+        "about_formats_label": "Formatos de audio compatibles:",
+        "about_formats": "MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF",
+        "donate_btn":    "☕ Apoya al creador aquí"
+    },
+    "mapping": {
+        "banner": "✏️ MODO MAPEO: Haz clic en un Botón o Pestaña para asignarle un atajo. (ESC para salir)",
+        "modal_title": "Asignar Atajo",
+        "placeholder": "Presiona una tecla...",
+        "target_button": "Botón",
+        "target_tab":    "Pestaña",
+        "save":   "Guardar Atajo",
+        "cancel": "Cancelar"
+    },
+    "prelisten": {
+        "title":        "Escucha previa",
+        "stop":         "Stop",
+        "default_name": "AUDIO"
+    },
+    "context_menu": {
+        "edit":          "Editar...",
+        "clear":         "Limpiar",
+        "loop":          "Bucle",
+        "overlap":       "Superposición",
+        "stop_on_other": "Detener otros",
+        "restart":       "Reiniciar al hacer clic",
+        "preview":       "Escucha previa"
+    },
+    "locutions": {
+        "label_time": "HORA",
+        "label_temp": "TEMPERATURA",
+        "label_hum":  "HUMEDAD"
+    },
+    "settings_loc": {
+        "module":       "Activar módulo de Locuciones Dinámicas",
+        "module_hint":  "Anuncios hablados de hora y clima para emisoras de radio. También se pregunta en el asistente de primer arranque.",
+        "time_block":   "Locución de Hora",
+        "time_folder":  "Carpeta de locuciones de hora:",
+        "time_hint":    "Archivos esperados: HRS00–HRS23, MIN00–MIN59 y HRS##_O (en punto).",
+        "weather_block":"Clima (Temperatura y Humedad)",
+        "city":         "Ciudad:",
+        "unit":         "Unidad:",
+        "fetch":        "Probar clima ahora",
+        "temp_folder":  "Carpeta de locuciones de temperatura:",
+        "hum_folder":   "Carpeta de locuciones de humedad:",
+        "weather_hint": "Archivos esperados: TMP000–TMP999, TMPN001+ (bajo cero) y HUM000–HUM100.",
+        "test":         "Probar locución de hora",
+        "err_weather_disabled": "El bloque de clima está desactivado.",
+        "err_no_city":          "Escribe una ciudad y guarda la configuración.",
+        "err_city_not_found":   "No se encontró la ciudad."
+    },
+    "edit_modal": {
+        "title":               "Editar efecto (Botón",
+        "filepath":            "Ruta del archivo:",
+        "type":                "Tipo de efecto",
+        "type_audio":          "Audio",
+        "type_time":           "Locución de hora",
+        "type_temp":           "Temperatura",
+        "type_hum":            "Humedad",
+        "select_file":         "...",
+        "name":                "Nombre:",
+        "volume":              "Volumen:",
+        "bg_color":            "Color de fondo:",
+        "text_color":          "Color de texto:",
+        "shortcut":            "Tecla de Atajo (Haz clic y presiona):",
+        "shortcut_placeholder":"Ninguna",
+        "prelisten_btn":       "Pre-escuchar",
+        "ok":                  "Aceptar",
+        "cancel":              "Cancelar"
+    },
+    "playback": {
+        "mode_normal":      "Normal (cada botón usa su propia configuración)",
+        "mode_loop":        "Loop global (todos los botones repiten)",
+        "mode_overlap":     "Stack global (botones se acumulan)",
+        "mode_restart":     "Restart — Reiniciar al hacer clic",
+        "mode_stop_others": "Solo — Silencia los demás al activar un botón",
+        "stop_all":         "Stop All — Detener todos los sonidos",
+        "label_normal":     "Normal",
+        "label_loop":       "Loop",
+        "label_overlap":    "Stack",
+        "label_restart":    "Restart",
+        "label_stop_others":"Solo",
+        "label_stop_all":   "Stop All"
+    },
+    "clock": {
+        "fmt_24h": "Formato 24 horas",
+        "fmt_12h": "Formato 12 horas"
+    },
+    "errors": {
+        "fatal_ipc":       "Error fatal de comunicación con el motor nativo.",
+        "only_profile":    "No se puede eliminar el único perfil.",
+        "only_tab":        "No se puede eliminar la única pestaña.",
+        "no_empty_button": "No hay botones vacíos disponibles."
+    }
+}

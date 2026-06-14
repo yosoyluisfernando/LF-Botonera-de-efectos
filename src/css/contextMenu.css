@@ -1,0 +1,58 @@
+/*
+ * Archivo: contextMenu.css
+ * Propósito: Estilos para menús flotantes al hacer clic derecho.
+ */
+
+.context-style {
+  position: absolute;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+  z-index: 1000;
+  min-width: 220px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.context-style ul {
+  list-style: none;
+  padding: 5px 0;
+  margin: 0;
+}
+
+.context-style li {
+  padding: 8px 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.context-style li:hover {
+  background: var(--bg-secondary);
+}
+
+.context-style hr {
+  border-color: var(--border-color);
+  margin: 4px 0;
+}
+
+.context-style li.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.check-icon {
+  margin-right: 6px;
+  width: 12px;
+  display: inline-block;
+  font-weight: bold;
+  color: var(--success-color);
+}
+
+/* Icono decorativo por ítem (estilo botonera del LFA) */
+.menu-icon {
+  margin-right: 10px;
+  width: 18px;
+  display: inline-block;
+  text-align: center;
+}

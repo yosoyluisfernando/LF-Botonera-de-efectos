@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LF Botonera</title>
+    <link rel="icon" type="image/png" href="/icono_circular.png" />
+    <script type="module" src="/js/theme.js"></script>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/tabs.css" />
+    <link rel="stylesheet" href="/css/grid.css" />
+    <link rel="stylesheet" href="/css/contextMenu.css" />
+    <link rel="stylesheet" href="/css/modal.css" />
+    <link rel="stylesheet" href="/css/prelisten.css" />
+    <link rel="stylesheet" href="/css/bottomBar.css" />
+  </head>
+  <body>
+
+    <header data-tauri-drag-region class="titlebar">
+      <div class="titlebar-title" data-i18n="app.title">LF Botonera</div>
+      <div class="titlebar-controls">
+        <button id="tb-min"   class="tb-btn" data-i18n-title="titlebar.minimize">─</button>
+        <button id="tb-max"   class="tb-btn" data-i18n-title="titlebar.maximize">☐</button>
+        <button id="tb-close" class="tb-btn tb-close" data-i18n-title="titlebar.close">✕</button>
+      </div>
+    </header>
+
+    <!-- ── Wizard de primer arranque ─────────────────────────── -->
+    <section id="wizard-section" class="hidden">
+      <div id="wizard-area"></div>
+    </section>
+
+    <!-- ── App principal ─────────────────────────────────────── -->
+    <section id="app-section" class="hidden app-layout">
+
+      <!-- Barra de pestañas -->
+      <div class="tabs-container">
+        <div id="tabs-list" class="tabs-scroll"></div>
+        <button id="btn-add-tab" class="btn-add-tab" data-i18n-title="tabs.add_tooltip">+</button>
+        <button id="btn-profiles" class="btn-profile" data-i18n-title="profiles.tooltip">👤</button>
+        <button id="btn-settings" class="btn-settings">⚙️</button>
+      </div>
+
+      <!-- Banner de Modo Mapeo -->
+      <div id="mapping-banner" class="mapping-banner hidden" data-i18n="mapping.banner"></div>
+
+      <!-- Cuadrícula de botones -->
+      <div id="main-grid" class="grid-container"></div>
+
+      <!-- Barra de estado inferior: reloj, vúmetro y modos de reproducción -->
+      <div id="bottom-bar">
+        <div id="clock-widget">
+          <div id="clock-time" class="clock-display">--:--:--</div>
+          <div id="clock-date" class="clock-date">─</div>
+        </div>
+        <div id="bottom-right">
+          <div id="vu-meter">
+            <div class="vu-channel"><div id="vu-left"  class="vu-level"></div></div>
+            <div class="vu-channel"><div id="vu-right" class="vu-level"></div></div>
+          </div>
+          <div id="playback-modes">
+            <button id="pb-btn-normal"      class="pb-btn active" data-i18n-title="playback.mode_normal">
+              <span class="pb-icon">▶</span>
+              <span class="pb-label" data-i18n="playback.label_normal"></span>
+            </button>
+            <button id="pb-btn-loop"        class="pb-btn"        data-i18n-title="playback.mode_loop">
+              <span class="pb-icon">↻</span>
+              <span class="pb-label" data-i18n="playback.label_loop"></span>
+            </button>
+            <button id="pb-btn-overlap"     class="pb-btn"        data-i18n-title="playback.mode_overlap">
+              <span class="pb-icon">⊕</span>
+              <span class="pb-label" data-i18n="playback.label_overlap"></span>
+            </button>
+            <button id="pb-btn-restart"     class="pb-btn"        data-i18n-title="playback.mode_restart">
+              <span class="pb-icon">↺</span>
+              <span class="pb-label" data-i18n="playback.label_restart"></span>
+            </button>
+            <button id="pb-btn-stop_others" class="pb-btn"        data-i18n-title="playback.mode_stop_others">
+              <span class="pb-icon">⊙</span>
+              <span class="pb-label" data-i18n="playback.label_stop_others"></span>
+            </button>
+            <button id="pb-btn-stop-all"    class="pb-btn pb-btn-stop" data-i18n-title="playback.stop_all">
+              <span class="pb-icon">■</span>
+              <span class="pb-label" data-i18n="playback.label_stop_all"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── Pantalla de carga ──────────────────────────────────── -->
+    <section id="loading-screen">
+      <h2 data-i18n="app.loading">Cargando motor de audio...</h2>
+    </section>
+
+    <!-- ════════════ MENÚS CONTEXTUALES ═══════════════════════ -->
+
+    <!-- Menú contextual de botón: mismo orden e iconos que la botonera del LFA -->
+    <div id="context-menu" class="hidden context-style">
+      <ul>
+        <li id="menu-editar"><span class="menu-icon">✏️</span><span data-i18n="context_menu.edit">Editar...</span></li>
+        <li id="menu-limpiar"><span class="menu-icon">🗑️</span><span data-i18n="context_menu.clear">Limpiar</span></li>
+        <hr>
+        <li id="menu-bucle"   class="checkbox-item"><span id="check-bucle"   class="check-icon"></span><span class="menu-icon">🔁</span><span data-i18n="context_menu.loop">Bucle</span></li>
+        <li id="menu-overlap" class="checkbox-item"><span id="check-overlap" class="check-icon"></span><span class="menu-icon">🔀</span><span data-i18n="context_menu.overlap">Superposición</span></li>
+        <li id="menu-restart" class="checkbox-item"><span id="check-restart" class="check-icon"></span><span class="menu-icon">↻</span><span data-i18n="context_menu.restart">Reiniciar al hacer clic</span></li>
+        <li id="menu-detener" class="checkbox-item"><span id="check-detener" class="check-icon"></span><span class="menu-icon">⏹</span><span data-i18n="context_menu.stop_on_other">Detener otros</span></li>
+        <hr>
+        <li id="menu-previa"><span class="menu-icon">🎧</span><span data-i18n="context_menu.preview">Escucha previa</span></li>
+      </ul>
+    </div>
+
+    <div id="tab-context-menu" class="hidden context-style">
+      <ul>
+        <li id="tab-menu-editar"   data-i18n="tabs.context.edit">Editar Pestaña...</li>
+        <li id="tab-menu-exportar" data-i18n="tabs.context.export">Exportar (.bdelf)</li>
+        <li id="tab-menu-importar" data-i18n="tabs.context.import">Importar (.bdelf)</li>
+        <hr>
+        <li id="tab-menu-eliminar" class="danger" data-i18n="tabs.context.delete">Eliminar Pestaña</li>
+      </ul>
+    </div>
+
+    <div id="profile-context-menu" class="hidden context-style profile-menu">
+      <ul>
+        <li id="menu-new-profile"    data-i18n="profiles.new">Nuevo Perfil...</li>
+        <li id="menu-edit-profile"   data-i18n="profiles.edit">Editar Perfil actual...</li>
+        <hr>
+        <li id="menu-import-profile" data-i18n="profiles.import">Importar Perfil (.bdeplf)</li>
+        <li id="menu-export-profile" data-i18n="profiles.export">Exportar Perfil (.bdeplf)</li>
+        <hr>
+        <li id="menu-delete-profile" class="danger" data-i18n="profiles.delete">Eliminar Perfil actual</li>
+        <hr>
+        <div id="profile-list"></div>
+      </ul>
+    </div>
+
+    <!-- ════════════ MODALES ══════════════════════════════════ -->
+
+    <!-- Editar botón -->
+    <div id="edit-modal" class="hidden modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 data-i18n="edit_modal.title">Editar efecto</h3>
+          <button class="close-btn" data-close="edit-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <label data-i18n="edit_modal.filepath">Ruta del archivo:</label>
+          <div class="file-input-group">
+            <input type="text" id="edit-filepath" readonly>
+            <select id="edit-type" class="type-select" data-i18n-title="edit_modal.type">
+              <option value="audio"       data-i18n="edit_modal.type_audio">Audio</option>
+              <option value="time"        data-i18n="edit_modal.type_time">Locución de hora</option>
+              <option value="temperature" data-i18n="edit_modal.type_temp">Temperatura</option>
+              <option value="humidity"    data-i18n="edit_modal.type_hum">Humedad</option>
+            </select>
+            <button id="btn-select-file" data-i18n="edit_modal.select_file">...</button>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label data-i18n="edit_modal.name">Nombre:</label>
+              <input type="text" id="edit-name" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="col">
+              <label data-i18n="edit_modal.volume">Volumen:</label>
+              <input type="range" id="edit-volume" min="0" max="1" step="0.01" value="1">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label data-i18n="edit_modal.bg_color">Color de fondo:</label>
+              <input type="color" id="edit-bg-color" value="#444444">
+            </div>
+            <div class="col">
+              <label data-i18n="edit_modal.text_color">Color de texto:</label>
+              <input type="color" id="edit-text-color" value="#FFFFFF">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label data-i18n="edit_modal.shortcut">Tecla de Atajo:</label>
+              <input type="text" id="edit-shortcut" readonly class="key-input" data-i18n-placeholder="edit_modal.shortcut_placeholder">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-prelisten"    class="btn-dark"  data-i18n="edit_modal.prelisten_btn">Pre-escuchar</button>
+          <button id="btn-save-edit"    class="btn-blue"  data-i18n="edit_modal.ok">Aceptar</button>
+          <button id="btn-cancel-edit"  class="btn-dark"  data-i18n="edit_modal.cancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configurar pestaña -->
+    <div id="tab-modal" class="hidden modal-overlay">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3 id="tab-modal-title" data-i18n="tab_modal.title_new">Nueva Botonera</h3>
+          <button class="close-btn" data-close="tab-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <label data-i18n="tab_modal.name_label">Nombre de la pestaña:</label>
+          <input type="text" id="tab-name" autocomplete="off" spellcheck="false" style="margin-bottom:10px">
+          <div class="row">
+            <div class="col">
+              <label data-i18n="tab_modal.rows_label">Filas (V):</label>
+              <input type="number" id="tab-v" min="1" max="20" value="5">
+            </div>
+            <div class="col">
+              <label data-i18n="tab_modal.cols_label">Columnas (H):</label>
+              <input type="number" id="tab-h" min="1" max="20" value="5">
+            </div>
+          </div>
+          <hr class="modal-divider">
+          <div class="row" style="margin-top:12px">
+            <div class="col">
+              <label data-i18n="tab_modal.audio_out">Salida de Audio:</label>
+              <select id="tab-audio-out" class="audio-select"></select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-save-tab" class="btn-blue" data-i18n="tab_modal.save">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configurar perfil -->
+    <div id="profile-modal" class="hidden modal-overlay" style="z-index:3000">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3 id="profile-modal-title" data-i18n="profile_modal.title_new">Nuevo Perfil</h3>
+          <button class="close-btn" data-close="profile-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <label data-i18n="profile_modal.name_label">Nombre del Perfil:</label>
+          <input type="text" id="profile-name" autocomplete="off" spellcheck="false" style="margin-bottom:15px">
+          <div class="row">
+            <div class="col">
+              <label data-i18n="profile_modal.bg_color">Color Fondo:</label>
+              <input type="color" id="profile-bg-color" value="#008c3a">
+            </div>
+            <div class="col">
+              <label data-i18n="profile_modal.text_color">Color Texto:</label>
+              <input type="color" id="profile-text-color" value="#ffffff">
+            </div>
+          </div>
+          <div class="row-right" style="margin-top:5px">
+            <button id="btn-profile-default-colors" class="btn-dark btn-xs" data-i18n="profile_modal.default_btn">Predeterminado</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-save-profile" class="btn-blue" data-i18n="profile_modal.save">Guardar Perfil</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configuración global -->
+    <div id="settings-modal" class="hidden modal-overlay">
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h3 data-i18n="settings.title">⚙️ Configuración Global</h3>
+          <button class="close-btn" data-close="settings-modal">✕</button>
+        </div>
+        <div class="settings-body">
+        <div class="settings-tabs">
+          <button class="s-tab active" data-target="s-main"   data-i18n="settings.tab_main">Principal</button>
+          <button class="s-tab"        data-target="s-atajos" data-i18n="settings.tab_keys">Atajos del Teclado</button>
+          <button class="s-tab"        data-target="s-locuciones" data-i18n="settings.tab_locutions">Hora y Clima</button>
+          <button class="s-tab"        data-target="s-about"  data-i18n="settings.tab_about">Acerca de</button>
+        </div>
+        <div class="modal-body settings-content">
+          <div id="s-main" class="s-panel">
+            <div class="row" style="margin-top:0">
+              <div class="col">
+                <label data-i18n="settings.theme">Tema:</label>
+                <select id="config-theme">
+                  <option value="system" data-i18n="settings.theme_system">Predeterminado del sistema</option>
+                  <option value="dark"   data-i18n="settings.theme_dark">Oscuro</option>
+                  <option value="light"  data-i18n="settings.theme_light">Claro</option>
+                </select>
+              </div>
+              <div class="col">
+                <label data-i18n="settings.language">Idioma:</label>
+                <select id="config-language">
+                  <option value="es">Español</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+            </div>
+            <hr class="modal-divider">
+            <label data-i18n="settings.out_main">Salida Principal:</label>
+            <select id="config-out-main" class="audio-select" style="margin-bottom:15px"></select>
+            <label data-i18n="settings.out_pre">Salida Prelisten:</label>
+            <select id="config-out-pre" class="audio-select"></select>
+          </div>
+          <div id="s-atajos" class="s-panel hidden">
+            <div style="margin-bottom:20px;text-align:center">
+              <button id="btn-enter-mapping" class="btn-blue mapping-btn" data-i18n="settings.mapping_btn">✏️ Modo Mapeo</button>
+            </div>
+            <hr class="modal-divider">
+            <p class="hint" data-i18n="settings.mapping_hint">Haz clic en el cuadro y presiona la tecla que deseas asignar.</p>
+            <div class="row">
+              <div class="col">
+                <label data-i18n="settings.key_stop">Detener TODOS:</label>
+                <input type="text" id="config-key-stop" class="key-input" readonly data-i18n-placeholder="settings.key_none">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <label data-i18n="settings.key_next">Pestaña Siguiente:</label>
+                <input type="text" id="config-key-next" class="key-input" readonly data-i18n-placeholder="settings.key_none">
+              </div>
+              <div class="col">
+                <label data-i18n="settings.key_prev">Pestaña Anterior:</label>
+                <input type="text" id="config-key-prev" class="key-input" readonly data-i18n-placeholder="settings.key_none">
+              </div>
+            </div>
+            <hr class="modal-divider">
+            <div id="shortcuts-orphan-section"></div>
+          </div>
+          <!-- El contenido lo inyecta settingsLocutions.js (patrón del wizard) -->
+          <div id="s-locuciones" class="s-panel hidden"></div>
+          <div id="s-about" class="s-panel hidden" style="text-align:center;padding:20px">
+            <h2>LF Botonera de Efectos</h2>
+            <p><span data-i18n="settings.about_version_label">Versión</span> <strong id="app-version-number">—</strong></p>
+            <p class="author-text" data-i18n="settings.about_author">Desarrollado por Luis Fernando Velasquez.</p>
+            <p class="hint" data-i18n="settings.about_license">Software libre bajo licencia GPL-3.0.</p>
+            <p class="hint"><span data-i18n="settings.about_formats_label">Formatos:</span><br>
+              <span data-i18n="settings.about_formats">MP3 · WAV · FLAC · OGG · Opus · AAC · M4A · AIFF</span></p>
+            <button id="btn-donate" class="btn-blue donate-btn" data-i18n="settings.donate_btn">☕ Apoya al creador aquí</button>
+          </div>
+        </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-save-settings" class="btn-blue" data-i18n="settings.save">Guardar Configuración</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Asignar atajo (Modo Mapeo) -->
+    <div id="capture-modal" class="hidden modal-overlay" style="z-index:4000">
+      <div class="modal-content modal-xs" style="text-align:center">
+        <div class="modal-header" style="justify-content:center">
+          <h3 class="accent-text" data-i18n="mapping.modal_title">Asignar Atajo</h3>
+        </div>
+        <div class="modal-body">
+          <p id="capture-target-name" style="font-weight:bold;font-size:14px;margin-bottom:15px"></p>
+          <input type="text" id="capture-key-input" class="key-input" readonly data-i18n-placeholder="mapping.placeholder">
+        </div>
+        <div class="modal-footer" style="justify-content:center">
+          <button id="btn-save-capture"   class="btn-blue" data-i18n="mapping.save">Guardar Atajo</button>
+          <button id="btn-cancel-capture" class="btn-dark" data-i18n="mapping.cancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prelisten flotante -->
+    <div id="prelisten-player" class="hidden prelisten-panel">
+      <div class="prelisten-header">
+        <span data-i18n="prelisten.title">Escucha previa</span>
+        <button id="close-prelisten" class="close-btn">✕</button>
+      </div>
+      <div class="prelisten-body">
+        <div id="prelisten-name" class="prelisten-name" data-i18n="prelisten.default_name">AUDIO</div>
+        <div class="prelisten-progress-bg">
+          <div id="prelisten-progress" class="prelisten-progress-fill"></div>
+        </div>
+        <div class="prelisten-controls">
+          <input type="range" id="prelisten-volume" min="0" max="1" step="0.01" value="1">
+          <span id="prelisten-time">00:00 / 00:00</span>
+        </div>
+        <div class="prelisten-footer">
+          <button id="btn-stop-prelisten" class="btn-dark" data-i18n="prelisten.stop">Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/js/main.js"></script>
+  </body>
+</html>

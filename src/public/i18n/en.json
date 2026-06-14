@@ -1,0 +1,176 @@
+{
+    "app": {
+        "title": "LF Botonera",
+        "loading": "Loading audio engine..."
+    },
+    "titlebar": {
+        "minimize": "Minimize",
+        "maximize": "Maximize / Restore",
+        "close":    "Close"
+    },
+    "wizard": {
+        "welcome": "Welcome to LF Botonera!",
+        "module_question": "Do you want to enable the Dynamic Voice-overs module (Weather & Time)?",
+        "module_desc": "Useful for radio stations. If you will only use sound effects, leave it off.",
+        "link_question": "Do you have 'LF Automatizador' installed on this machine?",
+        "link_desc": "This enables the network link (WebSockets) to use it as a remote second screen.",
+        "btn_start": "Start"
+    },
+    "tabs": {
+        "default_name": "SOUNDBOARD 1",
+        "add_tooltip": "New Tab",
+        "context": {
+            "edit":   "Edit Tab...",
+            "export": "Export (.bdelf)",
+            "import": "Import (.bdelf)",
+            "delete": "Delete Tab"
+        }
+    },
+    "tab_modal": {
+        "title_new":    "New Soundboard",
+        "title_edit":   "Edit Soundboard",
+        "name_label":   "Tab name:",
+        "rows_label":   "Rows (V):",
+        "cols_label":   "Columns (H):",
+        "audio_out":    "Audio Output (This tab):",
+        "audio_global": "Use Main Output (Global)",
+        "save":         "Save"
+    },
+    "profiles": {
+        "tooltip": "Profile Options",
+        "new":     "New Profile...",
+        "edit":    "Edit current Profile...",
+        "import":  "Import Profile (.bdeplf)",
+        "export":  "Export Profile (.bdeplf)",
+        "delete":  "Delete current Profile"
+    },
+    "profile_modal": {
+        "default_name": "Profile",
+        "title_new":   "New Profile",
+        "title_edit":  "Edit Profile",
+        "name_label":  "Profile name:",
+        "bg_color":    "Background Color:",
+        "text_color":  "Text Color:",
+        "default_btn": "Default",
+        "save":        "Save Profile"
+    },
+    "settings": {
+        "title":       "Global Settings",
+        "tab_main":    "General",
+        "tab_keys":    "Keyboard Shortcuts",
+        "tab_locutions": "Time & Weather",
+        "tab_about":   "About",
+        "theme":       "Theme:",
+        "theme_system": "System default",
+        "theme_dark":   "Dark",
+        "theme_light":  "Light",
+        "language":    "Language:",
+        "out_main":    "Main Output (Soundboards):",
+        "out_pre":     "Pre-listen Output (Prelisten):",
+        "mapping_btn": "✏️ Assign shortcuts by clicking (Mapping Mode)",
+        "mapping_hint":"Click the box and press the key you want to assign.",
+        "key_stop":    "Stop ALL sounds:",
+        "key_next":    "Next Tab:",
+        "key_prev":    "Previous Tab:",
+        "key_none":    "None",
+        "save":           "Save Settings",
+        "no_orphaned":    "All button shortcuts are active.",
+        "orphaned_hint":  "Shortcuts assigned to buttons without audio file:",
+        "clear_shortcut": "Clear",
+        "about_version_label": "Version",
+        "about_author":  "Developed by Luis Fernando Velásquez.",
+        "about_license": "Free software under the GPL-3.0 license. All software derived from this project must also be free software.",
+        "about_formats_label": "Supported audio formats:",
+        "about_formats": "MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF",
+        "donate_btn":    "☕ Support the creator here"
+    },
+    "mapping": {
+        "banner": "✏️ MAPPING MODE: Click a Button or Tab to assign it a shortcut. (ESC to exit)",
+        "modal_title": "Assign Shortcut",
+        "placeholder": "Press a key...",
+        "target_button": "Button",
+        "target_tab":    "Tab",
+        "save":   "Save Shortcut",
+        "cancel": "Cancel"
+    },
+    "prelisten": {
+        "title":        "Pre-listen",
+        "stop":         "Stop",
+        "default_name": "AUDIO"
+    },
+    "context_menu": {
+        "edit":          "Edit...",
+        "clear":         "Clear",
+        "loop":          "Loop",
+        "overlap":       "Overlap",
+        "stop_on_other": "Stop others",
+        "restart":       "Restart on click",
+        "preview":       "Pre-listen"
+    },
+    "locutions": {
+        "label_time": "TIME",
+        "label_temp": "TEMPERATURE",
+        "label_hum":  "HUMIDITY"
+    },
+    "settings_loc": {
+        "module":       "Enable Dynamic Voice-overs module",
+        "module_hint":  "Spoken time and weather announcements for radio stations. Also asked in the first-run wizard.",
+        "time_block":   "Time Voice-over",
+        "time_folder":  "Time voice-over folder:",
+        "time_hint":    "Expected files: HRS00–HRS23, MIN00–MIN59 and HRS##_O (o'clock).",
+        "weather_block":"Weather (Temperature & Humidity)",
+        "city":         "City:",
+        "unit":         "Unit:",
+        "fetch":        "Test weather now",
+        "temp_folder":  "Temperature voice-over folder:",
+        "hum_folder":   "Humidity voice-over folder:",
+        "weather_hint": "Expected files: TMP000–TMP999, TMPN001+ (below zero) and HUM000–HUM100.",
+        "test":         "Test time voice-over",
+        "err_weather_disabled": "The weather block is disabled.",
+        "err_no_city":          "Type a city and save the settings.",
+        "err_city_not_found":   "City not found."
+    },
+    "edit_modal": {
+        "title":               "Edit effect (Button",
+        "filepath":            "File path:",
+        "type":                "Effect type",
+        "type_audio":          "Audio",
+        "type_time":           "Time voice-over",
+        "type_temp":           "Temperature",
+        "type_hum":            "Humidity",
+        "select_file":         "...",
+        "name":                "Name:",
+        "volume":              "Volume:",
+        "bg_color":            "Background color:",
+        "text_color":          "Text color:",
+        "shortcut":            "Shortcut Key (Click and press):",
+        "shortcut_placeholder":"None",
+        "prelisten_btn":       "Pre-listen",
+        "ok":                  "OK",
+        "cancel":              "Cancel"
+    },
+    "playback": {
+        "mode_normal":      "Normal — each button uses its own settings",
+        "mode_loop":        "Loop — all buttons repeat indefinitely",
+        "mode_overlap":     "Stack — buttons layer on top of each other",
+        "mode_restart":     "Restart — re-triggers the sound on each click",
+        "mode_stop_others": "Solo — silences all others when a button activates",
+        "stop_all":         "Stop All — silence everything immediately",
+        "label_normal":     "Normal",
+        "label_loop":       "Loop",
+        "label_overlap":    "Stack",
+        "label_restart":    "Restart",
+        "label_stop_others":"Solo",
+        "label_stop_all":   "Stop All"
+    },
+    "clock": {
+        "fmt_24h": "24-hour format",
+        "fmt_12h": "12-hour format"
+    },
+    "errors": {
+        "fatal_ipc":       "Fatal communication error with the native engine.",
+        "only_profile":    "The only profile cannot be deleted.",
+        "only_tab":        "The only tab cannot be deleted.",
+        "no_empty_button": "No empty buttons available."
+    }
+}

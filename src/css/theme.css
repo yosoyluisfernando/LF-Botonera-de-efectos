@@ -1,0 +1,44 @@
+/* 
+ * Archivo: theme.css
+ * Propósito: Define las variables CSS dinámicas para soportar Tema Claro y Oscuro.
+ * Regla: Soporte dinámico sin parpadeos.
+ */
+
+/* TEMA OSCURO (Por defecto) */
+:root,
+:root[data-theme="dark"] {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #2a2a2a;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  
+  --accent-color: #0078d4;
+  --accent-hover: #1084df;
+  
+  --border-color: #333333;
+  
+  --error-color: #f44336;
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+}
+
+/* TEMA CLARO */
+:root[data-theme="light"] {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e0e0e0;
+  
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  
+  --accent-color: #005a9e;
+  --accent-hover: #0078d4;
+  
+  --border-color: #cccccc;
+  
+  --error-color: #d32f2f;
+  --success-color: #388e3c;
+  --warning-color: #f57c00;
+}

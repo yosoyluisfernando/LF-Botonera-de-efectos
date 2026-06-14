@@ -1,0 +1,196 @@
+/*
+ * Archivo: modal.css
+ * Propósito: Estilos para ventanas modales (Editor, Configuraciones).
+ */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: var(--bg-secondary);
+  width: 400px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+}
+
+.modal-header {
+  background: var(--bg-tertiary);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  cursor: move;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: normal;
+  pointer-events: none;
+  color: var(--text-primary);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.close-btn:hover {
+  color: var(--error-color);
+}
+
+.modal-body {
+  padding: 15px;
+  font-size: 12px;
+}
+
+.modal-body label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-secondary);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  gap: 15px;
+}
+
+.col {
+  flex: 1;
+}
+
+input[type="text"], input[type="number"] {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 5px;
+}
+
+/* Slider con el color del tema (sin caja blanca en modo oscuro) */
+input[type="range"] {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  accent-color: var(--accent-color);
+}
+
+/* Desplegables con el tema activo (sin esto se ven blancos en modo oscuro) */
+select {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 5px;
+}
+
+select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+input[type="color"] {
+  width: 100%;
+  height: 30px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.file-input-group {
+  display: flex;
+}
+
+.file-input-group input {
+  flex: 1;
+  border-right: none;
+}
+
+/* Selector de tipo de efecto: cerrado muestra SOLO una flecha hacia abajo
+   (estilo profesional); al desplegarlo se leen las opciones con normalidad.
+   Sigue siendo un <select> nativo: accesible para lectores de pantalla. */
+.file-input-group .type-select {
+  width: 42px;
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  color: transparent; /* Oculta el texto de la opción en estado cerrado */
+  background-color: var(--bg-tertiary);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1.5 1.5l5.5 5.5 5.5-5.5' fill='none' stroke='%23999999' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  border: 1px solid var(--border-color);
+  border-right: none;
+  cursor: pointer;
+}
+
+.file-input-group .type-select:hover {
+  background-color: var(--accent-color);
+}
+
+.file-input-group .type-select option {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+/* Botones de la fila de archivo ("..." y ▶): tamaño cómodo de pulsar */
+.file-input-group button {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  min-width: 42px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.file-input-group button:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.modal-footer {
+  padding: 10px 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-dark {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+.btn-blue {
+  background: var(--accent-color);
+  border: 1px solid var(--border-color);
+  color: #fff;
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+.btn-blue:hover {
+  background: var(--accent-hover);
+}

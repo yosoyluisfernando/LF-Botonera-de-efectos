@@ -1,0 +1,60 @@
+/*
+ * Archivo: prelisten.css
+ * Propósito: Panel flotante de pre-escucha (posición, controles, barra de progreso).
+ */
+
+.prelisten-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+  z-index: 3000;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.prelisten-header {
+  background: var(--bg-tertiary);
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  cursor: move;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: bold;
+}
+.prelisten-body { padding: 15px; }
+.prelisten-name {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+.prelisten-progress-bg {
+  background: var(--bg-primary);
+  height: 8px;
+  width: 100%;
+  margin-bottom: 15px;
+  border-radius: 2px;
+}
+.prelisten-progress-fill {
+  background: var(--accent-color);
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+}
+.prelisten-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.prelisten-controls input[type="range"] { width: 150px; }
+.prelisten-footer { display: flex; justify-content: flex-end; }

@@ -1,0 +1,143 @@
+/*
+ * Archivo: tabs.css
+ * Propósito: Barra de pestañas, botones de acción y banner de mapeo.
+ * Maqueta: Respaldo_Electron/style.css (líneas 56-76).
+ */
+
+.btn-profile {
+  background: #008c3a;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 0 15px;
+  font-size: 14px;
+  height: 32px;
+  border-radius: 5px 5px 0 0;
+  margin-left: auto;
+  font-weight: bold;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btn-profile:hover { filter: brightness(1.2); }
+
+.btn-settings {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 0 15px;
+  font-size: 16px;
+  height: 32px;
+  border-radius: 5px 5px 0 0;
+  margin-left: 5px;
+}
+.btn-settings:hover { filter: brightness(1.2); }
+
+/* ── Modo claro: botones superiores con colores más vivos ── */
+:root[data-theme="light"] .btn-profile  { background: #00a843; }
+:root[data-theme="light"] .btn-settings { background: #0078d4; }
+:root[data-theme="light"] .btn-settings:hover { background: #1084df; filter: none; }
+:root[data-theme="light"] .btn-profile:hover  { filter: brightness(1.15); }
+
+/* Pestañas en modo claro: mejor visibilidad sobre fondo claro */
+:root[data-theme="light"] .tab {
+  background: #d5d5d5;
+  border-color: #bbb;
+}
+:root[data-theme="light"] .tab:hover {
+  background: #c8c8c8;
+  box-shadow: inset 0 0 0 999px rgba(0,90,158,0.1);
+}
+:root[data-theme="light"] .tab.active {
+  background: var(--bg-primary);
+  border-color: #999;
+}
+
+/* Pestaña con audio sonando en segundo plano (sin ser la activa) */
+.tab.tab-playing {
+  background: #2e8b4f !important;
+  color: #ffffff !important;
+  border-color: #2e8b4f !important;
+  font-weight: bold;
+  animation: pulse-tab 1.5s infinite;
+}
+:root[data-theme="light"] .tab.tab-playing {
+  background: #00a843 !important;
+  border-color: #00a843 !important;
+}
+
+@keyframes pulse-tab {
+  0%, 100% { filter: brightness(1.0); }
+  50%       { filter: brightness(1.3); }
+}
+
+/* Banner de Modo Mapeo */
+.mapping-banner {
+  position: relative;
+  background: #008c3a;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  font-weight: bold;
+  font-size: 12px;
+  border-bottom: 2px solid #00ff55;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.tabs-container:hover + .mapping-banner { opacity: 0; }
+
+body.mapping-mode {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="lime" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>') 0 24, crosshair !important;
+}
+body.mapping-mode * { cursor: inherit !important; }
+body.mapping-mode .grid-item:hover,
+body.mapping-mode .tab:hover {
+  outline: 2px dashed lime;
+  filter: brightness(1.2);
+}
+
+/* Menú de perfiles */
+.profile-menu { z-index: 4000; min-width: 200px; }
+.profile-menu #profile-list li {
+  padding: 6px 15px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.profile-menu #profile-list li:hover { background: var(--bg-tertiary); }
+
+/* Modal de Ajustes: pestañas verticales a la izquierda */
+.settings-body { display: flex; min-height: 420px; }
+.settings-tabs {
+  display: flex;
+  flex-direction: column;
+  width: 160px;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding-top: 5px;
+}
+.s-tab {
+  padding: 12px 15px;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  text-align: left;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+}
+.s-tab:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+.s-tab.active {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border-left: 3px solid var(--accent-color);
+}
+.settings-content {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 65vh;
+}
+.s-panel { display: block; }
