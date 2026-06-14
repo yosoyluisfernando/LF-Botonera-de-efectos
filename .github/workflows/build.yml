@@ -28,7 +28,7 @@ jobs:
           workspaces: src-tauri
 
       - name: Install JS dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build
         run: npm run tauri build
@@ -75,7 +75,7 @@ jobs:
           workspaces: src-tauri
 
       - name: Install JS dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build
         run: npm run tauri build
