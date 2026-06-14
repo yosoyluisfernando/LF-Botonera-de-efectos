@@ -54,5 +54,7 @@ desktop.ini
 Iniciar_Dev.bat
 SUBIR_A_GITHUB.bat
 BORRAR_RESPALDO_DE_GITHUB.bat
+PUBLICAR_RELEASE.bat
+PUBLICAR_RELEASE.ps1
 Resumen.md
 *.local

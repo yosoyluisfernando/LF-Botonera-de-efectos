@@ -1,4 +1,4 @@
-name: Build
+name: Build & Release
 
 on:
   push:
@@ -33,17 +33,13 @@ jobs:
       - name: Build
         run: npm run tauri build
 
-      - name: Upload MSI
+      - name: Upload Windows bundles
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msi
-          path: src-tauri/target/release/bundle/msi/*.msi
-
-      - name: Upload EXE (NSIS)
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-exe
-          path: src-tauri/target/release/bundle/nsis/*.exe
+          name: windows-bundles
+          path: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.exe
 
   build-linux:
     name: Linux (DEB + AppImage)
@@ -84,14 +80,37 @@ jobs:
       - name: Build
         run: npm run tauri build
 
-      - name: Upload DEB
+      - name: Upload Linux bundles
         uses: actions/upload-artifact@v4
         with:
-          name: linux-deb
-          path: src-tauri/target/release/bundle/deb/*.deb
+          name: linux-bundles
+          path: |
+            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/appimage/*.AppImage
 
-      - name: Upload AppImage
-        uses: actions/upload-artifact@v4
+  release:
+    name: Publicar Release en GitHub
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Descargar artefactos Windows
+        uses: actions/download-artifact@v4
         with:
-          name: linux-appimage
-          path: src-tauri/target/release/bundle/appimage/*.AppImage
+          name: windows-bundles
+          path: dist/
+
+      - name: Descargar artefactos Linux
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-bundles
+          path: dist/
+
+      - name: Publicar GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*
+          generate_release_notes: true
+          draft: false
+          prerelease: false
