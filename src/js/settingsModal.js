@@ -133,7 +133,7 @@ function _wireKeyInputs() {
 
 function _wireDonateButton() {
     document.getElementById('btn-donate')?.addEventListener('click', () => {
-        window.__TAURI__?.opener?.openUrl('https://www.paypal.com/paypalme/yosoyluisfernando')
+        window.__TAURI__?.opener?.openUrl('https://www.paypal.com/donate/?hosted_button_id=3JJVFFBVR4MQQ')
             .catch(console.error);
     });
 }

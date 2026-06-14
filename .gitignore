@@ -7,6 +7,9 @@
 # ── Binarios e instaladores compilados ──
 Compilados/
 
+# ── Respaldo del prototipo Electron (no forma parte del proyecto publicado) ──
+Respaldo_Electron/
+
 # ── Dependencias JS ──
 node_modules/
 

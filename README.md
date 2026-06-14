@@ -8,6 +8,14 @@ está preparada para enlazarse con él por red.
 
 Creada por **Luis Fernando Velásquez**.
 
+![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D4?logo=windows)
+![Linux](https://img.shields.io/badge/Linux-DEB%20%7C%20AppImage-FCC624?logo=linux&logoColor=black)
+![Licencia](https://img.shields.io/badge/Licencia-GPL--3.0-green)
+[![Donar](https://img.shields.io/badge/Donar-PayPal-00457C?logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=3JJVFFBVR4MQQ)
+
+> Si este proyecto te es útil, puedes apoyar su desarrollo:
+> **[☕ Donar vía PayPal](https://www.paypal.com/donate/?hosted_button_id=3JJVFFBVR4MQQ)**
+
 ## Características
 
 - **Cuadrícula de botones** configurable (filas × columnas) por pestaña,
@@ -45,6 +53,16 @@ MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF
 
 Todos decodificados por [Symphonia](https://github.com/pdeljanov/Symphonia) vía rodio.
 Ninguno requiere licencias de pago para uso en software libre GPL-3.0.
+
+## Compatibilidad
+
+| Sistema | Versión mínima | Instaladores disponibles |
+|---|---|---|
+| Windows | Windows 10 (20H2 o posterior) | `.exe` instalador · `.exe` portable · `.msi` |
+| Linux | Ubuntu 22.04 / Debian 12 o equivalente con glibc 2.31+ | `.deb` · `.AppImage` |
+
+> Windows 7, 8 y 8.1 no son compatibles: Tauri requiere WebView2 (Edge nativo),
+> cuyo soporte en esas versiones finalizó en enero de 2023.
 
 ## Compilar desde el código fuente
 
