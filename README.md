@@ -3,7 +3,7 @@
 Botonera de efectos de sonido para locutores y emisoras de radio, construida
 con **Tauri 2 + Rust** (motor de audio nativo) y una interfaz ligera en
 HTML/CSS/JavaScript puro. Es la compañera del
-[LF Automatizador](https://github.com/): comparte sus formatos de archivo y
+[LF Automatizador](https://github.com/yosoyluisfernando/lf-automatizador): comparte sus formatos de archivo y
 está preparada para enlazarse con él por red.
 
 Creada por **Luis Fernando Velásquez**.
