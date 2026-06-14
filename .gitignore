@@ -53,5 +53,6 @@ desktop.ini
 # ── Archivos locales de trabajo (no van al repositorio) ──
 Iniciar_Dev.bat
 SUBIR_A_GITHUB.bat
+BORRAR_RESPALDO_DE_GITHUB.bat
 Resumen.md
 *.local
