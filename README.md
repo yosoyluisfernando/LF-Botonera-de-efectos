@@ -173,6 +173,15 @@ Actualmente los instaladores de Windows no están firmados con certificado de de
 
 El código fuente está disponible públicamente y el proyecto se distribuye bajo licencia libre. A futuro se contempla preparar la aplicación para una distribución más formal, incluyendo Microsoft Store.
 
+## Comunidad
+
+También puedes seguir las novedades y conversar con la comunidad de LF Automatizador y LF Botonera de Efectos en Telegram:
+
+| Espacio | Enlace |
+|---|---|
+| Canal de información | [Entrar al canal](https://t.me/+XKof2wDvGVw1YTRh) |
+| Grupo de comunidad | [Entrar al grupo](https://t.me/+bXppwWvJvSg5YjNh) |
+
 ## Apoyar el desarrollo
 
 Si esta herramienta te resulta útil en radio, producción o streaming, puedes apoyar su mantenimiento:
