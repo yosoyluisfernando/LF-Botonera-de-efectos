@@ -1,7 +1,7 @@
 /**
  * Archivo: wizard.js
- * Propósito: Asistente de primer arranque. Inyecta contenido en #wizard-area
- * y guarda la configuración inicial en Rust (Regla 4).
+ * Propósito: Asistente de primer arranque.
+ * Solo recoge opciones iniciales visibles y delega el guardado a Rust.
  */
 
 import { invoke } from './api.js';
@@ -27,13 +27,6 @@ export function initWizard() {
                     </label>
                     <p class="hint" style="margin-left:24px">${t('wizard.module_desc')}</p>
                 </div>
-                <div class="wizard-option" style="margin-top:15px">
-                    <label>
-                        <input type="checkbox" id="wizard-link">
-                        <span>${t('wizard.link_question')}</span>
-                    </label>
-                    <p class="hint" style="margin-left:24px">${t('wizard.link_desc')}</p>
-                </div>
             </div>
             <div class="modal-footer" style="justify-content:center">
                 <button id="wizard-start-btn" class="btn-blue"
@@ -44,12 +37,15 @@ export function initWizard() {
         </div>
     `;
 
-    document.getElementById('wizard-start-btn').addEventListener('click', async () => {
-        const weatherEnabled = document.getElementById('wizard-weather').checked;
-        const linkEnabled    = document.getElementById('wizard-link').checked;
-        try {
-            await invoke('set_first_boot_complete', { weatherEnabled, linkEnabled });
-            window.location.reload();
-        } catch (e) { console.error('Error al guardar configuración inicial:', e); }
-    });
+    document.getElementById('wizard-start-btn').addEventListener('click', _finishWizard);
+}
+
+async function _finishWizard() {
+    const weatherEnabled = document.getElementById('wizard-weather').checked;
+    try {
+        await invoke('set_first_boot_complete', { weatherEnabled, linkEnabled: false });
+        window.location.reload();
+    } catch (e) {
+        console.error('Error al guardar configuración inicial:', e);
+    }
 }

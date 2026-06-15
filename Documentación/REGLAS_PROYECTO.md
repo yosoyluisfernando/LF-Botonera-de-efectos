@@ -1,6 +1,6 @@
 # ⚖️ REGLAS INMUTABLES DEL PROYECTO
 
-Estas reglas guían todo el desarrollo de la "LF Botonera" y su migración a Tauri. Cualquier desarrollador o agente de IA que contribuya al código **debe leer y acatar estrictamente** estas normas antes de escribir una sola línea de código. 
+Estas reglas guían todo el desarrollo de la "LF Botonera de Efectos" y su migración a Tauri. Cualquier desarrollador o agente de IA que contribuya al código **debe leer y acatar estrictamente** estas normas antes de escribir una sola línea de código. 
 
 ### 1. No Copiar y Pegar Ciegamente (Analizar y Traducir)
 Si hay dudas sobre cómo hace algo el "LF Automatizador", se investiga a fondo su código fuente, se entiende el *porqué* y el *cómo*, y **se traduce/adapta** a las necesidades específicas de la botonera. Está rotundamente prohibido copiar y pegar código ciegamente sin entenderlo y optimizarlo para este entorno.

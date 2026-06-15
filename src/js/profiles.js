@@ -7,14 +7,22 @@
 import { invoke } from './api.js';
 import { placeMenu } from './menuPosition.js';
 import { t } from './i18n.js';
+import { paintAdaptive } from './colorAdapter.js';
 
 let _config    = null;
 let _onRefresh = null;
+let _wired     = false;
 
 /** Inicializa el botón de perfiles y los listeners del menú contextual. */
 export function initProfiles(config, onRefresh) {
     _config    = config;
     _onRefresh = onRefresh;
+
+    if (_wired) {
+        updateProfiles(config, onRefresh);
+        return;
+    }
+    _wired = true;
 
     document.getElementById('btn-profiles').addEventListener('click', e => {
         e.stopPropagation();
@@ -79,8 +87,7 @@ export function updateProfiles(config, onRefresh) {
 
     const btn = document.getElementById('btn-profiles');
     btn.textContent = `👤 ${profile.name}`;
-    btn.style.backgroundColor = profile.bg   || '#008c3a';
-    btn.style.color           = profile.text || '#ffffff';
+    paintAdaptive(btn, profile.bg || '#008c3a', profile.text || '#ffffff', 'profile');
 
     _renderProfileList(config);
 }

@@ -28,13 +28,16 @@ function _teardown() {
 export function applyTheme(value) {
     localStorage.setItem('lf-botonera-theme', value);
     _teardown();
-    document.documentElement.setAttribute('data-theme', _resolve(value));
+    _setResolvedTheme(_resolve(value));
     if (value === 'system') {
-        _systemListener = e => {
-            document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-        };
+        _systemListener = e => _setResolvedTheme(e.matches ? 'dark' : 'light');
         MQ.addEventListener('change', _systemListener);
     }
+}
+
+function _setResolvedTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.dispatchEvent(new CustomEvent('lf-theme-change', { detail: { theme } }));
 }
 
 /** Inyecta el tema cacheado inmediatamente para evitar parpadeo blanco (Regla 7). */

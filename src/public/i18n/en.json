@@ -1,6 +1,6 @@
 {
     "app": {
-        "title": "LF Botonera",
+        "title": "LF Botonera de Efectos",
         "loading": "Loading audio engine..."
     },
     "titlebar": {
@@ -9,11 +9,9 @@
         "close":    "Close"
     },
     "wizard": {
-        "welcome": "Welcome to LF Botonera!",
+        "welcome": "Welcome to LF Botonera de Efectos",
         "module_question": "Do you want to enable the Dynamic Voice-overs module (Weather & Time)?",
         "module_desc": "Useful for radio stations. If you will only use sound effects, leave it off.",
-        "link_question": "Do you have 'LF Automatizador' installed on this machine?",
-        "link_desc": "This enables the network link (WebSockets) to use it as a remote second screen.",
         "btn_start": "Start"
     },
     "tabs": {
@@ -32,6 +30,8 @@
         "name_label":   "Tab name:",
         "rows_label":   "Rows (V):",
         "cols_label":   "Columns (H):",
+        "bg_color":     "Background color:",
+        "text_color":   "Text color:",
         "audio_out":    "Audio Output (This tab):",
         "audio_global": "Use Main Output (Global)",
         "save":         "Save"
@@ -166,6 +166,21 @@
     "clock": {
         "fmt_24h": "24-hour format",
         "fmt_12h": "12-hour format"
+    },
+    "updates": {
+        "title": "Update available",
+        "body": "A new version has been published.",
+        "current": "Current:",
+        "latest": "New:",
+        "check_button": "Check for updates",
+        "idle": "Automatic check every 12 hours.",
+        "checking": "Checking for updates...",
+        "available": "New version available:",
+        "up_to_date": "You already have the latest version.",
+        "skipped": "Automatic checks run every 12 hours.",
+        "error": "Could not check right now.",
+        "later": "Later",
+        "open_release": "Open download"
     },
     "errors": {
         "fatal_ipc":       "Fatal communication error with the native engine.",

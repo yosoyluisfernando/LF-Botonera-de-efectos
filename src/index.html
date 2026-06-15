@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LF Botonera</title>
+    <title>LF Botonera de Efectos</title>
     <link rel="icon" type="image/png" href="/icono_circular.png" />
     <script type="module" src="/js/theme.js"></script>
     <link rel="stylesheet" href="/css/theme.css" />
@@ -12,13 +12,17 @@
     <link rel="stylesheet" href="/css/grid.css" />
     <link rel="stylesheet" href="/css/contextMenu.css" />
     <link rel="stylesheet" href="/css/modal.css" />
+    <link rel="stylesheet" href="/css/keyInputs.css" />
     <link rel="stylesheet" href="/css/prelisten.css" />
     <link rel="stylesheet" href="/css/bottomBar.css" />
   </head>
   <body>
 
     <header data-tauri-drag-region class="titlebar">
-      <div class="titlebar-title" data-i18n="app.title">LF Botonera</div>
+      <div class="titlebar-title">
+        <img class="titlebar-logo" src="/icono_circular.png" alt="">
+        <span data-i18n="app.title">LF Botonera de Efectos</span>
+      </div>
       <div class="titlebar-controls">
         <button id="tb-min"   class="tb-btn" data-i18n-title="titlebar.minimize">─</button>
         <button id="tb-max"   class="tb-btn" data-i18n-title="titlebar.maximize">☐</button>
@@ -69,7 +73,7 @@
               <span class="pb-label" data-i18n="playback.label_loop"></span>
             </button>
             <button id="pb-btn-overlap"     class="pb-btn"        data-i18n-title="playback.mode_overlap">
-              <span class="pb-icon">⊕</span>
+              <span class="pb-icon">♫</span>
               <span class="pb-label" data-i18n="playback.label_overlap"></span>
             </button>
             <button id="pb-btn-restart"     class="pb-btn"        data-i18n-title="playback.mode_restart">
@@ -322,14 +326,19 @@
           </div>
           <!-- El contenido lo inyecta settingsLocutions.js (patrón del wizard) -->
           <div id="s-locuciones" class="s-panel hidden"></div>
-          <div id="s-about" class="s-panel hidden" style="text-align:center;padding:20px">
+          <div id="s-about" class="s-panel hidden about-panel">
             <h2>LF Botonera de Efectos</h2>
             <p><span data-i18n="settings.about_version_label">Versión</span> <strong id="app-version-number">—</strong></p>
-            <p class="author-text" data-i18n="settings.about_author">Desarrollado por Luis Fernando Velasquez.</p>
+            <p class="author-text" data-i18n="settings.about_author">Desarrollado por Luis Fernando Velásquez.</p>
             <p class="hint" data-i18n="settings.about_license">Software libre bajo licencia GPL-3.0.</p>
             <p class="hint"><span data-i18n="settings.about_formats_label">Formatos:</span><br>
               <span data-i18n="settings.about_formats">MP3 · WAV · FLAC · OGG · Opus · AAC · M4A · AIFF</span></p>
             <button id="btn-donate" class="btn-blue donate-btn" data-i18n="settings.donate_btn">☕ Apoya al creador aquí</button>
+            <div class="about-spacer"></div>
+            <div class="update-box">
+              <button id="btn-check-updates" class="btn-dark" data-i18n="updates.check_button">Buscar actualizaciones</button>
+              <p id="update-status" class="hint" data-i18n="updates.idle">Revision automatica cada 12 horas.</p>
+            </div>
           </div>
         </div>
         </div>
@@ -352,6 +361,30 @@
         <div class="modal-footer" style="justify-content:center">
           <button id="btn-save-capture"   class="btn-blue" data-i18n="mapping.save">Guardar Atajo</button>
           <button id="btn-cancel-capture" class="btn-dark" data-i18n="mapping.cancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aviso de actualizacion disponible -->
+    <div id="update-notice-modal" class="hidden modal-overlay" style="z-index:4500">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3 data-i18n="updates.title">Actualizacion disponible</h3>
+          <button class="close-btn" data-close="update-notice-modal">x</button>
+        </div>
+        <div class="modal-body">
+          <p data-i18n="updates.body">Hay una nueva version publicada.</p>
+          <p class="hint">
+            <span data-i18n="updates.current">Actual:</span>
+            <strong id="update-current-version">-</strong>
+            ·
+            <span data-i18n="updates.latest">Nueva:</span>
+            <strong id="update-latest-version">-</strong>
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-update-later" class="btn-dark" data-i18n="updates.later">Luego</button>
+          <button id="btn-update-open" class="btn-blue" data-i18n="updates.open_release">Abrir descarga</button>
         </div>
       </div>
     </div>

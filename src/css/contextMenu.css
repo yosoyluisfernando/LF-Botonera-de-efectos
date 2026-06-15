@@ -5,7 +5,7 @@
 
 .context-style {
   position: absolute;
-  background: var(--bg-tertiary);
+  background: var(--menu-bg);
   border: 1px solid var(--border-color);
   box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
   z-index: 1000;
@@ -28,7 +28,7 @@
 }
 
 .context-style li:hover {
-  background: var(--bg-secondary);
+  background: var(--menu-hover-bg);
 }
 
 .context-style hr {

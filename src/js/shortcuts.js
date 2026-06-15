@@ -8,10 +8,13 @@ import { invoke } from './api.js';
 
 let _config    = null;
 let _onRefresh = null;
+let _wired     = false;
 
 export function initShortcuts(config, onRefresh) {
     _config    = config;
     _onRefresh = onRefresh;
+    if (_wired) return;
+    _wired = true;
     document.addEventListener('keydown', _handleKey);
 }
 

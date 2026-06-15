@@ -1,0 +1,29 @@
+/*
+ * Archivo: keyInputs.css
+ * Propósito: Campo de atajo con botón visible para limpiar la combinación.
+ */
+
+.key-input-wrap {
+  display: flex;
+  width: 100%;
+}
+
+.key-input-wrap .key-input {
+  border-right: none;
+}
+
+.key-clear-btn {
+  width: 32px;
+  flex-shrink: 0;
+  background: var(--playback-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.key-clear-btn:hover {
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
+}

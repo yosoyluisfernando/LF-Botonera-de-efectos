@@ -4,19 +4,27 @@
  * y delega cambios de estado a Rust mediante IPC. Regla 4.
  */
 
-import { invoke, listen } from './api.js';
+import { invoke } from './api.js';
 import { placeMenu } from './menuPosition.js';
 import { isMapping, captureTab } from './mapping.js';
 import { t } from './i18n.js';
+import { paintAdaptive } from './colorAdapter.js';
 
 let _config     = null;
 let _onRefresh  = null;
 let _ctxPaletaId = null;
+let _wired      = false;
 
 /** Inicializa la barra de pestañas y los listeners del menú contextual de pestaña. */
 export function initTabs(config, onRefresh) {
     _config    = config;
     _onRefresh = onRefresh;
+
+    if (_wired) {
+        renderTabs(config);
+        return;
+    }
+    _wired = true;
 
     document.getElementById('btn-add-tab')
         .addEventListener('click', () => _openTabModal(null));
@@ -41,19 +49,6 @@ export function initTabs(config, onRefresh) {
 
     document.addEventListener('click', () => _hideCtxMenu());
 
-    // Pestaña en verde cuando alguno de sus botones está sonando (Fase 4).
-    // Los ids de botón llevan el prefijo de su paleta: "{paletaId}_btn_{n}".
-    listen('audio-tick', e => {
-        const ticks = e.payload ?? [];
-        document.querySelectorAll('#tabs-list .tab[data-paleta-id]').forEach(tab => {
-            const pid = tab.dataset.paletaId;
-            // Solo marcar pestañas NO visibles: el usuario ya ve la activa
-            const playing = !tab.classList.contains('active') &&
-                ticks.some(t2 => t2.id.startsWith(`${pid}_btn_`));
-            tab.classList.toggle('tab-playing', playing);
-        });
-    });
-
     renderTabs(config);
 }
 
@@ -76,8 +71,7 @@ function renderTabs(config) {
         const tab = document.createElement('div');
         tab.className = `tab${paleta.id === profile.active_paleta_id ? ' active' : ''}`;
         tab.dataset.paletaId = paleta.id;
-        // Sin colores personalizados: las pestañas siguen al tema claro/oscuro.
-        // tab_bg/tab_text se conservan en datos solo por compatibilidad LFA.
+        paintAdaptive(tab, paleta.tab_bg || '#3a3f44', paleta.tab_text || '#ffffff', 'tab');
         tab.textContent = paleta.shortcut
             ? `[${paleta.shortcut}] ${paleta.nombre}`
             : paleta.nombre;
@@ -103,6 +97,17 @@ function renderTabs(config) {
         });
 
         list.appendChild(tab);
+    });
+}
+
+/** Marca pestañas no activas cuando alguno de sus botones está sonando. */
+export function updateTabPlayback(payload) {
+    const ticks = Array.isArray(payload) ? payload : (payload?.buttons ?? []);
+    document.querySelectorAll('#tabs-list .tab[data-paleta-id]').forEach(tab => {
+        const pid = tab.dataset.paletaId;
+        const playing = !tab.classList.contains('active') &&
+            ticks.some(t2 => t2.id?.startsWith(`${pid}_btn_`));
+        tab.classList.toggle('tab-playing', playing);
     });
 }
 

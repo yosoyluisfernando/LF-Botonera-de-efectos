@@ -1,6 +1,6 @@
 {
     "app": {
-        "title": "LF Botonera",
+        "title": "LF Botonera de Efectos",
         "loading": "Cargando motor de audio..."
     },
     "titlebar": {
@@ -9,11 +9,9 @@
         "close":    "Cerrar"
     },
     "wizard": {
-        "welcome": "¡Bienvenido a la LF Botonera!",
+        "welcome": "Bienvenido a LF Botonera de Efectos",
         "module_question": "¿Deseas activar el módulo de Locuciones Dinámicas (Clima y Hora)?",
         "module_desc": "Útil para emisoras de radio. Si solo usarás efectos de sonido, déjalo desactivado.",
-        "link_question": "¿Tienes el 'LF Automatizador' instalado en esta máquina?",
-        "link_desc": "Esto activará la conexión por red (WebSockets) para usarse como segunda pantalla remota.",
         "btn_start": "Comenzar"
     },
     "tabs": {
@@ -32,6 +30,8 @@
         "name_label":   "Nombre de la pestaña:",
         "rows_label":   "Filas (V):",
         "cols_label":   "Columnas (H):",
+        "bg_color":     "Color de fondo:",
+        "text_color":   "Color de texto:",
         "audio_out":    "Salida de Audio (Esta pestaña):",
         "audio_global": "Usar Salida Principal (Global)",
         "save":         "Guardar"
@@ -152,13 +152,13 @@
     "playback": {
         "mode_normal":      "Normal (cada botón usa su propia configuración)",
         "mode_loop":        "Loop global (todos los botones repiten)",
-        "mode_overlap":     "Stack global (botones se acumulan)",
+        "mode_overlap":     "Multi global (superposicion del mismo boton multiples veces)",
         "mode_restart":     "Restart — Reiniciar al hacer clic",
         "mode_stop_others": "Solo — Silencia los demás al activar un botón",
         "stop_all":         "Stop All — Detener todos los sonidos",
         "label_normal":     "Normal",
         "label_loop":       "Loop",
-        "label_overlap":    "Stack",
+        "label_overlap":    "MULTI",
         "label_restart":    "Restart",
         "label_stop_others":"Solo",
         "label_stop_all":   "Stop All"
@@ -166,6 +166,21 @@
     "clock": {
         "fmt_24h": "Formato 24 horas",
         "fmt_12h": "Formato 12 horas"
+    },
+    "updates": {
+        "title": "Actualización disponible",
+        "body": "Hay una nueva versión publicada.",
+        "current": "Actual:",
+        "latest": "Nueva:",
+        "check_button": "Buscar actualizaciones",
+        "idle": "Revisión automática cada 12 horas.",
+        "checking": "Buscando actualizaciones...",
+        "available": "Nueva versión disponible:",
+        "up_to_date": "Ya tienes la última versión.",
+        "skipped": "La revisión automática se hace cada 12 horas.",
+        "error": "No se pudo revisar ahora.",
+        "later": "Luego",
+        "open_release": "Abrir descarga"
     },
     "errors": {
         "fatal_ipc":       "Error fatal de comunicación con el motor nativo.",

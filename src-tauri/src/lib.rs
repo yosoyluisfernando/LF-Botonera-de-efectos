@@ -12,6 +12,7 @@ pub mod cmd_keys;
 pub mod cmd_locutions;
 pub mod cmd_meta;
 pub mod cmd_playback;
+pub mod cmd_updates;
 pub mod colors;
 pub mod lfa_format;
 pub mod locutions;
@@ -19,6 +20,7 @@ pub mod weather;
 pub mod cmd_profiles;
 pub mod config;
 pub mod types;
+pub mod types_locutions;
 pub mod vu_meter;
 
 use std::sync::{Arc, Mutex};
@@ -123,6 +125,8 @@ pub fn run() {
             // Metadatos de la aplicación
             cmd_meta::get_app_version,
             cmd_meta::toggle_clock_format,
+            // Actualizaciones
+            cmd_updates::check_for_updates,
             // Modo de reproducción global (Fase 7.5)
             cmd_playback::get_playback_mode,
             cmd_playback::set_playback_mode,

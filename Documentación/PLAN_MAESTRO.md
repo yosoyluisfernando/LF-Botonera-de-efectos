@@ -1,10 +1,10 @@
-# 🗺️ PLAN MAESTRO: LF Botonera (Tauri + Rust)
+# 🗺️ PLAN MAESTRO: LF Botonera de Efectos (Tauri + Rust)
 *Última actualización: 2026-06-12 — basado en auditoría doble de Respaldo_Electron y LF Automatizador v1.0*
 
 ---
 
 ## Visión General
-Construir la LF Botonera en Tauri + Rust partiendo de la **maqueta Electron** como referencia visual y funcional, e incorporando las **mejoras que el LF Automatizador ha acumulado** sobre esa misma base. La interfaz será un "humilde control remoto" que dibuja botones y envía órdenes; todo el pensamiento y el audio viven en Rust.
+Construir LF Botonera de Efectos en Tauri + Rust partiendo de la **maqueta Electron** como referencia visual y funcional, e incorporando las **mejoras que el LF Automatizador ha acumulado** sobre esa misma base. La interfaz será un "humilde control remoto" que dibuja botones y envía órdenes; todo el pensamiento y el audio viven en Rust.
 
 ---
 

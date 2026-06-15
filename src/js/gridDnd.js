@@ -13,10 +13,13 @@ import { drawGrid } from './grid.js';
 
 let _onRefresh = null;
 let _srcIndex  = null;
+let _wired     = false;
 
 /** Inicializa ambos sistemas de arrastre. Llamar una sola vez. */
 export function initGridDnd(onRefresh) {
     _onRefresh = onRefresh;
+    if (_wired) return;
+    _wired = true;
     _wireReorder();
     _wireFileDrop();
 }

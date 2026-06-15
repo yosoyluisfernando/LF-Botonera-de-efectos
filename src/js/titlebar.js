@@ -6,10 +6,14 @@
  * que estos controles son la única forma visual de gestionar la ventana.
  */
 
+let _wired = false;
+
 /** Inicializa los tres controles de ventana. Llamar una sola vez. */
 export function initTitlebar() {
+    if (_wired) return;
     const win = window.__TAURI__?.window?.getCurrentWindow?.();
     if (!win) return; // Modo desarrollo sin backend: sin controles
+    _wired = true;
 
     document.getElementById('tb-min')
         ?.addEventListener('click', () => win.minimize());

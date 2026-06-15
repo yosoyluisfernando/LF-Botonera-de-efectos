@@ -10,18 +10,41 @@
   --bg-primary: #121212;
   --bg-secondary: #1e1e1e;
   --bg-tertiary: #2a2a2a;
+  --bottom-bg: #1e1e1e;
+  --vu-channel-bg: #121212;
+  --playback-bg: #2a2a2a;
+  --playback-hover-bg: #121212;
+  --modal-bg: #1f1f1f;
+  --modal-header-bg: #2b2b2b;
+  --modal-footer-bg: #292929;
+  --input-bg: #151515;
+  --menu-bg: #252525;
+  --menu-hover-bg: #333333;
   
   --text-primary: #ffffff;
   --text-secondary: #b3b3b3;
   
   --accent-color: #0078d4;
   --accent-hover: #1084df;
+  --accent-clock: #0088d8;
+  --action-accent: #006fbd;
+  --action-accent-hover: #0b7fd0;
   
   --border-color: #333333;
   
   --error-color: #f44336;
   --success-color: #4caf50;
+  --success-strong: #35a852;
   --warning-color: #ff9800;
+
+  --vu-green: #208c4d;
+  --vu-yellow: #c77d12;
+  --vu-red: #b93a31;
+  --danger-bg: #4a1515;
+  --danger-text: #ff6b6b;
+  --danger-border: #7c3030;
+  --playback-active-bg: #3c3c3c;
+  --playback-active-border: #505050;
 }
 
 /* TEMA CLARO */
@@ -29,16 +52,39 @@
   --bg-primary: #f5f5f5;
   --bg-secondary: #ffffff;
   --bg-tertiary: #e0e0e0;
+  --bottom-bg: #d2d2d2;
+  --vu-channel-bg: #b9b9b9;
+  --playback-bg: #cfcfcf;
+  --playback-hover-bg: #bdbdbd;
+  --modal-bg: #eeeeee;
+  --modal-header-bg: #d9d9d9;
+  --modal-footer-bg: #dcdcdc;
+  --input-bg: #f7f7f7;
+  --menu-bg: #eeeeee;
+  --menu-hover-bg: #dcdcdc;
   
   --text-primary: #111111;
   --text-secondary: #555555;
   
   --accent-color: #005a9e;
   --accent-hover: #0078d4;
+  --accent-clock: #008cff;
+  --action-accent: #0078ff;
+  --action-accent-hover: #0090ff;
   
   --border-color: #cccccc;
   
   --error-color: #d32f2f;
   --success-color: #388e3c;
+  --success-strong: #00e95a;
   --warning-color: #f57c00;
+
+  --vu-green: #00f060;
+  --vu-yellow: #ffd000;
+  --vu-red: #ff3030;
+  --danger-bg: #f5c6c6;
+  --danger-text: #b91c1c;
+  --danger-border: #ef9898;
+  --playback-active-bg: #c4c4c4;
+  --playback-active-border: #999999;
 }

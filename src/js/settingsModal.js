@@ -8,14 +8,19 @@ import { invoke } from './api.js';
 import { applyTheme } from './theme.js';
 import { t } from './i18n.js';
 import { initLocutionsPanel, loadLocutionsPanel, saveLocutions } from './settingsLocutions.js';
+import { initKeyInputs } from './keyInputs.js';
 
 let _onSaved         = null;
 let _currentOutMain  = null; // Tarjeta vigente al abrir el modal
 let _currentLanguage = null; // Idioma vigente al abrir el modal
+let _wired           = false;
 
 /** Inicializa el modal de ajustes y el sistema de captura de teclas. */
 export function initSettingsModal(onSaved) {
     _onSaved = onSaved;
+    if (_wired) return;
+    _wired = true;
+
     document.getElementById('btn-settings').addEventListener('click', _openSettings);
     document.getElementById('btn-save-settings').addEventListener('click', _saveSettings);
 
@@ -30,7 +35,7 @@ export function initSettingsModal(onSaved) {
     });
 
     initLocutionsPanel();
-    _wireKeyInputs();
+    initKeyInputs();
     _wireDonateButton();
 
     // Tema: applyTheme gestiona localStorage, listener de SO y data-theme (Regla 7)
@@ -107,27 +112,6 @@ function _fillDeviceSelect(id, devices, current) {
         opt.textContent = d;
         if (d === current) opt.selected = true;
         select.appendChild(opt);
-    });
-}
-
-/** Convierte inputs de clase .key-input en captores de teclas. */
-function _wireKeyInputs() {
-    document.querySelectorAll('.key-input').forEach(input => {
-        input.addEventListener('keydown', e => {
-            e.preventDefault();
-            if (['Escape', 'Backspace', 'Delete'].includes(e.key)) {
-                input.value = '';
-                return;
-            }
-            // Enter es reservada: cierra/guarda el modal, no se captura como tecla
-            if (['Control', 'Alt', 'Shift', 'Meta', 'Enter'].includes(e.key)) return;
-            let key = '';
-            if (e.ctrlKey)  key += 'Ctrl+';
-            if (e.altKey)   key += 'Alt+';
-            if (e.shiftKey) key += 'Shift+';
-            key += e.key.toUpperCase();
-            input.value = key;
-        });
     });
 }
 

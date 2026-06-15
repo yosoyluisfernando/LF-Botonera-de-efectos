@@ -22,7 +22,7 @@ pub fn export_tab(state: tauri::State<AppState>) -> Result<(), String> {
     drop(cfg);
     let json = serde_json::to_string_pretty(&lfa).map_err(|e| e.to_string())?;
     let path = rfd::FileDialog::new()
-        .add_filter("LF Botonera Tab", &["bdelf"])
+        .add_filter("LF Botonera de Efectos Tab", &["bdelf"])
         .set_file_name(&format!("{}.bdelf", nombre))
         .save_file().ok_or("Operación cancelada.")?;
     std::fs::write(path, json).map_err(|e| e.to_string())
@@ -32,7 +32,7 @@ pub fn export_tab(state: tauri::State<AppState>) -> Result<(), String> {
 #[tauri::command]
 pub fn import_tab(state: tauri::State<AppState>) -> Result<GridState, String> {
     let pick = rfd::FileDialog::new()
-        .add_filter("LF Botonera Tab", &["bdelf"])
+        .add_filter("LF Botonera de Efectos Tab", &["bdelf"])
         .pick_file().ok_or("Operación cancelada.")?;
     let json    = std::fs::read_to_string(pick).map_err(|e| e.to_string())?;
     let lfa: LfaPaleta = serde_json::from_str(&json).map_err(|e| e.to_string())?;
@@ -59,7 +59,7 @@ pub fn export_profile(state: tauri::State<AppState>) -> Result<(), String> {
     drop(cfg);
     let json = serde_json::to_string_pretty(&lfa).map_err(|e| e.to_string())?;
     let path = rfd::FileDialog::new()
-        .add_filter("LF Botonera Profile", &["bdeplf"])
+        .add_filter("LF Botonera de Efectos Profile", &["bdeplf"])
         .set_file_name(&format!("{}.bdeplf", nombre))
         .save_file().ok_or("Operación cancelada.")?;
     std::fs::write(path, json).map_err(|e| e.to_string())
@@ -69,7 +69,7 @@ pub fn export_profile(state: tauri::State<AppState>) -> Result<(), String> {
 #[tauri::command]
 pub fn import_profile(state: tauri::State<AppState>) -> Result<(), String> {
     let pick = rfd::FileDialog::new()
-        .add_filter("LF Botonera Profile", &["bdeplf"])
+        .add_filter("LF Botonera de Efectos Profile", &["bdeplf"])
         .pick_file().ok_or("Operación cancelada.")?;
     let json = std::fs::read_to_string(pick).map_err(|e| e.to_string())?;
     let lfa  = _parse_profile(&json)?;

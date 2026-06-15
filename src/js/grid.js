@@ -9,6 +9,7 @@ import { invoke } from './api.js';
 import { showContextMenu } from './contextMenu.js';
 import { setPlaybackButtons } from './gridPlayback.js';
 import { isMapping, captureButton } from './mapping.js';
+import { paintAdaptive } from './colorAdapter.js';
 
 let _onRefresh = null;
 
@@ -52,8 +53,7 @@ function _makeCell(index, btnData) {
 
     if (btnData) {
         btn.dataset.id            = btnData.id;
-        btn.style.backgroundColor = btnData.color_bg;
-        btn.style.color           = btnData.color_text;
+        paintAdaptive(btn, btnData.color_bg, btnData.color_text, 'button');
         const shortcutHtml = btnData.shortcut
             ? `<span class="shortcut-badge">${btnData.shortcut}</span>`
             : '';

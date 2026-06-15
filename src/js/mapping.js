@@ -8,15 +8,19 @@
 
 import { invoke } from './api.js';
 import { t } from './i18n.js';
+import { initKeyInputs } from './keyInputs.js';
 
 let _onRefresh = null;
 let _target    = null; // ButtonData o PaletaData según _type
 let _type      = '';   // 'button' | 'tab'
 let _profileId = '';
+let _wired     = false;
 
 /** Inicializa el botón de entrada y el modal de captura. Llamar una vez. */
 export function initMapping(onRefresh) {
     _onRefresh = onRefresh;
+    if (_wired) return;
+    _wired = true;
 
     document.getElementById('btn-enter-mapping').addEventListener('click', () => {
         document.getElementById('settings-modal').classList.add('hidden');
@@ -58,6 +62,7 @@ function _openCapture(label, current) {
     document.getElementById('capture-target-name').textContent = label;
     const input = document.getElementById('capture-key-input');
     input.value = current || '';
+    initKeyInputs(document.getElementById('capture-modal'));
     document.getElementById('capture-modal').classList.remove('hidden');
     input.focus();
 }

@@ -5,7 +5,7 @@
  * el evento "audio-tick" de audio_monitor.rs. Solo pinta (Regla 4).
  */
 
-import { invoke, listen } from './api.js';
+import { invoke } from './api.js';
 
 const PRELISTEN_ID = '__prelisten__';
 
@@ -55,10 +55,12 @@ function _wireOnce() {
         invoke('set_audio_volume', { id: PRELISTEN_ID, volume: parseFloat(e.target.value) });
     });
 
-    listen('audio-tick', e => _paint(e.payload ?? []));
+    window.addEventListener('lf-audio-tick', e => updatePrelistenTick(e.detail));
 }
 
-function _paint(ticks) {
+/** Recibe audio-tick desde startup.js y actualiza solo si el panel está activo. */
+export function updatePrelistenTick(payload) {
+    const ticks = Array.isArray(payload) ? payload : (payload?.buttons ?? []);
     const tick = ticks.find(t => t.id === PRELISTEN_ID);
 
     if (!tick) {

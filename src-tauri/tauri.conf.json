@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "LF Botonera",
+  "productName": "LF Botonera de Efectos",
   "version": "1.0.0",
   "identifier": "com.luis-fernando.botonera",
   "build": {
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "LF Botonera",
+        "title": "LF Botonera de Efectos",
         "width": 1000,
         "height": 700,
         "decorations": false,

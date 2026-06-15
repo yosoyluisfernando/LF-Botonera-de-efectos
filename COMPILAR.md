@@ -1,4 +1,4 @@
-# Compilar LF Botonera desde el código fuente
+# Compilar LF Botonera de Efectos desde el código fuente
 
 ## Requisitos previos (una sola vez)
 

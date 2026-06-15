@@ -23,6 +23,8 @@ pub struct AudioTickPayload {
     pub buttons:           Vec<TickInfo>,
     /// Tiempo restante en segundos para el reloj de la barra inferior.
     pub display_remaining: f64,
+    /// Duración original del audio que gobierna el contador de la barra inferior.
+    pub display_duration:  f64,
     pub master_level_l:    f32,
     pub master_level_r:    f32,
 }
@@ -37,7 +39,7 @@ pub fn start(
     thread::spawn(move || {
         let mut was_empty = false;
         loop {
-            let (buttons, display_remaining) = {
+            let (buttons, display_remaining, display_duration) = {
                 let mut map = button_states.lock().unwrap();
                 // Purgar botones terminados
                 map.retain(|_, v| { v.retain(|s| !s.is_done()); !v.is_empty() });
@@ -47,8 +49,8 @@ pub fn start(
                         id: id.clone(), pos: s.position(),
                     }))
                     .collect();
-                let rem = compute_display_remaining(&map, &last_pressed);
-                (buttons, rem)
+                let (rem, dur) = compute_display_time(&map, &last_pressed);
+                (buttons, rem, dur)
             };
 
             let is_empty = buttons.is_empty();
@@ -64,7 +66,8 @@ pub fn start(
             };
             if !is_empty || !was_empty {
                 let _ = app.emit("audio-tick", AudioTickPayload {
-                    buttons, display_remaining, master_level_l: ml, master_level_r: mr,
+                    buttons, display_remaining, display_duration,
+                    master_level_l: ml, master_level_r: mr,
                 });
             }
             was_empty = is_empty;
@@ -75,24 +78,25 @@ pub fn start(
 
 /// Calcula el tiempo restante a mostrar en el reloj de la barra inferior.
 /// Regla: muestra el del último botón presionado; si éste terminó, el de mayor tiempo restante.
-fn compute_display_remaining(
+fn compute_display_time(
     map:          &ButtonStateMap,
     last_pressed: &Mutex<Option<LastPressedInfo>>,
-) -> f64 {
+) -> (f64, f64) {
     let lp = last_pressed.lock().unwrap();
-    let Some(info) = lp.as_ref() else { return 0.0; };
+    let Some(info) = lp.as_ref() else { return (0.0, 0.0); };
 
     // Si el último botón presionado aún está sonando, retornar su tiempo restante
     if let Some(states) = map.get(&info.id) {
         if let Some(s) = states.first() {
             let rem = s.remaining();
-            if rem > 0.0 { return rem; }
+            if rem > 0.0 { return (rem, s.duration); }
         }
     }
 
     // Último presionado terminó: retornar el mayor tiempo restante de los activos
     map.values()
         .filter_map(|states| states.first())
-        .map(|s| s.remaining())
-        .fold(0.0f64, f64::max)
+        .map(|s| (s.remaining(), s.duration))
+        .max_by(|a, b| a.0.total_cmp(&b.0))
+        .unwrap_or((0.0, 0.0))
 }

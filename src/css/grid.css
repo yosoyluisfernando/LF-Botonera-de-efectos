@@ -48,7 +48,7 @@
 }
 
 .btn-add-tab {
-  background: var(--accent-color);
+  background: var(--action-accent);
   color: white;
   border: none;
   cursor: pointer;
@@ -61,7 +61,7 @@
 }
 
 .btn-add-tab:hover {
-  background: var(--accent-hover);
+  background: var(--action-accent-hover);
 }
 
 /* --- CUADRÍCULA (GRID) --- */
@@ -100,35 +100,8 @@
 }
 
 .grid-item.playing {
-  background-color: var(--success-color) !important;
+  background-color: var(--success-strong) !important;
   color: #000000 !important;
-}
-
-/* Botón "+" de nueva pestaña: más vivo en modo claro */
-:root[data-theme="light"] .btn-add-tab { background: #0078d4; }
-:root[data-theme="light"] .btn-add-tab:hover { background: #1084df; }
-
-/* ── Ajustes de MODO CLARO (sin tocar los colores guardados) ──
-   Los colores se eligen pensando en fondo oscuro: en claro se les
-   sube la saturación para que no se vean lavados. */
-:root[data-theme="light"] .grid-item[data-id] {
-  filter: saturate(1.4);
-}
-
-/* Hover en claro: tinte azul translúcido MEZCLADO sobre el color del botón
-   (la sombra interior pinta encima del fondo y debajo del texto) */
-:root[data-theme="light"] .grid-item:hover {
-  filter: saturate(1.4);
-  box-shadow: inset 0 0 0 999px rgba(0, 90, 158, 0.22);
-}
-
-:root[data-theme="light"] .grid-item:active {
-  filter: saturate(1.4) brightness(0.85);
-}
-
-/* Verde de reproducción más intenso en claro */
-:root[data-theme="light"] .grid-item.playing {
-  background-color: #00c853 !important;
 }
 
 /* Etiquetas del botón */
@@ -139,7 +112,7 @@
   font-size: 10px;
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-  color: #fff;
+  color: currentColor;
 }
 
 /* Tiempo restante: centrado y legible, justo encima de la barra */
@@ -152,7 +125,7 @@
   font-size: 13px;
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
-  color: #fff;
+  color: currentColor;
 }
 
 .grid-item.playing .timer {

@@ -10,6 +10,7 @@ import { invoke } from './api.js';
 const MODES = ['normal', 'loop', 'overlap', 'restart', 'stop_others'];
 
 let _currentMode = 'normal';
+let _wired       = false;
 
 /** Devuelve el modo activo actual (consulta local; Rust es fuente de verdad en disco). */
 export function getCurrentMode() { return _currentMode; }
@@ -19,6 +20,9 @@ export function initPlaybackModes() {
     invoke('get_playback_mode')
         .then(mode => { _currentMode = mode || 'normal'; _updateUI(); })
         .catch(console.error);
+
+    if (_wired) return;
+    _wired = true;
 
     // Botones de modo (radio exclusivo)
     MODES.forEach(mode => {

@@ -24,16 +24,23 @@ export async function openTabModal(config, paleta, onRefresh) {
     const rowsEl  = document.getElementById('tab-v');
     const colsEl  = document.getElementById('tab-h');
     const audioEl = document.getElementById('tab-audio-out');
+    _ensureColorControls();
+    const bgEl    = document.getElementById('tab-bg-color');
+    const textEl  = document.getElementById('tab-text-color');
 
     if (isEdit) {
         nameEl.value  = paleta.nombre;
         rowsEl.value  = paleta.rows;
         colsEl.value  = paleta.cols;
+        bgEl.value    = paleta.tab_bg || '#3a3f44';
+        textEl.value  = paleta.tab_text || '#ffffff';
     } else {
         const count   = _tabCount(config);
         nameEl.value  = `${t('tabs.default_name')} ${count + 1}`;
         rowsEl.value  = 5;
         colsEl.value  = 5;
+        bgEl.value    = '#3a3f44';
+        textEl.value  = '#ffffff';
     }
 
     await _fillAudioSelect(audioEl, isEdit ? paleta.audio_out : '');
@@ -48,6 +55,8 @@ export async function openTabModal(config, paleta, onRefresh) {
             rows:      parseInt(rowsEl.value) || 5,
             cols:      parseInt(colsEl.value) || 5,
             audioOut:  audioEl.value,
+            tabBg:     bgEl.value,
+            tabText:   textEl.value,
         };
         try {
             if (isEdit) {
@@ -72,6 +81,24 @@ async function _fillAudioSelect(select, current) {
         select.appendChild(opt);
     });
     if (!current) select.value = '';
+}
+
+function _ensureColorControls() {
+    if (document.getElementById('tab-bg-color')) return;
+    const audioRow = document.getElementById('tab-audio-out')?.closest('.row');
+    if (!audioRow) return;
+    const row = document.createElement('div');
+    row.className = 'row tab-color-row';
+    row.innerHTML = `
+        <div class="col">
+          <label data-i18n="tab_modal.bg_color">${t('tab_modal.bg_color')}</label>
+          <input type="color" id="tab-bg-color" value="#3a3f44">
+        </div>
+        <div class="col">
+          <label data-i18n="tab_modal.text_color">${t('tab_modal.text_color')}</label>
+          <input type="color" id="tab-text-color" value="#ffffff">
+        </div>`;
+    audioRow.parentNode.insertBefore(row, audioRow);
 }
 
 function _tabCount(config) {

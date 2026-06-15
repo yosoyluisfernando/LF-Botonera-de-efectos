@@ -39,6 +39,9 @@ body {
 }
 
 .titlebar-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
@@ -46,6 +49,13 @@ body {
 }
 
 /* Controles de ventana (minimizar / maximizar / cerrar) */
+.titlebar-logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .titlebar-controls {
   display: flex;
   height: 100%;
@@ -112,7 +122,7 @@ body {
 .accent-text  { color: var(--accent-color); }
 .author-text  { color: var(--accent-color); font-weight: bold; margin-top: 20px; }
 .hint         { color: var(--text-secondary); font-size: 11px; margin-top: 0; }
-.danger       { color: #ff5555; }
+.danger       { color: var(--danger-text); }
 .modal-divider { border-color: var(--border-color); margin: 15px 0; }
 .row-right    { text-align: right; margin-top: 5px; }
 .btn-xs       { font-size: 10px; padding: 3px 8px; }
@@ -120,8 +130,8 @@ body {
 .modal-lg     { width: 720px !important; max-width: 95vw; }
 .modal-xs     { width: 300px !important; }
 .donate-btn   { margin-top: 20px; font-weight: bold; border-radius: 5px; padding: 10px 20px; font-size: 14px; }
-.mapping-btn  { width: 100%; padding: 10px; font-size: 14px; background: #008c3a; border-color: #00ff55; }
+.mapping-btn  { width: 100%; padding: 10px; font-size: 14px; background: var(--success-strong); border-color: var(--accent-hover); }
 .orphan-row   { display:flex; align-items:center; justify-content:space-between; padding:4px 6px; font-size:11px; border-bottom:1px solid var(--border-color); }
-.btn-xs-danger { font-size:10px; padding:2px 8px; background:#4a1515; color:#ff6b6b; border:1px solid #7c3030; border-radius:3px; cursor:pointer; }
-.btn-xs-danger:hover { background:#c0392b; color:#fff; border-color:#c0392b; }
+.btn-xs-danger { font-size:10px; padding:2px 8px; background:var(--danger-bg); color:var(--danger-text); border:1px solid var(--danger-border); border-radius:3px; cursor:pointer; }
+.btn-xs-danger:hover { background:var(--error-color); color:#fff; border-color:var(--error-color); }
 .active-profile { font-weight: bold; color: var(--accent-color); }

@@ -9,7 +9,7 @@
     gap: 10px;
     height: 86px;
     padding: 6px 10px;
-    background: var(--bg-secondary);
+    background: var(--bottom-bg);
     border: 1px solid var(--border-color);
     border-top: none;
     flex-shrink: 0;
@@ -35,9 +35,10 @@
     font-family: 'Courier New', Courier, monospace;
     font-size: 28px;
     font-weight: bold;
-    color: #00a8ff;
+    color: var(--accent-clock);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.55);
     line-height: 1;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     white-space: nowrap;
     /* Ancho igual al texto más largo posible (HH:MM:SS = 8 chars monospace) */
     display: block;
@@ -50,7 +51,7 @@
     display: none;
     position: fixed;
     z-index: 9999;
-    background: var(--bg-secondary);
+    background: var(--menu-bg);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 4px 0;
@@ -84,18 +85,19 @@
 }
 
 .clock-fmt-item.active::before {
-    background: #00a8ff;
-    border-color: #00a8ff;
+    background: var(--accent-clock);
+    border-color: var(--accent-clock);
 }
 
 .clock-fmt-item:hover {
-    background: var(--bg-primary);
+    background: var(--menu-hover-bg);
     color: var(--text-primary);
 }
 
 .clock-date {
     font-size: 10px;
     color: var(--text-secondary);
+    font-weight: 700;
     margin-top: 4px;
     white-space: nowrap;
     overflow: hidden;
@@ -123,7 +125,7 @@
 /* Fondo del canal visible cuando el nivel es 0 (sin señal). */
 .vu-channel {
     height: 11px;
-    background: var(--bg-primary);
+    background: var(--vu-channel-bg);
     border-radius: 2px;
     overflow: hidden;
     border: 1px solid var(--border-color);
@@ -136,9 +138,9 @@
     height: 100%;
     width: 100%;
     background: linear-gradient(to right,
-        #27ae60 0%,   #27ae60 79.5%,
-        #f39c12 79.5%,#f39c12 89.7%,
-        #e74c3c 89.7%,#e74c3c 100%);
+        var(--vu-green) 0%,   var(--vu-green) 79.5%,
+        var(--vu-yellow) 79.5%,var(--vu-yellow) 89.7%,
+        var(--vu-red) 89.7%,var(--vu-red) 100%);
     clip-path: inset(0 100% 0 0);
     will-change: clip-path;
 }
@@ -156,7 +158,7 @@
     align-items: center;
     justify-content: center;
     gap: 3px;
-    background: var(--bg-tertiary);
+    background: var(--playback-bg);
     color: var(--text-secondary);
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -182,22 +184,22 @@
 }
 
 .pb-btn:hover {
-    background: var(--bg-primary);
+    background: var(--playback-hover-bg);
     color: var(--text-primary);
     border-color: var(--text-secondary);
 }
 
 .pb-btn.active {
-    background: #3c3c3c;
+    background: var(--playback-active-bg);
     color: var(--text-primary);
-    border-color: #505050;
+    border-color: var(--playback-active-border);
     box-shadow: none;
 }
 
 .pb-btn-stop {
-    background: #4a1515;
-    color: #ff6b6b;
-    border-color: #7c3030;
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border-color: var(--danger-border);
     margin-left: auto;
     min-width: 60px;
 }
@@ -206,46 +208,4 @@
     background: #c0392b;
     color: #ffffff;
     border-color: #c0392b;
-}
-
-/* ── Modo claro ── */
-:root[data-theme="light"] #bottom-bar {
-    background: #e8e8e8;
-    border-color: #bbb;
-}
-
-:root[data-theme="light"] .vu-channel {
-    background: #cccccc;
-    border-color: #bbb;
-}
-
-:root[data-theme="light"] .pb-btn {
-    background: #d8d8d8;
-    border-color: #b0b0b0;
-    color: #444444;
-}
-
-:root[data-theme="light"] .pb-btn:hover {
-    background: #c4c4c4;
-    color: #111111;
-    border-color: #888888;
-}
-
-:root[data-theme="light"] .pb-btn.active {
-    background: #c4c4c4;
-    color: var(--text-primary);
-    border-color: #999999;
-    box-shadow: none;
-}
-
-:root[data-theme="light"] .pb-btn-stop {
-    background: #f5c6c6;
-    color: #b91c1c;
-    border-color: #ef9898;
-}
-
-:root[data-theme="light"] .pb-btn-stop:hover {
-    background: #ef4444;
-    color: #ffffff;
-    border-color: #dc2626;
 }
