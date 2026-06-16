@@ -91,6 +91,11 @@
   color: var(--text-primary);
 }
 
+body[data-button-text-size="small"] .grid-item { font-size: 12px; }
+body[data-button-text-size="normal"] .grid-item { font-size: 14px; }
+body[data-button-text-size="large"] .grid-item { font-size: 17px; }
+body[data-button-text-size="xlarge"] .grid-item { font-size: 20px; }
+
 .grid-item:hover {
   filter: brightness(1.15);
 }
@@ -105,6 +110,24 @@
 }
 
 /* Etiquetas del botón */
+.grid-item .label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 86%;
+  flex-wrap: wrap;
+  line-height: 1.12;
+}
+
+.type-icon {
+  display: inline-flex;
+  font-size: 16px;
+  line-height: 1;
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
 .grid-item .index {
   position: absolute;
   top: 5px;

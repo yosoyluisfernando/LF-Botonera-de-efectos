@@ -14,7 +14,7 @@ import { initProfiles, updateProfiles } from './profiles.js';
 import { initShortcuts, updateShortcuts } from './shortcuts.js';
 import { initGrid, drawGrid } from './grid.js';
 import { initGridDnd } from './gridDnd.js';
-import { initBottomBar } from './bottomBar.js';
+import { initBottomBar, refreshBottomBar } from './bottomBar.js';
 import { initSettingsModal } from './settingsModal.js';
 import { initMapping } from './mapping.js';
 import { paintAudioTick } from './gridPlayback.js';
@@ -22,6 +22,7 @@ import { updateClockTick, updateAudioTick } from './clockWidget.js';
 import { updateVuMeter } from './vuMeter.js';
 import { updateWeatherPanel } from './settingsLocutions.js';
 import { initUpdateNotifier } from './updateNotifier.js';
+import { initColorPicker } from './colorPalette.js';
 
 let _closeWired = false;
 let _runtimeWired = false;
@@ -31,9 +32,11 @@ export async function startApp() {
     try {
         await waitForTauri();
         initTitlebar();
+        initColorPicker();
 
         const config = await _loadConfig();
         applyTheme(config.theme || 'dark');
+        _applyButtonTextSize(config.button_text_size);
         await loadLanguage(config.language || 'es');
         _wireCloseButtons();
 
@@ -70,6 +73,8 @@ async function _refresh() {
     updateTabs(config, _refresh);
     updateProfiles(config, _refresh);
     updateShortcuts(config, _refresh);
+    _applyButtonTextSize(config.button_text_size);
+    refreshBottomBar();
     drawGrid(grid, _refresh);
 }
 
@@ -92,6 +97,7 @@ async function _wireRuntimeEvents() {
         listen('clock-tick', e => updateClockTick(e.payload ?? {})),
         listen('audio-tick', e => _paintAudio(e.payload ?? {})),
         listen('weather-updated', e => updateWeatherPanel(e.payload)),
+        listen('global-shortcut-refresh', () => _refresh()),
     ]);
     _runtimeWired = true;
 }
@@ -102,6 +108,10 @@ function _paintAudio(payload) {
     updateVuMeter(payload);
     updateTabPlayback(payload);
     window.dispatchEvent(new CustomEvent('lf-audio-tick', { detail: payload }));
+}
+
+function _applyButtonTextSize(size = 'normal') {
+    document.body.dataset.buttonTextSize = size || 'normal';
 }
 
 function _wireCloseButtons() {

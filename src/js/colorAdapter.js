@@ -26,7 +26,7 @@ export function repaintAdaptiveColors(root = document) {
 
 function _paint(el) {
     const bg = adaptColor(el.dataset.baseBg, el.dataset.colorRole);
-    const text = readableText(bg, el.dataset.baseText);
+    const text = readableText(bg, el.dataset.baseText, el.dataset.colorRole);
     el.style.backgroundColor = bg;
     el.style.color = text;
 }
@@ -49,13 +49,27 @@ function adaptColor(hex, role) {
     return rgbToHex(hslToRgb(hsl));
 }
 
-function readableText(bgHex, preferredHex) {
+function readableText(bgHex, preferredHex, role) {
     const bg = hexToRgb(bgHex);
     const preferred = hexToRgb(preferredHex);
+    if ((document.documentElement.dataset.theme || 'dark') === 'dark' &&
+        (role === 'button' || role === 'tab')) {
+        return '#ffffff';
+    }
+    if (isExplicitTextColor(preferredHex)) return normalizeTextColor(preferredHex);
     if (bg && preferred && contrast(bg, preferred) >= 4.5) return preferredHex;
     return contrast(bg, { r: 0, g: 0, b: 0 }) > contrast(bg, { r: 255, g: 255, b: 255 })
         ? '#111111'
         : '#ffffff';
+}
+
+function isExplicitTextColor(hex) {
+    const value = String(hex || '').toUpperCase();
+    return value === '#FFFFFF' || value === '#111111';
+}
+
+function normalizeTextColor(hex) {
+    return String(hex).toUpperCase() === '#111111' ? '#111111' : '#ffffff';
 }
 
 function hexToRgb(hex) {

@@ -5,9 +5,16 @@
  */
 
 import { initClockWidget }   from './clockWidget.js';
-import { initPlaybackModes } from './playbackModes.js';
+import { initMasterVolume, refreshMasterVolume } from './masterVolume.js';
+import { initPlaybackModes, refreshPlaybackModes } from './playbackModes.js';
 
 export function initBottomBar() {
     initClockWidget();
     initPlaybackModes();
+    initMasterVolume();
+}
+
+export function refreshBottomBar() {
+    refreshPlaybackModes();
+    refreshMasterVolume();
 }

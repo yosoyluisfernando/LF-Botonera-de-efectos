@@ -134,8 +134,8 @@ function _appendCity(list, r) {
 function _wireBrowse(btnId, inputId) {
     document.getElementById(btnId).addEventListener('click', async () => {
         try {
-            const folder = await invoke('pick_folder');
-            if (folder) document.getElementById(inputId).value = folder;
+            const folder = await invoke('pick_named_folder');
+            if (folder?.path) document.getElementById(inputId).value = folder.path;
         } catch (_) { /* Usuario canceló. */ }
     });
 }

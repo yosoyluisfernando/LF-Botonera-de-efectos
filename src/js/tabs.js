@@ -9,6 +9,7 @@ import { placeMenu } from './menuPosition.js';
 import { isMapping, captureTab } from './mapping.js';
 import { t } from './i18n.js';
 import { paintAdaptive } from './colorAdapter.js';
+import { confirmDelete } from './deleteConfirm.js';
 
 let _config     = null;
 let _onRefresh  = null;
@@ -117,18 +118,31 @@ function _hideCtxMenu() {
 
 async function _deleteTab(paletaId) {
     if (!paletaId || !_config) return;
+    const action = await confirmDelete('tab');
+    if (action === 'cancel') return;
     try {
+        if (action === 'save_delete') {
+            await invoke('export_tab_by_id', {
+                profileId: _config.active_profile_id,
+                paletaId,
+            });
+        }
         await invoke('delete_paleta', {
             profileId: _config.active_profile_id,
             paletaId,
         });
         _onRefresh?.();
     } catch (e) {
+        if (_isCanceled(e)) return;
         // Rust devuelve códigos de error; aquí se traducen y muestran
         const key = `errors.${e}`;
         const msg = t(key);
         alert(msg === key ? e : msg);
     }
+}
+
+function _isCanceled(e) {
+    return String(e).toLowerCase().includes('cancel');
 }
 
 function _openTabModal(paletaId) {

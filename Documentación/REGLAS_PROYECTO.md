@@ -30,9 +30,9 @@ Este proyecto es Software Libre. Todo archivo, función importante, evento de re
 ### 9. Limpieza Estricta del Espacio de Trabajo (Cero Basura)
 Todo archivo temporal generado para compilar el motor Rust, logs de pruebas o compilaciones antiguas debe ser **eliminado** inmediatamente después de que deje de ser útil. Si se genera una nueva compilación de prueba, la vieja se borra. El espacio de trabajo debe permanecer inmaculado en todo momento.
 
-### 10. La Maqueta Antigua es la Ley Visual
-El código en `Respaldo_Electron` no está ahí de adorno; es la maqueta funcional que rige la experiencia de usuario. No se debe "inventar" UX ni comportamientos nuevos. Todo menú, modal o interacción debe lucir y funcionar igual que en el respaldo, pero traducido a las nuevas reglas (Tema dinámico, Modularidad estricta y Delegación a Rust).
+### 10. Rust Primero, JavaScript Solo Cuando Sea Necesario
+Todo comportamiento que pueda resolverse en Rust debe enviarse al backend de Tauri. JavaScript debe limitarse a dibujar la interfaz, capturar interacciones del usuario y llamar comandos IPC; solo puede contener lógica propia cuando sea estrictamente necesario para la experiencia visual inmediata o para integrar APIs del navegador que no existan en Rust.
 
 ---
 **⚠️ CLÁUSULA DE LECTURA FORZADA PARA IA:**
-Como Inteligencia Artificial, en CADA NUEVO TURNO antes de hacer una sola modificación al código, tengo la **obligación inquebrantable** de recordar conscientemente estas 10 reglas. Específicamente, debo preguntarme: *"¿Estoy poniendo lógica pesada en el Frontend?"* y *"¿Estoy ignorando cómo lo hacía la maqueta antigua?"*. Si la respuesta a alguna es sí, debo detener el proceso inmediatamente y solucionarlo desde la raíz.
+Como Inteligencia Artificial, en CADA NUEVO TURNO antes de hacer una sola modificación al código, tengo la **obligación inquebrantable** de recordar conscientemente estas 10 reglas. Específicamente, debo preguntarme: *"¿Estoy poniendo lógica pesada en el Frontend?"* y *"¿Esto podría vivir de forma más segura en Rust?"*. Si la respuesta exige mover lógica al backend, debo detener el proceso inmediatamente y solucionarlo desde la raíz.

@@ -63,6 +63,19 @@
   color: var(--text-secondary);
 }
 
+.checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 4px;
+  color: var(--text-primary);
+}
+
+.checkbox-line input {
+  width: auto;
+  accent-color: var(--accent-color);
+}
+
 .row {
   display: flex;
   justify-content: space-between;
@@ -113,40 +126,19 @@ input[type="color"] {
   cursor: pointer;
 }
 
+
 .file-input-group {
   display: flex;
+}
+
+.edit-type-select {
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .file-input-group input {
   flex: 1;
   border-right: none;
-}
-
-/* Selector de tipo de efecto: cerrado muestra SOLO una flecha hacia abajo
-   (estilo profesional); al desplegarlo se leen las opciones con normalidad.
-   Sigue siendo un <select> nativo: accesible para lectores de pantalla. */
-.file-input-group .type-select {
-  width: 42px;
-  flex-shrink: 0;
-  appearance: none;
-  -webkit-appearance: none;
-  color: transparent; /* Oculta el texto de la opción en estado cerrado */
-  background-color: var(--bg-tertiary);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1.5 1.5l5.5 5.5 5.5-5.5' fill='none' stroke='%23999999' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-repeat: no-repeat;
-  background-position: center;
-  border: 1px solid var(--border-color);
-  border-right: none;
-  cursor: pointer;
-}
-
-.file-input-group .type-select:hover {
-  background-color: var(--accent-color);
-}
-
-.file-input-group .type-select option {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
 }
 
 /* Botones de la fila de archivo ("..." y ▶): tamaño cómodo de pulsar */
@@ -193,4 +185,15 @@ input[type="color"] {
 
 .btn-blue:hover {
   background: var(--accent-hover);
+}
+
+.confirm-text {
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.danger-action {
+  background: var(--error-color);
 }

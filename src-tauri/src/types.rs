@@ -1,6 +1,5 @@
 /// Módulo: types.rs
 /// Propósito: Esquema de datos serializable compartido entre Rust, UI y disco.
-
 use crate::types_locutions::LocutionConfig;
 use serde::{Deserialize, Serialize};
 
@@ -37,8 +36,12 @@ pub struct ButtonData {
     pub shortcut: String,
 }
 
-fn default_type() -> String { "audio".to_string() }
-fn default_vol() -> f32 { 1.0 }
+fn default_type() -> String {
+    "audio".to_string()
+}
+fn default_vol() -> f32 {
+    1.0
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PaletaData {
@@ -59,8 +62,12 @@ pub struct PaletaData {
     pub botones: Vec<ButtonData>,
 }
 
-fn default_rows() -> u32 { 5 }
-fn default_cols() -> u32 { 5 }
+fn default_rows() -> u32 {
+    5
+}
+fn default_cols() -> u32 {
+    5
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AudioConfig {
@@ -78,10 +85,25 @@ pub struct AudioConfig {
     pub key_prev: String,
     #[serde(default = "default_playback_mode")]
     pub playback_mode: String,
+    #[serde(default)]
+    pub solo_mode: bool,
+    #[serde(default = "default_master_volume")]
+    pub master_volume: f32,
+    #[serde(default)]
+    pub master_volume_remember: bool,
+    #[serde(default)]
+    pub master_volume_boost: bool,
 }
 
-fn default_device() -> String { "default".to_string() }
-fn default_playback_mode() -> String { "normal".to_string() }
+fn default_device() -> String {
+    "default".to_string()
+}
+fn default_playback_mode() -> String {
+    "normal".to_string()
+}
+fn default_master_volume() -> f32 {
+    1.0
+}
 
 impl Default for AudioConfig {
     fn default() -> Self {
@@ -93,6 +115,10 @@ impl Default for AudioConfig {
             key_next: String::new(),
             key_prev: String::new(),
             playback_mode: default_playback_mode(),
+            solo_mode: false,
+            master_volume: default_master_volume(),
+            master_volume_remember: false,
+            master_volume_boost: false,
         }
     }
 }
@@ -124,6 +150,8 @@ pub struct AppConfig {
     pub theme: String,
     #[serde(default = "default_lang")]
     pub language: String,
+    #[serde(default = "default_button_text_size")]
+    pub button_text_size: String,
     #[serde(default)]
     pub active_profile_id: String,
     #[serde(default = "default_true")]
@@ -136,9 +164,18 @@ pub struct AppConfig {
     pub profiles: Vec<ProfileData>,
 }
 
-fn default_true() -> bool { true }
-fn default_theme() -> String { "dark".to_string() }
-fn default_lang() -> String { "es".to_string() }
+fn default_true() -> bool {
+    true
+}
+fn default_theme() -> String {
+    "dark".to_string()
+}
+fn default_lang() -> String {
+    "es".to_string()
+}
+fn default_button_text_size() -> String {
+    "normal".to_string()
+}
 
 impl Default for AppConfig {
     fn default() -> Self {
@@ -168,6 +205,7 @@ impl Default for AppConfig {
             lf_automatizador_link: false,
             theme: default_theme(),
             language: default_lang(),
+            button_text_size: default_button_text_size(),
             active_profile_id: "perfil_1".to_string(),
             clock_24h: true,
             last_update_check: 0,
@@ -175,11 +213,4 @@ impl Default for AppConfig {
             profiles: vec![profile],
         }
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct GridState {
-    pub columns: u32,
-    pub rows: u32,
-    pub buttons: Vec<ButtonData>,
 }

@@ -24,6 +24,9 @@
             "delete": "Eliminar Pestaña"
         }
     },
+    "grid": {
+        "random_folder_badge": "[Aleatorio]"
+    },
     "tab_modal": {
         "title_new":    "Nueva Botonera",
         "title_edit":   "Editar Botonera",
@@ -62,18 +65,27 @@
         "tab_about":   "Acerca de",
         "theme":       "Tema:",
         "theme_system": "Predeterminado del sistema",
-        "theme_dark":   "Oscuro",
-        "theme_light":  "Claro",
-        "language":    "Idioma:",
-        "out_main":    "Salida Principal (Botoneras):",
+          "theme_dark":   "Oscuro",
+          "theme_light":  "Claro",
+          "language":    "Idioma:",
+          "button_text_size": "Tamaño de texto en botones:",
+          "button_text_small": "Pequeño",
+          "button_text_normal": "Normal",
+          "button_text_large": "Grande",
+          "button_text_xlarge": "Muy grande",
+          "out_main":    "Salida Principal (Botoneras):",
         "out_pre":     "Salida de Pre-escucha (Prelisten):",
         "mapping_btn": "✏️ Asignar atajos haciendo clic (Modo Mapeo)",
         "mapping_hint":"Haz clic en el cuadro y presiona la tecla que deseas asignar.",
+        "global_keys": "Permitir atajos aunque la app no tenga foco",
         "key_stop":    "Detener TODOS los sonidos:",
         "key_next":    "Pestaña Siguiente:",
         "key_prev":    "Pestaña Anterior:",
         "key_none":    "Ninguna",
         "save":           "Guardar Configuración",
+        "reserved_shortcuts_hint": "Atajos reservados de la aplicación:",
+        "undo_shortcut": "Deshacer movimiento o eliminación",
+        "redo_shortcut": "Rehacer movimiento o eliminación",
         "no_orphaned":    "Todos los atajos de botón están activos.",
         "orphaned_hint":  "Atajos asignados a botones sin archivo de audio:",
         "clear_shortcut": "Limpiar",
@@ -92,6 +104,13 @@
         "target_tab":    "Pestaña",
         "save":   "Guardar Atajo",
         "cancel": "Cancelar"
+    },
+    "shortcuts": {
+        "blocked_global": "La tecla {key} está reservada por un atajo global del perfil y no se puede asignar aquí.",
+        "replace_button": "La tecla {key} ya está asignada al botón {target} de esta pestaña. Si continúas, se quitará ese atajo del botón anterior.",
+        "replace_tab": "La tecla {key} ya está asignada a la pestaña {target}. Si continúas, se quitará ese atajo de la pestaña anterior.",
+        "replace_button_any": "La tecla {key} ya está asignada al botón {target}. Si continúas, se quitará esa tecla de los botones que la usan.",
+        "reserved_system": "La tecla {key} está reservada por la aplicación y no se puede reasignar."
     },
     "prelisten": {
         "title":        "Escucha previa",
@@ -134,10 +153,20 @@
         "title":               "Editar efecto (Botón",
         "filepath":            "Ruta del archivo:",
         "type":                "Tipo de efecto",
-        "type_audio":          "Audio",
-        "type_time":           "Locución de hora",
-        "type_temp":           "Temperatura",
-        "type_hum":            "Humedad",
+        "type_audio":          "🎵 Audio",
+        "type_random_folder":  "📁 Carpeta aleatoria",
+        "type_time":           "🕐 Locución de hora",
+        "type_temp":           "🌡️ Temperatura",
+        "type_hum":            "💧 Humedad",
+        "change_type":         "Cambiar tipo",
+        "placeholder_audio":   "Selecciona un archivo",
+        "placeholder_random_folder": "Selecciona una carpeta",
+        "placeholder_time":    "Selecciona carpeta de locuciones de hora",
+        "placeholder_temp":    "Selecciona carpeta de locuciones de temperatura",
+        "placeholder_hum":     "Selecciona carpeta de locuciones de humedad",
+        "missing_time":        "Configura primero la carpeta de locuciones de hora.",
+        "missing_temperature": "Configura primero la carpeta de locuciones de temperatura.",
+        "missing_humidity":    "Configura primero la carpeta de locuciones de humedad.",
         "select_file":         "...",
         "name":                "Nombre:",
         "volume":              "Volumen:",
@@ -156,11 +185,16 @@
         "mode_restart":     "Restart — Reiniciar al hacer clic",
         "mode_stop_others": "Solo — Silencia los demás al activar un botón",
         "stop_all":         "Stop All — Detener todos los sonidos",
+        "master_volume":    "Volumen máster",
+        "remember_volume":  "Recordar volumen al abrir",
+        "allow_boost":      "Permitir hasta 150%",
+        "boost_warning":    "Subir el volumen máster sobre 100% puede saturar o distorsionar el sonido. ¿Deseas activarlo?",
         "label_normal":     "Normal",
         "label_loop":       "Loop",
         "label_overlap":    "MULTI",
         "label_restart":    "Restart",
         "label_stop_others":"Solo",
+        "label_master_volume":"VOL",
         "label_stop_all":   "Stop All"
     },
     "clock": {
@@ -180,12 +214,41 @@
         "skipped": "La revisión automática se hace cada 12 horas.",
         "error": "No se pudo revisar ahora.",
         "later": "Luego",
-        "open_release": "Abrir descarga"
+        "open_release": "Abrir descarga",
+        "reminder_label": "Update",
+        "reminder_title": "Actualizacion disponible"
+    },
+    "color_picker": {
+        "title": "Seleccionar color",
+        "preview": "EJEMPLO",
+        "white": "Texto blanco",
+        "black": "Texto negro",
+        "apply": "Aplicar"
+    },
+    "delete_confirm": {
+        "title_profile": "Eliminar perfil",
+        "title_tab": "Eliminar pestaña",
+        "body_profile": "¿Desea eliminar este perfil?",
+        "body_tab": "¿Desea eliminar esta pestaña?",
+        "save_delete": "Guardar y eliminar",
+        "delete": "Eliminar",
+        "cancel": "Cancelar"
     },
     "errors": {
         "fatal_ipc":       "Error fatal de comunicación con el motor nativo.",
         "only_profile":    "No se puede eliminar el único perfil.",
         "only_tab":        "No se puede eliminar la única pestaña.",
-        "no_empty_button": "No hay botones vacíos disponibles."
+        "no_empty_button": "No hay botones vacíos disponibles.",
+        "audio_file_not_found": "No se encontró el archivo de audio.",
+        "unsupported_audio_format": "Formato de audio no compatible.",
+        "invalid_volume": "El volumen debe estar entre 0 y 100%.",
+        "invalid_button_type": "Tipo de botón no válido.",
+        "button_not_found": "No se encontró el botón.",
+        "invalid_button_flag": "Opción de botón no válida.",
+        "invalid_locution_kind": "Tipo de locución no válido.",
+        "reserved_system_shortcut": "Ese atajo está reservado por la aplicación y no se puede reasignar.",
+        "loc_missing_time_folder": "Falta la carpeta de locuciones de hora.",
+        "loc_missing_temp_folder": "Falta la carpeta de locuciones de temperatura.",
+        "loc_missing_hum_folder": "Falta la carpeta de locuciones de humedad."
     }
 }

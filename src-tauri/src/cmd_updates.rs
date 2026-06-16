@@ -1,7 +1,6 @@
 /// Módulo: cmd_updates.rs
 /// Propósito: Revisión segura de nuevas versiones publicadas en GitHub Releases.
 /// La UI no consulta GitHub directamente: Rust controla cadencia y comparación.
-
 use crate::{config, AppState};
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -64,8 +63,10 @@ fn fetch_latest_release() -> Result<GithubRelease, String> {
         .set("User-Agent", "LF-Botonera")
         .set("Accept", "application/vnd.github+json")
         .timeout(Duration::from_secs(10))
-        .call().map_err(|e| e.to_string())?
-        .into_json().map_err(|e| e.to_string())
+        .call()
+        .map_err(|e| e.to_string())?
+        .into_json()
+        .map_err(|e| e.to_string())
 }
 
 fn no_check() -> UpdateCheck {

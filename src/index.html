@@ -12,9 +12,12 @@
     <link rel="stylesheet" href="/css/grid.css" />
     <link rel="stylesheet" href="/css/contextMenu.css" />
     <link rel="stylesheet" href="/css/modal.css" />
+    <link rel="stylesheet" href="/css/colorPalette.css" />
     <link rel="stylesheet" href="/css/keyInputs.css" />
     <link rel="stylesheet" href="/css/prelisten.css" />
     <link rel="stylesheet" href="/css/bottomBar.css" />
+    <link rel="stylesheet" href="/css/masterVolume.css" />
+    <link rel="stylesheet" href="/css/updateNotice.css" />
   </head>
   <body>
 
@@ -80,9 +83,24 @@
               <span class="pb-icon">↺</span>
               <span class="pb-label" data-i18n="playback.label_restart"></span>
             </button>
+            <div class="pb-separator" aria-hidden="true"></div>
             <button id="pb-btn-stop_others" class="pb-btn"        data-i18n-title="playback.mode_stop_others">
               <span class="pb-icon">⊙</span>
               <span class="pb-label" data-i18n="playback.label_stop_others"></span>
+            </button>
+            <div id="master-volume" class="master-volume">
+              <button id="master-volume-btn" class="pb-btn master-volume-btn" data-i18n-title="playback.master_volume">
+                <span class="pb-icon">&#128264;</span>
+                <span class="pb-label" data-i18n="playback.label_master_volume"></span>
+              </button>
+            </div>
+            <div id="master-volume-panel" class="master-volume-panel hidden">
+              <div id="master-volume-readout" class="master-volume-readout">100%</div>
+              <input id="master-volume-slider" class="master-volume-slider" type="range" min="0" max="100" value="100">
+            </div>
+            <button id="update-reminder-btn" class="pb-btn update-reminder hidden" data-i18n-title="updates.reminder_title">
+              <span class="pb-icon">&#8593;</span>
+              <span class="pb-label" data-i18n="updates.reminder_label"></span>
             </button>
             <button id="pb-btn-stop-all"    class="pb-btn pb-btn-stop" data-i18n-title="playback.stop_all">
               <span class="pb-icon">■</span>
@@ -150,15 +168,11 @@
           <button class="close-btn" data-close="edit-modal">✕</button>
         </div>
         <div class="modal-body">
+          <label data-i18n="edit_modal.type">Tipo de efecto</label>
+          <select id="edit-type" class="edit-type-select" data-i18n-title="edit_modal.type"></select>
           <label data-i18n="edit_modal.filepath">Ruta del archivo:</label>
           <div class="file-input-group">
             <input type="text" id="edit-filepath" readonly>
-            <select id="edit-type" class="type-select" data-i18n-title="edit_modal.type">
-              <option value="audio"       data-i18n="edit_modal.type_audio">Audio</option>
-              <option value="time"        data-i18n="edit_modal.type_time">Locución de hora</option>
-              <option value="temperature" data-i18n="edit_modal.type_temp">Temperatura</option>
-              <option value="humidity"    data-i18n="edit_modal.type_hum">Humedad</option>
-            </select>
             <button id="btn-select-file" data-i18n="edit_modal.select_file">...</button>
           </div>
           <div class="row">
@@ -293,6 +307,17 @@
                 </select>
               </div>
             </div>
+            <div class="row">
+              <div class="col">
+                <label data-i18n="settings.button_text_size">TamaÃ±o de texto en botones:</label>
+                <select id="config-button-text-size">
+                  <option value="small" data-i18n="settings.button_text_small">PequeÃ±o</option>
+                  <option value="normal" data-i18n="settings.button_text_normal">Normal</option>
+                  <option value="large" data-i18n="settings.button_text_large">Grande</option>
+                  <option value="xlarge" data-i18n="settings.button_text_xlarge">Muy grande</option>
+                </select>
+              </div>
+            </div>
             <hr class="modal-divider">
             <label data-i18n="settings.out_main">Salida Principal:</label>
             <select id="config-out-main" class="audio-select" style="margin-bottom:15px"></select>
@@ -305,6 +330,10 @@
             </div>
             <hr class="modal-divider">
             <p class="hint" data-i18n="settings.mapping_hint">Haz clic en el cuadro y presiona la tecla que deseas asignar.</p>
+            <label class="checkbox-line">
+              <input type="checkbox" id="config-global-keys">
+              <span data-i18n="settings.global_keys">Permitir atajos aunque la app no tenga foco</span>
+            </label>
             <div class="row">
               <div class="col">
                 <label data-i18n="settings.key_stop">Detener TODOS:</label>
@@ -319,6 +348,18 @@
               <div class="col">
                 <label data-i18n="settings.key_prev">Pestaña Anterior:</label>
                 <input type="text" id="config-key-prev" class="key-input" readonly data-i18n-placeholder="settings.key_none">
+              </div>
+            </div>
+            <hr class="modal-divider">
+            <div class="reserved-shortcuts">
+              <p class="hint" data-i18n="settings.reserved_shortcuts_hint">Atajos reservados de la aplicación:</p>
+              <div class="reserved-shortcut-row">
+                <span data-i18n="settings.undo_shortcut">Deshacer movimiento o eliminación</span>
+                <code>Ctrl+Z</code>
+              </div>
+              <div class="reserved-shortcut-row">
+                <span data-i18n="settings.redo_shortcut">Rehacer movimiento o eliminación</span>
+                <code>Ctrl+Alt+Z</code>
               </div>
             </div>
             <hr class="modal-divider">
@@ -385,6 +426,56 @@
         <div class="modal-footer">
           <button id="btn-update-later" class="btn-dark" data-i18n="updates.later">Luego</button>
           <button id="btn-update-open" class="btn-blue" data-i18n="updates.open_release">Abrir descarga</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selector de color compatible con tema -->
+    <div id="color-picker-modal" class="hidden modal-overlay" style="z-index:4600">
+      <div class="modal-content color-picker-content">
+        <div class="modal-header">
+          <h3 data-i18n="color_picker.title">Seleccionar color</h3>
+          <button class="close-btn" data-close="color-picker-modal">x</button>
+        </div>
+        <div class="modal-body color-picker-body">
+          <div id="color-picker-grid" class="color-picker-grid"></div>
+          <div class="color-picker-side">
+            <div id="color-picker-preview" class="color-picker-preview">
+              <span data-i18n="color_picker.preview">EJEMPLO</span>
+            </div>
+            <div class="color-picker-text">
+              <label>
+                <input id="color-text-white" type="radio" name="color-picker-text" value="#FFFFFF">
+                <span data-i18n="color_picker.white">Texto blanco</span>
+              </label>
+              <label>
+                <input id="color-text-black" type="radio" name="color-picker-text" value="#111111">
+                <span data-i18n="color_picker.black">Texto negro</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="color-picker-cancel" class="btn-dark" data-i18n="edit_modal.cancel">Cancelar</button>
+          <button id="color-picker-apply" class="btn-blue" data-i18n="color_picker.apply">Aplicar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmacion de borrado seguro -->
+    <div id="delete-confirm-modal" class="hidden modal-overlay" style="z-index:4700">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3 id="delete-confirm-title" data-i18n="delete_confirm.title_tab">Eliminar pestaña</h3>
+          <button id="delete-confirm-close" class="close-btn">x</button>
+        </div>
+        <div class="modal-body">
+          <p id="delete-confirm-body" class="confirm-text" data-i18n="delete_confirm.body_tab"></p>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-delete-save" class="btn-dark" data-i18n="delete_confirm.save_delete">Guardar y eliminar</button>
+          <button id="btn-delete-only" class="btn-blue danger-action" data-i18n="delete_confirm.delete">Eliminar</button>
+          <button id="btn-delete-cancel" class="btn-dark" data-i18n="delete_confirm.cancel">Cancelar</button>
         </div>
       </div>
     </div>

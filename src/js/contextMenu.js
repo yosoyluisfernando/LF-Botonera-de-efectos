@@ -30,7 +30,7 @@ export function showContextMenu(x, y, index, btnData, onUpdate) {
 
     // Deshabilitar opciones que requieren un botón con archivo
     _toggleDisabled('menu-limpiar', !btnData);
-    _toggleDisabled('menu-previa',  !btnData);
+    _toggleDisabled('menu-previa',  !btnData?.can_prelisten);
 
     placeMenu(menu, x, y); // Muestra el menú sin salirse de la ventana
 
@@ -53,9 +53,12 @@ function _wireMenuActions(menu, index, btnData, onUpdate) {
     const restartEl = document.getElementById('menu-restart');
     const previaEl  = document.getElementById('menu-previa');
 
-    const onEditar  = () => { _hide(); openEditModal(index, btnData, onUpdate); };
+    const onEditar = () => {
+        _hide();
+        openEditModal(index, btnData, onUpdate).catch(console.error);
+    };
     const onPrevia  = () => {
-        if (!btnData) return;
+        if (!btnData?.can_prelisten) return;
         _hide();
         import('./prelisten.js').then(m =>
             m.openPrelisten(btnData.path, btnData.name || btnData.label,
@@ -67,50 +70,10 @@ function _wireMenuActions(menu, index, btnData, onUpdate) {
         try { await invoke('clear_button', { index }); onUpdate?.(); }
         catch (e) { console.error('Error al limpiar botón:', e); }
     };
-    const onBucle = async () => {
-        if (!btnData) return;
-        _hide();
-        try {
-            await invoke('update_button_data', {
-                index, label: btnData.label, colorBg: btnData.color_bg,
-                colorText: btnData.color_text, loopMode: !btnData.loop_mode,
-            });
-            onUpdate?.();
-        } catch (e) { console.error(e); }
-    };
-    const onOverlap = async () => {
-        if (!btnData) return;
-        _hide();
-        try {
-            await invoke('update_button_data', {
-                index, label: btnData.label, colorBg: btnData.color_bg,
-                colorText: btnData.color_text, overlap: !btnData.overlap,
-            });
-            onUpdate?.();
-        } catch (e) { console.error(e); }
-    };
-    const onDetener = async () => {
-        if (!btnData) return;
-        _hide();
-        try {
-            await invoke('update_button_data', {
-                index, label: btnData.label, colorBg: btnData.color_bg,
-                colorText: btnData.color_text, stopOther: !btnData.stop_other,
-            });
-            onUpdate?.();
-        } catch (e) { console.error(e); }
-    };
-    const onRestart = async () => {
-        if (!btnData) return;
-        _hide();
-        try {
-            await invoke('update_button_data', {
-                index, label: btnData.label, colorBg: btnData.color_bg,
-                colorText: btnData.color_text, restart: !btnData.restart,
-            });
-            onUpdate?.();
-        } catch (e) { console.error(e); }
-    };
+    const onBucle = () => _toggleButtonFlag(index, btnData, 'loop_mode', onUpdate);
+    const onOverlap = () => _toggleButtonFlag(index, btnData, 'overlap', onUpdate);
+    const onDetener = () => _toggleButtonFlag(index, btnData, 'stop_other', onUpdate);
+    const onRestart = () => _toggleButtonFlag(index, btnData, 'restart', onUpdate);
 
     editarEl.addEventListener('click', onEditar);
     limpiarEl.addEventListener('click', onLimpiar);
@@ -138,6 +101,17 @@ function _hide() {
 
 function _hideOnClickOutside(e) {
     if (!document.getElementById('context-menu')?.contains(e.target)) _hide();
+}
+
+async function _toggleButtonFlag(index, btnData, flag, onUpdate) {
+    if (!btnData) return;
+    _hide();
+    try {
+        await invoke('toggle_button_flag', { index, flag });
+        onUpdate?.();
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 function _toggleDisabled(id, disabled) {

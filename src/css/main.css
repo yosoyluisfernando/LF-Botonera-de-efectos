@@ -132,6 +132,9 @@ body {
 .donate-btn   { margin-top: 20px; font-weight: bold; border-radius: 5px; padding: 10px 20px; font-size: 14px; }
 .mapping-btn  { width: 100%; padding: 10px; font-size: 14px; background: var(--success-strong); border-color: var(--accent-hover); }
 .orphan-row   { display:flex; align-items:center; justify-content:space-between; padding:4px 6px; font-size:11px; border-bottom:1px solid var(--border-color); }
+.reserved-shortcuts { display:grid; gap:6px; margin:8px 0; }
+.reserved-shortcut-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:5px 6px; font-size:11px; border:1px solid var(--border-color); background:var(--bg-secondary); }
+.reserved-shortcut-row code { color:var(--accent-color); font-weight:bold; white-space:nowrap; }
 .btn-xs-danger { font-size:10px; padding:2px 8px; background:var(--danger-bg); color:var(--danger-text); border:1px solid var(--danger-border); border-radius:3px; cursor:pointer; }
 .btn-xs-danger:hover { background:var(--error-color); color:#fff; border-color:var(--error-color); }
 .active-profile { font-weight: bold; color: var(--accent-color); }

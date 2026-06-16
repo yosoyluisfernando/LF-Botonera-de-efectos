@@ -4,6 +4,7 @@
  */
 
 import { t } from './i18n.js';
+import { typeIcon } from './typeIcons.js';
 
 /** Devuelve el HTML del panel de locuciones con textos i18n. */
 export function locutionsTemplate() {
@@ -12,7 +13,7 @@ export function locutionsTemplate() {
     <p class="hint">${t('settings_loc.module_hint')}</p>
     <div id="loc-blocks" class="hidden">
       <hr class="modal-divider">
-      <label><input type="checkbox" id="loc-time-on"> <b>🕐 ${t('settings_loc.time_block')}</b></label>
+      <label><input type="checkbox" id="loc-time-on"> <b>${typeIcon('time')} ${t('settings_loc.time_block')}</b></label>
       <div id="loc-time-fields" class="hidden" style="margin-top:8px">
         <label>${t('settings_loc.time_folder')}</label>
         <div class="file-input-group">
@@ -23,7 +24,7 @@ export function locutionsTemplate() {
         <p class="hint">${t('settings_loc.time_hint')}</p>
       </div>
       <hr class="modal-divider">
-      <label><input type="checkbox" id="loc-weather-on"> <b>🌡️ ${t('settings_loc.weather_block')}</b></label>
+      <label><input type="checkbox" id="loc-weather-on"> <b>${typeIcon('temperature')} ${t('settings_loc.weather_block')}</b></label>
       <div id="loc-weather-fields" class="hidden" style="margin-top:8px">
         <label>${t('settings_loc.city')}</label>
         <input type="text" id="loc-city" list="loc-city-list" autocomplete="off"

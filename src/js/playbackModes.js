@@ -1,31 +1,24 @@
 /**
  * Archivo: playbackModes.js
- * Propósito: Gestiona los botones de modo de reproducción global de la barra inferior.
- * El modo activo se persiste por perfil en Rust (cmd_playback.rs, Regla 2).
- * Los demás módulos (ej. gridPlayback.js) consultan getCurrentMode() para adaptar el pintado.
+ * Proposito: pinta los modos base y el toggle SOLO; Rust persiste la logica.
  */
 
 import { invoke } from './api.js';
 
-const MODES = ['normal', 'loop', 'overlap', 'restart', 'stop_others'];
+const BASE_MODES = ['normal', 'loop', 'overlap', 'restart'];
 
 let _currentMode = 'normal';
-let _wired       = false;
+let _solo = false;
+let _wired = false;
 
-/** Devuelve el modo activo actual (consulta local; Rust es fuente de verdad en disco). */
 export function getCurrentMode() { return _currentMode; }
 
 export function initPlaybackModes() {
-    // Cargar modo guardado del perfil activo
-    invoke('get_playback_mode')
-        .then(mode => { _currentMode = mode || 'normal'; _updateUI(); })
-        .catch(console.error);
-
+    refreshPlaybackModes();
     if (_wired) return;
     _wired = true;
 
-    // Botones de modo (radio exclusivo)
-    MODES.forEach(mode => {
+    BASE_MODES.forEach(mode => {
         document.getElementById(`pb-btn-${mode}`)?.addEventListener('click', () => {
             _currentMode = mode;
             _updateUI();
@@ -33,15 +26,36 @@ export function initPlaybackModes() {
         });
     });
 
-    // Botón Detener Todo
+    document.getElementById('pb-btn-stop_others')?.addEventListener('click', () => {
+        _solo = !_solo;
+        _updateUI();
+        invoke('set_solo_mode', { enabled: _solo }).catch(console.error);
+    });
+
     document.getElementById('pb-btn-stop-all')?.addEventListener('click', () => {
         invoke('stop_all_audio').catch(console.error);
     });
 }
 
+export function refreshPlaybackModes() {
+    invoke('get_playback_state')
+        .then(state => {
+            _currentMode = state?.mode || 'normal';
+            _solo = !!state?.solo;
+            _updateUI();
+        })
+        .catch(() => {
+            invoke('get_playback_mode')
+                .then(mode => { _currentMode = mode || 'normal'; _updateUI(); })
+                .catch(console.error);
+        });
+}
+
 function _updateUI() {
-    MODES.forEach(mode => {
+    BASE_MODES.forEach(mode => {
         document.getElementById(`pb-btn-${mode}`)
             ?.classList.toggle('active', mode === _currentMode);
     });
+    document.getElementById('pb-btn-stop_others')
+        ?.classList.toggle('active', _solo);
 }

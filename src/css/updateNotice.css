@@ -1,0 +1,25 @@
+/*
+ * Archivo: updateNotice.css
+ * Proposito: indicador discreto de actualizacion disponible.
+ */
+
+.update-reminder {
+  min-width: 54px;
+  background: var(--playback-bg);
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.update-reminder:not(.hidden) {
+  display: flex;
+}
+
+.update-reminder:hover {
+  background: var(--playback-active-bg);
+  color: var(--text-primary);
+  border-color: var(--playback-active-border);
+}
+
+.update-reminder .pb-icon {
+  font-weight: 800;
+}

@@ -67,9 +67,11 @@ async function _openSettings() {
     document.getElementById('config-key-stop').value = profile?.audio?.key_stop || '';
     document.getElementById('config-key-next').value = profile?.audio?.key_next || '';
     document.getElementById('config-key-prev').value = profile?.audio?.key_prev || '';
+    document.getElementById('config-global-keys').checked = !!profile?.audio?.global_keys;
 
     document.getElementById('config-theme').value    = config.theme    || 'dark';
     document.getElementById('config-language').value = config.language || 'es';
+    document.getElementById('config-button-text-size').value = config.button_text_size || 'normal';
     _currentLanguage = config.language || 'es';
 
     loadLocutionsPanel(config);
@@ -88,8 +90,12 @@ async function _saveSettings() {
             keyStop: document.getElementById('config-key-stop').value,
             keyNext: document.getElementById('config-key-next').value,
             keyPrev: document.getElementById('config-key-prev').value,
+            globalKeys: document.getElementById('config-global-keys').checked,
         });
         await saveLocutions();
+        await invoke('set_button_text_size', {
+            size: document.getElementById('config-button-text-size').value,
+        });
 
         // Idioma: persistir y recargar la UI solo si cambió
         const lang = document.getElementById('config-language').value;
@@ -99,7 +105,12 @@ async function _saveSettings() {
             return;
         }
         _onSaved?.();
-    } catch (e) { console.error('Error al guardar ajustes:', e); }
+    } catch (e) {
+        console.error('Error al guardar ajustes:', e);
+        const msg = t(`errors.${e}`);
+        window.alert(msg === `errors.${e}` ? String(e) : msg);
+        return;
+    }
     document.getElementById('settings-modal').classList.add('hidden');
 }
 
@@ -132,7 +143,7 @@ function _renderOrphanedShortcuts(config) {
     const orphans = [];
     for (const paleta of (profile?.paletas ?? [])) {
         for (const btn of (paleta.botones ?? [])) {
-            if (btn.shortcut && !btn.path) {
+            if (btn.shortcut && !btn.path && !btn.folder) {
                 orphans.push({ paletaId: paleta.id, paletaNombre: paleta.nombre, btn });
             }
         }

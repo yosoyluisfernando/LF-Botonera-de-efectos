@@ -1,27 +1,46 @@
 /// Módulo: cmd_keys.rs
 /// Propósito: Comandos IPC para los atajos globales de teclado (Fase 5):
 /// persistencia de las teclas configuradas y navegación cíclica de pestañas.
-
 use super::AppState;
 use crate::config;
+use crate::global_shortcuts;
+use crate::shortcut_rules;
 use crate::types::AppConfig;
 
 /// Guarda los atajos globales (detener todo / pestaña siguiente / anterior)
 /// en el perfil activo.
 #[tauri::command]
 pub fn set_global_keys(
-    key_stop: String, key_next: String, key_prev: String,
+    key_stop: String,
+    key_next: String,
+    key_prev: String,
+    global_keys: Option<bool>,
+    app: tauri::AppHandle,
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
+    if [&key_stop, &key_next, &key_prev]
+        .iter()
+        .any(|key| shortcut_rules::is_reserved_system_key(key))
+    {
+        return Err("reserved_system_shortcut".to_string());
+    }
     let pid = cfg.active_profile_id.clone();
-    let profile = cfg.profiles.iter_mut()
+    let profile = cfg
+        .profiles
+        .iter_mut()
         .find(|p| p.id == pid)
         .ok_or("Perfil activo no encontrado")?;
     profile.audio.key_stop = key_stop;
     profile.audio.key_next = key_next;
     profile.audio.key_prev = key_prev;
+    if let Some(v) = global_keys {
+        profile.audio.global_keys = v;
+    }
     config::save_config(&cfg)?;
+    drop(cfg);
+    global_shortcuts::sync(&app)?;
+    let cfg = state.config.lock().unwrap();
     Ok(cfg.clone())
 }
 
@@ -30,11 +49,14 @@ pub fn set_global_keys(
 pub fn clear_button_shortcut(
     paleta_id: String,
     index: u32,
+    app: tauri::AppHandle,
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
     let pid = cfg.active_profile_id.clone();
-    let profile = cfg.profiles.iter_mut()
+    let profile = cfg
+        .profiles
+        .iter_mut()
         .find(|p| p.id == pid)
         .ok_or("Perfil activo no encontrado")?;
     if let Some(paleta) = profile.paletas.iter_mut().find(|p| p.id == paleta_id) {
@@ -43,6 +65,9 @@ pub fn clear_button_shortcut(
             config::save_config(&cfg)?;
         }
     }
+    drop(cfg);
+    global_shortcuts::sync(&app)?;
+    let cfg = state.config.lock().unwrap();
     Ok(cfg.clone())
 }
 
@@ -52,12 +77,18 @@ pub fn clear_button_shortcut(
 pub fn cycle_paleta(offset: i32, state: tauri::State<AppState>) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
     let pid = cfg.active_profile_id.clone();
-    let profile = cfg.profiles.iter_mut()
+    let profile = cfg
+        .profiles
+        .iter_mut()
         .find(|p| p.id == pid)
         .ok_or("Perfil activo no encontrado")?;
     let len = profile.paletas.len() as i32;
-    if len == 0 { return Err("El perfil no tiene pestañas".to_string()); }
-    let current = profile.paletas.iter()
+    if len == 0 {
+        return Err("El perfil no tiene pestañas".to_string());
+    }
+    let current = profile
+        .paletas
+        .iter()
         .position(|p| p.id == profile.active_paleta_id)
         .unwrap_or(0) as i32;
     let next = (current + offset).rem_euclid(len) as usize;

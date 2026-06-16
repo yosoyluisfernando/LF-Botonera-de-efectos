@@ -8,6 +8,7 @@ import { t } from './i18n.js';
 
 const CHECK_EVERY_MS = 12 * 60 * 60 * 1000;
 let _latestUrl = '';
+let _latestResult = null;
 let _wired = false;
 
 /** Conecta botones y programa revisiones livianas cada 12 horas. */
@@ -17,6 +18,10 @@ export function initUpdateNotifier() {
     document.getElementById('btn-check-updates')?.addEventListener('click', () => _check(true));
     document.getElementById('btn-update-open')?.addEventListener('click', _openRelease);
     document.getElementById('btn-update-later')?.addEventListener('click', _hideNotice);
+    document.getElementById('update-reminder-btn')?.addEventListener('click', _reshowNotice);
+    document.getElementById('update-notice-modal')?.addEventListener('click', e => {
+        if (e.target?.id === 'update-notice-modal') _hideNotice();
+    });
 
     setTimeout(() => _check(false), 20000);
     setInterval(() => _check(false), CHECK_EVERY_MS);
@@ -49,7 +54,9 @@ function _paintStatus(result, force) {
 }
 
 function _showNotice(result) {
+    _latestResult = result;
     _latestUrl = result.releaseUrl;
+    _showReminder();
     document.getElementById('update-current-version').textContent = result.currentVersion;
     document.getElementById('update-latest-version').textContent = result.latestVersion;
     document.getElementById('update-notice-modal').classList.remove('hidden');
@@ -57,6 +64,14 @@ function _showNotice(result) {
 
 function _hideNotice() {
     document.getElementById('update-notice-modal')?.classList.add('hidden');
+}
+
+function _reshowNotice() {
+    if (_latestResult) _showNotice(_latestResult);
+}
+
+function _showReminder() {
+    document.getElementById('update-reminder-btn')?.classList.remove('hidden');
 }
 
 function _openRelease() {

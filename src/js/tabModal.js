@@ -6,6 +6,7 @@
 
 import { invoke } from './api.js';
 import { t } from './i18n.js';
+import { attachPalette, refreshColorInputs } from './colorPalette.js';
 
 /**
  * Abre el modal de pestaña.
@@ -27,6 +28,7 @@ export async function openTabModal(config, paleta, onRefresh) {
     _ensureColorControls();
     const bgEl    = document.getElementById('tab-bg-color');
     const textEl  = document.getElementById('tab-text-color');
+    await attachPalette(bgEl, textEl, 'tab');
 
     if (isEdit) {
         nameEl.value  = paleta.nombre;
@@ -42,6 +44,7 @@ export async function openTabModal(config, paleta, onRefresh) {
         bgEl.value    = '#3a3f44';
         textEl.value  = '#ffffff';
     }
+    await refreshColorInputs();
 
     await _fillAudioSelect(audioEl, isEdit ? paleta.audio_out : '');
 

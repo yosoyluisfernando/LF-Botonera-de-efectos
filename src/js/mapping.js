@@ -6,9 +6,9 @@
  * La persistencia del atajo se delega a Rust (Regla 4).
  */
 
-import { invoke } from './api.js';
 import { t } from './i18n.js';
 import { initKeyInputs } from './keyInputs.js';
+import { invokeShortcutSave } from './shortcutSave.js';
 
 let _onRefresh = null;
 let _target    = null; // ButtonData o PaletaData según _type
@@ -71,13 +71,13 @@ async function _saveCapture() {
     const key = document.getElementById('capture-key-input').value;
     try {
         if (_type === 'button') {
-            await invoke('update_button_data', {
+            await invokeShortcutSave('update_button_data', {
                 index: _target.index, label: _target.label,
                 colorBg: _target.color_bg, colorText: _target.color_text,
                 shortcut: key,
             });
         } else if (_type === 'tab') {
-            await invoke('update_paleta_meta', {
+            await invokeShortcutSave('update_paleta_meta', {
                 profileId: _profileId, paletaId: _target.id,
                 nombre: _target.nombre, rows: _target.rows, cols: _target.cols,
                 shortcut: key,

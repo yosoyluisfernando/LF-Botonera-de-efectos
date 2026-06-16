@@ -30,6 +30,7 @@ export function invoke(cmd, args) {
             is_first_boot: false,
             theme: 'dark',
             language: 'es',
+            button_text_size: 'normal',
             weather_module_enabled: false,
             lf_automatizador_link: false,
             active_profile_id: 'demo_profile',
@@ -53,7 +54,36 @@ export function invoke(cmd, args) {
     }
     if (cmd === 'get_audio_devices') return Promise.resolve(['default']);
     if (cmd === 'get_app_version') return Promise.resolve('dev');
+    if (cmd === 'set_button_text_size') return Promise.resolve(null);
+    if (cmd === 'undo_config') return invoke('get_config');
+    if (cmd === 'redo_config') return invoke('get_config');
+    if (cmd === 'export_tab_by_id') return Promise.resolve(null);
+    if (cmd === 'export_profile_by_id') return Promise.resolve(null);
+    if (cmd === 'get_color_palette') {
+        const colors = [
+            '#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#3949AB', '#1E88E5', '#039BE5', '#00ACC1',
+            '#00897B', '#43A047', '#7CB342', '#C0CA33', '#FDD835', '#FFB300', '#FB8C00', '#F4511E',
+            '#6D4C41', '#546E7A', '#C62828', '#AD1457', '#6A1B9A', '#4527A0', '#283593', '#1565C0',
+            '#0277BD', '#00838F', '#00695C', '#2E7D32', '#558B2F', '#9E9D24', '#EF6C00', '#D84315',
+        ];
+        return Promise.resolve(colors.map(c => ({
+            base: c, darkBg: c, darkText: '#FFFFFF', lightBg: c, lightText: '#FFFFFF',
+        })));
+    }
     if (cmd === 'get_playback_mode') return Promise.resolve('normal');
+    if (cmd === 'get_playback_state') return Promise.resolve({ mode: 'normal', solo: false });
+    if (cmd === 'set_solo_mode') return Promise.resolve(null);
+    if (cmd === 'get_master_volume_state') {
+        return Promise.resolve({ volume: 1, remember: false, boost: false, max: 1 });
+    }
+    if (cmd === 'set_master_volume') {
+        const volume = Math.max(0, Math.min(Number(args?.volume ?? 1), 1));
+        return Promise.resolve({ volume, remember: false, boost: false, max: 1 });
+    }
+    if (cmd === 'set_master_volume_options') {
+        const boost = !!args?.boost;
+        return Promise.resolve({ volume: 1, remember: !!args?.remember, boost, max: boost ? 1.5 : 1 });
+    }
     if (cmd === 'check_for_updates') {
         return Promise.resolve({
             checked: true,

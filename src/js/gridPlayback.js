@@ -5,7 +5,7 @@
  * No registra listeners — main.js es el único punto de escucha de audio-tick.
  */
 
-import { getCurrentMode } from './playbackModes.js';
+import { t } from './i18n.js';
 
 let _buttons = {};
 
@@ -21,8 +21,7 @@ export function paintAudioTick(payload) {
 }
 
 function _paint(ticks) {
-    const playing    = new Map(ticks.map(t => [t.id, t.pos]));
-    const globalMode = getCurrentMode();
+    const playing = new Map(ticks.map(t => [t.id, t]));
 
     document.querySelectorAll('.grid-item[data-id]').forEach(cell => {
         const id      = cell.dataset.id;
@@ -32,12 +31,11 @@ function _paint(ticks) {
 
         if (playing.has(id)) {
             cell.classList.add('playing');
-            const pos = playing.get(id);
-            const dur = btn?.duration > 0 ? btn.duration : 0;
+            const tick = playing.get(id);
+            const pos = Number(tick?.pos) || 0;
+            const dur = Number(tick?.duration) || 0;
             if (dur > 0) {
-                const isLooping = globalMode === 'loop' || (globalMode === 'normal' && btn?.loop_mode);
-                const local     = isLooping ? pos % dur : Math.min(pos, dur);
-                const remaining = Math.max(0, dur - local);
+                const remaining = Math.max(0, Number(tick?.remaining) || 0);
                 if (timerEl) timerEl.textContent = `${remaining.toFixed(1)}s`;
                 if (barEl)   barEl.style.width   = `${(remaining / dur) * 100}%`;
             } else if (timerEl) {
@@ -45,8 +43,13 @@ function _paint(ticks) {
             }
         } else {
             cell.classList.remove('playing');
-            if (timerEl) timerEl.textContent = btn?.duration_str || '';
+            if (timerEl) timerEl.textContent = _staticTimer(btn);
             if (barEl)   barEl.style.width   = '100%';
         }
     });
+}
+
+function _staticTimer(btn) {
+    if (btn?.timer_label_key) return t(btn.timer_label_key);
+    return btn?.duration_str || '';
 }

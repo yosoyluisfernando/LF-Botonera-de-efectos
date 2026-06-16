@@ -6,6 +6,7 @@
 
 import { invoke } from './api.js';
 import { t } from './i18n.js';
+import { attachPalette, refreshColorInputs } from './colorPalette.js';
 
 const DEFAULT_BG   = '#008c3a';
 const DEFAULT_TEXT = '#ffffff';
@@ -26,12 +27,14 @@ export function openProfileModal(config, profile, onRefresh) {
     const nameEl = document.getElementById('profile-name');
     const bgEl   = document.getElementById('profile-bg-color');
     const textEl = document.getElementById('profile-text-color');
+    attachPalette(bgEl, textEl, 'profile');
 
     nameEl.value = isEdit
         ? profile.name
         : `${t('profile_modal.default_name')} ${config.profiles.length + 1}`;
     bgEl.value   = (isEdit && profile.bg)   ? profile.bg   : DEFAULT_BG;
     textEl.value = (isEdit && profile.text) ? profile.text : DEFAULT_TEXT;
+    refreshColorInputs();
 
     modal.classList.remove('hidden');
     nameEl.focus();

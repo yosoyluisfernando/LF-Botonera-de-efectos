@@ -10,11 +10,10 @@ import { showContextMenu } from './contextMenu.js';
 import { setPlaybackButtons } from './gridPlayback.js';
 import { isMapping, captureButton } from './mapping.js';
 import { paintAdaptive } from './colorAdapter.js';
+import { typeIcon } from './typeIcons.js';
+import { t } from './i18n.js';
 
 let _onRefresh = null;
-
-// Iconos de los botones especiales de locución (Fase 6)
-const TYPE_ICONS = { time: '🕐', temperature: '🌡️', humidity: '💧' };
 
 /** Guarda el callback global de refresco que usan las celdas. */
 export function initGrid(onRefresh) {
@@ -57,12 +56,13 @@ function _makeCell(index, btnData) {
         const shortcutHtml = btnData.shortcut
             ? `<span class="shortcut-badge">${btnData.shortcut}</span>`
             : '';
-        const icon = TYPE_ICONS[btnData.type] ?? '';
+        const icon = btnData.type_icon ? typeIcon(btnData.type_icon) : '';
+        const timerText = _staticTimer(btnData);
         btn.innerHTML = `
             <span class="index">${btnData.index}</span>
             ${shortcutHtml}
-            <span class="label">${icon ? icon + ' ' : ''}${btnData.name || btnData.label}</span>
-            <span class="timer">${btnData.duration_str || ''}</span>
+            <span class="label">${icon}${btnData.name || btnData.label}</span>
+            <span class="timer">${timerText}</span>
             <div class="progress-container">
               <div class="progress-bar"></div>
             </div>`;
@@ -70,32 +70,7 @@ function _makeCell(index, btnData) {
         btn.addEventListener('click', e => {
             if (e.altKey) return; // Alt+clic = reordenar (gridDnd.js)
             if (isMapping()) { captureButton(btnData); return; }
-            // Botones especiales: la locución se resuelve y reproduce en Rust.
-            // Cada botón puede llevar su propia carpeta (estilo LFA).
-            if (btnData.type === 'time') {
-                invoke('play_time_locution', {
-                    id: btnData.id, volume: btnData.vol ?? 1.0,
-                    folder: btnData.folder || null,
-                }).catch(console.error);
-                return;
-            }
-            if (btnData.type === 'temperature' || btnData.type === 'humidity') {
-                invoke('play_climate_locution', {
-                    id: btnData.id, kind: btnData.type, volume: btnData.vol ?? 1.0,
-                    folder: btnData.folder || null,
-                }).catch(console.error);
-                return;
-            }
-            invoke('play_audio', {
-                id:        btnData.id,
-                path:      btnData.path,
-                volume:    btnData.vol        ?? 1.0,
-                duration:  btnData.duration   ?? 0.0,
-                loopMode:  btnData.loop_mode  ?? false,
-                stopOther: btnData.stop_other ?? false,
-                overlap:   btnData.overlap    ?? false,
-                restart:   btnData.restart    ?? false,
-            });
+            invoke('play_button', { id: btnData.id }).catch(console.error);
         });
     } else {
         btn.innerHTML = `<span class="index">${index}</span>`;
@@ -116,4 +91,9 @@ function _makeCell(index, btnData) {
     });
 
     return btn;
+}
+
+function _staticTimer(btnData) {
+    if (btnData.timer_label_key) return t(btnData.timer_label_key);
+    return btnData.duration_str || '';
 }

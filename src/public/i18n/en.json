@@ -24,6 +24,9 @@
             "delete": "Delete Tab"
         }
     },
+    "grid": {
+        "random_folder_badge": "[Random]"
+    },
     "tab_modal": {
         "title_new":    "New Soundboard",
         "title_edit":   "Edit Soundboard",
@@ -62,18 +65,27 @@
         "tab_about":   "About",
         "theme":       "Theme:",
         "theme_system": "System default",
-        "theme_dark":   "Dark",
-        "theme_light":  "Light",
-        "language":    "Language:",
-        "out_main":    "Main Output (Soundboards):",
+          "theme_dark":   "Dark",
+          "theme_light":  "Light",
+          "language":    "Language:",
+          "button_text_size": "Button text size:",
+          "button_text_small": "Small",
+          "button_text_normal": "Normal",
+          "button_text_large": "Large",
+          "button_text_xlarge": "Very large",
+          "out_main":    "Main Output (Soundboards):",
         "out_pre":     "Pre-listen Output (Prelisten):",
         "mapping_btn": "✏️ Assign shortcuts by clicking (Mapping Mode)",
         "mapping_hint":"Click the box and press the key you want to assign.",
+        "global_keys": "Allow shortcuts when the app is not focused",
         "key_stop":    "Stop ALL sounds:",
         "key_next":    "Next Tab:",
         "key_prev":    "Previous Tab:",
         "key_none":    "None",
         "save":           "Save Settings",
+        "reserved_shortcuts_hint": "Reserved application shortcuts:",
+        "undo_shortcut": "Undo movement or deletion",
+        "redo_shortcut": "Redo movement or deletion",
         "no_orphaned":    "All button shortcuts are active.",
         "orphaned_hint":  "Shortcuts assigned to buttons without audio file:",
         "clear_shortcut": "Clear",
@@ -92,6 +104,13 @@
         "target_tab":    "Tab",
         "save":   "Save Shortcut",
         "cancel": "Cancel"
+    },
+    "shortcuts": {
+        "blocked_global": "The {key} shortcut is reserved by a profile-wide shortcut and cannot be assigned here.",
+        "replace_button": "The {key} shortcut is already assigned to button {target} in this tab. Continuing will remove it from the previous button.",
+        "replace_tab": "The {key} shortcut is already assigned to the {target} tab. Continuing will remove it from the previous tab.",
+        "replace_button_any": "The {key} shortcut is already assigned to button {target}. Continuing will remove it from buttons using it.",
+        "reserved_system": "The {key} shortcut is reserved by the application and cannot be reassigned."
     },
     "prelisten": {
         "title":        "Pre-listen",
@@ -134,10 +153,20 @@
         "title":               "Edit effect (Button",
         "filepath":            "File path:",
         "type":                "Effect type",
-        "type_audio":          "Audio",
-        "type_time":           "Time voice-over",
-        "type_temp":           "Temperature",
-        "type_hum":            "Humidity",
+        "type_audio":          "🎵 Audio",
+        "type_random_folder":  "📁 Random folder",
+        "type_time":           "🕐 Time voice-over",
+        "type_temp":           "🌡️ Temperature",
+        "type_hum":            "💧 Humidity",
+        "change_type":         "Change type",
+        "placeholder_audio":   "Select a file",
+        "placeholder_random_folder": "Select a folder",
+        "placeholder_time":    "Select the time voice-over folder",
+        "placeholder_temp":    "Select the temperature voice-over folder",
+        "placeholder_hum":     "Select the humidity voice-over folder",
+        "missing_time":        "Configure the time voice-over folder first.",
+        "missing_temperature": "Configure the temperature voice-over folder first.",
+        "missing_humidity":    "Configure the humidity voice-over folder first.",
         "select_file":         "...",
         "name":                "Name:",
         "volume":              "Volume:",
@@ -156,11 +185,16 @@
         "mode_restart":     "Restart — re-triggers the sound on each click",
         "mode_stop_others": "Solo — silences all others when a button activates",
         "stop_all":         "Stop All — silence everything immediately",
+        "master_volume":    "Master volume",
+        "remember_volume":  "Remember volume on startup",
+        "allow_boost":      "Allow up to 150%",
+        "boost_warning":    "Raising master volume above 100% can clip or distort the sound. Enable it?",
         "label_normal":     "Normal",
         "label_loop":       "Loop",
         "label_overlap":    "Stack",
         "label_restart":    "Restart",
         "label_stop_others":"Solo",
+        "label_master_volume":"VOL",
         "label_stop_all":   "Stop All"
     },
     "clock": {
@@ -180,12 +214,41 @@
         "skipped": "Automatic checks run every 12 hours.",
         "error": "Could not check right now.",
         "later": "Later",
-        "open_release": "Open download"
+        "open_release": "Open download",
+        "reminder_label": "Update",
+        "reminder_title": "Update available"
+    },
+    "color_picker": {
+        "title": "Select color",
+        "preview": "PREVIEW",
+        "white": "White text",
+        "black": "Black text",
+        "apply": "Apply"
+    },
+    "delete_confirm": {
+        "title_profile": "Delete profile",
+        "title_tab": "Delete tab",
+        "body_profile": "Do you want to delete this profile?",
+        "body_tab": "Do you want to delete this tab?",
+        "save_delete": "Save and delete",
+        "delete": "Delete",
+        "cancel": "Cancel"
     },
     "errors": {
         "fatal_ipc":       "Fatal communication error with the native engine.",
         "only_profile":    "The only profile cannot be deleted.",
         "only_tab":        "The only tab cannot be deleted.",
-        "no_empty_button": "No empty buttons available."
+        "no_empty_button": "No empty buttons available.",
+        "audio_file_not_found": "Audio file not found.",
+        "unsupported_audio_format": "Unsupported audio format.",
+        "invalid_volume": "Volume must be between 0 and 100%.",
+        "invalid_button_type": "Invalid button type.",
+        "button_not_found": "Button not found.",
+        "invalid_button_flag": "Invalid button option.",
+        "invalid_locution_kind": "Invalid voice-over type.",
+        "reserved_system_shortcut": "That shortcut is reserved by the application and cannot be reassigned.",
+        "loc_missing_time_folder": "The time voice-over folder is missing.",
+        "loc_missing_temp_folder": "The temperature voice-over folder is missing.",
+        "loc_missing_hum_folder": "The humidity voice-over folder is missing."
     }
 }

@@ -8,6 +8,7 @@ import { invoke } from './api.js';
 import { placeMenu } from './menuPosition.js';
 import { t } from './i18n.js';
 import { paintAdaptive } from './colorAdapter.js';
+import { confirmDelete } from './deleteConfirm.js';
 
 let _config    = null;
 let _onRefresh = null;
@@ -54,10 +55,16 @@ export function initProfiles(config, onRefresh) {
 
     document.getElementById('menu-delete-profile').addEventListener('click', async () => {
         _hideMenu();
+        const action = await confirmDelete('profile');
+        if (action === 'cancel') return;
         try {
+            if (action === 'save_delete') {
+                await invoke('export_profile_by_id', { profileId: _config.active_profile_id });
+            }
             await invoke('delete_profile', { id: _config.active_profile_id });
             _onRefresh?.();
         } catch (e) {
+            if (_isCanceled(e)) return;
             // Rust devuelve códigos de error; aquí se traducen y muestran
             const key = `errors.${e}`;
             const msg = t(key);
@@ -110,4 +117,8 @@ function _renderProfileList(config) {
 
 function _hideMenu() {
     document.getElementById('profile-context-menu')?.classList.add('hidden');
+}
+
+function _isCanceled(e) {
+    return String(e).toLowerCase().includes('cancel');
 }
