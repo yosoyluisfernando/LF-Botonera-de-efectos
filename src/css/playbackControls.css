@@ -41,17 +41,17 @@
 }
 
 .pb-btn:hover {
-    background: var(--playback-hover-bg);
+    background: var(--soft-active-bg);
     color: var(--text-primary);
-    border-color: var(--accent-color);
-    box-shadow: inset 0 0 0 1px var(--accent-color), 0 0 0 1px var(--control-shadow);
+    border-color: var(--soft-active-border);
+    box-shadow: inset 0 1px 0 var(--control-highlight);
 }
 
 .pb-btn.active {
     background: var(--playback-active-bg);
     color: var(--text-primary);
-    border-color: var(--accent-color);
-    box-shadow: inset 0 3px 0 var(--accent-color), 0 0 0 1px var(--control-shadow);
+    border-color: var(--soft-active-border);
+    box-shadow: inset 0 2px 0 var(--soft-active-border);
 }
 
 .pb-btn-stop {

@@ -7,10 +7,31 @@
   transition: filter 0.12s, border-color 0.12s, box-shadow 0.12s, background 0.12s;
 }
 
+.grid-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.grid-item .index,
+.grid-item .label,
+.grid-item .timer,
+.grid-item .shortcut-badge,
+.grid-item .progress-container {
+  z-index: 1;
+}
+
 .grid-item:hover {
   border-color: var(--grid-hover-border);
-  box-shadow: inset 0 0 0 2px var(--grid-hover-ring), 0 0 0 1px var(--grid-hover-shadow);
-  filter: brightness(1.08) saturate(1.04);
+  box-shadow: none;
+  filter: saturate(1.03);
+}
+
+.grid-item:hover::before {
+  background: var(--grid-hover-overlay);
 }
 
 .grid-item[data-id]:hover .label {
@@ -19,6 +40,7 @@
 
 .grid-item:not([data-id]):hover {
   background: var(--grid-empty-hover-bg);
+  border-color: var(--grid-hover-border);
   border-style: dashed;
   filter: none;
 }
@@ -29,6 +51,7 @@
   font-size: 24px;
   font-weight: 700;
   line-height: 1;
+  z-index: 1;
 }
 
 .grid-item.playing {

@@ -21,7 +21,7 @@
 .master-volume-btn.active {
     background: var(--playback-active-bg);
     color: var(--text-primary);
-    border-color: var(--accent-color);
+    border-color: var(--soft-active-border);
 }
 
 .master-volume-panel {
@@ -41,13 +41,9 @@
     font-family: "Courier New", Courier, monospace;
     font-size: 11px;
     font-weight: 700;
-    color: var(--text-primary);
-    background: var(--playback-bg);
-    border: 1px solid var(--playback-border);
-    border-radius: 3px;
-    padding: 2px 4px;
+    color: var(--volume-readout-color);
     text-align: right;
-    width: 44px;
+    width: 38px;
     flex-shrink: 0;
 }
 
