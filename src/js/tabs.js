@@ -79,6 +79,7 @@ function renderTabs(config) {
             : paleta.nombre;
 
         tab.addEventListener('click', async e => {
+            if (e.altKey) return;
             if (isMapping()) {
                 e.stopPropagation();
                 captureTab(paleta, config.active_profile_id);

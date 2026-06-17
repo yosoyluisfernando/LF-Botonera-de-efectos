@@ -14,6 +14,7 @@ import { initProfiles, updateProfiles } from './profiles.js';
 import { initShortcuts, updateShortcuts } from './shortcuts.js';
 import { initGrid, drawGrid } from './grid.js';
 import { initGridDnd } from './gridDnd.js';
+import { initTabDnd, updateTabDnd } from './tabDnd.js';
 import { initBottomBar, refreshBottomBar } from './bottomBar.js';
 import { initSettingsModal } from './settingsModal.js';
 import { initMapping } from './mapping.js';
@@ -74,6 +75,7 @@ async function _refresh() {
         invoke('get_grid_state'),
     ]);
     updateTabs(config, _refresh);
+    updateTabDnd(config, _refresh);
     updateProfiles(config, _refresh);
     updateShortcuts(config, _refresh);
     _applyButtonTextSize(config.button_text_size);
@@ -83,6 +85,7 @@ async function _refresh() {
 
 function _initModules(config, grid) {
     initTabs(config, _refresh);
+    initTabDnd(config, _refresh);
     initProfiles(config, _refresh);
     initShortcuts(config, _refresh);
     initGrid(_refresh);

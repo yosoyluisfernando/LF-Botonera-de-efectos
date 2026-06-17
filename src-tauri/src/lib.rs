@@ -43,6 +43,7 @@ pub mod playback_mode;
 pub mod playback_state;
 pub mod random_folder;
 pub mod shortcut_rules;
+pub mod tab_reorder;
 pub mod types;
 pub mod types_grid;
 pub mod types_locutions;
@@ -129,6 +130,7 @@ pub fn run() {
             cmd_profiles::create_paleta,
             cmd_profiles::delete_paleta,
             cmd_profiles::update_paleta_meta,
+            tab_reorder::reorder_paletas,
             // Audio
             cmd_audio::get_audio_devices,
             cmd_audio::set_audio_device,

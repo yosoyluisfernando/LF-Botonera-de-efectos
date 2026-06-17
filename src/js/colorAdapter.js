@@ -32,6 +32,10 @@ function _paint(el) {
 }
 
 function adaptColor(hex, role) {
+    if (role === 'profile') {
+        return hex || DEFAULTS.profileBg;
+    }
+
     const hsl = rgbToHsl(hexToRgb(hex));
     if (!hsl) return hex || DEFAULTS.buttonBg;
 
