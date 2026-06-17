@@ -23,6 +23,7 @@ import { updateVuMeter } from './vuMeter.js';
 import { updateWeatherPanel } from './settingsLocutions.js';
 import { initUpdateNotifier } from './updateNotifier.js';
 import { initColorPicker } from './colorPalette.js';
+import { initNumberInputs } from './numberInputs.js';
 
 let _closeWired = false;
 let _runtimeWired = false;
@@ -33,6 +34,8 @@ export async function startApp() {
         await waitForTauri();
         initTitlebar();
         initColorPicker();
+        initNumberInputs();
+        _blockNativeContextMenu();
 
         const config = await _loadConfig();
         applyTheme(config.theme || 'dark');
@@ -112,6 +115,10 @@ function _paintAudio(payload) {
 
 function _applyButtonTextSize(size = 'normal') {
     document.body.dataset.buttonTextSize = size || 'normal';
+}
+
+function _blockNativeContextMenu() {
+    document.addEventListener('contextmenu', e => e.preventDefault(), true);
 }
 
 function _wireCloseButtons() {

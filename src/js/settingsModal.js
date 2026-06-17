@@ -9,6 +9,7 @@ import { applyTheme } from './theme.js';
 import { t } from './i18n.js';
 import { initLocutionsPanel, loadLocutionsPanel, saveLocutions } from './settingsLocutions.js';
 import { initKeyInputs } from './keyInputs.js';
+import { appAlert } from './appDialog.js';
 
 let _onSaved         = null;
 let _currentOutMain  = null; // Tarjeta vigente al abrir el modal
@@ -108,7 +109,7 @@ async function _saveSettings() {
     } catch (e) {
         console.error('Error al guardar ajustes:', e);
         const msg = t(`errors.${e}`);
-        window.alert(msg === `errors.${e}` ? String(e) : msg);
+        await appAlert(msg === `errors.${e}` ? String(e) : msg);
         return;
     }
     document.getElementById('settings-modal').classList.add('hidden');

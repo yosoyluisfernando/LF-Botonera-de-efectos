@@ -31,6 +31,7 @@ pub mod config;
 pub mod config_history;
 pub mod global_shortcuts;
 pub mod grid_reorder;
+pub mod grid_resize;
 pub mod grid_view;
 pub mod lfa_format;
 pub mod locution_playback;

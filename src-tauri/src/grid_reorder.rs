@@ -68,7 +68,10 @@ fn button_id(paleta_id: &str, index: u32) -> String {
     format!("{}_btn_{}", paleta_id, index)
 }
 
-fn remap_active_audio_ids(state: &tauri::State<AppState>, mappings: &[(String, String)]) {
+pub(crate) fn remap_active_audio_ids(
+    state: &tauri::State<AppState>,
+    mappings: &[(String, String)],
+) {
     if mappings.is_empty() {
         return;
     }

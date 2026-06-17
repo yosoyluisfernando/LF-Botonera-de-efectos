@@ -6,6 +6,7 @@
 import { invoke } from './api.js';
 import { t } from './i18n.js';
 import { placeMenu } from './menuPosition.js';
+import { appConfirm } from './appDialog.js';
 
 let _state = { volume: 1, remember: false, boost: false, max: 1 };
 let _wired = false;
@@ -52,8 +53,8 @@ function _showMenu(event) {
     _menu.appendChild(_menuButton(_state.remember, t('playback.remember_volume'), () => {
         _setOptions(!_state.remember, _state.boost);
     }));
-    _menu.appendChild(_menuButton(_state.boost, t('playback.allow_boost'), () => {
-        if (!_state.boost && !window.confirm(t('playback.boost_warning'))) return;
+    _menu.appendChild(_menuButton(_state.boost, t('playback.allow_boost'), async () => {
+        if (!_state.boost && !await appConfirm(t('playback.boost_warning'))) return;
         _setOptions(_state.remember, !_state.boost);
     }));
     _menu.classList.remove('hidden');

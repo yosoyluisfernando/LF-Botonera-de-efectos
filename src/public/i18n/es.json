@@ -238,6 +238,8 @@
         "fatal_ipc":       "Error fatal de comunicación con el motor nativo.",
         "only_profile":    "No se puede eliminar el único perfil.",
         "only_tab":        "No se puede eliminar la única pestaña.",
+        "invalid_grid_size": "La grilla debe tener al menos una fila y una columna.",
+        "grid_resize_would_drop_buttons": "No se puede reducir la grilla porque hay botones fuera del nuevo tamaño.",
         "no_empty_button": "No hay botones vacíos disponibles.",
         "audio_file_not_found": "No se encontró el archivo de audio.",
         "unsupported_audio_format": "Formato de audio no compatible.",

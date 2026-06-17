@@ -13,6 +13,7 @@ export function initShortcuts(config, onRefresh) {
     _onRefresh = onRefresh;
     if (_wired) return;
     _wired = true;
+    document.addEventListener('keydown', _preventBrowserFunctionKeys, true);
     document.addEventListener('keydown', _handleKey);
 }
 
@@ -39,6 +40,10 @@ async function _handleKey(e) {
     }
 }
 
+function _preventBrowserFunctionKeys(e) {
+    if (e.key === 'F3' || e.key === 'F5') e.preventDefault();
+}
+
 async function _handleHistoryShortcut(e) {
     if (!e.ctrlKey || e.shiftKey || e.key.toLowerCase() !== 'z') return false;
     e.preventDefault();
@@ -55,8 +60,12 @@ async function _handleHistoryShortcut(e) {
 
 function _handleEscape(e) {
     if (e.key !== 'Escape') return false;
-    document.querySelectorAll('.modal-overlay:not(.hidden)')
-        .forEach(m => m.classList.add('hidden'));
+    const modal = _topModal();
+    if (modal) {
+        e.preventDefault();
+        _closeModal(modal);
+        return true;
+    }
     const pre = document.getElementById('prelisten-player');
     if (pre && !pre.classList.contains('hidden')) {
         document.getElementById('btn-stop-prelisten')?.click();
@@ -66,16 +75,38 @@ function _handleEscape(e) {
 
 function _handleEnter(e) {
     if (e.key !== 'Enter') return false;
-    const modal = document.querySelector('.modal-overlay:not(.hidden)');
+    const modal = _topModal();
     if (!modal) return false;
     const btn = modal.querySelector(
-        '#btn-save-settings, #btn-save-capture, #btn-save-edit, #btn-save-tab, #btn-save-profile'
+        '.app-dialog-ok, #btn-save-settings, #btn-save-capture, #btn-save-edit, #btn-save-tab, #btn-save-profile'
     );
     if (btn && !btn.disabled) {
         e.preventDefault();
         btn.click();
     }
     return true;
+}
+
+function _topModal() {
+    const modals = [...document.querySelectorAll('.modal-overlay:not(.hidden)')];
+    return modals.sort((a, b) => _zIndex(a) - _zIndex(b)).at(-1) ?? null;
+}
+
+function _zIndex(el) {
+    const value = Number(getComputedStyle(el).zIndex);
+    return Number.isFinite(value) ? value : 0;
+}
+
+function _closeModal(modal) {
+    if (modal.id === 'app-dialog-modal') {
+        modal.querySelector('.close-btn')?.click();
+        return;
+    }
+    if (modal.id === 'delete-confirm-modal') {
+        document.getElementById('delete-confirm-close')?.click();
+        return;
+    }
+    modal.classList.add('hidden');
 }
 
 function _isTextInput(target) {

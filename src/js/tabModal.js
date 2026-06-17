@@ -7,6 +7,7 @@
 import { invoke } from './api.js';
 import { t } from './i18n.js';
 import { attachPalette, refreshColorInputs } from './colorPalette.js';
+import { appAlert } from './appDialog.js';
 
 /**
  * Abre el modal de pestaña.
@@ -69,7 +70,12 @@ export async function openTabModal(config, paleta, onRefresh) {
             }
             modal.classList.add('hidden');
             onRefresh?.();
-        } catch (e) { console.error('Error al guardar pestaña:', e); }
+        } catch (e) {
+            const key = `errors.${e}`;
+            const msg = t(key);
+            await appAlert(msg === key ? String(e) : msg);
+            console.error('Error al guardar pestaña:', e);
+        }
     };
 }
 

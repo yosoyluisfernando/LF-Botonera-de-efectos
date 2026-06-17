@@ -10,6 +10,7 @@ import { invoke } from './api.js';
 import { t } from './i18n.js';
 import { invokeShortcutSave } from './shortcutSave.js';
 import { attachPalette, refreshColorInputs } from './colorPalette.js';
+import { appAlert } from './appDialog.js';
 import {
     canPrelisten, defaultFolder, isFolderType, isLocution,
     labelKey, placeholderKey, selectedType, setTypeState, typeOptions,
@@ -66,7 +67,7 @@ export async function openEditModal(index, btnData, onSave) {
         if (isLocution(sel)) {
             pathEl.value = pathEl.value || defaultFolder(sel);
             nameEl.value = t(labelKey(sel));
-            if (!pathEl.value) window.alert(t(`edit_modal.missing_${sel}`));
+            if (!pathEl.value) appAlert(t(`edit_modal.missing_${sel}`));
         }
         _applyPathHint(sel, pathEl);
     };
@@ -112,7 +113,7 @@ export async function openEditModal(index, btnData, onSave) {
         const isFolder = isFolderType(sel);
         try {
             if (isLocution(sel) && !pathEl.value.trim()) {
-                window.alert(t(`edit_modal.missing_${sel}`));
+                await appAlert(t(`edit_modal.missing_${sel}`));
                 return;
             }
             await invokeShortcutSave('update_button_data', {

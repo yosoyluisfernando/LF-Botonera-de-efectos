@@ -9,6 +9,7 @@ import { placeMenu } from './menuPosition.js';
 import { t } from './i18n.js';
 import { paintAdaptive } from './colorAdapter.js';
 import { confirmDelete } from './deleteConfirm.js';
+import { appAlert } from './appDialog.js';
 
 let _config    = null;
 let _onRefresh = null;
@@ -68,7 +69,7 @@ export function initProfiles(config, onRefresh) {
             // Rust devuelve códigos de error; aquí se traducen y muestran
             const key = `errors.${e}`;
             const msg = t(key);
-            alert(msg === key ? e : msg);
+            await appAlert(msg === key ? String(e) : msg);
         }
     });
 

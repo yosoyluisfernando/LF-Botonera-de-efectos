@@ -238,6 +238,8 @@
         "fatal_ipc":       "Fatal communication error with the native engine.",
         "only_profile":    "The only profile cannot be deleted.",
         "only_tab":        "The only tab cannot be deleted.",
+        "invalid_grid_size": "The grid must have at least one row and one column.",
+        "grid_resize_would_drop_buttons": "The grid cannot be reduced because some buttons would be left outside the new size.",
         "no_empty_button": "No empty buttons available.",
         "audio_file_not_found": "Audio file not found.",
         "unsupported_audio_format": "Unsupported audio format.",

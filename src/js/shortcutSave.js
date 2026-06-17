@@ -5,6 +5,7 @@
 
 import { invoke } from './api.js';
 import { t } from './i18n.js';
+import { appAlert, appConfirm } from './appDialog.js';
 
 /** Ejecuta un comando de guardado y confirma solo conflictos reemplazables. */
 export async function invokeShortcutSave(command, payload) {
@@ -15,11 +16,11 @@ export async function invokeShortcutSave(command, payload) {
         if (!conflict) throw error;
 
         if (conflict.code === 'shortcut_blocked_global') {
-            window.alert(_format(t('shortcuts.blocked_global'), conflict));
+            await appAlert(_format(t('shortcuts.blocked_global'), conflict));
             throw error;
         }
         if (conflict.code === 'shortcut_reserved_system') {
-            window.alert(_format(t('shortcuts.reserved_system'), conflict));
+            await appAlert(_format(t('shortcuts.reserved_system'), conflict));
             throw error;
         }
 
@@ -28,7 +29,7 @@ export async function invokeShortcutSave(command, payload) {
             shortcut_conflict_tab: 'shortcuts.replace_tab',
             shortcut_conflict_button_any: 'shortcuts.replace_button_any',
         }[conflict.code];
-        if (!messageKey || !window.confirm(_format(t(messageKey), conflict))) throw error;
+        if (!messageKey || !await appConfirm(_format(t(messageKey), conflict))) throw error;
         return await invoke(command, { ...payload, replaceShortcut: true });
     }
 }

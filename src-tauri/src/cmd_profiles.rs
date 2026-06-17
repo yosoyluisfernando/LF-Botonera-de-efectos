@@ -4,6 +4,8 @@ use super::AppState;
 use crate::cmd_master_volume;
 use crate::config;
 use crate::global_shortcuts;
+use crate::grid_reorder;
+use crate::grid_resize;
 use crate::shortcut_rules;
 use crate::types::{AppConfig, AudioConfig, PaletaData, ProfileData};
 
@@ -256,6 +258,8 @@ pub fn update_paleta_meta(
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
+    let mut id_mappings = Vec::new();
+    let mut grid_changed = false;
     if let Some(v) = shortcut.as_ref() {
         shortcut_rules::apply_tab_shortcut(
             &mut cfg,
@@ -264,6 +268,17 @@ pub fn update_paleta_meta(
             v,
             replace_shortcut.unwrap_or(false),
         )?;
+    }
+    let paleta_snapshot = cfg
+        .profiles
+        .iter()
+        .find(|p| p.id == profile_id)
+        .and_then(|p| p.paletas.iter().find(|p| p.id == paleta_id))
+        .ok_or("PestaÃ±a no encontrada")?;
+    let should_resize = paleta_snapshot.rows != rows || paleta_snapshot.cols != cols;
+    if should_resize {
+        grid_resize::validate_resize(paleta_snapshot, rows, cols)?;
+        state.history.lock().unwrap().remember(&cfg);
     }
     let profile = cfg
         .profiles
@@ -275,9 +290,12 @@ pub fn update_paleta_meta(
         .iter_mut()
         .find(|p| p.id == paleta_id)
         .ok_or("PestaÃ±a no encontrada")?;
+    if should_resize {
+        let resized = grid_resize::resize_paleta(paleta, rows, cols)?;
+        id_mappings = resized.mappings;
+        grid_changed = resized.changed;
+    }
     paleta.nombre = nombre;
-    paleta.rows = rows;
-    paleta.cols = cols;
     if let Some(v) = tab_bg {
         paleta.tab_bg = v;
     }
@@ -292,6 +310,9 @@ pub fn update_paleta_meta(
     }
     config::save_config(&cfg)?;
     drop(cfg);
+    if grid_changed {
+        grid_reorder::remap_active_audio_ids(&state, &id_mappings);
+    }
     global_shortcuts::sync(&app)?;
     let cfg = state.config.lock().unwrap();
     Ok(cfg.clone())
