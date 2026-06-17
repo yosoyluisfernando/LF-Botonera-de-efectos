@@ -35,6 +35,25 @@
 }
 .btn-settings:hover { background: var(--action-accent-hover); filter: none; }
 
+.tab:hover {
+  background: var(--tab-hover-bg) !important;
+  color: var(--text-primary);
+  border-color: var(--soft-active-border);
+}
+
+.tab.tab-drag-source {
+  background: var(--drag-source-tab-bg) !important;
+  color: var(--text-primary);
+  border-color: var(--soft-active-border);
+}
+
+.tab.tab-drag-over {
+  background: var(--drag-over-tab-bg) !important;
+  color: var(--text-primary);
+  border-color: var(--drag-over-border);
+  border-style: dashed;
+}
+
 /* Pestaña con audio sonando en segundo plano (sin ser la activa) */
 .tab.tab-playing {
   background: var(--success-strong) !important;

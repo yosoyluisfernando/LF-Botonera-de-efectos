@@ -30,6 +30,7 @@ pub mod colors;
 pub mod config;
 pub mod config_history;
 pub mod global_shortcuts;
+pub mod grid_move;
 pub mod grid_reorder;
 pub mod grid_resize;
 pub mod grid_view;
@@ -146,6 +147,7 @@ pub fn run() {
             cmd_button_flags::toggle_button_flag,
             cmd_button_types::get_edit_button_types,
             cmd_button_update::update_button_data,
+            grid_move::move_button_to_paleta,
             grid_reorder::reorder_buttons,
             // Audio util
             cmd_audio::set_audio_volume,

@@ -57,3 +57,16 @@
 .grid-item.playing {
   box-shadow: inset 0 0 0 2px var(--playing-ring), 0 0 0 1px var(--playing-shadow);
 }
+
+.grid-item.drag-source::before {
+  background: var(--drag-source-overlay);
+}
+
+.grid-item.drag-over {
+  border: 2px dashed var(--drag-over-border) !important;
+  filter: none;
+}
+
+.grid-item.drag-over::before {
+  background: var(--drag-over-overlay);
+}

@@ -37,6 +37,7 @@
   --control-shadow: rgba(0,0,0,0.4);
   --soft-active-bg: #17344a;
   --soft-active-border: #4d9ed8;
+  --tab-hover-bg: #20384a;
   
   --error-color: #f44336;
   --success-color: #4caf50;
@@ -62,6 +63,11 @@
   --grid-hover-overlay: rgba(210,238,255,0.22);
   --grid-empty-hover-bg: #20384a;
   --grid-empty-plus: #a8dbff;
+  --drag-source-overlay: rgba(105,169,216,0.22);
+  --drag-over-overlay: rgba(116,196,255,0.34);
+  --drag-over-border: #74c4ff;
+  --drag-source-tab-bg: #20384a;
+  --drag-over-tab-bg: #255276;
   --playing-ring: rgba(255,255,255,0.5);
   --playing-shadow: rgba(0,0,0,0.75);
 }
@@ -98,6 +104,7 @@
   --control-shadow: rgba(50,50,50,0.22);
   --soft-active-bg: #d9ecff;
   --soft-active-border: #6ba9d8;
+  --tab-hover-bg: #d9ecff;
   
   --error-color: #d32f2f;
   --success-color: #388e3c;
@@ -123,6 +130,11 @@
   --grid-hover-overlay: rgba(255,255,255,0.42);
   --grid-empty-hover-bg: #dceeff;
   --grid-empty-plus: #005a9e;
+  --drag-source-overlay: rgba(0,90,158,0.18);
+  --drag-over-overlay: rgba(0,120,212,0.28);
+  --drag-over-border: #0078d4;
+  --drag-source-tab-bg: #d9ecff;
+  --drag-over-tab-bg: #c5e4ff;
   --playing-ring: rgba(0,0,0,0.38);
   --playing-shadow: rgba(255,255,255,0.8);
 }
