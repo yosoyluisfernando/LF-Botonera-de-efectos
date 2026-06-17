@@ -1,0 +1,69 @@
+/*
+ * Archivo: playbackControls.css
+ * Proposito: botones de modos de reproduccion en la barra inferior.
+ */
+
+#playback-modes {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.pb-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: var(--playback-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--playback-border);
+    border-radius: 5px;
+    cursor: pointer;
+    height: 44px;
+    min-width: 58px;
+    padding: 4px 10px;
+    box-shadow: inset 0 1px 0 var(--control-highlight);
+    transition: background 0.12s, color 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+
+.pb-icon {
+    font-size: 17px;
+    line-height: 1;
+}
+
+.pb-label {
+    font-size: 9px;
+    line-height: 1;
+    text-transform: uppercase;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.pb-btn:hover {
+    background: var(--playback-hover-bg);
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+    box-shadow: inset 0 0 0 1px var(--accent-color), 0 0 0 1px var(--control-shadow);
+}
+
+.pb-btn.active {
+    background: var(--playback-active-bg);
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+    box-shadow: inset 0 3px 0 var(--accent-color), 0 0 0 1px var(--control-shadow);
+}
+
+.pb-btn-stop {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border-color: var(--danger-border);
+    margin-left: auto;
+    min-width: 64px;
+}
+
+.pb-btn-stop:hover {
+    background: var(--error-color);
+    color: #ffffff;
+    border-color: var(--error-color);
+}

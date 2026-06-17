@@ -1,0 +1,36 @@
+/*
+ * Archivo: gridHover.css
+ * Proposito: estados hover/foco de celdas con y sin audio.
+ */
+
+.grid-item {
+  transition: filter 0.12s, border-color 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.grid-item:hover {
+  border-color: var(--grid-hover-border);
+  box-shadow: inset 0 0 0 2px var(--grid-hover-ring), 0 0 0 1px var(--grid-hover-shadow);
+  filter: brightness(1.08) saturate(1.04);
+}
+
+.grid-item[data-id]:hover .label {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.65);
+}
+
+.grid-item:not([data-id]):hover {
+  background: var(--grid-empty-hover-bg);
+  border-style: dashed;
+  filter: none;
+}
+
+.grid-item:not([data-id]):hover::after {
+  content: '+';
+  color: var(--grid-empty-plus);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.grid-item.playing {
+  box-shadow: inset 0 0 0 2px var(--playing-ring), 0 0 0 1px var(--playing-shadow);
+}

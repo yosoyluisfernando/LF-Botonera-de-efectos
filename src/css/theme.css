@@ -11,7 +11,8 @@
   --bg-secondary: #1e1e1e;
   --bg-tertiary: #2a2a2a;
   --bottom-bg: #1e1e1e;
-  --vu-channel-bg: #121212;
+  --bottom-panel-bg: #242424;
+  --vu-channel-bg: #101010;
   --playback-bg: #2a2a2a;
   --playback-hover-bg: #121212;
   --modal-bg: #1f1f1f;
@@ -31,6 +32,9 @@
   --action-accent-hover: #0b7fd0;
   
   --border-color: #333333;
+  --playback-border: #464646;
+  --control-highlight: rgba(255,255,255,0.08);
+  --control-shadow: rgba(0,0,0,0.4);
   
   --error-color: #f44336;
   --success-color: #4caf50;
@@ -45,6 +49,19 @@
   --danger-border: #7c3030;
   --playback-active-bg: #3c3c3c;
   --playback-active-border: #505050;
+  --slider-track-bg: #111111;
+  --slider-track-border: #4a4a4a;
+  --slider-safe-bg: #0088d8;
+  --slider-boost-bg: #d9911b;
+  --slider-thumb-top: #d0d0d0;
+  --slider-thumb-bottom: #646464;
+  --grid-hover-border: #ffffff;
+  --grid-hover-ring: rgba(255,255,255,0.34);
+  --grid-hover-shadow: rgba(0,0,0,0.65);
+  --grid-empty-hover-bg: #252525;
+  --grid-empty-plus: #888888;
+  --playing-ring: rgba(255,255,255,0.5);
+  --playing-shadow: rgba(0,0,0,0.75);
 }
 
 /* TEMA CLARO */
@@ -53,7 +70,8 @@
   --bg-secondary: #ffffff;
   --bg-tertiary: #e0e0e0;
   --bottom-bg: #d2d2d2;
-  --vu-channel-bg: #b9b9b9;
+  --bottom-panel-bg: #c7c7c7;
+  --vu-channel-bg: #a8a8a8;
   --playback-bg: #cfcfcf;
   --playback-hover-bg: #bdbdbd;
   --modal-bg: #eeeeee;
@@ -73,18 +91,34 @@
   --action-accent-hover: #0090ff;
   
   --border-color: #cccccc;
+  --playback-border: #ababab;
+  --control-highlight: rgba(255,255,255,0.55);
+  --control-shadow: rgba(50,50,50,0.22);
   
   --error-color: #d32f2f;
   --success-color: #388e3c;
   --success-strong: #00e95a;
   --warning-color: #f57c00;
 
-  --vu-green: #00f060;
-  --vu-yellow: #ffd000;
-  --vu-red: #ff3030;
+  --vu-green: #04cf56;
+  --vu-yellow: #e7ba00;
+  --vu-red: #e63a35;
   --danger-bg: #f5c6c6;
   --danger-text: #b91c1c;
   --danger-border: #ef9898;
   --playback-active-bg: #c4c4c4;
   --playback-active-border: #999999;
+  --slider-track-bg: #e9e9e9;
+  --slider-track-border: #8f8f8f;
+  --slider-safe-bg: #0078d4;
+  --slider-boost-bg: #d88b00;
+  --slider-thumb-top: #ffffff;
+  --slider-thumb-bottom: #b8b8b8;
+  --grid-hover-border: #111111;
+  --grid-hover-ring: rgba(0,0,0,0.28);
+  --grid-hover-shadow: rgba(255,255,255,0.75);
+  --grid-empty-hover-bg: #e8e8e8;
+  --grid-empty-plus: #555555;
+  --playing-ring: rgba(0,0,0,0.38);
+  --playing-shadow: rgba(255,255,255,0.8);
 }

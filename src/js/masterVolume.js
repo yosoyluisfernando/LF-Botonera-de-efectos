@@ -89,9 +89,14 @@ function _applyState(state) {
     const slider = _slider();
     const percent = Math.round(_state.volume * 100);
     if (slider) {
-        slider.max = Math.round(_state.max * 100);
+        const max = Math.round(_state.max * 100);
+        slider.max = max;
         slider.value = String(percent);
-        slider.style.setProperty('--vol-fill', `${(percent / Number(slider.max)) * 100}%`);
+        const fill = (percent / max) * 100;
+        const safe = (100 / max) * 100;
+        slider.style.setProperty('--vol-fill', `${fill}%`);
+        slider.style.setProperty('--vol-safe', `${safe}%`);
+        slider.style.setProperty('--vol-safe-fill', `${Math.min(fill, safe)}%`);
     }
     const readout = document.getElementById('master-volume-readout');
     if (readout) readout.textContent = `${percent}%`;
