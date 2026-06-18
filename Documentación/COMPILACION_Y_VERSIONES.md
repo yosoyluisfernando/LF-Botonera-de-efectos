@@ -1,50 +1,116 @@
-# 📦 REGLAS DE COMPILACIÓN Y VERSIONES
+# REGLAS DE COMPILACION Y VERSIONES
 
-Este documento establece las normativas sobre los sistemas operativos soportados y el proceso de compilación del proyecto (Tauri + Rust) para facilitar su distribución.
+Este documento define los sistemas operativos soportados y el proceso de
+compilacion, versionado y publicacion del proyecto Tauri + Rust.
 
 ## 1. Sistemas Operativos Soportados
 
-**Windows (10 y 11):**
-*   **Decisión Técnica:** Queda **totalmente descartada** la compatibilidad con Windows 7, 8 y 8.1. 
-*   **Motivo:** Tauri utiliza *WebView2* (Edge nativo) para renderizar la interfaz. Microsoft finalizó oficialmente el soporte de WebView2 para Windows 7 y 8 en enero de 2023. Además, el propio compilador moderno de Rust (v1.78+) exige Windows 10 como mínimo. Tratar de forzar la compatibilidad obligaría a usar herramientas obsoletas, repletas de fallas de seguridad y bugs de audio insalvables.
-*   **Soporte Final:** Windows 10 y Windows 11 (Home/Pro/LTSC).
+**Windows 10 y 11**
 
-**Linux:**
-*   Se compilará nativamente en paquetes `.deb` (para distros basadas en Debian/Ubuntu) y en `.AppImage` (para distribución universal).
+* Windows 7, 8 y 8.1 quedan descartados.
+* Tauri usa WebView2 para renderizar la interfaz. Microsoft finalizo el soporte
+  de WebView2 para Windows 7 y 8 en enero de 2023.
+* El compilador moderno de Rust tambien exige Windows 10 como base practica.
+* Soporte final: Windows 10 y Windows 11.
 
----
+**Linux**
 
-## 2. Instrucciones de Compilación (Source Code)
+* Se compila nativamente en paquetes `.deb`, `.rpm` y `.AppImage`.
+* Los assets Linux deben generarse desde un runner Linux o una maquina Linux.
 
-Para cualquier usuario o desarrollador que descargue el código fuente y desee compilarlo por sí mismo, los pasos deben ser extremadamente sencillos:
+## 2. Compilacion
 
-### Preparación (Primera vez)
-1. Instalar `Node.js` y `npm`.
-2. Instalar `Rust` (usando `rustup`).
-3. En la raíz del proyecto, ejecutar:
-   ```bash
-   npm install
-   ```
+Preparacion inicial:
 
-### Compilar para Windows (Ejecutable .exe y MSI)
-Ejecutar el siguiente comando en PowerShell o CMD:
+```bash
+npm install
+```
+
+Compilar para Windows:
+
 ```bash
 npm run tauri build
 ```
-Esto generará los instaladores listos para distribuir en la carpeta: `src-tauri/target/release/bundle/msi/`
 
-### Compilar para Linux (.deb y .AppImage)
-Ejecutar el siguiente comando en la terminal de Linux:
+Salidas esperadas:
+
+* `src-tauri/target/release/tauri-app.exe`
+* `src-tauri/target/release/bundle/nsis/*.exe`
+* `src-tauri/target/release/bundle/msi/*.msi`
+
+Compilar para Linux:
+
 ```bash
 npm run tauri build
 ```
-Los empaquetados `.deb` y `.AppImage` aparecerán en: `src-tauri/target/release/bundle/deb/` y `src-tauri/target/release/bundle/appimage/`
 
----
+Salidas esperadas:
 
-## 3. Subida de Versión (Version Bumping)
+* `src-tauri/target/release/bundle/deb/*.deb`
+* `src-tauri/target/release/bundle/rpm/*.rpm`
+* `src-tauri/target/release/bundle/appimage/*.AppImage`
 
-Para mantener el control del proyecto, subir de versión (ej. de `1.0.0` a `1.1.0`) será tan sencillo como modificar **un solo archivo**:
-1. Abrir el archivo `package.json` en la raíz.
-2. Modificar el campo `"version": "1.1.0"`.
-3. Al compilar (`npm run tauri build`), Tauri leerá automáticamente esta versión y se la inyectará a los binarios de Rust (`.exe`, `.deb`, `.AppImage`) y a las propiedades nativas del sistema operativo.
+## 3. Subida de Version
+
+Para publicar una version nueva se deben sincronizar estos archivos:
+
+1. `package.json`
+2. `package-lock.json`
+3. `src-tauri/Cargo.toml`
+4. `src-tauri/Cargo.lock`
+5. `src-tauri/tauri.conf.json`
+
+Comando recomendado:
+
+```bash
+npm version X.Y.Z --no-git-tag-version
+```
+
+Luego se ajusta la version de Rust/Tauri y se ejecuta:
+
+```bash
+cargo check
+```
+
+Esto actualiza `Cargo.lock` con la version correcta del paquete Rust.
+
+## 4. Publicacion y Antivirus
+
+Antes de publicar o reemplazar assets de Windows en GitHub Releases, es
+obligatorio descargar y escanear exactamente los instaladores publicados.
+
+Motivo documentado: en la version `1.0.4`, el instalador NSIS `.exe` generado
+por GitHub Actions fue bloqueado por Defender/Edge al descargarse desde GitHub,
+aunque el instalador NSIS compilado localmente, el ejecutable local y el MSI
+escaneaban limpios. Fue un falso positivo asociado al asset remoto publicado,
+no al codigo fuente de la aplicacion.
+
+Checklist obligatorio para releases:
+
+1. Compilar localmente Windows con `npm run tauri build`.
+2. Copiar los artefactos limpios a `Compilados`.
+3. Escanear `Compilados\*.exe` y `Compilados\*.msi` con Windows Defender.
+4. Crear tag y release.
+5. Ejecutar GitHub Actions para compilar Windows y Linux.
+6. Descargar desde GitHub los assets Windows publicados.
+7. Escanear los archivos descargados, no solo los locales.
+8. Si el NSIS remoto falla pero el local pasa, reemplazar el asset remoto con
+   el instalador local limpio usando `gh release upload --clobber`.
+9. Descargar de nuevo el asset reemplazado desde GitHub y escanearlo otra vez.
+
+El MSI debe mantenerse como alternativa principal cuando el NSIS active falsos
+positivos. El `upgradeCode` de MSI no debe cambiar entre versiones, porque
+Windows lo usa para reconocer actualizaciones de la misma aplicacion.
+
+## 5. Instaladores Windows
+
+El instalador NSIS se configura en modo `perMachine` para instalar en
+`C:\Program Files` y estar disponible para todos los usuarios del equipo.
+
+Consecuencias:
+
+* Windows puede pedir permisos de administrador.
+* Si una version anterior fue instalada por usuario, el primer salto a
+  instalacion por equipo puede pedir limpiar o reemplazar una vez.
+* Las versiones futuras deben conservar la misma identidad de instalador para
+  comportarse como actualizaciones, no como aplicaciones separadas.
