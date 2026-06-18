@@ -207,7 +207,7 @@
         "current": "Current:",
         "latest": "New:",
         "check_button": "Check for updates",
-        "idle": "Automatic check every 12 hours.",
+        "idle": "Checks on startup and every 12 hours.",
         "checking": "Checking for updates...",
         "available": "New version available:",
         "up_to_date": "You already have the latest version.",

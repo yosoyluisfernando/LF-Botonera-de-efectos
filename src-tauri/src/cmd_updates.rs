@@ -28,11 +28,17 @@ pub struct UpdateCheck {
     pub notes: String,
 }
 
-/// Revisa GitHub Releases. Si `force` es falso, respeta una ventana de 12 horas.
+/// Revisa GitHub Releases. El arranque consulta siempre; los ciclos en segundo
+/// plano respetan una ventana de 12 horas para no golpear GitHub de mas.
 #[tauri::command]
-pub fn check_for_updates(state: State<AppState>, force: bool) -> Result<UpdateCheck, String> {
+pub fn check_for_updates(
+    state: State<AppState>,
+    force: bool,
+    startup: Option<bool>,
+) -> Result<UpdateCheck, String> {
     let now = unix_now();
-    if !force {
+    let startup = startup.unwrap_or(false);
+    if !force && !startup {
         let cfg = state.config.lock().map_err(|e| e.to_string())?;
         if now - cfg.last_update_check < CHECK_INTERVAL_SECS {
             return Ok(no_check());

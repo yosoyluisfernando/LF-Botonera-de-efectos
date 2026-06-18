@@ -36,20 +36,20 @@
 .btn-settings:hover { background: var(--action-accent-hover); filter: none; }
 
 .tab:hover {
-  background: var(--tab-hover-bg) !important;
-  color: var(--text-primary);
+  filter: var(--tab-hover-filter);
+  box-shadow: inset 0 0 0 999px var(--tab-hover-overlay);
   border-color: var(--soft-active-border);
 }
 
 .tab.tab-drag-source {
-  background: var(--drag-source-tab-bg) !important;
-  color: var(--text-primary);
+  filter: brightness(0.88);
+  box-shadow: inset 0 0 0 999px var(--drag-source-tab-overlay);
   border-color: var(--soft-active-border);
 }
 
 .tab.tab-drag-over {
-  background: var(--drag-over-tab-bg) !important;
-  color: var(--text-primary);
+  filter: brightness(0.82);
+  box-shadow: inset 0 0 0 999px var(--drag-over-tab-overlay);
   border-color: var(--drag-over-border);
   border-style: dashed;
 }

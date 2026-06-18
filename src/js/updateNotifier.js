@@ -11,7 +11,7 @@ let _latestUrl = '';
 let _latestResult = null;
 let _wired = false;
 
-/** Conecta botones y programa revisiones livianas cada 12 horas. */
+/** Conecta botones, revisa al iniciar y programa revisiones livianas cada 12 horas. */
 export function initUpdateNotifier() {
     if (_wired) return;
     _wired = true;
@@ -23,15 +23,15 @@ export function initUpdateNotifier() {
         if (e.target?.id === 'update-notice-modal') _hideNotice();
     });
 
-    setTimeout(() => _check(false), 20000);
+    _check(false, true);
     setInterval(() => _check(false), CHECK_EVERY_MS);
 }
 
-async function _check(force) {
+async function _check(force, startup = false) {
     const status = document.getElementById('update-status');
     if (force && status) status.textContent = t('updates.checking');
     try {
-        const result = await invoke('check_for_updates', { force });
+        const result = await invoke('check_for_updates', { force, startup });
         if (!result.checked && !force) return;
         _paintStatus(result, force);
         if (result.updateAvailable) _showNotice(result);

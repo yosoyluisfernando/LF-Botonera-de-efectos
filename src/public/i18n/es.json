@@ -207,7 +207,7 @@
         "current": "Actual:",
         "latest": "Nueva:",
         "check_button": "Buscar actualizaciones",
-        "idle": "Revisión automática cada 12 horas.",
+        "idle": "Revisión al iniciar y cada 12 horas.",
         "checking": "Buscando actualizaciones...",
         "available": "Nueva versión disponible:",
         "up_to_date": "Ya tienes la última versión.",
