@@ -29,6 +29,7 @@ pub mod cmd_updates;
 pub mod colors;
 pub mod config;
 pub mod config_history;
+pub mod geocode;
 pub mod global_shortcuts;
 pub mod grid_move;
 pub mod grid_reorder;
@@ -165,6 +166,7 @@ pub fn run() {
             cmd_locutions::set_locution_config,
             cmd_locutions::pick_named_folder,
             cmd_locutions::search_city,
+            cmd_locutions::preview_weather,
             cmd_locutions::get_weather_now,
             cmd_locutions::play_time_locution,
             cmd_locutions::play_climate_locution,

@@ -6,6 +6,9 @@
 
 # ── Binarios e instaladores compilados ──
 Compilados/
+# Instaladores/ejecutables sueltos copiados a la raíz (solo local, nunca al repo)
+/*.exe
+/*.msi
 
 # ── Respaldo del prototipo Electron (no forma parte del proyecto publicado) ──
 Respaldo_Electron/

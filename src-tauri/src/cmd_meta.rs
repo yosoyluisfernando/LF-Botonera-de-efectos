@@ -117,12 +117,44 @@ fn format_date(lang: &str, weekday: usize, day: usize, month0: usize, year: u32)
         "November",
         "December",
     ];
+    // Portugués (BR y PT comparten los nombres de día y mes).
+    const DAYS_PT: [&str; 7] = [
+        "Domingo",
+        "Segunda-feira",
+        "Terça-feira",
+        "Quarta-feira",
+        "Quinta-feira",
+        "Sexta-feira",
+        "Sábado",
+    ];
+    const MONTHS_PT: [&str; 12] = [
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro",
+    ];
     if lang == "en" {
         format!(
             "{}, {} {}, {}",
             DAYS_EN[weekday.min(6)],
             MONTHS_EN[month0.min(11)],
             day,
+            year
+        )
+    } else if lang.starts_with("pt") {
+        format!(
+            "{}, {} de {} de {}",
+            DAYS_PT[weekday.min(6)],
+            day,
+            MONTHS_PT[month0.min(11)],
             year
         )
     } else {

@@ -139,15 +139,18 @@
         "time_hint":    "Expected files: HRS00–HRS23, MIN00–MIN59 and HRS##_O (o'clock).",
         "weather_block":"Weather (Temperature & Humidity)",
         "city":         "City:",
+        "city_placeholder": "Example: Madrid, ES",
         "unit":         "Unit:",
-        "fetch":        "Test weather now",
+        "fetch":        "Check",
+        "searching":    "Searching…",
         "temp_folder":  "Temperature voice-over folder:",
         "hum_folder":   "Humidity voice-over folder:",
         "weather_hint": "Expected files: TMP000–TMP999, TMPN001+ (below zero) and HUM000–HUM100.",
         "test":         "Test time voice-over",
         "err_weather_disabled": "The weather block is disabled.",
-        "err_no_city":          "Type a city and save the settings.",
-        "err_city_not_found":   "City not found."
+        "err_no_city":          "Type a city.",
+        "err_city_not_found":   "City not found.",
+        "err_offline":          "No internet connection."
     },
     "edit_modal": {
         "title":               "Edit effect (Button",
@@ -250,7 +253,6 @@
         "invalid_locution_kind": "Invalid voice-over type.",
         "reserved_system_shortcut": "That shortcut is reserved by the application and cannot be reassigned.",
         "loc_missing_time_folder": "The time voice-over folder is missing.",
-        "loc_missing_temp_folder": "The temperature voice-over folder is missing.",
-        "loc_missing_hum_folder": "The humidity voice-over folder is missing."
+        "loc_missing_climate_folder": "Select at least one folder: temperature or humidity."
     }
 }

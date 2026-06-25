@@ -1,16 +1,13 @@
 /**
  * Archivo: settingsLocutions.js
  * Propósito: Control DOM del panel "Hora y Clima".
- * La lógica de carpetas, clima y locuciones vive en Rust.
+ * La UI es un control remoto tonto: no geocodifica, no calcula coordenadas ni
+ * cachea nada. Toda la lógica ciudad → coordenadas → clima vive en Rust.
  */
 
 import { invoke } from './api.js';
 import { t } from './i18n.js';
 import { locutionsTemplate } from './settingsLocutionsTemplate.js';
-
-let _coords     = { lat: 0, lon: 0 };
-let _cityMap    = new Map();
-let _loadedCity = '';
 
 /** Construye el panel y conecta sus controles. Llamar una sola vez. */
 export function initLocutionsPanel() {
@@ -27,14 +24,8 @@ export function initLocutionsPanel() {
     document.getElementById('loc-time-test').addEventListener('click', () => {
         invoke('play_time_locution', { id: '__loc_test__' }).catch(console.error);
     });
-
-    document.getElementById('loc-weather-test')
-        .addEventListener('click', async () => {
-            const out = document.getElementById('loc-weather-now');
-            out.textContent = '...';
-            try { await saveLocutions(); } catch (e) { out.textContent = String(e); return; }
-            _showWeather(true);
-        });
+    document.getElementById('loc-weather-test').addEventListener('click', _previewWeather);
+    document.getElementById('loc-unit').addEventListener('change', _clearWeather);
 }
 
 /** Actualiza el clima desde el listener central de startup.js. */
@@ -45,8 +36,6 @@ export function updateWeatherPanel(payload) {
 /** Rellena el panel con la configuración actual al abrir el modal. */
 export function loadLocutionsPanel(config) {
     const l = config.locutions ?? {};
-    _coords     = { lat: l.weather_lat ?? 0, lon: l.weather_lon ?? 0 };
-    _loadedCity = l.weather_city ?? '';
 
     _set('loc-module',     config.weather_module_enabled, true);
     _set('loc-time-on',    l.time_enabled, true);
@@ -60,19 +49,14 @@ export function loadLocutionsPanel(config) {
     _sync('loc-module',     'loc-blocks');
     _sync('loc-time-on',    'loc-time-fields');
     _sync('loc-weather-on', 'loc-weather-fields');
+    _clearWeather();
 
-    if (config.weather_module_enabled && l.weather_enabled) _showWeather(false);
+    if (config.weather_module_enabled && l.weather_enabled) _showSaved();
 }
 
-/** Persiste el panel en Rust. Lo llama el botón Guardar del modal. */
+/** Persiste el panel en Rust. Lo llama el botón Guardar del modal.
+ *  No envía coordenadas: Rust las resuelve desde la ciudad. */
 export function saveLocutions() {
-    const city = document.getElementById('loc-city').value.trim();
-    if (_cityMap.has(city)) {
-        _coords = _cityMap.get(city);
-    } else if (city !== _loadedCity) {
-        _coords = { lat: 0, lon: 0 };
-    }
-    _loadedCity = city;
     return invoke('set_locution_config', {
         moduleEnabled:  document.getElementById('loc-module').checked,
         timeEnabled:    document.getElementById('loc-time-on').checked,
@@ -80,30 +64,65 @@ export function saveLocutions() {
         weatherEnabled: document.getElementById('loc-weather-on').checked,
         tempFolder:     document.getElementById('loc-temp-folder').value,
         humFolder:      document.getElementById('loc-hum-folder').value,
-        weatherCity:    city,
-        weatherLat:     _coords.lat,
-        weatherLon:     _coords.lon,
+        weatherCity:    document.getElementById('loc-city').value.trim(),
         weatherUnit:    document.getElementById('loc-unit').value,
     });
 }
 
-async function _showWeather(force) {
-    const out = document.getElementById('loc-weather-now');
-    out.textContent = '...';
+/** Botón "Comprobar": prueba la ciudad escrita sin guardar ni exigir carpetas. */
+async function _previewWeather() {
+    const city = document.getElementById('loc-city').value.trim();
+    if (!city) { _status(t('settings_loc.err_no_city'), 'error'); return; }
+    _paintWeather(null);
+    _status(t('settings_loc.searching'), '');
     try {
-        _paintWeather(await invoke('get_weather_now', { force }));
+        const w = await invoke('preview_weather', { city, unit: _unit() });
+        _paintWeather(w);
+        _status(`✓ ${w.label}`, 'ok');
     } catch (e) {
-        const key = `settings_loc.err_${e}`;
-        const msg = t(key);
-        out.textContent = msg === key ? String(e) : msg;
+        _paintWeather(null);
+        _status(_errMessage(e), 'error');
     }
 }
 
+/** Carga el clima guardado al abrir el panel (respeta el estado persistido). */
+async function _showSaved() {
+    try {
+        _paintWeather(await invoke('get_weather_now', { force: false }));
+    } catch (_) { /* Sin red o sin ciudad: el usuario puede Comprobar. */ }
+}
+
 function _paintWeather(w) {
-    const out = document.getElementById('loc-weather-now');
-    if (!w || !out) return;
-    const sym = document.getElementById('loc-unit')?.value === 'imperial' ? '°F' : '°C';
-    out.textContent = `🌡️ ${w.temp} ${sym}  💧 ${w.hum} %`;
+    const temp = document.getElementById('loc-weather-temp');
+    const hum  = document.getElementById('loc-weather-hum');
+    if (!temp || !hum) return;
+    const sym = _unit() === 'imperial' ? '°F' : '°C';
+    temp.textContent = w ? `🌡️ ${w.temp} ${sym}` : `🌡️ -- ${sym}`;
+    hum.textContent  = w ? `💧 ${w.hum} %`        : '💧 -- %';
+}
+
+function _clearWeather() {
+    _paintWeather(null);
+    _status('', '');
+}
+
+/** Pinta la línea de estado; `kind` ('', 'ok', 'error') colorea vía CSS. */
+function _status(msg, kind) {
+    const el = document.getElementById('loc-weather-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.dataset.kind = kind;
+}
+
+function _unit() {
+    return document.getElementById('loc-unit')?.value || 'metric';
+}
+
+/** Traduce la clave de error de Rust; si no hay traducción, muestra el texto. */
+function _errMessage(e) {
+    const key = `settings_loc.err_${e}`;
+    const msg = t(key);
+    return msg === key ? String(e) : msg;
 }
 
 function _wireCitySearch() {
@@ -117,18 +136,14 @@ function _wireCitySearch() {
                 const results = await invoke('search_city', { query });
                 const list = document.getElementById('loc-city-list');
                 list.innerHTML = '';
-                _cityMap.clear();
-                (results ?? []).forEach(r => _appendCity(list, r));
-            } catch (_) { /* Sin red: el usuario puede reintentar. */ }
+                (results ?? []).forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = r.label;
+                    list.appendChild(opt);
+                });
+            } catch (_) { /* Sin red: el usuario puede reintentar o Comprobar. */ }
         }, 500);
     });
-}
-
-function _appendCity(list, r) {
-    const opt = document.createElement('option');
-    opt.value = r.label;
-    _cityMap.set(r.label, { lat: r.lat, lon: r.lon });
-    list.appendChild(opt);
 }
 
 function _wireBrowse(btnId, inputId) {

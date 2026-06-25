@@ -139,15 +139,18 @@
         "time_hint":    "Archivos esperados: HRS00–HRS23, MIN00–MIN59 y HRS##_O (en punto).",
         "weather_block":"Clima (Temperatura y Humedad)",
         "city":         "Ciudad:",
+        "city_placeholder": "Ejemplo: Madrid, ES",
         "unit":         "Unidad:",
-        "fetch":        "Probar clima ahora",
+        "fetch":        "Comprobar",
+        "searching":    "Buscando…",
         "temp_folder":  "Carpeta de locuciones de temperatura:",
         "hum_folder":   "Carpeta de locuciones de humedad:",
         "weather_hint": "Archivos esperados: TMP000–TMP999, TMPN001+ (bajo cero) y HUM000–HUM100.",
         "test":         "Probar locución de hora",
         "err_weather_disabled": "El bloque de clima está desactivado.",
-        "err_no_city":          "Escribe una ciudad y guarda la configuración.",
-        "err_city_not_found":   "No se encontró la ciudad."
+        "err_no_city":          "Escribe una ciudad.",
+        "err_city_not_found":   "No se encontró la ciudad.",
+        "err_offline":          "Sin conexión a internet."
     },
     "edit_modal": {
         "title":               "Editar efecto (Botón",
@@ -250,7 +253,6 @@
         "invalid_locution_kind": "Tipo de locución no válido.",
         "reserved_system_shortcut": "Ese atajo está reservado por la aplicación y no se puede reasignar.",
         "loc_missing_time_folder": "Falta la carpeta de locuciones de hora.",
-        "loc_missing_temp_folder": "Falta la carpeta de locuciones de temperatura.",
-        "loc_missing_hum_folder": "Falta la carpeta de locuciones de humedad."
+        "loc_missing_climate_folder": "Selecciona al menos una carpeta: temperatura o humedad."
     }
 }

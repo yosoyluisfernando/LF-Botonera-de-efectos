@@ -27,20 +27,20 @@ export function locutionsTemplate() {
       <label><input type="checkbox" id="loc-weather-on"> <b>${typeIcon('temperature')} ${t('settings_loc.weather_block')}</b></label>
       <div id="loc-weather-fields" class="hidden" style="margin-top:8px">
         <label>${t('settings_loc.city')}</label>
-        <input type="text" id="loc-city" list="loc-city-list" autocomplete="off"
-               spellcheck="false" style="margin-bottom:8px">
-        <datalist id="loc-city-list"></datalist>
-        <div class="row">
-          <div class="col">
-            <label>${t('settings_loc.unit')}</label>
-            <select id="loc-unit"><option value="metric">°C</option><option value="imperial">°F</option></select>
-          </div>
-          <div class="col">
-            <button id="loc-weather-test" class="btn-dark" style="margin-top:18px">${t('settings_loc.fetch')}</button>
-          </div>
+        <div class="file-input-group">
+          <input type="text" id="loc-city" list="loc-city-list" autocomplete="off"
+                 spellcheck="false" placeholder="${t('settings_loc.city_placeholder')}">
+          <button id="loc-weather-test">${t('settings_loc.fetch')}</button>
         </div>
-        <p id="loc-weather-now" class="hint"></p>
-        <label>${t('settings_loc.temp_folder')}</label>
+        <datalist id="loc-city-list"></datalist>
+        <div class="weather-result">
+          <span id="loc-weather-temp">🌡️ -- °C</span>
+          <span id="loc-weather-hum">💧 -- %</span>
+        </div>
+        <p id="loc-weather-status" class="weather-status" data-kind=""></p>
+        <label>${t('settings_loc.unit')}</label>
+        <select id="loc-unit"><option value="metric">°C</option><option value="imperial">°F</option></select>
+        <label style="margin-top:10px">${t('settings_loc.temp_folder')}</label>
         <div class="file-input-group">
           <input type="text" id="loc-temp-folder" readonly>
           <button id="loc-temp-browse">...</button>

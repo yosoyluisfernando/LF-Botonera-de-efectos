@@ -4,7 +4,7 @@
 use super::AppState;
 use crate::config;
 use crate::types::AppConfig;
-use crate::{locution_playback, weather};
+use crate::{geocode, locution_playback, weather};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -15,6 +15,8 @@ pub struct PickedFolder {
 
 /// Guarda la configuración del módulo. `module_enabled` también controla el
 /// interruptor maestro (el mismo que pregunta el asistente de primer arranque).
+/// La UI nunca envía coordenadas: Rust las resuelve a partir de la ciudad y las
+/// persiste él mismo (fuente única de verdad).
 #[tauri::command]
 pub fn set_locution_config(
     module_enabled: bool,
@@ -24,8 +26,6 @@ pub fn set_locution_config(
     temp_folder: String,
     hum_folder: String,
     weather_city: String,
-    weather_lat: f64,
-    weather_lon: f64,
     weather_unit: String,
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
@@ -45,9 +45,13 @@ pub fn set_locution_config(
     l.weather_enabled = normalized.weather_enabled;
     l.temp_folder = temp_folder;
     l.hum_folder = hum_folder;
+    // Si cambia la ciudad, invalidar las coordenadas: weather_now las resolverá
+    // y persistirá de forma perezosa (y sin red no se bloquea el guardado).
+    if l.weather_city != weather_city {
+        l.weather_lat = 0.0;
+        l.weather_lon = 0.0;
+    }
     l.weather_city = weather_city;
-    l.weather_lat = weather_lat;
-    l.weather_lon = weather_lon;
     l.weather_unit = weather_unit;
     config::save_config(&cfg)?;
     if let Some(error_key) = normalized.error_key {
@@ -80,8 +84,9 @@ struct LocutionActivation {
     error_key: Option<&'static str>,
 }
 
-/// Conserva siempre las rutas editadas, pero no deja activo un bloque que no
-/// tiene sus carpetas obligatorias. Rust mantiene la autoridad de validacion.
+/// Conserva siempre las rutas editadas, pero no deja activo un bloque sin sus
+/// carpetas: hora exige su carpeta y clima exige al menos una (temperatura o
+/// humedad). Rust mantiene la autoridad de validacion.
 fn normalize_locution_activation(
     module_enabled: bool,
     time_enabled: bool,
@@ -105,22 +110,29 @@ fn normalize_locution_activation(
         normalized.error_key = Some("loc_missing_time_folder");
         return normalized;
     }
-    if weather_enabled && temp_folder.trim().is_empty() {
+    // El clima necesita AL MENOS una locución (temperatura o humedad); el
+    // usuario puede configurar solo una de las dos.
+    if weather_enabled && temp_folder.trim().is_empty() && hum_folder.trim().is_empty() {
         normalized.weather_enabled = false;
-        normalized.error_key = Some("loc_missing_temp_folder");
-        return normalized;
-    }
-    if weather_enabled && hum_folder.trim().is_empty() {
-        normalized.weather_enabled = false;
-        normalized.error_key = Some("loc_missing_hum_folder");
+        normalized.error_key = Some("loc_missing_climate_folder");
     }
     normalized
 }
 
 /// Busca ciudades en la API de geocodificación (para el autocompletado).
 #[tauri::command]
-pub fn search_city(query: String) -> Result<Vec<weather::CityResult>, String> {
-    weather::search_city(&query)
+pub fn search_city(query: String) -> Result<Vec<geocode::CityResult>, String> {
+    geocode::search_city(&query)
+}
+
+/// Comprueba el clima de una ciudad escrita en el panel, sin tocar la
+/// configuración ni exigir carpetas. Respaldo del botón "Comprobar".
+#[tauri::command]
+pub fn preview_weather(
+    city: String,
+    unit: String,
+) -> Result<weather::WeatherPreview, String> {
+    weather::preview_weather(&city, &unit)
 }
 
 /// Lee el clima actual (con caché). Si faltan coordenadas pero hay ciudad,
