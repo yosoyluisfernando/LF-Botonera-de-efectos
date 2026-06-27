@@ -130,6 +130,7 @@
     },
     "track_editor": {
         "title": "Track editor — ",
+        "popout": "Open in window",
         "set_start": "Set start",
         "set_end": "Set end",
         "clear_end": "Remove end",

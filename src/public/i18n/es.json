@@ -130,6 +130,7 @@
     },
     "track_editor": {
         "title":          "Editor de pista — ",
+        "popout":         "Abrir en ventana",
         "set_start":      "Fijar inicio",
         "set_end":        "Fijar fin",
         "clear_end":      "Quitar fin",

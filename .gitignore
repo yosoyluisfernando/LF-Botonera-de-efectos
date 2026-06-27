@@ -50,6 +50,11 @@ pnpm-debug.log*
 *.bdelf
 *.bdeplf
 
+# ── Variables de entorno / secretos (nunca al repositorio) ──
+.env
+.env.*
+!.env.example
+
 # ── Bases de datos SQLite (la caché de pistas vive en %APPDATA%, no en el repo) ──
 *.db
 *.db-wal

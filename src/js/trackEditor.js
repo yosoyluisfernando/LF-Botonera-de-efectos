@@ -120,6 +120,23 @@ function _wireOnce() {
     on('te-save', 'click', _save);
     on('te-close', 'click', _close);
     on('te-close-x', 'click', _close);
+    on('te-popout', 'click', _popOut);
+}
+
+/** Saca el editor a su propia ventana (carga index.html en modo editor) y
+ *  cierra el modal. La ventana reutiliza los mismos módulos. */
+function _popOut() {
+    const name = document.getElementById('te-name').textContent || '';
+    const url = `index.html?editor=${encodeURIComponent(_path)}&name=${encodeURIComponent(name)}`;
+    try {
+        new window.__TAURI__.webviewWindow.WebviewWindow('track-editor', {
+            url, title: 'Editor de pista', width: 1100, height: 720, resizable: true,
+        });
+        halt();
+        document.getElementById('track-editor-modal').classList.add('hidden');
+    } catch (e) {
+        console.error('Error al abrir el editor en ventana:', e);
+    }
 }
 
 async function _save() {
@@ -134,7 +151,12 @@ async function _save() {
 
 function _close() {
     halt();
-    document.getElementById('track-editor-modal').classList.add('hidden');
+    // En modo ventana, "Cerrar/Cancelar" cierra la ventana; si no, oculta el modal.
+    if (document.body.classList.contains('editor-window-mode')) {
+        window.__TAURI__?.window?.getCurrentWindow?.().close();
+    } else {
+        document.getElementById('track-editor-modal').classList.add('hidden');
+    }
 }
 
 function _setStatus(text) {

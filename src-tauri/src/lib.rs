@@ -38,6 +38,7 @@ pub mod config;
 pub mod config_history;
 pub mod cue_source;
 pub mod db;
+pub mod export_tracks;
 pub mod geocode;
 pub mod global_shortcuts;
 pub mod last_played;

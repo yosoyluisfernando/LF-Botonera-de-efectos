@@ -130,6 +130,7 @@
     },
     "track_editor": {
         "title": "Editor de faixa — ",
+        "popout": "Abrir em janela",
         "set_start": "Definir início",
         "set_end": "Definir fim",
         "clear_end": "Remover fim",

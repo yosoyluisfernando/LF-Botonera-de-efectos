@@ -34,6 +34,9 @@ let _runtimeWired = false;
 export async function startApp() {
     try {
         await waitForTauri();
+        // Ventana "pop-out": si la URL trae ?editor=<ruta>, arranca SOLO el editor.
+        const editorPath = new URLSearchParams(location.search).get('editor');
+        if (editorPath) { await _startEditorWindow(editorPath); return; }
         initTitlebar();
         initColorPicker();
         initNumberInputs();
@@ -61,6 +64,24 @@ export async function startApp() {
         await loadLanguage('es').catch(() => {});
         _showError(e.message);
     }
+}
+
+/** Arranque en modo ventana del editor (pop-out): solo tema, i18n y el editor a
+ *  pantalla completa de la ventana. Reutiliza los módulos del editor. */
+async function _startEditorWindow(rawPath) {
+    const params = new URLSearchParams(location.search);
+    const config = await invoke('get_config').catch(() => ({}));
+    applyTheme(config.theme || 'dark');
+    await loadLanguage(config.language || 'es');
+    _wireCloseButtons();
+    _blockNativeContextMenu();
+    document.body.classList.add('editor-window-mode');
+    document.getElementById('loading-screen')?.classList.add('hidden');
+    // Detener la previa si se cierra la ventana sin usar "Cerrar".
+    window.addEventListener('beforeunload', () =>
+        invoke('stop_audio', { id: '__track_preview__' }).catch(() => {}));
+    const editor = await import('./trackEditor.js');
+    editor.openTrackEditor(decodeURIComponent(rawPath), params.get('name') || '', null);
 }
 
 async function _loadConfig() {
