@@ -26,6 +26,7 @@ import { initUpdateNotifier } from './updateNotifier.js';
 import { initColorPicker } from './colorPalette.js';
 import { initNumberInputs } from './numberInputs.js';
 import { maybeShowPreloadDialog } from './preloadDialog.js';
+import { checkAudioDevicesOnStartup } from './audioDeviceRecovery.js';
 
 let _closeWired = false;
 let _runtimeWired = false;
@@ -58,6 +59,7 @@ export async function startApp() {
         _initModules(config, grid);
         await _wireRuntimeEvents();
         _show('app-section');
+        checkAudioDevicesOnStartup();
         maybeShowPreloadDialog(); // Rust decide si toca (primer arranque)
     } catch (e) {
         console.error('Error iniciando la app:', e);
@@ -78,8 +80,12 @@ async function _startEditorWindow(rawPath) {
     document.body.classList.add('editor-window-mode');
     document.getElementById('loading-screen')?.classList.add('hidden');
     // Detener la previa si se cierra la ventana sin usar "Cerrar".
-    window.addEventListener('beforeunload', () =>
-        invoke('stop_audio', { id: '__track_preview__' }).catch(() => {}));
+    window.addEventListener('beforeunload', () => {
+        if (!window.__lfDockingTrackEditor) {
+            invoke('set_editor_mode', { mode: 'window' }).catch(() => {});
+        }
+        invoke('stop_audio', { id: '__track_preview__' }).catch(() => {});
+    });
     const editor = await import('./trackEditor.js');
     editor.openTrackEditor(decodeURIComponent(rawPath), params.get('name') || '', null);
 }
@@ -127,8 +133,14 @@ async function _wireRuntimeEvents() {
         listen('audio-tick', e => _paintAudio(e.payload ?? {})),
         listen('weather-updated', e => updateWeatherPanel(e.payload)),
         listen('global-shortcut-refresh', () => _refresh()),
+        listen('track-editor-dock', e => _openDockedEditor(e.payload ?? {})),
     ]);
     _runtimeWired = true;
+}
+
+async function _openDockedEditor(payload) {
+    const editor = await import('./trackEditor.js');
+    editor.openTrackEditor(payload.path, payload.name || '', null);
 }
 
 function _paintAudio(payload) {

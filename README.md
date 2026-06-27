@@ -37,6 +37,7 @@ La última versión estable está disponible en la página de releases:
 | Windows 10/11 | `LF.Botonera.de.Efectos_*_x64-setup.exe` | Instalador con asistente para la mayoría de usuarios |
 | Windows 10/11 | `LF.Botonera.de.Efectos_*_x64_en-US.msi` | Instalador MSI para entornos más controlados |
 | Linux Ubuntu/Debian | `LF.Botonera.de.Efectos_*_amd64.deb` | Paquete para distribuciones basadas en Debian |
+| Linux Fedora/openSUSE | `LF.Botonera.de.Efectos_*_x86_64.rpm` | Paquete para distribuciones compatibles con RPM |
 | Linux universal | `LF.Botonera.de.Efectos_*_amd64.AppImage` | Ejecutable portable sin instalación |
 
 > En Windows se requiere Windows 10 20H2 o posterior con WebView2 Runtime. En Windows 11 y Windows 10 actualizado normalmente ya viene incluido.
@@ -123,7 +124,9 @@ sudo apt-get install -y \
   libayatana-appindicator3-dev \
   librsvg2-dev \
   libasound2-dev \
+  libxdo-dev \
   patchelf \
+  rpm \
   squashfs-tools
 
 npm install

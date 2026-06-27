@@ -103,6 +103,8 @@ pub struct AppConfig {
     pub language: String,
     #[serde(default = "default_button_text_size")]
     pub button_text_size: String,
+    #[serde(default = "default_editor_mode")]
+    pub editor_mode: String,
     #[serde(default)]
     pub active_profile_id: String,
     #[serde(default = "default_true")]
@@ -128,6 +130,9 @@ fn default_lang() -> String {
 }
 fn default_button_text_size() -> String {
     "normal".to_string()
+}
+fn default_editor_mode() -> String {
+    "modal".to_string()
 }
 
 impl Default for AppConfig {
@@ -159,6 +164,7 @@ impl Default for AppConfig {
             theme: default_theme(),
             language: default_lang(),
             button_text_size: default_button_text_size(),
+            editor_mode: default_editor_mode(),
             active_profile_id: "perfil_1".to_string(),
             clock_24h: true,
             last_update_check: 0,

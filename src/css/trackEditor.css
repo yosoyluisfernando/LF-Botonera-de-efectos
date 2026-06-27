@@ -146,7 +146,6 @@
 /* ── Modo ventana (pop-out): el editor llena la ventana nativa ───────── */
 body.editor-window-mode { overflow: hidden; }
 body.editor-window-mode .titlebar { display: none; }
-body.editor-window-mode #te-popout { display: none; }
 body.editor-window-mode #track-editor-modal { background: none; }
 body.editor-window-mode .track-editor-content {
     width: 100vw !important;

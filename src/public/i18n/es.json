@@ -97,6 +97,15 @@
         "about_formats": "MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF",
         "donate_btn":    "☕ Apoya al creador aquí"
     },
+    "audio_device": {
+        "title": "Salida de audio no disponible",
+        "body": "No se encontró una salida de audio configurada.",
+        "main": "Principal",
+        "pre": "Pre-escucha",
+        "retry": "Reintentar",
+        "use_default": "Usar predeterminada",
+        "use_selected": "Usar seleccionada"
+    },
     "mapping": {
         "banner": "✏️ MODO MAPEO: Haz clic en un Botón o Pestaña para asignarle un atajo. (ESC para salir)",
         "modal_title": "Asignar Atajo",
@@ -131,6 +140,7 @@
     "track_editor": {
         "title":          "Editor de pista — ",
         "popout":         "Abrir en ventana",
+        "dock":           "Volver a modal",
         "set_start":      "Fijar inicio",
         "set_end":        "Fijar fin",
         "clear_end":      "Quitar fin",

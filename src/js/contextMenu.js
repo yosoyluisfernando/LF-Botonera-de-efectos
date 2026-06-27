@@ -70,7 +70,7 @@ function _wireMenuActions(menu, index, btnData, onUpdate) {
         if (!btnData?.can_prelisten) return;
         _hide();
         import('./trackEditor.js').then(m =>
-            m.openTrackEditor(btnData.path, btnData.name || btnData.label, onUpdate));
+            m.openPreferredTrackEditor(btnData.path, btnData.name || btnData.label, onUpdate));
     };
     const onLimpiar = async () => {
         if (!btnData) return;

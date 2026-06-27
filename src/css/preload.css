@@ -1,0 +1,14 @@
+/*
+ * Archivo: preload.css
+ * Proposito: estado visual del formulario de precarga.
+ */
+
+.preload-options {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.preload-options:disabled {
+  opacity: 0.45;
+}

@@ -6,6 +6,7 @@
 
 import { invoke } from './api.js';
 import { t } from './i18n.js';
+import { showPreloadPrompt } from './preloadDialog.js';
 
 /** Inicializa el asistente dentro de la sección #wizard-section. */
 export function initWizard() {
@@ -44,7 +45,7 @@ async function _finishWizard() {
     const weatherEnabled = document.getElementById('wizard-weather').checked;
     try {
         await invoke('set_first_boot_complete', { weatherEnabled, linkEnabled: false });
-        window.location.reload();
+        await showPreloadPrompt(() => window.location.reload());
     } catch (e) {
         console.error('Error al guardar configuración inicial:', e);
     }

@@ -37,6 +37,13 @@ impl PreloadCache {
         self.evict();
     }
 
+    /// Vacía todo lo precargado en RAM.
+    pub fn clear(&mut self) {
+        self.map.clear();
+        self.order.clear();
+        self.bytes_used = 0;
+    }
+
     pub fn contains(&self, key: &str) -> bool {
         self.map.contains_key(key)
     }
@@ -55,13 +62,18 @@ impl PreloadCache {
 
     /// Inserta PCM; si no cabe en el presupuesto total, no se cachea.
     pub fn insert(&mut self, key: String, pcm: CachedPcm) {
+        self.insert_arc(key, Arc::new(pcm));
+    }
+
+    /// Inserta PCM ya compartido por otra cache. Evita clonar muestras grandes.
+    pub fn insert_arc(&mut self, key: String, pcm: Arc<CachedPcm>) {
         let bytes = pcm.bytes();
         if bytes == 0 || bytes > self.budget_bytes {
             return;
         }
         self.remove(&key);
         self.bytes_used += bytes;
-        self.map.insert(key.clone(), Arc::new(pcm));
+        self.map.insert(key.clone(), pcm);
         self.order.push_back(key);
         self.evict();
     }
@@ -105,7 +117,11 @@ pub fn decode_pcm(path: &str) -> Option<CachedPcm> {
     if data.is_empty() {
         return None;
     }
-    Some(CachedPcm { data, channels, sample_rate })
+    Some(CachedPcm {
+        data,
+        channels,
+        sample_rate,
+    })
 }
 
 /// Fuente a reproducir: desde la caché (RAM, sin I/O) si el archivo está; si no,
@@ -136,7 +152,11 @@ mod tests {
     use super::*;
 
     fn pcm(samples: usize) -> CachedPcm {
-        CachedPcm { data: vec![0i16; samples], channels: 1, sample_rate: 8000 }
+        CachedPcm {
+            data: vec![0i16; samples],
+            channels: 1,
+            sample_rate: 8000,
+        }
     }
 
     #[test]
@@ -158,5 +178,14 @@ mod tests {
         c.insert("big".into(), pcm(700_000)); // ~1.4 MB > 1 MB
         assert!(!c.contains("big"));
         assert_eq!(c.stats().1, 0);
+    }
+
+    #[test]
+    fn clear_releases_cached_items() {
+        let mut c = PreloadCache::new(1);
+        c.insert("a".into(), pcm(10));
+        c.clear();
+        assert_eq!(c.stats(), (0, 0));
+        assert!(!c.contains("a"));
     }
 }

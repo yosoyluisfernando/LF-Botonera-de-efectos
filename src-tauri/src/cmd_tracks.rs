@@ -3,7 +3,9 @@
 /// hace DSP ni SQL, solo pide análisis/ventanas de onda y guarda cue/dB.
 use super::AppState;
 use crate::audio_analysis;
+use crate::config;
 use crate::db;
+use crate::track_analysis_cache::CachedTrackAnalysis;
 use crate::types_track::TrackMeta;
 use serde::Serialize;
 use std::sync::Arc;
@@ -21,6 +23,18 @@ pub struct AnalyzeResponse {
     pub suggested_norm_db: f64,
 }
 
+fn response_from(item: &CachedTrackAnalysis, meta: TrackMeta, buckets: usize) -> AnalyzeResponse {
+    let duration_s = item.envelope.duration_s();
+    AnalyzeResponse {
+        peak_db: item.meta.measured_peak_db,
+        lufs: item.meta.measured_lufs,
+        suggested_norm_db: item.meta.norm_gain_db,
+        waveform: item.envelope.view(0.0, duration_s, buckets),
+        duration_s,
+        meta,
+    }
+}
+
 /// Analiza un archivo (decodifica una vez): pico, LUFS, onda. Persiste lo medido
 /// preservando las ediciones del usuario y cachea el envolvente para el zoom.
 #[tauri::command]
@@ -29,15 +43,43 @@ pub fn analyze_track(
     buckets: usize,
     state: tauri::State<AppState>,
 ) -> Result<AnalyzeResponse, String> {
+    let key = db::normalize_key(&path);
+    let (mtime, size) = audio_analysis::file_stamp(&path);
+    if let Some(hit) = state.track_analysis.lock().unwrap().get(&key, mtime, size) {
+        let merged = {
+            let store = state.tracks.lock().unwrap();
+            store.get(&path)?.unwrap_or_else(|| hit.meta.clone())
+        };
+        state
+            .waveforms
+            .lock()
+            .unwrap()
+            .put(&key, Arc::clone(&hit.envelope));
+        state
+            .audio
+            .lock()
+            .unwrap()
+            .preload_cache_handle()
+            .lock()
+            .unwrap()
+            .insert_arc(key, Arc::clone(&hit.pcm));
+        return Ok(response_from(&hit, merged, buckets));
+    }
+
     let analysis = audio_analysis::analyze(&path)?;
     {
         let store = state.tracks.lock().unwrap();
         store.upsert(&analysis.meta)?;
     }
+    let envelope = Arc::new(analysis.envelope);
+    let pcm = Arc::new(analysis.pcm);
     // Cachea el PCM ya decodificado → la previa/scrubbing del editor hace seek
     // O(1) (sin descartar muestras una a una). Reúsa la decodificación.
     let cache = state.audio.lock().unwrap().preload_cache_handle();
-    cache.lock().unwrap().insert(db::normalize_key(&path), analysis.pcm);
+    cache
+        .lock()
+        .unwrap()
+        .insert_arc(key.clone(), Arc::clone(&pcm));
 
     let merged = state
         .tracks
@@ -46,24 +88,20 @@ pub fn analyze_track(
         .get(&path)?
         .unwrap_or_else(|| analysis.meta.clone());
 
-    let duration_s = analysis.envelope.duration_s();
-    let waveform = analysis.envelope.view(0.0, duration_s, buckets);
-    let resp = AnalyzeResponse {
-        peak_db: analysis.meta.measured_peak_db,
-        lufs: analysis.meta.measured_lufs,
-        suggested_norm_db: analysis.meta.norm_gain_db,
-        duration_s,
-        waveform,
-        meta: merged,
+    let item = CachedTrackAnalysis {
+        mtime: analysis.meta.mtime,
+        size: analysis.meta.size,
+        meta: analysis.meta,
+        envelope,
+        pcm,
     };
-
-    let key = db::normalize_key(&path);
+    let item = state.track_analysis.lock().unwrap().put(key.clone(), item);
     state
         .waveforms
         .lock()
         .unwrap()
-        .put(&key, Arc::new(analysis.envelope));
-    Ok(resp)
+        .put(&key, Arc::clone(&item.envelope));
+    Ok(response_from(&item, merged, buckets))
 }
 
 /// Devuelve la onda de la ventana visible [start_s, end_s] a `buckets` columnas.
@@ -132,4 +170,15 @@ pub fn set_track_normalization(
         .lock()
         .unwrap()
         .set_normalization(&path, enabled)
+}
+
+/// Persiste la preferencia global del editor: modal o ventana flotante.
+#[tauri::command]
+pub fn set_editor_mode(mode: String, state: tauri::State<AppState>) -> Result<(), String> {
+    if mode != "modal" && mode != "window" {
+        return Err("invalid_editor_mode".to_string());
+    }
+    let mut cfg = state.config.lock().unwrap();
+    cfg.editor_mode = mode;
+    config::save_config(&cfg)
 }

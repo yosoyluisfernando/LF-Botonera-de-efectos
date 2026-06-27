@@ -97,6 +97,15 @@
         "about_formats": "MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF",
         "donate_btn": "☕ Apoie o criador aqui"
     },
+    "audio_device": {
+        "title": "Saída de áudio indisponível",
+        "body": "Uma saída de áudio configurada não foi encontrada.",
+        "main": "Principal",
+        "pre": "Pré-escuta",
+        "retry": "Tentar novamente",
+        "use_default": "Usar padrão",
+        "use_selected": "Usar selecionada"
+    },
     "mapping": {
         "banner": "✏️ MODO MAPEAMENTO: Clique em um Botão ou Aba para atribuir um atalho. (ESC para sair)",
         "modal_title": "Atribuir Atalho",
@@ -131,6 +140,7 @@
     "track_editor": {
         "title": "Editor de faixa — ",
         "popout": "Abrir em janela",
+        "dock": "Voltar ao modal",
         "set_start": "Definir início",
         "set_end": "Definir fim",
         "clear_end": "Remover fim",

@@ -21,7 +21,9 @@ sudo apt-get install -y \
   libayatana-appindicator3-dev \
   librsvg2-dev \
   libasound2-dev \
+  libxdo-dev \
   patchelf \
+  rpm \
   squashfs-tools \
   build-essential
 
@@ -78,6 +80,7 @@ Los artefactos quedan en `src-tauri/target/release/bundle/`.
 | Formato | Ubicación | Descripción |
 |---|---|---|
 | `.deb` | `bundle/deb/*.deb` | Paquete para Ubuntu, Debian, Linux Mint y derivados. Se instala con `dpkg -i` o doble clic en el gestor de archivos. |
+| `.rpm` | `bundle/rpm/*.rpm` | Paquete para Fedora, openSUSE y derivados compatibles con RPM. |
 | `.AppImage` | `bundle/appimage/*.AppImage` | Ejecutable universal sin instalación. Funciona en cualquier distribución Linux con glibc 2.31+. Dar permisos de ejecución con `chmod +x` y ejecutar directamente. |
 
 ---
@@ -109,13 +112,13 @@ Cambiar los tres al mismo valor antes de compilar la release.
 
 ## Compilación automática con GitHub Actions
 
-Al hacer push de un tag con el formato `v*` (ejemplo: `v1.1.0`), el workflow
+Al hacer push de un tag con el formato `v*` (ejemplo: `v1.1.1`), el workflow
 `.github/workflows/build.yml` compila automáticamente en Windows y Linux y sube
-los artefactos (`.msi`, `.exe`, `.deb`, `.AppImage`) como descargables del release.
+los artefactos (`.msi`, `.exe`, `.deb`, `.rpm`, `.AppImage`) como descargables del release.
 
 ```bash
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.1.1
+git push origin v1.1.1
 ```
 
 Los artefactos aparecen en la pestaña **Actions** del repositorio de GitHub, en la

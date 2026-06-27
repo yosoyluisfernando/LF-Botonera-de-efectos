@@ -10,13 +10,17 @@ import { renderPreloadForm, fillPreloadForm, savePreloadFrom } from './settingsP
 
 /** Si Rust indica que toca, muestra el diálogo una sola vez. */
 export async function maybeShowPreloadDialog() {
+    await showPreloadPrompt();
+}
+
+export async function showPreloadPrompt(onDone = null) {
     let show = false;
     try {
         show = await invoke('should_prompt_preload');
     } catch (_) {
         return; // sin backend (navegador) o error: no molestar
     }
-    if (!show) return;
+    if (!show) { onDone?.(); return; }
 
     const modal = document.getElementById('preload-dialog');
     const body = document.getElementById('preload-dialog-body');
@@ -33,6 +37,7 @@ export async function maybeShowPreloadDialog() {
             console.error('Error al guardar precarga:', e);
         }
         modal.classList.add('hidden');
+        onDone?.();
     };
 
     document.getElementById('preload-dialog-skip').onclick = async () => {
@@ -43,5 +48,6 @@ export async function maybeShowPreloadDialog() {
             console.error('Error al marcar precarga:', e);
         }
         modal.classList.add('hidden');
+        onDone?.();
     };
 }

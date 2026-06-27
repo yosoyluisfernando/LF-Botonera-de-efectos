@@ -1,15 +1,15 @@
-/// Módulo: lib.rs
-/// Propósito: Define AppState, declara módulos y conecta todo en `run()`.
-/// No contiene lógica de negocio: eso va en cmd_*.rs, config.rs y audio.rs.
+/// MÃ³dulo: lib.rs
+/// PropÃ³sito: Define AppState, declara mÃ³dulos y conecta todo en `run()`.
+/// No contiene lÃ³gica de negocio: eso va en cmd_*.rs, config.rs y audio.rs.
 pub mod app_setup;
 pub mod audio;
 pub mod audio_analysis;
 pub mod audio_command;
 pub mod audio_decode;
 pub mod audio_device;
-pub mod audio_ops;
 pub mod audio_formats;
 pub mod audio_monitor;
+pub mod audio_ops;
 pub mod audio_thread;
 pub mod button_defaults;
 pub mod button_types;
@@ -41,11 +41,11 @@ pub mod db;
 pub mod export_tracks;
 pub mod geocode;
 pub mod global_shortcuts;
-pub mod last_played;
 pub mod grid_move;
 pub mod grid_reorder;
 pub mod grid_resize;
 pub mod grid_view;
+pub mod last_played;
 pub mod lfa_format;
 pub mod locution_playback;
 pub mod locutions;
@@ -59,6 +59,7 @@ pub mod preloader;
 pub mod random_folder;
 pub mod shortcut_rules;
 pub mod tab_reorder;
+pub mod track_analysis_cache;
 pub mod track_store;
 pub mod types;
 pub mod types_audio;
@@ -72,24 +73,20 @@ pub mod weather;
 
 use std::sync::{Arc, Mutex};
 
-// ─── Estado global ────────────────────────────────────────────────────────────
-
 pub struct AppState {
-    /// Arc permite compartir el config con hilos de fondo (reloj, monitor).
     pub config: Arc<Mutex<types::AppConfig>>,
     pub audio: Mutex<audio::AudioEngine>,
     pub history: Mutex<config_history::ConfigHistory>,
     pub random_folders: Mutex<random_folder::RandomFolderState>,
     /// Metadatos por archivo del editor de pistas (cue, dB, LUFS) en tracks.db.
-    /// Arc para compartir con el hilo que vuelca el historial de reproducción.
+    /// Arc para compartir con el hilo que vuelca el historial de reproducciÃ³n.
     pub tracks: Arc<Mutex<track_store::TrackStore>>,
     /// Envolventes de onda en memoria mientras se edita (zoom); no se persisten.
     pub waveforms: Mutex<waveform::WaveformCache>,
-    /// Historial de última reproducción en memoria (debounce a tracks.db).
+    pub track_analysis: Mutex<track_analysis_cache::TrackAnalysisCache>,
+    /// Historial de Ãºltima reproducciÃ³n en memoria (debounce a tracks.db).
     pub last_played: last_played::LastPlayed,
 }
-
-// ─── Arranque ─────────────────────────────────────────────────────────────────
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -101,6 +98,7 @@ pub fn run() {
             random_folders: Mutex::new(random_folder::RandomFolderState::default()),
             tracks: Arc::new(Mutex::new(track_store::TrackStore::open())),
             waveforms: Mutex::new(waveform::WaveformCache::default()),
+            track_analysis: Mutex::new(track_analysis_cache::TrackAnalysisCache::default()),
             last_played: last_played::LastPlayed::new(),
         })
         .setup(app_setup::on_setup)
@@ -108,7 +106,6 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            // Config / primer arranque
             cmd_profiles::get_config,
             cmd_profiles::set_first_boot_complete,
             cmd_profiles::set_theme,
@@ -119,7 +116,7 @@ pub fn run() {
             cmd_profiles::create_profile,
             cmd_profiles::delete_profile,
             cmd_profiles::update_profile_meta,
-            // Pestañas
+            // PestaÃ±as
             cmd_paletas::set_active_paleta,
             cmd_paletas::create_paleta,
             cmd_paletas::delete_paleta,
@@ -127,6 +124,8 @@ pub fn run() {
             tab_reorder::reorder_paletas,
             // Audio
             cmd_audio::get_audio_devices,
+            cmd_audio::get_audio_device_status,
+            cmd_audio::apply_configured_audio_devices,
             cmd_audio::set_audio_device,
             cmd_audio::set_pre_device,
             cmd_audio::play_audio,
@@ -156,7 +155,7 @@ pub fn run() {
             cmd_keys::cycle_paleta,
             cmd_local_shortcuts::handle_local_shortcut,
             cmd_keys::clear_button_shortcut,
-            // Locuciones dinámicas (Fase 6)
+            // Locuciones dinÃ¡micas (Fase 6)
             cmd_locutions::set_locution_config,
             cmd_locutions::pick_named_folder,
             cmd_locutions::search_city,
@@ -171,12 +170,12 @@ pub fn run() {
             cmd_export::export_profile,
             cmd_export::export_profile_by_id,
             cmd_export::import_profile,
-            // Metadatos de la aplicación
+            // Metadatos de la aplicaciÃ³n
             cmd_meta::get_app_version,
             cmd_meta::toggle_clock_format,
             // Actualizaciones
             cmd_updates::check_for_updates,
-            // Modo de reproducción global (Fase 7.5)
+            // Modo de reproducciÃ³n global (Fase 7.5)
             cmd_playback::get_playback_mode,
             cmd_playback::get_playback_state,
             cmd_playback::set_playback_mode,
@@ -188,7 +187,8 @@ pub fn run() {
             cmd_tracks::set_track_cue,
             cmd_tracks::set_track_gain,
             cmd_tracks::set_track_normalization,
-            // Precarga de audio (configuración; caché en etapas posteriores)
+            cmd_tracks::set_editor_mode,
+            // Precarga de audio (configuraciÃ³n; cachÃ© en etapas posteriores)
             cmd_preload::get_preload_config,
             cmd_preload::should_prompt_preload,
             cmd_preload::mark_preload_prompted,
@@ -196,5 +196,5 @@ pub fn run() {
             cmd_preload::get_preload_stats,
         ])
         .run(tauri::generate_context!())
-        .expect("error al ejecutar la aplicación Tauri");
+        .expect("error al ejecutar la aplicaciÃ³n Tauri");
 }

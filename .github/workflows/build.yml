@@ -57,7 +57,9 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev \
             libasound2-dev \
+            libxdo-dev \
             patchelf \
+            rpm \
             squashfs-tools
 
       - name: Setup Node.js
@@ -86,6 +88,7 @@ jobs:
           name: linux-bundles
           path: |
             src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/rpm/*.rpm
             src-tauri/target/release/bundle/appimage/*.AppImage
 
   release:

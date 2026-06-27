@@ -47,6 +47,7 @@ impl AudioDeviceRuntime {
             return;
         }
         let Some(device) = find_device(&device_name) else {
+            self.clear();
             return;
         };
         if let Ok((stream, handle)) = OutputStream::try_from_device(&device) {
@@ -65,7 +66,11 @@ impl AudioDeviceRuntime {
     }
 }
 
-fn find_device(device_name: &str) -> Option<rodio::cpal::Device> {
+pub fn device_available(device_name: &str) -> bool {
+    find_device(device_name).is_some()
+}
+
+pub fn find_device(device_name: &str) -> Option<rodio::cpal::Device> {
     let host = rodio::cpal::default_host();
     if device_name == "default" {
         return host.default_output_device();

@@ -43,6 +43,7 @@ jobs:
             libwebkit2gtk-4.1-dev \
             libxdo-dev \
             patchelf \
+            rpm \
             wget
 
       - name: Setup Node.js

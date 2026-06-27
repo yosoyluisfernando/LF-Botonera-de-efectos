@@ -103,7 +103,7 @@ pub fn set_preload_config(
     evict_unit: String,
     state: tauri::State<AppState>,
 ) -> Result<PreloadView, String> {
-    let (view, budget) = {
+    let (view, budget, active) = {
         let mut cfg = state.config.lock().unwrap();
         {
             let p = &mut cfg.preload;
@@ -115,18 +115,30 @@ pub fn set_preload_config(
             p.prompted = true;
         }
         config::save_config(&cfg)?;
-        (PreloadView::from(&cfg.preload), cfg.preload.ram_budget_mb)
+        (
+            PreloadView::from(&cfg.preload),
+            cfg.preload.ram_budget_mb,
+            cfg.preload.enabled,
+        )
     };
-    // Reconfigura la caché en caliente (Regla 4: la lógica vive en Rust).
-    state
-        .audio
-        .lock()
-        .unwrap()
-        .preload_cache_handle()
-        .lock()
-        .unwrap()
-        .set_budget(budget);
+    apply_runtime_preload(&state, budget, active);
     Ok(view)
+}
+
+fn apply_runtime_preload(state: &tauri::State<AppState>, budget: u32, enabled: bool) {
+    let engine = state.audio.lock().unwrap();
+    engine.set_preload_enabled(enabled);
+    let cache = engine.preload_cache_handle();
+    drop(engine);
+    let mut cache = cache.lock().unwrap();
+    cache.set_budget(budget);
+    if !enabled {
+        cache.clear();
+        return;
+    }
+    drop(cache);
+    crate::preload_warm::warm_for_strategy(state);
+    crate::preload_warm::warm_onplay_recent(state);
 }
 
 /// Ajusta la RAM al valor permitido más cercano (32/64/128/256).

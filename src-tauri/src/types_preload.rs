@@ -44,7 +44,7 @@ impl PreloadStrategy {
 /// Configuración de precarga, persistida dentro de AppConfig (ajuste global).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PreloadConfig {
-    #[serde(default)]
+    #[serde(default = "default_enabled")]
     pub enabled: bool,
     #[serde(default = "default_ram_mb")]
     pub ram_budget_mb: u32,
@@ -63,6 +63,9 @@ pub struct PreloadConfig {
 fn default_ram_mb() -> u32 {
     128
 }
+fn default_enabled() -> bool {
+    true
+}
 fn default_max_dur() -> u32 {
     10
 }
@@ -73,12 +76,22 @@ fn default_evict_hours() -> u32 {
 impl Default for PreloadConfig {
     fn default() -> Self {
         Self {
-            enabled: false,
+            enabled: default_enabled(),
             ram_budget_mb: default_ram_mb(),
             max_duration_s: default_max_dur(),
             strategy: PreloadStrategy::default(),
             evict_after_hours: default_evict_hours(),
             prompted: false,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn defaults_enable_preload_for_new_installs() {
+        assert!(PreloadConfig::default().enabled);
     }
 }

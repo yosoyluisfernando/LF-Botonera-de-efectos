@@ -8,6 +8,7 @@
  * colisionar ids). Justificación del JS: en Tauri la UI es el webview; pintar un
  * formulario es trabajo intrínseco del frontend, no lógica de negocio.
  */
+import '../css/preload.css';
 import { invoke } from './api.js';
 import { t } from './i18n.js';
 
@@ -18,7 +19,12 @@ const q = (root, name) => root.querySelector(`[data-pl="${name}"]`);
 export function renderPreloadForm(root) {
     root.innerHTML = _template();
     const strat = q(root, 'strategy');
-    const sync = () => q(root, 'ttl-row').classList.toggle('hidden', strat.value !== 'on_play');
+    const enabled = q(root, 'enabled');
+    const sync = () => {
+        q(root, 'options').disabled = !enabled.checked;
+        q(root, 'ttl-row').classList.toggle('hidden', strat.value !== 'on_play');
+    };
+    enabled.addEventListener('change', sync);
     strat.addEventListener('change', sync);
     sync();
 }
@@ -31,6 +37,7 @@ export function fillPreloadForm(root, view) {
     q(root, 'strategy').value = view.strategy;
     q(root, 'evict-value').value = view.evict_value;
     q(root, 'evict-unit').value = view.evict_unit;
+    q(root, 'options').disabled = !view.enabled;
     q(root, 'ttl-row').classList.toggle('hidden', view.strategy !== 'on_play');
 }
 
@@ -80,47 +87,49 @@ function _template() {
       <label class="checkbox-line"><input type="checkbox" data-pl="enabled"> <b>${t('preload.enable')}</b></label>
       <p class="hint">${t('preload.enable_hint')}</p>
       <hr class="modal-divider">
-      <div class="row" style="margin-top:0">
-        <div class="col">
-          <label>${t('preload.ram')}</label>
-          <select data-pl="ram">
-            <option value="32">32 MB</option>
-            <option value="64">64 MB</option>
-            <option value="128">128 MB</option>
-            <option value="256">256 MB</option>
-          </select>
-        </div>
-        <div class="col">
-          <label>${t('preload.max_dur')}</label>
-          <select data-pl="dur">
-            <option value="5">${t('preload.dur_5')}</option>
-            <option value="10">${t('preload.dur_10')}</option>
-            <option value="15">${t('preload.dur_15')}</option>
-            <option value="30">${t('preload.dur_30')}</option>
-          </select>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <label>${t('preload.strategy')}</label>
-          <select data-pl="strategy">
-            <option value="full_profile">${t('preload.strat_full')}</option>
-            <option value="visible_tabs">${t('preload.strat_tabs')}</option>
-            <option value="on_play">${t('preload.strat_onplay')}</option>
-          </select>
-        </div>
-      </div>
-      <div class="row" data-pl="ttl-row">
-        <div class="col">
-          <label>${t('preload.evict')}</label>
-          <div class="file-input-group">
-            <input type="number" data-pl="evict-value" min="1" max="365" value="3">
-            <select data-pl="evict-unit" style="max-width:120px">
-              <option value="hours">${t('preload.unit_hours')}</option>
-              <option value="days">${t('preload.unit_days')}</option>
+      <fieldset class="preload-options" data-pl="options">
+        <div class="row" style="margin-top:0">
+          <div class="col">
+            <label>${t('preload.ram')}</label>
+            <select data-pl="ram">
+              <option value="32">32 MB</option>
+              <option value="64">64 MB</option>
+              <option value="128">128 MB</option>
+              <option value="256">256 MB</option>
+            </select>
+          </div>
+          <div class="col">
+            <label>${t('preload.max_dur')}</label>
+            <select data-pl="dur">
+              <option value="5">${t('preload.dur_5')}</option>
+              <option value="10">${t('preload.dur_10')}</option>
+              <option value="15">${t('preload.dur_15')}</option>
+              <option value="30">${t('preload.dur_30')}</option>
             </select>
           </div>
         </div>
-      </div>
+        <div class="row">
+          <div class="col">
+            <label>${t('preload.strategy')}</label>
+            <select data-pl="strategy">
+              <option value="full_profile">${t('preload.strat_full')}</option>
+              <option value="visible_tabs">${t('preload.strat_tabs')}</option>
+              <option value="on_play">${t('preload.strat_onplay')}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" data-pl="ttl-row">
+          <div class="col">
+            <label>${t('preload.evict')}</label>
+            <div class="file-input-group">
+              <input type="number" data-pl="evict-value" min="1" max="365" value="3">
+              <select data-pl="evict-unit" style="max-width:120px">
+                <option value="hours">${t('preload.unit_hours')}</option>
+                <option value="days">${t('preload.unit_days')}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </fieldset>
       <p class="hint" data-pl="stats" style="margin-top:10px"></p>`;
 }

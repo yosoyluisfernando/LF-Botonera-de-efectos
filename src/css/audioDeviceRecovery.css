@@ -1,0 +1,31 @@
+/*
+ * Archivo: audioDeviceRecovery.css
+ * Proposito: layout del modal de recuperacion de salida de audio.
+ */
+
+.audio-device-modal {
+  width: min(430px, calc(100vw - 32px));
+}
+
+.audio-device-modal .modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.audio-device-modal .modal-footer {
+  justify-content: stretch;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.audio-device-modal .modal-footer button {
+  flex: 1 1 120px;
+  min-width: 0;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+.audio-device-select {
+  min-height: 32px;
+}

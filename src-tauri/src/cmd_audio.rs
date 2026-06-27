@@ -1,12 +1,52 @@
 /// Modulo: cmd_audio.rs
 /// Proposito: comandos IPC relacionados con el motor de audio.
 use super::AppState;
+use crate::audio_device;
 use crate::audio_formats::validate_audio_file;
 use crate::config;
+use serde::Serialize;
+
+#[derive(Serialize)]
+pub struct AudioDeviceStatus {
+    pub devices: Vec<String>,
+    pub main: String,
+    pub pre: String,
+    pub main_available: bool,
+    pub pre_available: bool,
+}
 
 #[tauri::command]
 pub fn get_audio_devices(state: tauri::State<AppState>) -> Vec<String> {
     state.audio.lock().unwrap().get_available_devices()
+}
+
+#[tauri::command]
+pub fn get_audio_device_status(state: tauri::State<AppState>) -> AudioDeviceStatus {
+    let devices = state.audio.lock().unwrap().get_available_devices();
+    let (main, pre) = configured_devices(&state);
+    AudioDeviceStatus {
+        main_available: device_is_available(&main),
+        pre_available: pre_device_is_available(&pre, &main),
+        devices,
+        main,
+        pre,
+    }
+}
+
+#[tauri::command]
+pub fn apply_configured_audio_devices(state: tauri::State<AppState>) -> Result<AudioDeviceStatus, String> {
+    let status = get_audio_device_status(state.clone());
+    if !status.main_available || !status.pre_available {
+        return Ok(status);
+    }
+    state.audio.lock().unwrap().set_device(&status.main)?;
+    let effective_pre = if status.pre.is_empty() || status.pre == status.main {
+        ""
+    } else {
+        &status.pre
+    };
+    state.audio.lock().unwrap().set_pre_device(effective_pre)?;
+    Ok(status)
 }
 
 #[tauri::command]
@@ -109,4 +149,23 @@ pub fn probe_duration_secs(path: &str) -> f64 {
     lofty::read_from_path(path)
         .map(|f| f.properties().duration().as_secs_f64())
         .unwrap_or(-1.0)
+}
+
+fn configured_devices(state: &AppState) -> (String, String) {
+    let cfg = state.config.lock().unwrap();
+    let pid = cfg.active_profile_id.clone();
+    let audio = cfg.profiles.iter().find(|p| p.id == pid).map(|p| &p.audio);
+    (
+        audio.map(|a| a.out_main.clone()).unwrap_or_else(|| "default".to_string()),
+        audio.map(|a| a.out_pre.clone()).unwrap_or_default(),
+    )
+}
+
+fn device_is_available(device_name: &str) -> bool {
+    let device = if device_name.trim().is_empty() { "default" } else { device_name };
+    audio_device::device_available(device)
+}
+
+fn pre_device_is_available(pre: &str, main: &str) -> bool {
+    pre.trim().is_empty() || (pre == main && device_is_available(main)) || device_is_available(pre)
 }

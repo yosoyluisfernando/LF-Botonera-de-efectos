@@ -111,7 +111,7 @@ export async function openEditModal(index, btnData, onSave) {
     document.getElementById('btn-edit-track').onclick = () => {
         if (!canPrelisten(typeEl.value) || !pathEl.value) return;
         import('./trackEditor.js').then(m =>
-            m.openTrackEditor(pathEl.value, nameEl.value, onSave));
+            m.openPreferredTrackEditor(pathEl.value, nameEl.value, onSave));
     };
 
     // Guardar: crea o actualiza el botón en Rust (upsert)

@@ -10,6 +10,7 @@ import { invoke } from './api.js';
 import { t } from './i18n.js';
 import { createWaveform } from './waveformCanvas.js';
 import { bindTransport, play, playInicio, stop, halt, onCursorMark } from './trackTransport.js';
+import { dockIn, openPreferred, popOut, syncButton } from './trackEditorWindow.js';
 
 const BUCKETS = 4000;
 
@@ -33,11 +34,17 @@ export async function openTrackEditor(path, name, onSaved) {
         _wave.setMarkers(_meta.cue_start_s, _meta.cue_end_s);
         _wave.setGain(_gainLinear());
         _fillControls(r);
+        syncButton();
         _setStatus(null);
     } catch (e) {
         console.error('Error al analizar pista:', e);
         _setStatus(t('track_editor.error'));
     }
+}
+
+/** Abre el editor respetando la preferencia persistida en Rust. */
+export async function openPreferredTrackEditor(path, name, onSaved) {
+    return openPreferred(path, name, onSaved, openTrackEditor);
 }
 
 function _makeWave() {
@@ -120,23 +127,17 @@ function _wireOnce() {
     on('te-save', 'click', _save);
     on('te-close', 'click', _close);
     on('te-close-x', 'click', _close);
-    on('te-popout', 'click', _popOut);
+    on('te-popout', 'click', _toggleWindowMode);
 }
 
-/** Saca el editor a su propia ventana (carga index.html en modo editor) y
- *  cierra el modal. La ventana reutiliza los mismos módulos. */
-function _popOut() {
+function _toggleWindowMode() {
     const name = document.getElementById('te-name').textContent || '';
-    const url = `index.html?editor=${encodeURIComponent(_path)}&name=${encodeURIComponent(name)}`;
-    try {
-        new window.__TAURI__.webviewWindow.WebviewWindow('track-editor', {
-            url, title: 'Editor de pista', width: 1100, height: 720, resizable: true,
-        });
+    const closeModal = () => {
         halt();
         document.getElementById('track-editor-modal').classList.add('hidden');
-    } catch (e) {
-        console.error('Error al abrir el editor en ventana:', e);
-    }
+    };
+    if (document.body.classList.contains('editor-window-mode')) dockIn(_path, name, halt);
+    else popOut(_path, name, closeModal);
 }
 
 async function _save() {
@@ -144,17 +145,19 @@ async function _save() {
         await invoke('set_track_cue', { path: _path, startS: _meta.cue_start_s || 0, endS: _meta.cue_end_s });
         await invoke('set_track_gain', { path: _path, gainDb: _meta.gain_db || 0 });
         await invoke('set_track_normalization', { path: _path, enabled: !!_meta.norm_enabled });
-        _close();
+        await _close();
         _onSaved?.();
     } catch (e) { console.error('Error al guardar pista:', e); }
 }
 
-function _close() {
+async function _close() {
     halt();
     // En modo ventana, "Cerrar/Cancelar" cierra la ventana; si no, oculta el modal.
     if (document.body.classList.contains('editor-window-mode')) {
+        await invoke('set_editor_mode', { mode: 'window' }).catch(console.error);
         window.__TAURI__?.window?.getCurrentWindow?.().close();
     } else {
+        await invoke('set_editor_mode', { mode: 'modal' }).catch(console.error);
         document.getElementById('track-editor-modal').classList.add('hidden');
     }
 }

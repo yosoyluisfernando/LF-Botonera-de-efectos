@@ -9,7 +9,7 @@ use crate::preloader::Preloader;
 use crate::vu_meter::LastPressedInfo;
 use rodio::cpal::traits::{DeviceTrait, HostTrait};
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
 
@@ -22,6 +22,7 @@ pub struct AudioEngine {
     last_pressed: Arc<Mutex<Option<LastPressedInfo>>>,
     preload_cache: Arc<Mutex<PreloadCache>>,
     preloader: Preloader,
+    preload_enabled: Arc<AtomicBool>,
 }
 
 impl AudioEngine {
@@ -33,7 +34,8 @@ impl AudioEngine {
         let master_volume = Arc::new(AtomicU32::new(1.0f32.to_bits()));
         let last_pressed = Arc::new(Mutex::new(None));
         let preload_cache = Arc::new(Mutex::new(PreloadCache::new(128)));
-        let preloader = Preloader::start(Arc::clone(&preload_cache));
+        let preload_enabled = Arc::new(AtomicBool::new(false));
+        let preloader = Preloader::start(Arc::clone(&preload_cache), Arc::clone(&preload_enabled));
         audio_thread::spawn(
             rx,
             Arc::clone(&button_states),
@@ -52,6 +54,7 @@ impl AudioEngine {
             last_pressed,
             preload_cache,
             preloader,
+            preload_enabled,
         }
     }
 
@@ -63,6 +66,11 @@ impl AudioEngine {
     /// Encola un archivo para precargar en segundo plano (estrategia OnPlay).
     pub fn enqueue_preload(&self, path: String) {
         self.preloader.enqueue(path);
+    }
+
+    pub fn set_preload_enabled(&self, enabled: bool) {
+        self.preload_enabled.store(enabled, Ordering::Relaxed);
+        self.preloader.set_enabled(enabled);
     }
 
     pub fn button_states_handle(&self) -> Arc<Mutex<ButtonStateMap>> {

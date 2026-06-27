@@ -1,6 +1,6 @@
 [package]
 name = "tauri-app"
-version = "1.1.0"
+version = "1.1.1"
 description = "LF Botonera de Efectos — botonera de sonido para locutores y radio"
 authors = ["Luis Fernando Velásquez"]
 license = "GPL-3.0-or-later"

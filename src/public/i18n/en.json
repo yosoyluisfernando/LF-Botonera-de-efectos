@@ -97,6 +97,15 @@
         "about_formats": "MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF",
         "donate_btn": "☕ Support the creator here"
     },
+    "audio_device": {
+        "title": "Audio output unavailable",
+        "body": "A configured audio output was not found.",
+        "main": "Main",
+        "pre": "Pre-listen",
+        "retry": "Retry",
+        "use_default": "Use default",
+        "use_selected": "Use selected"
+    },
     "mapping": {
         "banner": "✏️ MAPPING MODE: Click a Button or Tab to assign it a shortcut. (ESC to exit)",
         "modal_title": "Assign Shortcut",
@@ -131,6 +140,7 @@
     "track_editor": {
         "title": "Track editor — ",
         "popout": "Open in window",
+        "dock": "Return to modal",
         "set_start": "Set start",
         "set_end": "Set end",
         "clear_end": "Remove end",
