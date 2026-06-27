@@ -41,6 +41,9 @@ pub fn play_audio(
     state: tauri::State<AppState>,
 ) -> Result<(), String> {
     validate_audio_file(&path)?;
+    // Precarga el archivo en segundo plano: así adelantar/atrasar (seek) en la
+    // pre-escucha o la previa del editor es instantáneo (O(1) en RAM).
+    state.audio.lock().unwrap().enqueue_preload(path.clone());
     let file_gain = gain_db.map(crate::types_track::db_to_linear).unwrap_or(1.0);
     state.audio.lock().unwrap().play_file(
         id,
@@ -54,7 +57,31 @@ pub fn play_audio(
         cue_start_s.unwrap_or(0.0),
         cue_end_s,
         file_gain,
+        true, // pre-escucha/previa → bus PRE (con fallback al principal)
     )
+}
+
+/// Fija el dispositivo de pre-escucha. Aplica el fallback (Regla 4, lógica en
+/// Rust): si está vacío o coincide con la salida principal, se usa la principal.
+#[tauri::command]
+pub fn set_pre_device(device_name: String, state: tauri::State<AppState>) -> Result<(), String> {
+    let out_main = {
+        let mut cfg = state.config.lock().unwrap();
+        let pid = cfg.active_profile_id.clone();
+        let mut main = String::new();
+        if let Some(p) = cfg.profiles.iter_mut().find(|p| p.id == pid) {
+            p.audio.out_pre = device_name.clone();
+            main = p.audio.out_main.clone();
+        }
+        config::save_config(&cfg)?;
+        main
+    };
+    let effective = if device_name.is_empty() || device_name == out_main {
+        String::new()
+    } else {
+        device_name
+    };
+    state.audio.lock().unwrap().set_pre_device(&effective)
 }
 
 #[tauri::command]

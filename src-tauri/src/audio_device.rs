@@ -25,6 +25,15 @@ impl AudioDeviceRuntime {
         self.bus.as_ref()
     }
 
+    /// Suelta el bus y el stream (p.ej. al desactivar la pre-escucha).
+    pub fn clear(&mut self) {
+        self.bus = None;
+        self.stream_data = None;
+        self.current_device = String::new();
+    }
+
+    /// Crea el bus en el dispositivo dado. `clear_states` vacía las fuentes
+    /// activas (solo el bus principal lo usa; la pre nunca toca el estado).
     pub fn set_device(
         &mut self,
         states: &Arc<Mutex<ButtonStateMap>>,
@@ -32,6 +41,7 @@ impl AudioDeviceRuntime {
         master_r: &Arc<AtomicU32>,
         master_volume: &Arc<AtomicU32>,
         device_name: String,
+        clear_states: bool,
     ) {
         if device_name == self.current_device && self.bus.is_some() {
             return;
@@ -40,7 +50,9 @@ impl AudioDeviceRuntime {
             return;
         };
         if let Ok((stream, handle)) = OutputStream::try_from_device(&device) {
-            states.lock().unwrap().clear();
+            if clear_states {
+                states.lock().unwrap().clear();
+            }
             self.bus = MasterBus::new(
                 &handle,
                 Arc::clone(master_l),

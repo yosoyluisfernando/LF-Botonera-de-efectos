@@ -17,17 +17,19 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
     let pid = cfg.active_profile_id.clone();
     let master_volume = cmd_master_volume::startup_volume(&cfg);
     let preload_budget = cfg.preload.ram_budget_mb;
-    let device = cfg
-        .profiles
-        .iter()
-        .find(|p| p.id == pid)
-        .map(|p| p.audio.out_main.clone())
+    let profile_audio = cfg.profiles.iter().find(|p| p.id == pid).map(|p| &p.audio);
+    let device = profile_audio
+        .map(|a| a.out_main.clone())
         .unwrap_or_else(|| "default".to_string());
+    let out_pre = profile_audio.map(|a| a.out_pre.clone()).unwrap_or_default();
     drop(cfg);
 
     let engine = state.audio.lock().unwrap();
     let _ = engine.set_device(&device);
     engine.set_master_volume(master_volume);
+    // Pre-escucha: solo si es una tarjeta distinta de la principal (fallback).
+    let pre = if out_pre.is_empty() || out_pre == device { "" } else { &out_pre };
+    let _ = engine.set_pre_device(pre);
     engine
         .preload_cache_handle()
         .lock()

@@ -90,6 +90,8 @@ async function _saveSettings() {
         if (outMain !== _currentOutMain) {
             await invoke('set_audio_device', { deviceName: outMain });
         }
+        // Salida de pre-escucha: Rust aplica el fallback (vacía o = principal → principal)
+        await invoke('set_pre_device', { deviceName: document.getElementById('config-out-pre').value });
         await invoke('set_global_keys', {
             keyStop: document.getElementById('config-key-stop').value,
             keyNext: document.getElementById('config-key-next').value,

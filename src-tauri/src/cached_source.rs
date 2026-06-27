@@ -31,6 +31,14 @@ impl CachedSource {
     pub fn new(pcm: Arc<CachedPcm>) -> Self {
         Self { pcm, pos: 0 }
     }
+
+    /// Empieza en `start_s` segundos: seek O(1) en memoria (scrubbing del editor
+    /// instantáneo, sin descartar muestras una a una).
+    pub fn new_at(pcm: Arc<CachedPcm>, start_s: f64) -> Self {
+        let ch = pcm.channels.max(1) as f64;
+        let pos = ((start_s.max(0.0) * pcm.sample_rate as f64 * ch) as usize).min(pcm.data.len());
+        Self { pcm, pos }
+    }
 }
 
 impl Iterator for CachedSource {

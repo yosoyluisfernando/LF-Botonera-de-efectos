@@ -119,11 +119,13 @@ pub fn build_play_source(
 ) -> Option<BoxSource> {
     let hit = cache.lock().unwrap().get(&db::normalize_key(path));
     match hit {
+        // Cache: arranca en el offset (seek O(1)); el cue_end pasa a ser
+        // relativo a ese inicio. Sin descartar muestras una a una.
         Some(pcm) => Some(cue_source::cued_from(
-            CachedSource::new(pcm),
+            CachedSource::new_at(pcm, cue_start_s),
             loop_mode,
-            cue_start_s,
-            cue_end_s,
+            0.0,
+            cue_end_s.map(|e| (e - cue_start_s).max(0.0)),
         )),
         None => cue_source::cued_source(path, loop_mode, cue_start_s, cue_end_s),
     }

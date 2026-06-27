@@ -4,6 +4,7 @@
 /// (LUFS, crate ebur128) y envolvente de onda. Reutiliza el decodificador
 /// existente (audio_decode) para soportar los mismos formatos, incluido Opus.
 use crate::audio_decode;
+use crate::cached_source::CachedPcm;
 use crate::types_track::TrackMeta;
 use crate::waveform::WaveEnvelope;
 use ebur128::{EbuR128, Mode};
@@ -18,10 +19,13 @@ const PEAK_CEILING_DB: f64 = -1.0;
 /// Tope de puntos del envolvente (acota memoria en archivos largos).
 const MAX_ENVELOPE_POINTS: usize = 120_000;
 
-/// Resultado del análisis: metadatos listos para la DB + envolvente para dibujar.
+/// Resultado del análisis: metadatos para la DB + envolvente para dibujar + el
+/// PCM decodificado (i16) para cachearlo y que la previa del editor tenga seek
+/// O(1) (scrubbing instantáneo, sin re-decodificar).
 pub struct AnalysisResult {
     pub meta: TrackMeta,
     pub envelope: WaveEnvelope,
+    pub pcm: CachedPcm,
 }
 
 /// Decodifica el archivo y calcula pico, LUFS, ganancia sugerida y envolvente.
@@ -53,7 +57,17 @@ pub fn analyze(path: &str) -> Result<AnalysisResult, String> {
     meta.norm_gain_db = suggested;
     meta.analyzed_at = Some(now_epoch());
 
-    Ok(AnalysisResult { meta, envelope })
+    // Reutiliza la decodificación: convierte a i16 para cachear (consume samples).
+    let pcm = CachedPcm {
+        data: samples
+            .into_iter()
+            .map(|s| (s.clamp(-1.0, 1.0) * 32767.0) as i16)
+            .collect(),
+        channels,
+        sample_rate: rate,
+    };
+
+    Ok(AnalysisResult { meta, envelope, pcm })
 }
 
 /// Mide el loudness integrado (LUFS). None si el audio es silencio o no medible.

@@ -12,6 +12,8 @@ const PRELISTEN_ID = '__prelisten__';
 let _duration  = 0;
 let _wasActive = false;
 let _wired     = false;
+let _path      = '';
+let _origin    = 0; // segundo desde el que arranca la reproducción actual (seek)
 
 /**
  * Abre el panel y reproduce el archivo en modo pre-escucha.
@@ -23,6 +25,8 @@ let _wired     = false;
 export async function openPrelisten(path, name, vol, duration) {
     if (!path) return;
     _duration = duration > 0 ? duration : 0;
+    _path = path;
+    _origin = 0;
     _wireOnce();
 
     document.getElementById('prelisten-name').textContent = name || '';
@@ -55,7 +59,27 @@ function _wireOnce() {
         invoke('set_audio_volume', { id: PRELISTEN_ID, volume: parseFloat(e.target.value) });
     });
 
+    // Clic en la barra de progreso → adelantar/atrasar (seek), como el editor.
+    const bar = document.getElementById('prelisten-progress-bg');
+    bar.addEventListener('click', e => {
+        const rect = bar.getBoundingClientRect();
+        _seek((e.clientX - rect.left) / rect.width);
+    });
+
     window.addEventListener('lf-audio-tick', e => updatePrelistenTick(e.detail));
+}
+
+/** Reproduce desde la fracción [0..1] de la barra (seek). */
+function _seek(fraction) {
+    if (!_path || _duration <= 0) return;
+    _origin = Math.max(0, Math.min(_duration, fraction * _duration));
+    document.getElementById('prelisten-progress').style.width = `${(_origin / _duration) * 100}%`;
+    invoke('play_audio', {
+        id: PRELISTEN_ID, path: _path,
+        volume: parseFloat(document.getElementById('prelisten-volume').value),
+        loopMode: false, stopOther: false, overlap: false, restart: true,
+        cueStartS: _origin,
+    }).catch(e => console.error('Error al adelantar la pre-escucha:', e));
 }
 
 /** Recibe audio-tick desde startup.js y actualiza solo si el panel está activo. */
@@ -69,13 +93,14 @@ export function updatePrelistenTick(payload) {
         return;
     }
 
+    const abs  = _origin + tick.pos; // tick.pos es relativo al seek
     const bar  = document.getElementById('prelisten-progress');
     const time = document.getElementById('prelisten-time');
     if (_duration > 0) {
-        bar.style.width  = `${Math.min(100, (tick.pos / _duration) * 100)}%`;
-        time.textContent = `${_fmt(tick.pos)} / ${_fmt(_duration)}`;
+        bar.style.width  = `${Math.min(100, (abs / _duration) * 100)}%`;
+        time.textContent = `${_fmt(abs)} / ${_fmt(_duration)}`;
     } else {
-        time.textContent = _fmt(tick.pos);
+        time.textContent = _fmt(abs);
     }
 }
 

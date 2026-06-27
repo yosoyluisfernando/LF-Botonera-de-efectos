@@ -122,6 +122,7 @@ impl AudioEngine {
         cue_start_s: f64,
         cue_end_s: Option<f64>,
         file_gain: f32,
+        to_pre: bool,
     ) -> Result<(), String> {
         *self.last_pressed.lock().unwrap() = Some(LastPressedInfo { id: id.clone() });
         self.send(AudioCommand::Play {
@@ -136,6 +137,14 @@ impl AudioEngine {
             cue_start_s,
             cue_end_s,
             file_gain,
+            to_pre,
+        })
+    }
+
+    /// Fija/limpia el dispositivo de pre-escucha (vacío = usar el principal).
+    pub fn set_pre_device(&self, device_name: &str) -> Result<(), String> {
+        self.send(AudioCommand::SetPreDevice {
+            device_name: device_name.to_string(),
         })
     }
 

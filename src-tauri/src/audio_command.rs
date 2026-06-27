@@ -16,12 +16,18 @@ pub enum AudioCommand {
         cue_end_s: Option<f64>,
         /// Ganancia del archivo (capa 1): normalización/dB del editor, lineal.
         file_gain: f32,
+        /// true = a la salida de pre-escucha (si existe); false = principal.
+        to_pre: bool,
     },
     Stop {
         id: String,
     },
     StopAll,
     SetDevice {
+        device_name: String,
+    },
+    /// Fija/limpia el dispositivo de pre-escucha. Vacío = usar el principal.
+    SetPreDevice {
         device_name: String,
     },
     SetVolume {

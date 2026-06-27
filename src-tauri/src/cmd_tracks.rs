@@ -34,6 +34,11 @@ pub fn analyze_track(
         let store = state.tracks.lock().unwrap();
         store.upsert(&analysis.meta)?;
     }
+    // Cachea el PCM ya decodificado → la previa/scrubbing del editor hace seek
+    // O(1) (sin descartar muestras una a una). Reúsa la decodificación.
+    let cache = state.audio.lock().unwrap().preload_cache_handle();
+    cache.lock().unwrap().insert(db::normalize_key(&path), analysis.pcm);
+
     let merged = state
         .tracks
         .lock()

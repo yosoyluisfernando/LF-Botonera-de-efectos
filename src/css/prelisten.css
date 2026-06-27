@@ -43,6 +43,7 @@
   width: 100%;
   margin-bottom: 15px;
   border-radius: 2px;
+  cursor: pointer; /* clic para adelantar/atrasar */
 }
 .prelisten-progress-fill {
   background: var(--accent-color);

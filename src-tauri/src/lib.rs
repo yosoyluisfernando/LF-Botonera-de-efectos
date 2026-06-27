@@ -7,6 +7,7 @@ pub mod audio_analysis;
 pub mod audio_command;
 pub mod audio_decode;
 pub mod audio_device;
+pub mod audio_ops;
 pub mod audio_formats;
 pub mod audio_monitor;
 pub mod audio_thread;
@@ -126,6 +127,7 @@ pub fn run() {
             // Audio
             cmd_audio::get_audio_devices,
             cmd_audio::set_audio_device,
+            cmd_audio::set_pre_device,
             cmd_audio::play_audio,
             cmd_audio::stop_audio,
             cmd_audio::stop_all_audio,
