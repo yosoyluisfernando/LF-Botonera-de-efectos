@@ -22,7 +22,10 @@ pub fn set_audio_device(device_name: String, state: tauri::State<AppState>) -> R
 
 /// Reproduce un archivo directo, usado por pre-escucha. Los botones normales
 /// deben pasar por play_button para aplicar reglas de boton y modo global.
+/// Acepta cue/ganancia opcionales: la previa del editor los envia para sonar
+/// igual que sonara el boton (por defecto por el id de pre-escucha).
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 pub fn play_audio(
     id: String,
     path: String,
@@ -32,9 +35,13 @@ pub fn play_audio(
     stop_other: Option<bool>,
     overlap: Option<bool>,
     restart: Option<bool>,
+    cue_start_s: Option<f64>,
+    cue_end_s: Option<f64>,
+    gain_db: Option<f64>,
     state: tauri::State<AppState>,
 ) -> Result<(), String> {
     validate_audio_file(&path)?;
+    let file_gain = gain_db.map(crate::types_track::db_to_linear).unwrap_or(1.0);
     state.audio.lock().unwrap().play_file(
         id,
         &path,
@@ -44,6 +51,9 @@ pub fn play_audio(
         stop_other.unwrap_or(false),
         overlap.unwrap_or(false),
         restart.unwrap_or(false),
+        cue_start_s.unwrap_or(0.0),
+        cue_end_s,
+        file_gain,
     )
 }
 

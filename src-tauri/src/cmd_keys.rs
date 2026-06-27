@@ -94,5 +94,8 @@ pub fn cycle_paleta(offset: i32, state: tauri::State<AppState>) -> Result<AppCon
     let next = (current + offset).rem_euclid(len) as usize;
     profile.active_paleta_id = profile.paletas[next].id.clone();
     config::save_config(&cfg)?;
-    Ok(cfg.clone())
+    let result = cfg.clone();
+    drop(cfg);
+    crate::preload_warm::warm_visible_tab(&state);
+    Ok(result)
 }

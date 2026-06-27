@@ -56,10 +56,13 @@ impl ButtonState {
 }
 
 /// Envuelve Source<Item=f32> con control atomico de volumen y stop.
+/// Ganancia en 3 capas: `file_gain` (normalizacion/dB del editor, fija) ×
+/// `volume` (trim del boton, en vivo) × `master_volume` (global).
 pub struct ButtonSource {
     pub inner: Box<dyn Source<Item = f32> + Send + 'static>,
     pub stop_flag: Arc<AtomicBool>,
     pub done_flag: Arc<AtomicBool>,
+    pub file_gain: f32,
     pub volume: Arc<AtomicU32>,
     pub master_volume: Arc<AtomicU32>,
 }
@@ -76,7 +79,7 @@ impl Iterator for ButtonSource {
             Some(s) => {
                 let local = f32::from_bits(self.volume.load(Ordering::Relaxed));
                 let master = f32::from_bits(self.master_volume.load(Ordering::Relaxed));
-                Some(s * local * master)
+                Some(s * self.file_gain * local * master)
             }
             None => {
                 self.done_flag.store(true, Ordering::Relaxed);

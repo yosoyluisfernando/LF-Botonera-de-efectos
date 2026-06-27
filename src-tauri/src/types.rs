@@ -1,6 +1,7 @@
 /// Módulo: types.rs
 /// Propósito: Esquema de datos serializable compartido entre Rust, UI y disco.
 use crate::types_locutions::LocutionConfig;
+use crate::types_preload::PreloadConfig;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -161,6 +162,8 @@ pub struct AppConfig {
     #[serde(default)]
     pub locutions: LocutionConfig,
     #[serde(default)]
+    pub preload: PreloadConfig,
+    #[serde(default)]
     pub profiles: Vec<ProfileData>,
 }
 
@@ -210,6 +213,7 @@ impl Default for AppConfig {
             clock_24h: true,
             last_update_check: 0,
             locutions: LocutionConfig::default(),
+            preload: PreloadConfig::default(),
             profiles: vec![profile],
         }
     }

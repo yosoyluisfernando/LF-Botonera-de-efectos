@@ -25,6 +25,7 @@ import { updateWeatherPanel } from './settingsLocutions.js';
 import { initUpdateNotifier } from './updateNotifier.js';
 import { initColorPicker } from './colorPalette.js';
 import { initNumberInputs } from './numberInputs.js';
+import { maybeShowPreloadDialog } from './preloadDialog.js';
 
 let _closeWired = false;
 let _runtimeWired = false;
@@ -54,6 +55,7 @@ export async function startApp() {
         _initModules(config, grid);
         await _wireRuntimeEvents();
         _show('app-section');
+        maybeShowPreloadDialog(); // Rust decide si toca (primer arranque)
     } catch (e) {
         console.error('Error iniciando la app:', e);
         await loadLanguage('es').catch(() => {});

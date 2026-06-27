@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="/css/masterVolume.css" />
     <link rel="stylesheet" href="/css/gridHover.css" />
     <link rel="stylesheet" href="/css/updateNotice.css" />
+    <link rel="stylesheet" href="/css/trackEditor.css" />
   </head>
   <body>
 
@@ -133,6 +134,7 @@
         <li id="menu-detener" class="checkbox-item"><span id="check-detener" class="check-icon"></span><span class="menu-icon">⏹</span><span data-i18n="context_menu.stop_on_other">Detener otros</span></li>
         <hr>
         <li id="menu-previa"><span class="menu-icon">🎧</span><span data-i18n="context_menu.preview">Escucha previa</span></li>
+        <li id="menu-editar-pista"><span class="menu-icon">🎚️</span><span data-i18n="context_menu.edit_track">Editor de pista (onda)…</span></li>
       </ul>
     </div>
 
@@ -205,9 +207,92 @@
           </div>
         </div>
         <div class="modal-footer">
+          <button id="btn-edit-track"   class="btn-dark"  data-i18n="edit_modal.edit_track_btn">Editor de pista…</button>
           <button id="btn-prelisten"    class="btn-dark"  data-i18n="edit_modal.prelisten_btn">Pre-escuchar</button>
           <button id="btn-save-edit"    class="btn-blue"  data-i18n="edit_modal.ok">Aceptar</button>
           <button id="btn-cancel-edit"  class="btn-dark"  data-i18n="edit_modal.cancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editor de pista (onda + cue + normalizador) -->
+    <div id="track-editor-modal" class="hidden modal-overlay" style="z-index:3200">
+      <div class="modal-content track-editor-content">
+        <div class="modal-header">
+          <h3><span data-i18n="track_editor.title">Editor de pista</span><span id="te-name"></span></h3>
+          <button class="close-btn" id="te-close-x">✕</button>
+        </div>
+        <div class="modal-body" id="track-editor-host">
+          <div class="te-wave-shell">
+            <div class="te-wave-container" id="te-wave-container">
+              <div class="te-wave-inner" id="te-wave-inner">
+                <canvas id="te-canvas" class="te-wave-canvas"></canvas>
+                <div class="te-cursor" id="te-cursor"></div>
+                <div class="te-time-text" id="te-time-text">00:00.000</div>
+              </div>
+            </div>
+            <div id="te-status" class="te-status hidden"></div>
+          </div>
+          <div class="te-markers">
+            <button id="te-fijar-inicio" class="te-btn te-mark-start" data-i18n="track_editor.set_start">Fijar inicio</button>
+            <span class="te-readout"><strong id="te-cue-start">0.00s</strong></span>
+            <button id="te-play-inicio" class="te-btn te-mark-start" data-i18n-title="track_editor.play_from_start">▶</button>
+            <button id="te-fijar-fin" class="te-btn te-mark-end" data-i18n="track_editor.set_end">Fijar fin</button>
+            <span class="te-readout"><strong id="te-cue-end">—</strong></span>
+            <button id="te-clear-end" class="te-btn" data-i18n="track_editor.clear_end">Quitar fin</button>
+            <span class="te-spacer"></span>
+            <span class="te-readout"><span data-i18n="track_editor.duration">Duración</span>: <strong id="te-duration">—</strong></span>
+          </div>
+          <div class="te-controls">
+            <div class="te-control-col">
+              <label data-i18n="track_editor.gain">Volumen (dB)</label>
+              <div class="te-gain-row">
+                <input type="range" id="te-gain" min="-24" max="24" step="0.1" value="0">
+                <span id="te-gain-readout" class="te-readout">0.0 dB</span>
+              </div>
+              <div class="checkbox-line">
+                <input type="checkbox" id="te-norm-enabled">
+                <label for="te-norm-enabled" data-i18n="track_editor.auto_normalize">Normalización automática</label>
+              </div>
+            </div>
+            <div class="te-control-col te-meter-col">
+              <span class="te-readout"><span data-i18n="track_editor.lufs">Volumen percibido</span>: <strong id="te-lufs">—</strong></span>
+              <span class="te-readout"><span data-i18n="track_editor.peak">Pico</span>: <strong id="te-peak">—</strong></span>
+              <button id="te-normalize" class="te-btn" data-i18n="track_editor.normalize">Normalizar</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer te-footer">
+          <div class="te-transport">
+            <button id="te-play" class="te-btn te-transport-btn" data-i18n="track_editor.play">Play / Pausa</button>
+            <button id="te-stop" class="te-btn te-transport-btn" data-i18n="track_editor.stop">Stop</button>
+            <div class="te-zoombox">
+              <span class="te-zoom-lbl" data-i18n="track_editor.zoom">Zoom</span>
+              <input type="range" id="te-zoom" min="1" max="30" step="0.5" value="1">
+              <span class="te-dim" data-i18n="track_editor.zoom_hint">(Ctrl+Rueda)</span>
+            </div>
+          </div>
+          <div class="te-footer-actions">
+            <button id="te-close" class="btn-dark" data-i18n="track_editor.close">Cancelar</button>
+            <button id="te-save"  class="btn-blue" data-i18n="track_editor.save">Guardar cues</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diálogo de primer arranque: Precarga (Rust decide si se muestra) -->
+    <div id="preload-dialog" class="hidden modal-overlay" style="z-index:4650">
+      <div class="modal-content modal-lg">
+        <div class="modal-header">
+          <h3 data-i18n="preload.dialog_title">Precarga de audio</h3>
+        </div>
+        <div class="modal-body">
+          <p class="hint" data-i18n="preload.dialog_intro">La precarga reduce el retardo al disparar sonidos. Puedes cambiar esto luego en Ajustes → Precarga.</p>
+          <div id="preload-dialog-body"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="preload-dialog-skip" class="btn-dark" data-i18n="preload.dialog_skip">Ahora no</button>
+          <button id="preload-dialog-save" class="btn-blue" data-i18n="preload.dialog_save">Guardar</button>
         </div>
       </div>
     </div>
@@ -288,6 +373,7 @@
           <button class="s-tab active" data-target="s-main"   data-i18n="settings.tab_main">Principal</button>
           <button class="s-tab"        data-target="s-atajos" data-i18n="settings.tab_keys">Atajos del Teclado</button>
           <button class="s-tab"        data-target="s-locuciones" data-i18n="settings.tab_locutions">Hora y Clima</button>
+          <button class="s-tab"        data-target="s-precarga" data-i18n="settings.tab_preload">Precarga</button>
           <button class="s-tab"        data-target="s-about"  data-i18n="settings.tab_about">Acerca de</button>
         </div>
         <div class="modal-body settings-content">
@@ -371,6 +457,8 @@
           </div>
           <!-- El contenido lo inyecta settingsLocutions.js (patrón del wizard) -->
           <div id="s-locuciones" class="s-panel hidden"></div>
+          <!-- El contenido lo inyecta settingsPreload.js (mismo patrón) -->
+          <div id="s-precarga" class="s-panel hidden"></div>
           <div id="s-about" class="s-panel hidden about-panel">
             <h2>LF Botonera de Efectos</h2>
             <p><span data-i18n="settings.about_version_label">Versión</span> <strong id="app-version-number">—</strong></p>

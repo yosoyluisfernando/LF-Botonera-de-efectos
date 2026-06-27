@@ -104,6 +104,7 @@ impl MasterBus {
         volume: f32,
         duration: f64,
         loop_mode: bool,
+        file_gain: f32,
     ) -> ButtonState {
         let done_flag = Arc::new(AtomicBool::new(false));
         let stop_flag = Arc::new(AtomicBool::new(false));
@@ -112,6 +113,7 @@ impl MasterBus {
             inner: source,
             stop_flag: Arc::clone(&stop_flag),
             done_flag: Arc::clone(&done_flag),
+            file_gain,
             volume: Arc::clone(&vol_atomic),
             master_volume: Arc::clone(&self.master_volume),
         });

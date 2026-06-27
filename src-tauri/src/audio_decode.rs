@@ -10,7 +10,7 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 
-type BoxSource = Box<dyn Source<Item = f32> + Send + 'static>;
+pub type BoxSource = Box<dyn Source<Item = f32> + Send + 'static>;
 
 /// Abre un archivo como fuente de audio. Usa Rodio primero y cae a Ogg/Opus.
 pub fn source_from_path(path: &str, loop_mode: bool) -> Option<BoxSource> {

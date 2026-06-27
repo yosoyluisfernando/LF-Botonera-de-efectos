@@ -10,6 +10,12 @@ pub enum AudioCommand {
         stop_other: bool,
         overlap: bool,
         restart: bool,
+        /// Punto de inicio (cue) en segundos.
+        cue_start_s: f64,
+        /// Punto de fin (recorte); None = hasta el final.
+        cue_end_s: Option<f64>,
+        /// Ganancia del archivo (capa 1): normalización/dB del editor, lineal.
+        file_gain: f32,
     },
     Stop {
         id: String,

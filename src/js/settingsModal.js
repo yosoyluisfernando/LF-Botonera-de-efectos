@@ -8,6 +8,7 @@ import { invoke } from './api.js';
 import { applyTheme } from './theme.js';
 import { t } from './i18n.js';
 import { initLocutionsPanel, loadLocutionsPanel, saveLocutions } from './settingsLocutions.js';
+import { initPreloadPanel, loadPreloadPanel, savePreload } from './settingsPreload.js';
 import { initKeyInputs } from './keyInputs.js';
 import { appAlert } from './appDialog.js';
 
@@ -36,6 +37,7 @@ export function initSettingsModal(onSaved) {
     });
 
     initLocutionsPanel();
+    initPreloadPanel();
     initKeyInputs();
     _wireDonateButton();
 
@@ -76,6 +78,7 @@ async function _openSettings() {
     _currentLanguage = config.language || 'es';
 
     loadLocutionsPanel(config);
+    loadPreloadPanel();
     _renderOrphanedShortcuts(config);
     document.getElementById('settings-modal').classList.remove('hidden');
 }
@@ -94,6 +97,7 @@ async function _saveSettings() {
             globalKeys: document.getElementById('config-global-keys').checked,
         });
         await saveLocutions();
+        await savePreload();
         await invoke('set_button_text_size', {
             size: document.getElementById('config-button-text-size').value,
         });

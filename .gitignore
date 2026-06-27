@@ -29,6 +29,8 @@ src-tauri/gen/schemas/
 # ── Configuración personal de editores ──
 .vscode/
 .idea/
+# Ajustes locales de Claude Code (los compartidos en .claude/settings.json sí van)
+.claude/settings.local.json
 *.suo
 *.ntvs*
 *.njsproj
@@ -47,6 +49,13 @@ pnpm-debug.log*
 # ── Datos del usuario exportados (no son código) ──
 *.bdelf
 *.bdeplf
+
+# ── Bases de datos SQLite (la caché de pistas vive en %APPDATA%, no en el repo) ──
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
 
 # ── Sistema operativo ──
 .DS_Store

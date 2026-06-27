@@ -30,15 +30,21 @@ pub fn handle_local_shortcut(
             Ok(result(true, false))
         }
         LocalShortcutAction::Cycle(offset) => {
-            let mut cfg = state.config.lock().unwrap();
-            cycle_active_paleta(&mut cfg, offset)?;
-            config::save_config(&cfg)?;
+            {
+                let mut cfg = state.config.lock().unwrap();
+                cycle_active_paleta(&mut cfg, offset)?;
+                config::save_config(&cfg)?;
+            }
+            crate::preload_warm::warm_visible_tab(&state);
             Ok(result(true, true))
         }
         LocalShortcutAction::SetPaleta(id) => {
-            let mut cfg = state.config.lock().unwrap();
-            set_active_paleta(&mut cfg, &id)?;
-            config::save_config(&cfg)?;
+            {
+                let mut cfg = state.config.lock().unwrap();
+                set_active_paleta(&mut cfg, &id)?;
+                config::save_config(&cfg)?;
+            }
+            crate::preload_warm::warm_visible_tab(&state);
             Ok(result(true, true))
         }
         LocalShortcutAction::PlayButton(id) => {

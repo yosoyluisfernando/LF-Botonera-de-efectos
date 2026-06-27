@@ -80,6 +80,7 @@ pub fn set_active_profile(id: String, state: tauri::State<AppState>) -> Result<A
     let next = cfg.clone();
     drop(cfg);
     state.audio.lock().unwrap().set_master_volume(volume);
+    crate::preload_warm::warm_for_strategy(&state);
     Ok(next)
 }
 
@@ -172,7 +173,10 @@ pub fn set_active_paleta(
     }
     profile.active_paleta_id = paleta_id;
     config::save_config(&cfg)?;
-    Ok(cfg.clone())
+    let next = cfg.clone();
+    drop(cfg);
+    crate::preload_warm::warm_visible_tab(&state);
+    Ok(next)
 }
 
 #[tauri::command]

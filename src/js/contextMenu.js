@@ -31,6 +31,7 @@ export function showContextMenu(x, y, index, btnData, onUpdate) {
     // Deshabilitar opciones que requieren un botón con archivo
     _toggleDisabled('menu-limpiar', !btnData);
     _toggleDisabled('menu-previa',  !btnData?.can_prelisten);
+    _toggleDisabled('menu-editar-pista', !btnData?.can_prelisten);
 
     placeMenu(menu, x, y); // Muestra el menú sin salirse de la ventana
 
@@ -52,6 +53,7 @@ function _wireMenuActions(menu, index, btnData, onUpdate) {
     const detenerEl = document.getElementById('menu-detener');
     const restartEl = document.getElementById('menu-restart');
     const previaEl  = document.getElementById('menu-previa');
+    const editTrackEl = document.getElementById('menu-editar-pista');
 
     const onEditar = () => {
         _hide();
@@ -63,6 +65,12 @@ function _wireMenuActions(menu, index, btnData, onUpdate) {
         import('./prelisten.js').then(m =>
             m.openPrelisten(btnData.path, btnData.name || btnData.label,
                             btnData.vol ?? 1.0, btnData.duration ?? 0));
+    };
+    const onEditTrack = () => {
+        if (!btnData?.can_prelisten) return;
+        _hide();
+        import('./trackEditor.js').then(m =>
+            m.openTrackEditor(btnData.path, btnData.name || btnData.label, onUpdate));
     };
     const onLimpiar = async () => {
         if (!btnData) return;
@@ -82,6 +90,7 @@ function _wireMenuActions(menu, index, btnData, onUpdate) {
     detenerEl.addEventListener('click', onDetener);
     restartEl.addEventListener('click', onRestart);
     previaEl.addEventListener('click', onPrevia);
+    editTrackEl.addEventListener('click', onEditTrack);
 
     return () => {
         editarEl.removeEventListener('click', onEditar);
@@ -91,6 +100,7 @@ function _wireMenuActions(menu, index, btnData, onUpdate) {
         detenerEl.removeEventListener('click', onDetener);
         restartEl.removeEventListener('click', onRestart);
         previaEl.removeEventListener('click', onPrevia);
+        editTrackEl.removeEventListener('click', onEditTrack);
     };
 }
 

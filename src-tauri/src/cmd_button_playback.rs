@@ -5,6 +5,7 @@ use crate::cmd_audio::probe_duration_secs;
 use crate::locution_playback;
 use crate::playback_mode::{PlaybackFlags, PlaybackMode};
 use crate::types::{AppConfig, ButtonData};
+use crate::types_preload::PreloadStrategy;
 
 /// Comando IPC para disparar un boton por id desde la interfaz.
 #[tauri::command]
@@ -83,16 +84,73 @@ fn play_file(
     if profile.map(|p| p.audio.solo_mode).unwrap_or(false) || mode == "stop_others" {
         flags.stop_other = true;
     }
-    state.audio.lock().unwrap().play_file(
+    // Edición por archivo (cue + ganancia) del editor de pistas, si sigue vigente.
+    let edit = resolve_edit(state, &path, duration);
+    let result = state.audio.lock().unwrap().play_file(
         btn.id.clone(),
         &path,
         btn.vol,
-        duration,
+        edit.duration,
         flags.loop_mode,
         flags.stop_other,
         flags.overlap,
         flags.restart,
-    )
+        edit.cue_start_s,
+        edit.cue_end_s,
+        edit.file_gain,
+    );
+    seed_preload(state, cfg, &path, duration);
+    result
+}
+
+/// Precarga OnPlay + historial: si la precarga está activa, marca la
+/// reproducción (debounce a tracks.db) y, en modo "a medida que se reproducen",
+/// encola el archivo (si es corto) para que la próxima vez sea instantáneo.
+/// `file_dur` es la duración del archivo (no la efectiva del cue).
+fn seed_preload(state: &AppState, cfg: &AppConfig, path: &str, file_dur: f64) {
+    let p = &cfg.preload;
+    if !p.enabled {
+        return;
+    }
+    state.last_played.mark(path, chrono::Utc::now().timestamp());
+    if p.strategy == PreloadStrategy::OnPlay && file_dur > 0.0 && file_dur < p.max_duration_s as f64
+    {
+        state.audio.lock().unwrap().enqueue_preload(path.to_string());
+    }
+}
+
+/// Cue + ganancia + duración efectiva resueltos desde tracks.db. Si no hay fila
+/// o el archivo cambió (mtime/size), devuelve valores neutros (sin edición).
+struct ResolvedEdit {
+    cue_start_s: f64,
+    cue_end_s: Option<f64>,
+    file_gain: f32,
+    duration: f64,
+}
+
+fn resolve_edit(state: &AppState, path: &str, fallback_dur: f64) -> ResolvedEdit {
+    let neutral = ResolvedEdit {
+        cue_start_s: 0.0,
+        cue_end_s: None,
+        file_gain: 1.0,
+        duration: fallback_dur,
+    };
+    let meta = match state.tracks.lock().unwrap().get(path) {
+        Ok(Some(m)) => m,
+        _ => return neutral,
+    };
+    let (mtime, size) = crate::audio_analysis::file_stamp(path);
+    if !meta.matches(mtime, size) {
+        return neutral;
+    }
+    let (cue_start_s, cue_end_s) = meta.sanitized_cue();
+    let eff = meta.effective_duration_s();
+    ResolvedEdit {
+        cue_start_s,
+        cue_end_s,
+        file_gain: meta.effective_gain_linear(),
+        duration: if eff > 0.0 { eff } else { fallback_dur },
+    }
 }
 
 fn is_button_active(state: &AppState, id: &str) -> bool {

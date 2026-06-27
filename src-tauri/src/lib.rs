@@ -1,7 +1,9 @@
 /// Módulo: lib.rs
 /// Propósito: Define AppState, declara módulos y conecta todo en `run()`.
 /// No contiene lógica de negocio: eso va en cmd_*.rs, config.rs y audio.rs.
+pub mod app_setup;
 pub mod audio;
+pub mod audio_analysis;
 pub mod audio_command;
 pub mod audio_decode;
 pub mod audio_device;
@@ -10,6 +12,7 @@ pub mod audio_monitor;
 pub mod audio_thread;
 pub mod button_defaults;
 pub mod button_types;
+pub mod cached_source;
 pub mod cmd_audio;
 pub mod cmd_button_flags;
 pub mod cmd_button_playback;
@@ -24,13 +27,18 @@ pub mod cmd_locutions;
 pub mod cmd_master_volume;
 pub mod cmd_meta;
 pub mod cmd_playback;
+pub mod cmd_preload;
 pub mod cmd_profiles;
+pub mod cmd_tracks;
 pub mod cmd_updates;
 pub mod colors;
 pub mod config;
 pub mod config_history;
+pub mod cue_source;
+pub mod db;
 pub mod geocode;
 pub mod global_shortcuts;
+pub mod last_played;
 pub mod grid_move;
 pub mod grid_reorder;
 pub mod grid_resize;
@@ -42,13 +50,20 @@ pub mod master_bus;
 pub mod master_button;
 pub mod playback_mode;
 pub mod playback_state;
+pub mod preload_cache;
+pub mod preload_warm;
+pub mod preloader;
 pub mod random_folder;
 pub mod shortcut_rules;
 pub mod tab_reorder;
+pub mod track_store;
 pub mod types;
 pub mod types_grid;
 pub mod types_locutions;
+pub mod types_preload;
+pub mod types_track;
 pub mod vu_meter;
+pub mod waveform;
 pub mod weather;
 
 use std::sync::{Arc, Mutex};
@@ -61,6 +76,13 @@ pub struct AppState {
     pub audio: Mutex<audio::AudioEngine>,
     pub history: Mutex<config_history::ConfigHistory>,
     pub random_folders: Mutex<random_folder::RandomFolderState>,
+    /// Metadatos por archivo del editor de pistas (cue, dB, LUFS) en tracks.db.
+    /// Arc para compartir con el hilo que vuelca el historial de reproducción.
+    pub tracks: Arc<Mutex<track_store::TrackStore>>,
+    /// Envolventes de onda en memoria mientras se edita (zoom); no se persisten.
+    pub waveforms: Mutex<waveform::WaveformCache>,
+    /// Historial de última reproducción en memoria (debounce a tracks.db).
+    pub last_played: last_played::LastPlayed,
 }
 
 // ─── Arranque ─────────────────────────────────────────────────────────────────
@@ -73,44 +95,11 @@ pub fn run() {
             audio: Mutex::new(audio::AudioEngine::new()),
             history: Mutex::new(config_history::ConfigHistory::default()),
             random_folders: Mutex::new(random_folder::RandomFolderState::default()),
+            tracks: Arc::new(Mutex::new(track_store::TrackStore::open())),
+            waveforms: Mutex::new(waveform::WaveformCache::default()),
+            last_played: last_played::LastPlayed::new(),
         })
-        .setup(|app| {
-            use tauri::Manager;
-            let state = app.state::<AppState>();
-            let cfg = state.config.lock().unwrap();
-            let pid = cfg.active_profile_id.clone();
-            let master_volume = cmd_master_volume::startup_volume(&cfg);
-            let device = cfg
-                .profiles
-                .iter()
-                .find(|p| p.id == pid)
-                .map(|p| p.audio.out_main.clone())
-                .unwrap_or_else(|| "default".to_string());
-            drop(cfg);
-
-            let engine = state.audio.lock().unwrap();
-            let _ = engine.set_device(&device);
-            engine.set_master_volume(master_volume);
-
-            // Hilo monitor: emite "audio-tick" con progreso, tiempo restante y niveles VU
-            let (ll, lr) = engine.master_levels_handles();
-            audio_monitor::start(
-                app.handle().clone(),
-                engine.button_states_handle(),
-                ll,
-                lr,
-                engine.last_pressed_handle(),
-            );
-            drop(engine);
-
-            // Hilo del reloj: emite "clock-tick" con hora y fecha localizadas
-            cmd_meta::start_clock_thread(app.handle().clone(), Arc::clone(&state.config));
-
-            // Hilo de clima: refresca cada 15 min y emite "weather-updated"
-            weather::start_auto_refresh(app.handle().clone());
-            let _ = global_shortcuts::sync(app.handle());
-            Ok(())
-        })
+        .setup(app_setup::on_setup)
         .plugin(global_shortcuts::plugin())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
@@ -187,6 +176,19 @@ pub fn run() {
             cmd_playback::get_playback_state,
             cmd_playback::set_playback_mode,
             cmd_playback::set_solo_mode,
+            // Editor de pistas (cue + normalizador + onda)
+            cmd_tracks::analyze_track,
+            cmd_tracks::waveform_view,
+            cmd_tracks::get_track_meta,
+            cmd_tracks::set_track_cue,
+            cmd_tracks::set_track_gain,
+            cmd_tracks::set_track_normalization,
+            // Precarga de audio (configuración; caché en etapas posteriores)
+            cmd_preload::get_preload_config,
+            cmd_preload::should_prompt_preload,
+            cmd_preload::mark_preload_prompted,
+            cmd_preload::set_preload_config,
+            cmd_preload::get_preload_stats,
         ])
         .run(tauri::generate_context!())
         .expect("error al ejecutar la aplicación Tauri");

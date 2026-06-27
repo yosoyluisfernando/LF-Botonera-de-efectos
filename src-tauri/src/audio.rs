@@ -4,6 +4,8 @@
 use crate::audio_command::AudioCommand;
 use crate::audio_thread;
 use crate::master_bus::ButtonStateMap;
+use crate::preload_cache::PreloadCache;
+use crate::preloader::Preloader;
 use crate::vu_meter::LastPressedInfo;
 use rodio::cpal::traits::{DeviceTrait, HostTrait};
 use std::collections::HashMap;
@@ -18,6 +20,8 @@ pub struct AudioEngine {
     master_level_r: Arc<AtomicU32>,
     master_volume: Arc<AtomicU32>,
     last_pressed: Arc<Mutex<Option<LastPressedInfo>>>,
+    preload_cache: Arc<Mutex<PreloadCache>>,
+    preloader: Preloader,
 }
 
 impl AudioEngine {
@@ -28,12 +32,15 @@ impl AudioEngine {
         let master_level_r = Arc::new(AtomicU32::new(0));
         let master_volume = Arc::new(AtomicU32::new(1.0f32.to_bits()));
         let last_pressed = Arc::new(Mutex::new(None));
+        let preload_cache = Arc::new(Mutex::new(PreloadCache::new(128)));
+        let preloader = Preloader::start(Arc::clone(&preload_cache));
         audio_thread::spawn(
             rx,
             Arc::clone(&button_states),
             Arc::clone(&master_level_l),
             Arc::clone(&master_level_r),
             Arc::clone(&master_volume),
+            Arc::clone(&preload_cache),
         );
 
         Self {
@@ -43,7 +50,19 @@ impl AudioEngine {
             master_level_r,
             master_volume,
             last_pressed,
+            preload_cache,
+            preloader,
         }
+    }
+
+    /// Handle a la caché de precarga (para fijar presupuesto y futuros usos).
+    pub fn preload_cache_handle(&self) -> Arc<Mutex<PreloadCache>> {
+        Arc::clone(&self.preload_cache)
+    }
+
+    /// Encola un archivo para precargar en segundo plano (estrategia OnPlay).
+    pub fn enqueue_preload(&self, path: String) {
+        self.preloader.enqueue(path);
     }
 
     pub fn button_states_handle(&self) -> Arc<Mutex<ButtonStateMap>> {
@@ -89,6 +108,7 @@ impl AudioEngine {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn play_file(
         &self,
         id: String,
@@ -99,6 +119,9 @@ impl AudioEngine {
         stop_other: bool,
         overlap: bool,
         restart: bool,
+        cue_start_s: f64,
+        cue_end_s: Option<f64>,
+        file_gain: f32,
     ) -> Result<(), String> {
         *self.last_pressed.lock().unwrap() = Some(LastPressedInfo { id: id.clone() });
         self.send(AudioCommand::Play {
@@ -110,6 +133,9 @@ impl AudioEngine {
             stop_other,
             overlap,
             restart,
+            cue_start_s,
+            cue_end_s,
+            file_gain,
         })
     }
 

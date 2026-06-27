@@ -163,7 +163,10 @@ fn cycle_paleta(state: &AppState, offset: i32) -> Result<(), String> {
     profile.active_paleta_id = profile.paletas[(current + offset).rem_euclid(len) as usize]
         .id
         .clone();
-    config::save_config(&cfg)
+    config::save_config(&cfg)?;
+    drop(cfg);
+    crate::preload_warm::warm_visible_tab(state);
+    Ok(())
 }
 
 fn set_paleta(state: &AppState, paleta_id: String) -> Result<(), String> {
@@ -177,6 +180,8 @@ fn set_paleta(state: &AppState, paleta_id: String) -> Result<(), String> {
     if profile.paletas.iter().any(|p| p.id == paleta_id) {
         profile.active_paleta_id = paleta_id;
         config::save_config(&cfg)?;
+        drop(cfg);
+        crate::preload_warm::warm_visible_tab(state);
     }
     Ok(())
 }

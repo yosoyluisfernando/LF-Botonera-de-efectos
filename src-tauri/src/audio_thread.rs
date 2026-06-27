@@ -1,22 +1,24 @@
 /// Modulo: audio_thread.rs
 /// Proposito: ejecutar el motor de audio en un hilo dedicado.
 use crate::audio_command::AudioCommand;
-use crate::audio_decode;
 use crate::audio_device::AudioDeviceRuntime;
 use crate::master_bus::{ButtonStateMap, MasterBus, SequenceSource};
+use crate::preload_cache::{self, PreloadCache};
 use std::sync::atomic::AtomicU32;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
+#[allow(clippy::too_many_arguments)]
 pub fn spawn(
     rx: Receiver<AudioCommand>,
     states: Arc<Mutex<ButtonStateMap>>,
     master_l: Arc<AtomicU32>,
     master_r: Arc<AtomicU32>,
     master_volume: Arc<AtomicU32>,
+    cache: Arc<Mutex<PreloadCache>>,
 ) {
-    thread::spawn(move || run(rx, states, master_l, master_r, master_volume));
+    thread::spawn(move || run(rx, states, master_l, master_r, master_volume, cache));
 }
 
 fn run(
@@ -25,6 +27,7 @@ fn run(
     master_l: Arc<AtomicU32>,
     master_r: Arc<AtomicU32>,
     master_volume: Arc<AtomicU32>,
+    cache: Arc<Mutex<PreloadCache>>,
 ) {
     let mut device = AudioDeviceRuntime::new();
 
@@ -43,18 +46,27 @@ fn run(
                 stop_other,
                 overlap,
                 restart,
+                cue_start_s,
+                cue_end_s,
+                file_gain,
             } => {
                 play_file(
                     &states,
                     device.bus(),
-                    id,
-                    path,
-                    volume,
-                    duration,
-                    loop_mode,
-                    stop_other,
-                    overlap,
-                    restart,
+                    &cache,
+                    PlayArgs {
+                        id,
+                        path,
+                        volume,
+                        duration,
+                        loop_mode,
+                        stop_other,
+                        overlap,
+                        restart,
+                        cue_start_s,
+                        cue_end_s,
+                        file_gain,
+                    },
                 );
             }
             AudioCommand::Stop { id } => stop_id(&states, &id),
@@ -79,9 +91,8 @@ fn purge_done(states: &Arc<Mutex<ButtonStateMap>>) {
     });
 }
 
-fn play_file(
-    states: &Arc<Mutex<ButtonStateMap>>,
-    bus: Option<&MasterBus>,
+/// Parámetros de una reproducción (incluye cue y ganancia del archivo, E.d).
+struct PlayArgs {
     id: String,
     path: String,
     volume: f32,
@@ -90,20 +101,32 @@ fn play_file(
     stop_other: bool,
     overlap: bool,
     restart: bool,
+    cue_start_s: f64,
+    cue_end_s: Option<f64>,
+    file_gain: f32,
+}
+
+fn play_file(
+    states: &Arc<Mutex<ButtonStateMap>>,
+    bus: Option<&MasterBus>,
+    cache: &Arc<Mutex<PreloadCache>>,
+    args: PlayArgs,
 ) {
     let Some(bus) = bus else {
         return;
     };
     let mut states = states.lock().unwrap();
-    if stop_other {
-        stop_other_ids(&mut states, &id);
+    if args.stop_other {
+        stop_other_ids(&mut states, &args.id);
     }
-    if should_skip_existing(&mut states, &id, overlap, restart) {
+    if should_skip_existing(&mut states, &args.id, args.overlap, args.restart) {
         return;
     }
-    if let Some(source) = audio_decode::source_from_path(&path, loop_mode) {
-        let btn_state = bus.add_source(source, volume, duration, loop_mode);
-        states.entry(id).or_default().push(btn_state);
+    if let Some(source) =
+        preload_cache::build_play_source(cache, &args.path, args.loop_mode, args.cue_start_s, args.cue_end_s)
+    {
+        let btn_state = bus.add_source(source, args.volume, args.duration, args.loop_mode, args.file_gain);
+        states.entry(args.id).or_default().push(btn_state);
     }
 }
 
@@ -116,12 +139,7 @@ fn stop_other_ids(states: &mut ButtonStateMap, id: &str) {
     states.retain(|key, _| key.as_str() == id);
 }
 
-fn should_skip_existing(
-    states: &mut ButtonStateMap,
-    id: &str,
-    overlap: bool,
-    restart: bool,
-) -> bool {
+fn should_skip_existing(states: &mut ButtonStateMap, id: &str, overlap: bool, restart: bool) -> bool {
     if !states.get(id).map_or(false, |group| !group.is_empty()) || overlap {
         return false;
     }
@@ -162,7 +180,7 @@ fn play_sequence(
     let mut states = states.lock().unwrap();
     stop_removed(states.remove(&id));
     if let Some(seq) = SequenceSource::from_paths(&paths) {
-        let btn_state = bus.add_source(Box::new(seq), volume, duration, false);
+        let btn_state = bus.add_source(Box::new(seq), volume, duration, false, 1.0);
         states.entry(id).or_default().push(btn_state);
     }
 }

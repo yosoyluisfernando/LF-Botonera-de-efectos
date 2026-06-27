@@ -107,6 +107,13 @@ export async function openEditModal(index, btnData, onSave) {
             m.openPrelisten(pathEl.value, nameEl.value, vol, btnData?.duration ?? 0));
     };
 
+    // Editor de pista (onda + cue + normalizador): solo archivos de audio
+    document.getElementById('btn-edit-track').onclick = () => {
+        if (!canPrelisten(typeEl.value) || !pathEl.value) return;
+        import('./trackEditor.js').then(m =>
+            m.openTrackEditor(pathEl.value, nameEl.value, onSave));
+    };
+
     // Guardar: crea o actualiza el botón en Rust (upsert)
     document.getElementById('btn-save-edit').onclick = async () => {
         const sel   = typeEl.value;
