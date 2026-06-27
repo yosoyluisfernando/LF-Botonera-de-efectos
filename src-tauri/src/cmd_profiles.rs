@@ -1,17 +1,15 @@
-﻿/// MÃ³dulo: cmd_profiles.rs
-/// PropÃ³sito: Comandos IPC para gestionar perfiles y pestaÃ±as.
+/// Módulo: cmd_profiles.rs
+/// Propósito: Comandos IPC de configuración general y de PERFILES. Las pestañas
+/// (paletas) viven en cmd_paletas.rs (responsabilidad separada).
 use super::AppState;
 use crate::cmd_master_volume;
 use crate::config;
-use crate::global_shortcuts;
-use crate::grid_reorder;
-use crate::grid_resize;
-use crate::shortcut_rules;
 use crate::types::{AppConfig, AudioConfig, PaletaData, ProfileData};
 
-// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-fn next_id(prefix: &str, existing: &[String]) -> String {
+/// Genera el siguiente id libre con un prefijo (lo usan perfiles y pestañas).
+pub fn next_id(prefix: &str, existing: &[String]) -> String {
     let mut i = 1u32;
     loop {
         let candidate = format!("{}_{}", prefix, i);
@@ -22,7 +20,7 @@ fn next_id(prefix: &str, existing: &[String]) -> String {
     }
 }
 
-// â”€â”€â”€ Config general â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Config general ───────────────────────────────────────────────────────────
 
 #[tauri::command]
 pub fn get_config(state: tauri::State<AppState>) -> AppConfig {
@@ -66,7 +64,7 @@ pub fn set_button_text_size(size: String, state: tauri::State<AppState>) -> Resu
     config::save_config(&cfg)
 }
 
-// â”€â”€â”€ Perfiles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Perfiles ─────────────────────────────────────────────────────────────────
 
 #[tauri::command]
 pub fn set_active_profile(id: String, state: tauri::State<AppState>) -> Result<AppConfig, String> {
@@ -117,7 +115,7 @@ pub fn create_profile(name: String, state: tauri::State<AppState>) -> Result<App
 #[tauri::command]
 pub fn delete_profile(id: String, state: tauri::State<AppState>) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
-    // CÃ³digo de error: la UI lo traduce con t('errors.only_profile') (Regla 6)
+    // Código de error: la UI lo traduce con t('errors.only_profile') (Regla 6)
     if cfg.profiles.len() <= 1 {
         return Err("only_profile".to_string());
     }
@@ -151,173 +149,5 @@ pub fn update_profile_meta(
     p.bg = bg;
     p.text = text;
     config::save_config(&cfg)?;
-    Ok(cfg.clone())
-}
-
-// â”€â”€â”€ PestaÃ±as â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-#[tauri::command]
-pub fn set_active_paleta(
-    profile_id: String,
-    paleta_id: String,
-    state: tauri::State<AppState>,
-) -> Result<AppConfig, String> {
-    let mut cfg = state.config.lock().unwrap();
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == profile_id)
-        .ok_or("Perfil no encontrado")?;
-    if !profile.paletas.iter().any(|p| p.id == paleta_id) {
-        return Err("PestaÃ±a no encontrada".to_string());
-    }
-    profile.active_paleta_id = paleta_id;
-    config::save_config(&cfg)?;
-    let next = cfg.clone();
-    drop(cfg);
-    crate::preload_warm::warm_visible_tab(&state);
-    Ok(next)
-}
-
-#[tauri::command]
-pub fn create_paleta(
-    profile_id: String,
-    nombre: String,
-    rows: Option<u32>,
-    cols: Option<u32>,
-    tab_bg: Option<String>,
-    tab_text: Option<String>,
-    audio_out: Option<String>,
-    state: tauri::State<AppState>,
-) -> Result<AppConfig, String> {
-    let mut cfg = state.config.lock().unwrap();
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == profile_id)
-        .ok_or("Perfil no encontrado")?;
-    let ids: Vec<String> = profile.paletas.iter().map(|p| p.id.clone()).collect();
-    let id = next_id(&format!("{}_paleta", profile_id), &ids);
-    profile.paletas.push(PaletaData {
-        id: id.clone(),
-        nombre,
-        rows: rows.unwrap_or(5),
-        cols: cols.unwrap_or(5),
-        audio_out: audio_out.unwrap_or_default(),
-        shortcut: String::new(),
-        tab_bg: tab_bg.unwrap_or_default(),
-        tab_text: tab_text.unwrap_or_default(),
-        botones: Vec::new(),
-    });
-    profile.active_paleta_id = id;
-    config::save_config(&cfg)?;
-    Ok(cfg.clone())
-}
-
-#[tauri::command]
-pub fn delete_paleta(
-    profile_id: String,
-    paleta_id: String,
-    state: tauri::State<AppState>,
-) -> Result<AppConfig, String> {
-    let mut cfg = state.config.lock().unwrap();
-    let idx = cfg
-        .profiles
-        .iter()
-        .position(|p| p.id == profile_id)
-        .ok_or("Perfil no encontrado")?;
-    if cfg.profiles[idx].paletas.len() <= 1 {
-        return Err("only_tab".to_string());
-    }
-    if !cfg.profiles[idx].paletas.iter().any(|p| p.id == paleta_id) {
-        return Err("Pestaña no encontrada".to_string());
-    }
-    state.history.lock().unwrap().remember(&cfg);
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == profile_id)
-        .ok_or("Perfil no encontrado")?;
-    profile.paletas.retain(|p| p.id != paleta_id);
-    if profile.active_paleta_id == paleta_id {
-        profile.active_paleta_id = profile.paletas[0].id.clone();
-    }
-    config::save_config(&cfg)?;
-    Ok(cfg.clone())
-}
-
-#[tauri::command]
-pub fn update_paleta_meta(
-    profile_id: String,
-    paleta_id: String,
-    nombre: String,
-    rows: u32,
-    cols: u32,
-    tab_bg: Option<String>,
-    tab_text: Option<String>,
-    audio_out: Option<String>,
-    shortcut: Option<String>,
-    replace_shortcut: Option<bool>,
-    app: tauri::AppHandle,
-    state: tauri::State<AppState>,
-) -> Result<AppConfig, String> {
-    let mut cfg = state.config.lock().unwrap();
-    let mut id_mappings = Vec::new();
-    let mut grid_changed = false;
-    if let Some(v) = shortcut.as_ref() {
-        shortcut_rules::apply_tab_shortcut(
-            &mut cfg,
-            &profile_id,
-            &paleta_id,
-            v,
-            replace_shortcut.unwrap_or(false),
-        )?;
-    }
-    let paleta_snapshot = cfg
-        .profiles
-        .iter()
-        .find(|p| p.id == profile_id)
-        .and_then(|p| p.paletas.iter().find(|p| p.id == paleta_id))
-        .ok_or("PestaÃ±a no encontrada")?;
-    let should_resize = paleta_snapshot.rows != rows || paleta_snapshot.cols != cols;
-    if should_resize {
-        grid_resize::validate_resize(paleta_snapshot, rows, cols)?;
-        state.history.lock().unwrap().remember(&cfg);
-    }
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == profile_id)
-        .ok_or("Perfil no encontrado")?;
-    let paleta = profile
-        .paletas
-        .iter_mut()
-        .find(|p| p.id == paleta_id)
-        .ok_or("PestaÃ±a no encontrada")?;
-    if should_resize {
-        let resized = grid_resize::resize_paleta(paleta, rows, cols)?;
-        id_mappings = resized.mappings;
-        grid_changed = resized.changed;
-    }
-    paleta.nombre = nombre;
-    if let Some(v) = tab_bg {
-        paleta.tab_bg = v;
-    }
-    if let Some(v) = tab_text {
-        paleta.tab_text = v;
-    }
-    if let Some(v) = audio_out {
-        paleta.audio_out = v;
-    }
-    if let Some(v) = shortcut {
-        paleta.shortcut = v;
-    }
-    config::save_config(&cfg)?;
-    drop(cfg);
-    if grid_changed {
-        grid_reorder::remap_active_audio_ids(&state, &id_mappings);
-    }
-    global_shortcuts::sync(&app)?;
-    let cfg = state.config.lock().unwrap();
     Ok(cfg.clone())
 }

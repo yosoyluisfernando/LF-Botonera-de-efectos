@@ -26,6 +26,7 @@ pub mod cmd_local_shortcuts;
 pub mod cmd_locutions;
 pub mod cmd_master_volume;
 pub mod cmd_meta;
+pub mod cmd_paletas;
 pub mod cmd_playback;
 pub mod cmd_preload;
 pub mod cmd_profiles;
@@ -58,6 +59,7 @@ pub mod shortcut_rules;
 pub mod tab_reorder;
 pub mod track_store;
 pub mod types;
+pub mod types_audio;
 pub mod types_grid;
 pub mod types_locutions;
 pub mod types_preload;
@@ -116,10 +118,10 @@ pub fn run() {
             cmd_profiles::delete_profile,
             cmd_profiles::update_profile_meta,
             // Pestañas
-            cmd_profiles::set_active_paleta,
-            cmd_profiles::create_paleta,
-            cmd_profiles::delete_paleta,
-            cmd_profiles::update_paleta_meta,
+            cmd_paletas::set_active_paleta,
+            cmd_paletas::create_paleta,
+            cmd_paletas::delete_paleta,
+            cmd_paletas::update_paleta_meta,
             tab_reorder::reorder_paletas,
             // Audio
             cmd_audio::get_audio_devices,
