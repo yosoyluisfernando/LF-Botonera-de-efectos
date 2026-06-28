@@ -24,6 +24,9 @@
 }
 
 /* ── Modal de ajustes del normalizador ────────────────────────────────────── */
+/* z-index 3300: por encima del editor de pistas (3200) en modal y pop-out */
+#norm-config-modal { z-index: 3300; }
+
 .norm-config-box {
   max-width: 400px;
   display: flex;
@@ -63,11 +66,34 @@
   margin-top: 4px;
 }
 
-/* ── Botón engranaje en el editor de pistas ───────────────────────────────── */
-.te-gear-btn {
-  font-size: 1.1rem;
-  padding: 4px 7px;
-  opacity: 0.75;
-  transition: opacity 0.15s;
+/* ── Fila Normalizar + engranaje ──────────────────────────────────────────── */
+.te-normalize-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
 }
-.te-gear-btn:hover { opacity: 1; }
+.te-normalize-row #te-normalize {
+  flex: 1;
+  margin-top: 0;
+}
+
+/* Botón engranaje: solo el icono, pequeño y discreto */
+.te-gear-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-text-muted, var(--text-secondary));
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px 5px;
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s, background 0.15s;
+}
+.te-gear-btn:hover {
+  opacity: 1;
+  background: var(--soft-active-bg, rgba(255,255,255,0.08));
+  border-color: var(--border-color, transparent);
+}

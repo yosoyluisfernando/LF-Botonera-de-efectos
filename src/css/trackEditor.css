@@ -110,7 +110,6 @@
 .te-gain-row { display: flex; align-items: center; gap: 12px; }
 .te-gain-row input[type="range"] { flex: 1; }
 .te-meter-col { gap: 6px; }
-.te-meter-col #te-normalize { margin-top: 4px; }
 
 /* ── Botones del editor ─────────────────────────────────────────────── */
 .te-btn {
