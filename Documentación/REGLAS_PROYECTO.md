@@ -46,7 +46,7 @@ El método estándar de verificación es `cargo test --lib` para el backend y `n
 
 ### 11. Solo personas reales como colaboradores
 
-El historial de git, los commits, las descripciones de pull request y los comentarios de código reflejan únicamente el trabajo de usuarios humanos reales con cuenta de GitHub. Las herramientas de IA que asisten en el desarrollo no aparecen como colaboradoras, coautoras ni firmantes. No se añaden trailers `Co-Authored-By` de asistentes de IA ni atribuciones de ningún tipo a modelos de lenguaje en el registro del proyecto.
+El historial de git, los commits, las descripciones de pull request y los comentarios de código reflejan únicamente el trabajo de usuarios humanos reales con cuenta de GitHub. Las herramientas de IA que asisten en el desarrollo no aparecen como colaboradoras, coautoras ni firmantes. No se añaden trailers `Co-Authored-By` de asistentes de IA ni atribuciones de ningún tipo a modelos de lenguaje en el registro del proyecto. El reconocimiento al uso de herramientas de IA durante el desarrollo está documentado en la sección "Créditos de desarrollo" del `README.md` público.
 
 ### 12. Espacio de trabajo limpio
 

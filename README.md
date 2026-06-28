@@ -235,6 +235,19 @@ Si esta herramienta te resulta útil en radio, producción o streaming, puedes a
 
 ---
 
+## Créditos de desarrollo
+
+**Autor y creador:** Luis Fernando Velásquez
+
+Este proyecto fue desarrollado con asistencia de herramientas de inteligencia artificial:
+
+- **[Claude AI](https://claude.ai)** (Anthropic) — asistencia en arquitectura Rust, implementación del motor de audio, documentación técnica y revisión de código.
+- **[Codex / GPT](https://openai.com)** (OpenAI) — asistencia en etapas iniciales del desarrollo.
+
+Las herramientas de IA participaron como asistentes de desarrollo. El diseño del producto, las decisiones de arquitectura, la dirección creativa y la autoría del proyecto pertenecen al autor.
+
+---
+
 ## Licencia
 
 Copyright (C) 2026 **Luis Fernando Velásquez**.

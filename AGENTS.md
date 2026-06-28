@@ -47,7 +47,7 @@ El documento completo está en [`Documentación/REGLAS_PROYECTO.md`](Documentaci
 
 10. **Verificar sin lanzar la aplicación.** Verificar con `cargo test --lib` (backend) y `npm run build` (frontend). La prueba visual la hace el usuario en su equipo.
 
-11. **Las IAs no son colaboradoras del proyecto.** Commits, PRs y cualquier contribución registrada van únicamente a nombre de usuarios humanos reales con cuenta de GitHub (ejemplo: "Juan Pérez", "Yo Soy Luis Fernando"). Sin trailers `Co-Authored-By: <nombre de IA>`, sin firmas de asistente, sin atribuciones de IA en mensajes de commit, descripciones de PR ni comentarios de código. El historial de git debe reflejar exclusivamente a personas reales.
+11. **Las IAs no son colaboradoras del proyecto.** Commits, PRs y cualquier contribución registrada van únicamente a nombre de usuarios humanos reales con cuenta de GitHub (ejemplo: "Juan Pérez", "Yo Soy Luis Fernando"). Sin trailers `Co-Authored-By: <nombre de IA>`, sin firmas de asistente, sin atribuciones de IA en mensajes de commit, descripciones de PR ni comentarios de código. El historial de git debe reflejar exclusivamente a personas reales. El reconocimiento al uso de herramientas de IA en el desarrollo está documentado en la sección "Créditos de desarrollo" de `README.md`.
 
 ---
 

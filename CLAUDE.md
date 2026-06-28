@@ -49,7 +49,7 @@ Lee todo antes de tocar código.
 6. **Compatibilidad bidireccional** con LF Automatizador en `.bdelf`/`.bdeplf`. Cualquier campo nuevo debe ser OPCIONAL y con `#[serde(default)]` para que la otra app lo ignore sin romperse.
 7. **i18n siempre.** Cero strings visibles hardcodeados en la UI; todo pasa por `t()` y archivos JSON.
 8. **Tema claro/oscuro dinámico.** Solo CSS custom properties; sin cambios de clase que causen parpadeo blanco.
-9. **Las IAs no son colaboradoras del proyecto.** Commits, PRs y cualquier contribución registrada en el repositorio van únicamente a nombre de usuarios humanos reales con cuenta de GitHub (ejemplo: "Yo Soy Luis Fernando"). Sin trailers `Co-Authored-By: Claude`, sin firmas de IA, sin menciones a asistentes en mensajes de commit, descripciones de PR ni comentarios de código. El historial de git debe reflejar solo a personas reales.
+9. **Las IAs no son colaboradoras del proyecto.** Commits, PRs y cualquier contribución registrada en el repositorio van únicamente a nombre de usuarios humanos reales con cuenta de GitHub (ejemplo: "Yo Soy Luis Fernando"). Sin trailers `Co-Authored-By: Claude`, sin firmas de IA, sin menciones a asistentes en mensajes de commit, descripciones de PR ni comentarios de código. El historial de git debe reflejar solo a personas reales. El reconocimiento al uso de herramientas de IA durante el desarrollo está documentado en la sección "Créditos de desarrollo" de `README.md`.
 10. **No usar computer-use.** Controlar la pantalla del usuario cuesta tokens. Verificar solo con `cargo test --lib` y `npm run build`; el usuario prueba en su PC.
 11. **Conversar antes de tocar código.** Ante dudas de arquitectura, preguntar.
 
