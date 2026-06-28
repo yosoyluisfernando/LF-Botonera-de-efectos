@@ -1,6 +1,8 @@
 /// Módulo: types.rs
 /// Propósito: Esquema de datos serializable compartido entre Rust, UI y disco.
+use crate::types_fade::FadeConfig;
 use crate::types_locutions::LocutionConfig;
+use crate::types_norm::NormConfig;
 use crate::types_preload::PreloadConfig;
 use serde::{Deserialize, Serialize};
 
@@ -116,6 +118,10 @@ pub struct AppConfig {
     #[serde(default)]
     pub preload: PreloadConfig,
     #[serde(default)]
+    pub norm: NormConfig,
+    #[serde(default)]
+    pub fade: FadeConfig,
+    #[serde(default)]
     pub profiles: Vec<ProfileData>,
 }
 
@@ -170,6 +176,8 @@ impl Default for AppConfig {
             last_update_check: 0,
             locutions: LocutionConfig::default(),
             preload: PreloadConfig::default(),
+            norm: NormConfig::default(),
+            fade: FadeConfig::default(),
             profiles: vec![profile],
         }
     }

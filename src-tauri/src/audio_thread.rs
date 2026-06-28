@@ -31,8 +31,6 @@ fn run(
     cache: Arc<Mutex<PreloadCache>>,
 ) {
     let mut device = AudioDeviceRuntime::new();
-    // Bus de pre-escucha: atómicos propios. Volumen fijo a 1.0 → independiente
-    // del master (Decisión: la pre-escucha no la afecta el master). Sin VU.
     let mut device_pre = AudioDeviceRuntime::new();
     let pre_volume = Arc::new(AtomicU32::new(1.0f32.to_bits()));
     let pre_l = Arc::new(AtomicU32::new(0));
@@ -52,60 +50,38 @@ fn run(
                 }
             }
             AudioCommand::Play {
-                id,
-                path,
-                volume,
-                duration,
-                loop_mode,
-                stop_other,
-                overlap,
-                restart,
-                cue_start_s,
-                cue_end_s,
-                file_gain,
-                to_pre,
+                id, path, volume, duration, loop_mode,
+                stop_other, overlap, restart,
+                cue_start_s, cue_end_s, file_gain, to_pre,
+                fade_in_s, fade_out_stop_s, fade_out_end_s,
             } => {
-                // Pre-escucha al bus PRE si existe; si no, al principal (fallback).
                 let bus = if to_pre {
                     device_pre.bus().or_else(|| device.bus())
                 } else {
                     device.bus()
                 };
                 play_file(
-                    &states,
-                    bus,
-                    &cache,
+                    &states, bus, &cache,
                     PlayArgs {
-                        id,
-                        path,
-                        volume,
-                        duration,
-                        loop_mode,
-                        stop_other,
-                        overlap,
-                        restart,
-                        cue_start_s,
-                        cue_end_s,
-                        file_gain,
+                        id, path, volume, duration, loop_mode,
+                        stop_other, overlap, restart,
+                        cue_start_s, cue_end_s, file_gain,
+                        fade_in_s, fade_out_stop_s, fade_out_end_s,
                     },
                 );
             }
             AudioCommand::Stop { id } => audio_ops::stop_id(&states, &id),
+            AudioCommand::StopFade { id } => audio_ops::fade_stop_id(&states, &id),
             AudioCommand::StopAll => audio_ops::stop_all(&states),
+            AudioCommand::StopAllFade => audio_ops::fade_stop_all(&states),
             AudioCommand::SetVolume { id, volume } => audio_ops::set_volume(&states, &id, volume),
-            AudioCommand::PlaySequence {
-                id,
-                paths,
-                volume,
-                duration,
-            } => {
+            AudioCommand::PlaySequence { id, paths, volume, duration } => {
                 play_sequence(&states, device.bus(), id, paths, volume, duration);
             }
         }
     }
 }
 
-/// Parámetros de una reproducción (incluye cue y ganancia del archivo, E.d).
 struct PlayArgs {
     id: String,
     path: String,
@@ -118,6 +94,9 @@ struct PlayArgs {
     cue_start_s: f64,
     cue_end_s: Option<f64>,
     file_gain: f32,
+    fade_in_s: f64,
+    fade_out_stop_s: f64,
+    fade_out_end_s: f64,
 }
 
 fn play_file(
@@ -126,12 +105,14 @@ fn play_file(
     cache: &Arc<Mutex<PreloadCache>>,
     args: PlayArgs,
 ) {
-    let Some(bus) = bus else {
-        return;
-    };
+    let Some(bus) = bus else { return; };
     let mut states = states.lock().unwrap();
     if args.stop_other {
-        audio_ops::stop_other_ids(&mut states, &args.id);
+        if args.fade_out_stop_s > 0.0 {
+            audio_ops::fade_stop_other_ids(&mut states, &args.id);
+        } else {
+            audio_ops::stop_other_ids(&mut states, &args.id);
+        }
     }
     if audio_ops::should_skip_existing(&mut states, &args.id, args.overlap, args.restart) {
         return;
@@ -139,7 +120,10 @@ fn play_file(
     if let Some(source) =
         preload_cache::build_play_source(cache, &args.path, args.loop_mode, args.cue_start_s, args.cue_end_s)
     {
-        let btn_state = bus.add_source(source, args.volume, args.duration, args.loop_mode, args.file_gain);
+        let btn_state = bus.add_source(
+            source, args.volume, args.duration, args.loop_mode, args.file_gain,
+            args.fade_in_s, args.fade_out_stop_s, args.fade_out_end_s,
+        );
         states.entry(args.id).or_default().push(btn_state);
     }
 }
@@ -152,13 +136,11 @@ fn play_sequence(
     volume: f32,
     duration: f64,
 ) {
-    let Some(bus) = bus else {
-        return;
-    };
+    let Some(bus) = bus else { return; };
     let mut states = states.lock().unwrap();
     stop_removed(states.remove(&id));
     if let Some(seq) = SequenceSource::from_paths(&paths) {
-        let btn_state = bus.add_source(Box::new(seq), volume, duration, false, 1.0);
+        let btn_state = bus.add_source(Box::new(seq), volume, duration, false, 1.0, 0.0, 0.0, 0.0);
         states.entry(id).or_default().push(btn_state);
     }
 }

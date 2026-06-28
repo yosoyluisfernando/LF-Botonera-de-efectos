@@ -104,6 +104,7 @@ fn play_file(
         edit.cue_end_s,
         edit.file_gain,
         false, // botones normales → salida principal (al aire)
+        &cfg.fade,
     );
     seed_preload(state, cfg, &path, duration);
     result

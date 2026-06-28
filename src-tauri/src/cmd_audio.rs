@@ -4,6 +4,7 @@ use super::AppState;
 use crate::audio_device;
 use crate::audio_formats::validate_audio_file;
 use crate::config;
+use crate::types_fade::FadeConfig;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -85,6 +86,8 @@ pub fn play_audio(
     // pre-escucha o la previa del editor es instantáneo (O(1) en RAM).
     state.audio.lock().unwrap().enqueue_preload(path.clone());
     let file_gain = gain_db.map(crate::types_track::db_to_linear).unwrap_or(1.0);
+    // Pre-escucha y preview del editor no usan fade: el operador controla el monitor
+    // manualmente y un fade involuntario sería confuso.
     state.audio.lock().unwrap().play_file(
         id,
         &path,
@@ -98,6 +101,7 @@ pub fn play_audio(
         cue_end_s,
         file_gain,
         true, // pre-escucha/previa → bus PRE (con fallback al principal)
+        &FadeConfig::default(),
     )
 }
 
@@ -126,12 +130,16 @@ pub fn set_pre_device(device_name: String, state: tauri::State<AppState>) -> Res
 
 #[tauri::command]
 pub fn stop_audio(id: String, state: tauri::State<AppState>) {
-    state.audio.lock().unwrap().stop(&id);
+    let fade_s = state.config.lock().unwrap().fade.fade_out_stop_s;
+    let audio = state.audio.lock().unwrap();
+    if fade_s > 0.0 { audio.stop_fade(&id) } else { audio.stop(&id) }
 }
 
 #[tauri::command]
 pub fn stop_all_audio(state: tauri::State<AppState>) {
-    state.audio.lock().unwrap().stop_all();
+    let fade_s = state.config.lock().unwrap().fade.fade_out_stop_s;
+    let audio = state.audio.lock().unwrap();
+    if fade_s > 0.0 { audio.stop_all_fade() } else { audio.stop_all() }
 }
 
 /// Ajusta en vivo el volumen de un sonido activo (usado por la pre-escucha).

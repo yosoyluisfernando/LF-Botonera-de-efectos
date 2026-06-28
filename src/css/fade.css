@@ -1,0 +1,73 @@
+/* ── Sección de fundidos en el panel de ajustes ───────────────────────────── */
+.fade-settings-section {
+  margin-top: 4px;
+}
+.fade-section-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.fade-row {
+  gap: 12px;
+}
+.fade-input {
+  width: 100%;
+  padding: 5px 8px;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+/* ── Modal de ajustes del normalizador ────────────────────────────────────── */
+.norm-config-box {
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.norm-config-box h2 {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+}
+.norm-config-box label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+.norm-config-box select,
+.norm-config-box input[type="number"] {
+  padding: 5px 8px;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  font-size: 0.9rem;
+  width: 100%;
+}
+.norm-config-box small {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+.norm-config-box .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ── Botón engranaje en el editor de pistas ───────────────────────────────── */
+.te-gear-btn {
+  font-size: 1.1rem;
+  padding: 4px 7px;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+.te-gear-btn:hover { opacity: 1; }

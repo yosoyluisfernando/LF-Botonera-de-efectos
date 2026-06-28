@@ -5,6 +5,8 @@ use super::AppState;
 use crate::cmd_master_volume;
 use crate::config;
 use crate::types::{AppConfig, AudioConfig, PaletaData, ProfileData};
+use crate::types_fade::FadeConfig;
+use crate::types_norm::NormConfig;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -150,4 +152,25 @@ pub fn update_profile_meta(
     p.text = text;
     config::save_config(&cfg)?;
     Ok(cfg.clone())
+}
+
+// ─── Configuración de normalización y fundidos ────────────────────────────────
+
+/// Persiste la configuración del normalizador automático.
+#[tauri::command]
+pub fn set_norm_config(config_in: NormConfig, state: tauri::State<AppState>) -> Result<(), String> {
+    if !matches!(config_in.mode.as_str(), "lufs" | "peak") {
+        return Err("invalid_norm_mode".to_string());
+    }
+    let mut cfg = state.config.lock().unwrap();
+    cfg.norm = config_in;
+    config::save_config(&cfg)
+}
+
+/// Persiste la configuración de fundidos (fade in / fade out).
+#[tauri::command]
+pub fn set_fade_config(config_in: FadeConfig, state: tauri::State<AppState>) -> Result<(), String> {
+    let mut cfg = state.config.lock().unwrap();
+    cfg.fade = config_in;
+    config::save_config(&cfg)
 }

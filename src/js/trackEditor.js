@@ -13,6 +13,7 @@ import {
     bindTransport, play, playInicio, stop, halt, onCursorMark, refreshPreviewGain,
 } from './trackTransport.js';
 import { dockIn, openPreferred, popOut, syncButton } from './trackEditorWindow.js';
+import * as normConfig from './normConfig.js';
 
 const BUCKETS = 4000;
 
@@ -154,6 +155,7 @@ function _wireOnce() {
     on('te-close', 'click', _close);
     on('te-close-x', 'click', _close);
     on('te-popout', 'click', _toggleWindowMode);
+    on('te-norm-settings', 'click', async () => { const c = await invoke('get_config'); normConfig.open(c.norm || {}); });
 }
 
 function _toggleWindowMode() {

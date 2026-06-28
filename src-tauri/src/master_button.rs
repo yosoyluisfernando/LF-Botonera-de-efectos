@@ -1,5 +1,6 @@
 /// Modulo: master_button.rs
 /// Proposito: estado y fuente controlable de un boton dentro del bus master.
+use crate::fade_ramp::FadeRamp;
 use rodio::Source;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
@@ -12,6 +13,9 @@ pub type ButtonStateMap = HashMap<String, Vec<ButtonState>>;
 pub struct ButtonState {
     pub done_flag: Arc<AtomicBool>,
     pub stop_flag: Arc<AtomicBool>,
+    /// Presente solo cuando el ButtonSource fue creado con fade_out_stop > 0.
+    /// Activarlo inicia el fundido antes del corte definitivo.
+    pub fade_out_flag: Option<Arc<AtomicBool>>,
     pub volume: Arc<AtomicU32>,
     pub start_time: Instant,
     pub duration: f64,
@@ -23,7 +27,17 @@ impl ButtonState {
         self.done_flag.load(Ordering::Relaxed)
     }
 
+    /// Detiene con fundido si está configurado; si no, corte inmediato.
     pub fn stop(&self) {
+        if let Some(flag) = &self.fade_out_flag {
+            flag.store(true, Ordering::Relaxed);
+        } else {
+            self.stop_flag.store(true, Ordering::Relaxed);
+        }
+    }
+
+    /// Siempre corte inmediato (limpieza interna y secuencias).
+    pub fn stop_immediate(&self) {
         self.stop_flag.store(true, Ordering::Relaxed);
     }
 
@@ -39,25 +53,19 @@ impl ButtonState {
         if self.loop_mode {
             let cycle_pos = self.position() % self.duration;
             let remaining = self.duration - cycle_pos;
-            if remaining <= 0.005 {
-                self.duration
-            } else {
-                remaining
-            }
+            if remaining <= 0.005 { self.duration } else { remaining }
         } else {
             (self.duration - self.position()).max(0.0)
         }
     }
 
-    /// Posicion de reproduccion en segundos desde el inicio.
     pub fn position(&self) -> f64 {
         self.start_time.elapsed().as_secs_f64()
     }
 }
 
-/// Envuelve Source<Item=f32> con control atomico de volumen y stop.
-/// Ganancia en 3 capas: `file_gain` (normalizacion/dB del editor, fija) ×
-/// `volume` (trim del boton, en vivo) × `master_volume` (global).
+/// Envuelve Source<Item=f32> con control atomico de volumen, stop y fade.
+/// Ganancia en 3 capas: `file_gain` × `volume` (trim) × `master_volume`.
 pub struct ButtonSource {
     pub inner: Box<dyn Source<Item = f32> + Send + 'static>,
     pub stop_flag: Arc<AtomicBool>,
@@ -65,6 +73,7 @@ pub struct ButtonSource {
     pub file_gain: f32,
     pub volume: Arc<AtomicU32>,
     pub master_volume: Arc<AtomicU32>,
+    pub fade: FadeRamp,
 }
 
 impl Iterator for ButtonSource {
@@ -75,11 +84,18 @@ impl Iterator for ButtonSource {
             self.done_flag.store(true, Ordering::Relaxed);
             return None;
         }
+        let fade_gain = match self.fade.next_gain() {
+            Some(g) => g,
+            None => {
+                self.done_flag.store(true, Ordering::Relaxed);
+                return None;
+            }
+        };
         match self.inner.next() {
             Some(s) => {
                 let local = f32::from_bits(self.volume.load(Ordering::Relaxed));
                 let master = f32::from_bits(self.master_volume.load(Ordering::Relaxed));
-                Some(s * self.file_gain * local * master)
+                Some(s * self.file_gain * local * master * fade_gain)
             }
             None => {
                 self.done_flag.store(true, Ordering::Relaxed);
@@ -93,15 +109,12 @@ impl Source for ButtonSource {
     fn current_frame_len(&self) -> Option<usize> {
         self.inner.current_frame_len()
     }
-
     fn channels(&self) -> u16 {
         self.inner.channels()
     }
-
     fn sample_rate(&self) -> u32 {
         self.inner.sample_rate()
     }
-
     fn total_duration(&self) -> Option<Duration> {
         None
     }
@@ -131,6 +144,7 @@ mod tests {
         ButtonState {
             done_flag: Arc::new(AtomicBool::new(false)),
             stop_flag: Arc::new(AtomicBool::new(false)),
+            fade_out_flag: None,
             volume: Arc::new(AtomicU32::new(1.0f32.to_bits())),
             start_time: Instant::now() - elapsed,
             duration,

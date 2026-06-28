@@ -18,11 +18,23 @@ pub enum AudioCommand {
         file_gain: f32,
         /// true = a la salida de pre-escucha (si existe); false = principal.
         to_pre: bool,
+        /// Tiempo de fade-in al inicio de la reproducción (0.0 = sin fade).
+        fade_in_s: f64,
+        /// Tiempo de fade-out al pulsar Detener (0.0 = corte inmediato).
+        fade_out_stop_s: f64,
+        /// Tiempo de fade-out al terminar naturalmente (0.0 = sin fade).
+        fade_out_end_s: f64,
     },
     Stop {
         id: String,
     },
+    /// Igual que Stop pero con fundido si el ButtonSource fue creado con fade.
+    StopFade {
+        id: String,
+    },
     StopAll,
+    /// Igual que StopAll pero con fundido en todos los ButtonSource que lo soporten.
+    StopAllFade,
     SetDevice {
         device_name: String,
     },

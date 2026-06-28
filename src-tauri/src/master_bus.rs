@@ -2,8 +2,7 @@ use crate::audio_decode;
 /// Módulo: master_bus.rs
 /// Propósito: Master Bus de audio — todas las fuentes entran a un DynamicMixer;
 /// un único LevelSource mide el PICO de la señal sumada real post-mezcla.
-/// Equivale al canal master de una consola de audio real. No usa fórmulas
-/// de aproximación: mide directamente el PCM que sale al dispositivo.
+use crate::fade_ramp::FadeRamp;
 use crate::master_button::ButtonSource;
 use crate::vu_meter::LevelSource;
 use rodio::dynamic_mixer::{self, DynamicMixerController};
@@ -98,6 +97,7 @@ impl MasterBus {
     }
 
     /// Añade una fuente al bus y devuelve el ButtonState para control externo.
+    #[allow(clippy::too_many_arguments)]
     pub fn add_source(
         &self,
         source: Box<dyn Source<Item = f32> + Send + 'static>,
@@ -105,10 +105,24 @@ impl MasterBus {
         duration: f64,
         loop_mode: bool,
         file_gain: f32,
+        fade_in_s: f64,
+        fade_out_stop_s: f64,
+        fade_out_end_s: f64,
     ) -> ButtonState {
         let done_flag = Arc::new(AtomicBool::new(false));
         let stop_flag = Arc::new(AtomicBool::new(false));
         let vol_atomic = Arc::new(AtomicU32::new(volume.to_bits()));
+        let sr = source.sample_rate();
+        let ch = source.channels();
+        let total_samples = if duration > 0.0 {
+            (duration * sr as f64 * ch as f64).round() as usize
+        } else {
+            0
+        };
+        let (fade, fade_out_flag) = FadeRamp::new(
+            fade_in_s, fade_out_stop_s, fade_out_end_s,
+            sr, ch, total_samples, loop_mode,
+        );
         self.controller.add(ButtonSource {
             inner: source,
             stop_flag: Arc::clone(&stop_flag),
@@ -116,10 +130,12 @@ impl MasterBus {
             file_gain,
             volume: Arc::clone(&vol_atomic),
             master_volume: Arc::clone(&self.master_volume),
+            fade,
         });
         ButtonState {
             done_flag,
             stop_flag,
+            fade_out_flag,
             volume: vol_atomic,
             start_time: Instant::now(),
             duration,

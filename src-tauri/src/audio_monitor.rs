@@ -155,6 +155,7 @@ mod tests {
         ButtonState {
             done_flag: Arc::new(AtomicBool::new(false)),
             stop_flag: Arc::new(AtomicBool::new(false)),
+            fade_out_flag: None,
             volume: Arc::new(AtomicU32::new(1.0f32.to_bits())),
             start_time: Instant::now() - elapsed,
             duration,

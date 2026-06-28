@@ -61,10 +61,13 @@ pub mod shortcut_rules;
 pub mod tab_reorder;
 pub mod track_analysis_cache;
 pub mod track_store;
+pub mod fade_ramp;
 pub mod types;
 pub mod types_audio;
+pub mod types_fade;
 pub mod types_grid;
 pub mod types_locutions;
+pub mod types_norm;
 pub mod types_preload;
 pub mod types_track;
 pub mod vu_meter;
@@ -203,6 +206,9 @@ pub fn run() {
             cmd_preload::mark_preload_prompted,
             cmd_preload::set_preload_config,
             cmd_preload::get_preload_stats,
+            // NormalizaciÃ³n y fundidos (configuraciÃ³n global)
+            cmd_profiles::set_norm_config,
+            cmd_profiles::set_fade_config,
         ])
         .run(tauri::generate_context!())
         .expect("error al ejecutar la aplicaciÃ³n Tauri");

@@ -5,6 +5,7 @@
 /// existente (audio_decode) para soportar los mismos formatos, incluido Opus.
 use crate::audio_decode;
 use crate::cached_source::CachedPcm;
+use crate::types_norm::NormConfig;
 use crate::types_track::TrackMeta;
 use crate::waveform::WaveEnvelope;
 use ebur128::{EbuR128, Mode};
@@ -12,10 +13,6 @@ use rodio::Source;
 use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-/// Objetivo de loudness de la normalización automática (estándar de streaming).
-const TARGET_LUFS: f64 = -14.0;
-/// Techo de pico para no clipear tras aplicar la ganancia.
-const PEAK_CEILING_DB: f64 = -1.0;
 /// Tope de puntos del envolvente (acota memoria en archivos largos).
 const MAX_ENVELOPE_POINTS: usize = 120_000;
 
@@ -29,7 +26,7 @@ pub struct AnalysisResult {
 }
 
 /// Decodifica el archivo y calcula pico, LUFS, ganancia sugerida y envolvente.
-pub fn analyze(path: &str) -> Result<AnalysisResult, String> {
+pub fn analyze(path: &str, norm: &NormConfig) -> Result<AnalysisResult, String> {
     let src = audio_decode::source_from_path(path, false).ok_or("unsupported_audio_format")?;
     let channels = src.channels().max(1);
     let rate = src.sample_rate().max(1);
@@ -47,7 +44,7 @@ pub fn analyze(path: &str) -> Result<AnalysisResult, String> {
         -120.0
     };
     let lufs = measure_lufs(&samples, channels, rate);
-    let suggested = suggest_gain(lufs, peak_db);
+    let suggested = suggest_gain(lufs, peak_db, norm);
     let envelope = WaveEnvelope::build(&samples, channels, rate, MAX_ENVELOPE_POINTS);
 
     let (mtime, size) = file_stamp(path);
@@ -82,12 +79,18 @@ fn measure_lufs(interleaved: &[f32], channels: u16, rate: u32) -> Option<f64> {
     }
 }
 
-/// Ganancia (dB) para llegar al objetivo SIN superar el techo de pico.
-fn suggest_gain(lufs: Option<f64>, peak_db: f64) -> f64 {
+/// Ganancia (dB) para llegar al objetivo según el modo de normalización.
+/// - "lufs": ajusta por loudness integrado, limitado por el techo de pico.
+/// - "peak": ajusta al pico máximo directamente.
+fn suggest_gain(lufs: Option<f64>, peak_db: f64, norm: &NormConfig) -> f64 {
+    if norm.mode == "peak" {
+        return (norm.target - peak_db).clamp(-24.0, 24.0);
+    }
+    // Modo LUFS (defecto)
     match lufs {
         Some(l) => {
-            let by_loudness = TARGET_LUFS - l;
-            let by_peak = PEAK_CEILING_DB - peak_db;
+            let by_loudness = norm.target - l;
+            let by_peak = norm.ceiling_db - peak_db;
             by_loudness.min(by_peak).clamp(-24.0, 24.0)
         }
         None => 0.0,
@@ -121,22 +124,34 @@ fn now_epoch() -> i64 {
 mod tests {
     use super::*;
 
+    fn norm_lufs() -> NormConfig {
+        NormConfig { mode: "lufs".to_string(), target: -14.0, ceiling_db: -1.0 }
+    }
+    fn norm_peak() -> NormConfig {
+        NormConfig { mode: "peak".to_string(), target: -1.0, ceiling_db: -1.0 }
+    }
+
     #[test]
     fn gain_respects_peak_ceiling() {
         // LUFS muy bajo pediría +20 dB, pero el pico a -2 dBFS solo permite +1.
-        let g = suggest_gain(Some(-34.0), -2.0);
+        let g = suggest_gain(Some(-34.0), -2.0, &norm_lufs());
         assert!((g - 1.0).abs() < 1e-9);
     }
 
     #[test]
     fn silence_yields_zero_gain() {
-        assert_eq!(suggest_gain(None, -120.0), 0.0);
+        assert_eq!(suggest_gain(None, -120.0, &norm_lufs()), 0.0);
     }
 
     #[test]
     fn loud_track_gets_attenuated() {
-        // Pista a -8 LUFS, pico -1 → objetivo -14 pide -6 dB (no toca el techo).
-        let g = suggest_gain(Some(-8.0), -1.0);
+        let g = suggest_gain(Some(-8.0), -1.0, &norm_lufs());
         assert!((g - (-6.0)).abs() < 1e-9);
+    }
+
+    #[test]
+    fn peak_mode_uses_peak_target() {
+        let g = suggest_gain(Some(-14.0), -6.0, &norm_peak());
+        assert!((g - 5.0).abs() < 1e-9);
     }
 }

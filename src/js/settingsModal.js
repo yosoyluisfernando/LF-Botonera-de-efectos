@@ -9,6 +9,7 @@ import { applyTheme } from './theme.js';
 import { t } from './i18n.js';
 import { initLocutionsPanel, loadLocutionsPanel, saveLocutions } from './settingsLocutions.js';
 import { initPreloadPanel, loadPreloadPanel, savePreload } from './settingsPreload.js';
+import { loadFadePanel, saveFade } from './settingsFade.js';
 import { initKeyInputs } from './keyInputs.js';
 import { appAlert } from './appDialog.js';
 
@@ -80,6 +81,7 @@ async function _openSettings() {
 
     loadLocutionsPanel(config);
     loadPreloadPanel();
+    loadFadePanel(config);
     _renderOrphanedShortcuts(config);
     document.getElementById('settings-modal').classList.remove('hidden');
 }
@@ -101,6 +103,7 @@ async function _saveSettings() {
         });
         await saveLocutions();
         await savePreload();
+        await saveFade();
         await invoke('set_button_text_size', {
             size: document.getElementById('config-button-text-size').value,
         });

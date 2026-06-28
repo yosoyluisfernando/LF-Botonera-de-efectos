@@ -159,7 +159,28 @@
         "save":           "Guardar cues",
         "close":          "Cancelar",
         "loading":        "Analizando archivo…",
-        "error":          "No se pudo analizar el archivo."
+        "error":          "No se pudo analizar el archivo.",
+        "norm_settings":  "Ajustes de normalización"
+    },
+    "norm_config": {
+        "title":       "Ajustes de normalización",
+        "mode_label":  "Modo:",
+        "mode_lufs":   "LUFS (volumen percibido)",
+        "mode_peak":   "Pico (dB)",
+        "target_lufs": "Objetivo LUFS:",
+        "target_peak": "Pico objetivo (dBFS):",
+        "ceiling":     "Techo de pico (dBFS):",
+        "ceiling_hint":"Límite superior al normalizar por LUFS.",
+        "save":        "Guardar",
+        "cancel":      "Cancelar"
+    },
+    "fade": {
+        "title":          "Fundidos (Fade)",
+        "fade_in":        "Fade-in al iniciar (seg):",
+        "fade_out_stop":  "Fade-out al detener (seg):",
+        "fade_out_end":   "Fade-out al terminar (seg):",
+        "hint":           "0 = sin fundido. Los fundidos se aplican a todos los botones.",
+        "save":           "Guardar"
     },
     "preload": {
         "enable":       "Usar precarga de audio",

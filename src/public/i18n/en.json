@@ -159,7 +159,28 @@
         "save": "Save cues",
         "close": "Cancel",
         "loading": "Analyzing file…",
-        "error": "Could not analyze the file."
+        "error": "Could not analyze the file.",
+        "norm_settings": "Normalization settings"
+    },
+    "norm_config": {
+        "title":       "Normalization settings",
+        "mode_label":  "Mode:",
+        "mode_lufs":   "LUFS (perceived loudness)",
+        "mode_peak":   "Peak (dB)",
+        "target_lufs": "LUFS target:",
+        "target_peak": "Peak target (dBFS):",
+        "ceiling":     "Peak ceiling (dBFS):",
+        "ceiling_hint":"Upper limit when normalizing by LUFS.",
+        "save":        "Save",
+        "cancel":      "Cancel"
+    },
+    "fade": {
+        "title":          "Fades",
+        "fade_in":        "Fade-in on start (sec):",
+        "fade_out_stop":  "Fade-out on stop (sec):",
+        "fade_out_end":   "Fade-out on natural end (sec):",
+        "hint":           "0 = no fade. Fades apply to all buttons.",
+        "save":           "Save"
     },
     "preload": {
         "enable": "Use audio preload",

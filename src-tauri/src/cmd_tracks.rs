@@ -66,7 +66,8 @@ pub fn analyze_track(
         return Ok(response_from(&hit, merged, buckets));
     }
 
-    let analysis = audio_analysis::analyze(&path)?;
+    let norm = state.config.lock().unwrap().norm.clone();
+    let analysis = audio_analysis::analyze(&path, &norm)?;
     {
         let store = state.tracks.lock().unwrap();
         store.upsert(&analysis.meta)?;
@@ -118,7 +119,8 @@ pub fn waveform_view(
     if let Some(env) = state.waveforms.lock().unwrap().get(&key) {
         return Ok(env.view(start_s, end_s, buckets));
     }
-    let analysis = audio_analysis::analyze(&path)?;
+    let norm = state.config.lock().unwrap().norm.clone();
+    let analysis = audio_analysis::analyze(&path, &norm)?;
     let view = analysis.envelope.view(start_s, end_s, buckets);
     state
         .waveforms
