@@ -1,0 +1,135 @@
+# Registro de cambios — LF Botonera de Efectos
+
+Este archivo documenta los cambios relevantes de cada versión, siguiendo el estándar
+[Keep a Changelog](https://keepachangelog.com/es/1.1.0/) y versionado semántico ([SemVer](https://semver.org/lang/es/)).
+
+---
+
+## Cómo mantener este archivo
+
+**Categorías disponibles:** `Añadido` · `Cambiado` · `Corregido` · `Eliminado` · `Seguridad`
+
+**Flujo de trabajo:**
+1. Mientras desarrollas, anota los cambios en la sección `[Sin publicar]`.
+2. Al publicar una versión: renombra `[Sin publicar]` a `[X.Y.Z] — YYYY-MM-DD`, crea una nueva sección `[Sin publicar]` vacía encima, y añade el enlace de comparación al pie.
+3. Actualiza la versión con `SET-VERSION.bat X.Y.Z` antes del commit de release.
+
+**Qué registrar:** funcionalidades nuevas, cambios de comportamiento, bugs corregidos, cosas eliminadas.
+
+**Qué NO registrar:** refactorizaciones internas sin impacto en el usuario, commits de CI/CD, actualizaciones de documentación técnica, renombrado de variables.
+
+---
+
+## [Sin publicar]
+
+---
+
+## [1.1.2] — 2026-06-27
+
+### Añadido
+- Ventana flotante para el editor de pistas: se puede sacar como ventana independiente y moverla o minimizarla sin cerrar la app principal.
+- El editor recuerda si fue abierto en modo modal o ventana flotante (`editor_mode` en configuración).
+
+### Corregido
+- El normalizador LUFS ahora aplica la ganancia correctamente al reproducir desde el editor.
+- Se eliminó el re-análisis innecesario al pasar el editor de modal a ventana flotante.
+
+---
+
+## [1.1.1] — 2026-06-27
+
+### Añadido
+- **Editor de pistas:** forma de onda en canvas (envolvente estilo Adobe Audition), punto de inicio (cue), punto de fin opcional, zoom 1×–30× con Ctrl+Rueda, cursor de reproducción animado a 60 fps.
+- **Normalizador automático:** objetivo −14 LUFS con techo de pico a −1 dBFS, activable por archivo. Ajuste manual de ganancia en dB adicional.
+- **Precarga de audio en RAM:** caché LRU configurable (32–256 MB) con estrategias FullProfile, VisibleTabs y OnPlay; TTL configurable; seek O(1) para archivos cacheados.
+- **Salida de pre-escucha independiente:** segundo dispositivo de audio para escuchar el efecto antes de emitirlo al aire.
+- Seek por clic en la barra de pre-escucha.
+- Los exports `.bdelf`/`.bdeplf` incluyen opcionalmente cue y ganancia del archivo, que se restauran al importar en otro equipo.
+- Traducciones actualizadas al inglés, portugués (Brasil) y portugués (Portugal).
+
+---
+
+## [1.1.0] — 2026-06-24
+
+### Cambiado
+- Refactorización interna: módulos de tipos y comandos de perfil divididos en archivos más pequeños para facilitar el mantenimiento.
+
+---
+
+## [1.0.4] — 2026-06-17
+
+### Corregido
+- Recompilación para resolver un falso positivo de Windows Defender en el instalador NSIS generado por GitHub Actions (el código fuente y el MSI no estaban afectados).
+
+---
+
+## [1.0.3] — 2026-06-17
+
+### Añadido
+- Reordenar pestañas arrastrándolas.
+- Mover botones entre pestañas con Alt + arrastre.
+- Workflow de CI/CD en GitHub Actions para compilación y publicación automática en Windows y Linux.
+- Dependencias de audio para compilación nativa en Linux (`libasound2-dev`).
+
+### Cambiado
+- Refinamiento visual de estados activos y hover en la rejilla de botones.
+- Mejoras en la apariencia de la barra inferior.
+
+### Corregido
+- El color del perfil se conserva correctamente al editarlo.
+- Redimensionamiento de la rejilla al cambiar filas o columnas.
+- Recuperación del estado de modales en escenarios de error.
+
+---
+
+## [1.0.2] — 2026-06-16
+
+### Añadido
+- Enlaces al canal y grupo de la comunidad en Telegram.
+
+---
+
+## [1.0.1] — 2026-06-15
+
+### Cambiado
+- Mejoras de interfaz en el arranque de la aplicación.
+
+### Añadido
+- Verificación de actualizaciones disponibles al iniciar.
+
+---
+
+## [1.0.0] — 2026-06-13
+
+### Añadido
+- Botonera de efectos de sonido para radio y streaming en vivo.
+- Perfiles ilimitados con configuración de audio independiente por perfil.
+- Pestañas (paletas) con cuadrículas de filas y columnas configurables.
+- Botones con colores personalizables, etiquetas y volumen individual.
+- Modos de reproducción por botón: loop, superposición (overlap), reiniciar, detener otros.
+- Atajos de teclado locales y atajos globales del sistema operativo.
+- Modo de mapeo visual: muestra los atajos asignados sobre la rejilla.
+- Arrastrar y soltar archivos de audio desde el explorador.
+- Modo solo global: detiene todos los sonidos al reproducir uno nuevo.
+- Locuciones de hora y clima con archivos de audio configurables.
+- Botón de carpeta secuencial: reproduce archivos de una carpeta en orden.
+- Exportar e importar pestañas (`.bdelf`) y perfiles completos (`.bdeplf`).
+- Compatibilidad bidireccional con LF Automatizador.
+- Tema claro, oscuro y automático según el sistema operativo.
+- Cuatro idiomas: español, inglés, portugués (Brasil), portugués (Portugal).
+- Asistente de primer arranque (wizard).
+- Vúmetro estéreo L/R en tiempo real en la barra inferior.
+- Reloj, fecha y contador regresivo en la barra inferior.
+- Compilación para Windows (`.exe`, `.msi`) y Linux (`.deb`, `.rpm`, `.AppImage`).
+
+---
+
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.0.4...v1.1.0
+[1.0.4]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/releases/tag/v1.0.0

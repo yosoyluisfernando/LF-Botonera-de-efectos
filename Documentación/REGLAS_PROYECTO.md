@@ -1,38 +1,57 @@
-# ⚖️ REGLAS INMUTABLES DEL PROYECTO
+# Principios de desarrollo — LF Botonera de Efectos
 
-Estas reglas guían todo el desarrollo de la "LF Botonera de Efectos" y su migración a Tauri. Cualquier desarrollador o agente de IA que contribuya al código **debe leer y acatar estrictamente** estas normas antes de escribir una sola línea de código. 
-
-### 1. No Copiar y Pegar Ciegamente (Analizar y Traducir)
-Si hay dudas sobre cómo hace algo el "LF Automatizador", se investiga a fondo su código fuente, se entiende el *porqué* y el *cómo*, y **se traduce/adapta** a las necesidades específicas de la botonera. Está rotundamente prohibido copiar y pegar código ciegamente sin entenderlo y optimizarlo para este entorno.
-
-### 2. Cero "Parches sobre Parches" (Soluciones desde la Raíz)
-Si se descubre un error o se necesita una mejora, se soluciona desde la raíz lógica del problema. Si algo requiere dividir un archivo o reestructurar una lógica, se hace. Está terminantemente prohibido apilar código espagueti para ocultar errores.
-
-### 3. Límite Estricto de Líneas (Modularidad Extrema)
-**Un archivo no puede exceder las 150 - 200 líneas de código.** 
-Cada archivo y módulo debe tener una única responsabilidad (Single Responsibility Principle). Si se debe añadir una nueva función o característica, se crea un archivo nuevo. Todo se debe separar en pequeños bloques legibles.
-
-### 4. La Interfaz Gráfica es un "Humilde Control Remoto"
-El Frontend (HTML/JS/CSS) no piensa, no gestiona bases de datos, ni procesa audio. Su único trabajo es dibujar botones bonitos y ser un puente que envía órdenes (por ejemplo: "El usuario hizo clic en el botón 3") hacia el motor de Rust. Toda la lógica dura, enrutamiento, temporizadores y cargas, ocurre en Rust (Tauri Backend).
-
-### 5. Compatibilidad Bidireccional de Formatos
-Todo lo que se exporte (pestañas o perfiles) debe ser 100% compatible para abrirse en el *LF Automatizador* sin errores, y viceversa. Tauri servirá como un traductor/adaptador (rellenando campos faltantes) para que los archivos legados `.bdelf` sigan funcionando pero escalen a la nueva estructura de datos.
-
-### 6. Internacionalización (i18n) Inmediata
-No se permite escribir texto estático o "quemado" en el código (hardcoded strings) en la interfaz gráfica visible. Todos los textos deben venir de archivos de traducción (ej. `en.json`, `es.json`). 
-
-### 7. Soporte para Tema Claro y Oscuro Nativo
-Todo el diseño debe soportar Tema Claro y Oscuro dinámicamente mediante el uso de variables CSS. No deben existir parpadeos blancos al abrir la aplicación.
-
-### 8. Documentación Exhaustiva para Código Abierto
-Este proyecto es Software Libre. Todo archivo, función importante, evento de red o canal IPC debe estar ampliamente documentado (usando `///` en Rust o `/** */` en JS) explicando *qué hace, por qué lo hace y qué recibe/devuelve*, para que cualquier nuevo desarrollador entienda el código fácilmente.
-
-### 9. Limpieza Estricta del Espacio de Trabajo (Cero Basura)
-Todo archivo temporal generado para compilar el motor Rust, logs de pruebas o compilaciones antiguas debe ser **eliminado** inmediatamente después de que deje de ser útil. Si se genera una nueva compilación de prueba, la vieja se borra. El espacio de trabajo debe permanecer inmaculado en todo momento.
-
-### 10. Rust Primero, JavaScript Solo Cuando Sea Necesario
-Todo comportamiento que pueda resolverse en Rust debe enviarse al backend de Tauri. JavaScript debe limitarse a dibujar la interfaz, capturar interacciones del usuario y llamar comandos IPC; solo puede contener lógica propia cuando sea estrictamente necesario para la experiencia visual inmediata o para integrar APIs del navegador que no existan en Rust.
+Estas directrices definen los estándares de calidad del proyecto. Están pensadas para orientar a cualquier desarrollador o colaborador de IA antes de realizar cambios en el código.
 
 ---
-**⚠️ CLÁUSULA DE LECTURA FORZADA PARA IA:**
-Como Inteligencia Artificial, en CADA NUEVO TURNO antes de hacer una sola modificación al código, tengo la **obligación inquebrantable** de recordar conscientemente estas 10 reglas. Específicamente, debo preguntarme: *"¿Estoy poniendo lógica pesada en el Frontend?"* y *"¿Esto podría vivir de forma más segura en Rust?"*. Si la respuesta exige mover lógica al backend, debo detener el proceso inmediatamente y solucionarlo desde la raíz.
+
+### 1. Adaptar, no transcribir
+
+Cuando se toma inspiración del LF Automatizador u otro proyecto externo, se analiza la lógica, se comprende el propósito y se reimplementa adaptada al contexto de la Botonera. Incorporar código de otras bases sin entenderlo y ajustarlo introduce deuda técnica difícil de detectar después.
+
+### 2. Soluciones desde la raíz
+
+Cuando aparece un bug o una limitación, la solución correcta ataca la causa real del problema. Añadir condiciones defensivas, capturar errores para silenciarlos, o añadir código adicional alrededor de lógica rota desplaza el problema en lugar de resolverlo y acumula complejidad innecesaria con el tiempo.
+
+### 3. Archivos pequeños con responsabilidad única
+
+Ningún archivo de código supera las 200 líneas. Cada módulo tiene una responsabilidad clara y acotada. Si una función crece o una nueva característica requiere más espacio, se crea un módulo separado. Medir con `wc -l` (POSIX); PowerShell `Measure-Object -Line` puede descontar la última línea sin salto y dar un resultado menor al real.
+
+### 4. La interfaz gráfica no toma decisiones
+
+El frontend (HTML/CSS/JS) se encarga de dibujar la interfaz y de traducir la interacción del usuario en comandos IPC hacia Rust. No contiene lógica de audio, temporizadores críticos, validaciones de datos ni cálculos de estado. Toda esa responsabilidad vive en el backend Rust, que comunica los resultados al frontend a través de eventos o respuestas IPC.
+
+### 5. JavaScript requiere justificación
+
+Antes de escribir lógica en JavaScript, la pregunta de referencia es: *¿puede esto resolverse en Rust?* JavaScript es el lenguaje de la capa de presentación; Rust es el lenguaje de la lógica. Elegir JS porque es el camino más rápido no es un argumento técnico válido. JS está justificado cuando se trata de una interacción visual inmediata o cuando depende de una API del navegador que no tiene equivalente en el backend.
+
+### 6. Compatibilidad bidireccional con LF Automatizador
+
+Los formatos `.bdelf` y `.bdeplf` son compartidos con el LF Automatizador. Todo campo nuevo añadido al modelo de datos debe llevar `#[serde(default)]` para que la otra aplicación pueda leer el archivo ignorando ese campo sin errores. No se añaden campos obligatorios al esquema de exportación sin coordinar el cambio en ambos proyectos.
+
+### 7. Sin texto hardcodeado en la interfaz
+
+Ningún texto visible en la UI se escribe directamente en el código. Todo pasa por el sistema i18n (`t(key)` en JS, clave en los cuatro archivos de traducción). El idioma de referencia es `es.json`; el mismo cambio debe reflejarse en `en.json`, `pt-BR.json` y `pt-PT.json`.
+
+### 8. Tema claro y oscuro sin parpadeo
+
+Los colores de la interfaz se definen exclusivamente mediante CSS custom properties. No se cambian clases en la carga inicial de manera que provoquen un flash de pantalla blanca. Los colores asignados por el usuario se adaptan para garantizar contraste en ambos temas mediante `colorAdapter.js`.
+
+### 9. Proponer antes de reestructurar
+
+Cuando un cambio afecta la estructura de módulos, el esquema de datos, el flujo IPC o la compatibilidad con LFA, se presenta el plan primero y se espera confirmación del autor del proyecto antes de escribir código. La implementación sin alineación previa en puntos arquitectónicos puede generar trabajo redundante o conflictos difíciles de deshacer.
+
+### 10. Verificación sin lanzar la aplicación
+
+El método estándar de verificación es `cargo test --lib` para el backend y `npm run build` para el frontend. La prueba visual y funcional la realiza el usuario en su equipo. No se controla la pantalla del usuario ni se utilizan herramientas de automatización de escritorio como parte del flujo de verificación.
+
+### 11. Solo personas reales como colaboradores
+
+El historial de git, los commits, las descripciones de pull request y los comentarios de código reflejan únicamente el trabajo de usuarios humanos reales con cuenta de GitHub. Las herramientas de IA que asisten en el desarrollo no aparecen como colaboradoras, coautoras ni firmantes. No se añaden trailers `Co-Authored-By` de asistentes de IA ni atribuciones de ningún tipo a modelos de lenguaje en el registro del proyecto.
+
+### 12. Espacio de trabajo limpio
+
+Los archivos temporales, planes de implementación completados y artefactos de compilación que han dejado de ser necesarios se eliminan del repositorio. El repo contiene código, documentación permanente y configuración; no ficheros de trabajo en curso.
+
+---
+
+*Para las instrucciones específicas de cada herramienta de IA, ver [`CLAUDE.md`](../CLAUDE.md) y [`AGENTS.md`](../AGENTS.md).*

@@ -52,27 +52,33 @@ Salidas esperadas:
 
 ## 3. Subida de Version
 
-Para publicar una version nueva se deben sincronizar estos archivos:
+Para publicar una version nueva, ejecutar desde la raiz del proyecto:
 
-1. `package.json`
-2. `package-lock.json`
-3. `src-tauri/Cargo.toml`
-4. `src-tauri/Cargo.lock`
-5. `src-tauri/tauri.conf.json`
-
-Comando recomendado:
-
-```bash
-npm version X.Y.Z --no-git-tag-version
+```
+SET-VERSION.bat X.Y.Z
 ```
 
-Luego se ajusta la version de Rust/Tauri y se ejecuta:
+El script actualiza en un solo paso:
+
+1. `package.json` y `package-lock.json` (via `npm version`)
+2. `src-tauri/Cargo.toml` (primera ocurrencia, seccion `[package]`)
+3. `src-tauri/tauri.conf.json`
+
+Al terminar, el script recuerda los pasos siguientes:
 
 ```bash
-cargo check
+cd src-tauri
+cargo check           # regenera Cargo.lock con la version correcta
 ```
 
-Esto actualiza `Cargo.lock` con la version correcta del paquete Rust.
+Luego actualizar `CHANGELOG.md` con los cambios de la nueva version, hacer
+commit y crear el tag:
+
+```bash
+git commit -am "Release X.Y.Z"
+git tag vX.Y.Z
+git push && git push --tags
+```
 
 ## 4. Publicacion y Antivirus
 
