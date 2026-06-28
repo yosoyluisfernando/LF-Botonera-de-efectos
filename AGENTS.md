@@ -289,6 +289,12 @@ wc -l src-tauri/src/<modulo>.rs
 
 La prueba funcional la hace el usuario en su equipo. No hay harness de integración para el webview.
 
+**Al publicar una nueva versión:**
+1. Actualizar `CHANGELOG.md`: añadir las entradas de `[Sin publicar]`, renombrar esa sección a `[X.Y.Z] — YYYY-MM-DD`, crear una nueva `[Sin publicar]` vacía encima, y añadir el enlace comparativo al pie.
+2. Ejecutar `SET-VERSION.bat X.Y.Z` — sincroniza `package.json`, `Cargo.toml` y `tauri.conf.json`.
+3. `cd src-tauri && cargo check` — regenera `Cargo.lock`.
+4. `git commit -am "Release X.Y.Z"` → `git tag vX.Y.Z` → `git push && git push --tags`.
+
 ---
 
 ## 12. Estado del proyecto y pendientes

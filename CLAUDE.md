@@ -669,6 +669,12 @@ wc -l src-tauri/src/<archivo>.rs
 
 No lanzar la app por computer-use. El usuario prueba en su PC.
 
+**Al publicar una nueva versión:**
+1. Actualizar `CHANGELOG.md`: añadir las entradas acumuladas en `[Sin publicar]`, renombrar esa sección a `[X.Y.Z] — YYYY-MM-DD`, crear una nueva sección `[Sin publicar]` vacía encima, y añadir el enlace comparativo al pie del archivo.
+2. Ejecutar `SET-VERSION.bat X.Y.Z` — sincroniza la versión en `package.json`, `Cargo.toml` y `tauri.conf.json`.
+3. Regenerar `Cargo.lock`: `cd src-tauri && cargo check`.
+4. Commit, tag y push: `git commit -am "Release X.Y.Z"` → `git tag vX.Y.Z` → `git push && git push --tags`.
+
 ---
 
 ## 15. Pendientes reales (en orden de prioridad)
