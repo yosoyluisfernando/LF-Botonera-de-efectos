@@ -65,7 +65,7 @@ impl TrackMeta {
             cue_start_s: 0.0,
             cue_end_s: None,
             gain_db: 0.0,
-            norm_enabled: false,
+            norm_enabled: true,
             norm_gain_db: 0.0,
             measured_peak_db: None,
             measured_lufs: None,
@@ -94,8 +94,7 @@ impl TrackMeta {
 
     /// Ganancia total en dB al reproducir = normalización (si activa) + manual.
     pub fn effective_gain_db(&self) -> f64 {
-        let norm = if self.norm_enabled { self.norm_gain_db } else { 0.0 };
-        norm + self.gain_db
+        self.norm_gain_db + self.gain_db
     }
 
     /// Ganancia efectiva en multiplicador lineal (capa 1 del modelo de 3 capas).

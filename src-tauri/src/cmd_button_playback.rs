@@ -86,10 +86,15 @@ fn play_file(
     }
     // Edición por archivo (cue + ganancia) del editor de pistas, si sigue vigente.
     let edit = resolve_edit(state, &path, duration);
+    let button_volume = if btn.type_field == "random_folder" {
+        btn.vol
+    } else {
+        1.0
+    };
     let result = state.audio.lock().unwrap().play_file(
         btn.id.clone(),
         &path,
-        btn.vol,
+        button_volume,
         edit.duration,
         flags.loop_mode,
         flags.stop_other,

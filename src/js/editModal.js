@@ -15,6 +15,9 @@ import {
     canPrelisten, defaultFolder, isFolderType, isLocution,
     labelKey, placeholderKey, selectedType, setTypeState, typeOptions,
 } from './editTypes.js';
+import {
+    currentEditVolumeLinear, setEditVolumeFromLinear, syncEditVolumeControl,
+} from './editVolumeControl.js';
 
 /**
  * Abre el modal de edición para el botón indicado.
@@ -41,7 +44,7 @@ export async function openEditModal(index, btnData, onSave) {
         pathEl.value = defaultFolder(type0);
     }
     nameEl.value = btnData?.name || btnData?.label || '';
-    document.getElementById('edit-volume').value     = btnData?.vol        ?? 1.0;
+    setEditVolumeFromLinear(btnData?.vol ?? 1.0);
     document.getElementById('edit-bg-color').value   = btnData?.color_bg   ?? '#444444';
     document.getElementById('edit-text-color').value = btnData?.color_text ?? '#ffffff';
     document.getElementById('edit-shortcut').value   = btnData?.shortcut   ?? '';
@@ -52,6 +55,7 @@ export async function openEditModal(index, btnData, onSave) {
     );
     await refreshColorInputs();
     _applyPathHint(type0, pathEl);
+    syncEditVolumeControl(type0);
     if (!btnData) _applySuggestedStyle();
 
     modal.classList.remove('hidden');
@@ -69,7 +73,9 @@ export async function openEditModal(index, btnData, onSave) {
             nameEl.value = t(labelKey(sel));
             if (!pathEl.value) appAlert(t(`edit_modal.missing_${sel}`));
         }
+        setEditVolumeFromLinear(sel === type0 ? (btnData?.vol ?? 1.0) : 1.0);
         _applyPathHint(sel, pathEl);
+        syncEditVolumeControl(sel);
     };
 
     // "..." → audio: explorador de ARCHIVOS filtrado a audio (vía Rust/rfd);
@@ -102,7 +108,7 @@ export async function openEditModal(index, btnData, onSave) {
     // Pre-escucha: solo aplica a archivos de audio
     document.getElementById('btn-prelisten').onclick = () => {
         if (!canPrelisten(typeEl.value) || !pathEl.value) return;
-        const vol = parseFloat(document.getElementById('edit-volume').value);
+        const vol = currentEditVolumeLinear(typeEl.value);
         import('./prelisten.js').then(m =>
             m.openPrelisten(pathEl.value, nameEl.value, vol, btnData?.duration ?? 0));
     };
@@ -131,7 +137,7 @@ export async function openEditModal(index, btnData, onSave) {
                 btnType:   sel,
                 path:      isFolder ? '' : pathEl.value,
                 folder:    isFolder ? pathEl.value : '',
-                vol:       parseFloat(document.getElementById('edit-volume').value),
+                vol:       currentEditVolumeLinear(sel),
                 shortcut:  document.getElementById('edit-shortcut').value,
             });
             modal.classList.add('hidden');

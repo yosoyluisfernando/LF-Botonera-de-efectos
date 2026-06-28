@@ -5,6 +5,7 @@
  */
 
 import { invoke } from './api.js';
+import { shortcutFromEvent } from './keyInputs.js';
 
 let _onRefresh = null;
 let _wired = false;
@@ -29,11 +30,11 @@ async function _handleKey(e) {
 
     const key = _buildKey(e);
     if (!key) return;
+    e.preventDefault();
 
     try {
         const result = await invoke('handle_local_shortcut', { key });
         if (!result?.handled) return;
-        e.preventDefault();
         if (result.refresh) _onRefresh?.();
     } catch (err) {
         console.error('Error al resolver atajo local:', err);
@@ -116,11 +117,5 @@ function _isTextInput(target) {
 
 /** Construye la cadena de atajo normalizada, ej: "Ctrl+Shift+A". */
 function _buildKey(e) {
-    if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) return '';
-    let k = '';
-    if (e.ctrlKey) k += 'Ctrl+';
-    if (e.altKey) k += 'Alt+';
-    if (e.shiftKey) k += 'Shift+';
-    k += e.key.length === 1 ? e.key.toUpperCase() : e.key;
-    return k;
+    return shortcutFromEvent(e);
 }

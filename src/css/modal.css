@@ -176,7 +176,7 @@ input[type="color"] {
 }
 
 .btn-blue {
-  background: var(--accent-color);
+  background: var(--modal-action-bg);
   border: 1px solid var(--border-color);
   color: #fff;
   padding: 5px 15px;
@@ -184,7 +184,7 @@ input[type="color"] {
 }
 
 .btn-blue:hover {
-  background: var(--accent-hover);
+  background: var(--modal-action-hover);
 }
 
 .confirm-text {

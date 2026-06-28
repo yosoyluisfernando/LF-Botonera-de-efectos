@@ -4,7 +4,7 @@
  * atajos de teclado, acerca de). Delega audio a Rust (Regla 4).
  */
 
-import { invoke } from './api.js';
+import { emit, invoke } from './api.js';
 import { applyTheme } from './theme.js';
 import { t } from './i18n.js';
 import { initLocutionsPanel, loadLocutionsPanel, saveLocutions } from './settingsLocutions.js';
@@ -45,6 +45,7 @@ export function initSettingsModal(onSaved) {
     document.getElementById('config-theme').addEventListener('change', async e => {
         const theme = e.target.value;
         applyTheme(theme);
+        emit('theme-changed', { theme }).catch(console.error);
         try { await invoke('set_theme', { theme }); } catch (err) { console.error(err); }
     });
 }

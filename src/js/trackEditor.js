@@ -9,25 +9,31 @@
 import { invoke } from './api.js';
 import { t } from './i18n.js';
 import { createWaveform } from './waveformCanvas.js';
-import { bindTransport, play, playInicio, stop, halt, onCursorMark } from './trackTransport.js';
+import {
+    bindTransport, play, playInicio, stop, halt, onCursorMark, refreshPreviewGain,
+} from './trackTransport.js';
 import { dockIn, openPreferred, popOut, syncButton } from './trackEditorWindow.js';
 
 const BUCKETS = 4000;
 
-let _wave = null, _path = '', _meta = null, _onSaved = null, _wired = false;
+let _wave = null, _path = '', _name = '', _meta = null, _onSaved = null, _wired = false;
 
 /** Abre el editor para un archivo de audio. */
-export async function openTrackEditor(path, name, onSaved) {
+export async function openTrackEditor(path, name, onSaved, options = {}) {
     if (!path) return;
-    _path = path; _onSaved = onSaved;
+    _path = path; _name = name || ''; _onSaved = onSaved;
     _wireOnce();
-    document.getElementById('te-name').textContent = name || '';
+    const initialZoom = _zoomValue(options.zoom);
+    document.getElementById('te-zoom').value = initialZoom;
+    document.getElementById('te-name').textContent = _name ? `${t('track_editor.title_separator')}${_name}` : '';
     document.getElementById('track-editor-modal').classList.remove('hidden');
     _setStatus(t('track_editor.loading'));
     try {
         const r = await invoke('analyze_track', { path, buckets: BUCKETS });
         _meta = r.meta;
+        _meta.norm_enabled = true;
         _wave = _wave || _makeWave();
+        _wave.setZoom(initialZoom);
         _sanitizeCue(r.duration_s);
         bindTransport(_wave, _meta, _path);
         _wave.setData({ duration: r.duration_s, peaks: r.waveform });
@@ -62,8 +68,15 @@ function _makeWave() {
 }
 
 function _gainLinear() {
-    const norm = _meta.norm_enabled ? (_meta.norm_gain_db || 0) : 0;
-    return Math.pow(10, (norm + (_meta.gain_db || 0)) / 20);
+    return Math.pow(10, _effectiveGainDb() / 20);
+}
+
+function _normalGainDb() {
+    return _meta.norm_gain_db || 0;
+}
+
+function _effectiveGainDb() {
+    return _normalGainDb() + (_meta.gain_db || 0);
 }
 
 function _sanitizeCue(duration) {
@@ -74,10 +87,10 @@ function _sanitizeCue(duration) {
 }
 
 function _fillControls(r) {
-    document.getElementById('te-gain').value = _meta.gain_db ?? 0;
     document.getElementById('te-norm-enabled').checked = !!_meta.norm_enabled;
     document.getElementById('te-lufs').textContent = r.lufs != null ? `${r.lufs.toFixed(1)} LUFS` : '—';
     document.getElementById('te-peak').textContent = r.peak_db != null ? `${r.peak_db.toFixed(1)} dBFS` : '—';
+    _syncGainSliderToMeta();
     _updateGainReadout();
     _updateCueReadout();
 }
@@ -85,6 +98,10 @@ function _fillControls(r) {
 function _updateGainReadout() {
     document.getElementById('te-gain-readout').textContent =
         `${parseFloat(document.getElementById('te-gain').value).toFixed(1)} dB`;
+}
+
+function _syncGainSliderToMeta() {
+    document.getElementById('te-gain').value = _effectiveGainDb();
 }
 
 function _updateCueReadout() {
@@ -95,9 +112,10 @@ function _updateCueReadout() {
 }
 
 function _applyGainToWave() {
-    _meta.gain_db = parseFloat(document.getElementById('te-gain').value);
+    _meta.gain_db = parseFloat(document.getElementById('te-gain').value) - _normalGainDb();
     _updateGainReadout();
     _wave?.setGain(_gainLinear());
+    refreshPreviewGain();
 }
 
 function _stepZoom(dir) {
@@ -106,16 +124,24 @@ function _stepZoom(dir) {
     _wave?.setZoom(parseFloat(el.value));
 }
 
+function _zoomValue(value) {
+    const n = parseFloat(value);
+    return Number.isFinite(n) ? Math.max(1, Math.min(30, n)) : 1;
+}
+
 function _wireOnce() {
     if (_wired) return;
     _wired = true;
     const on = (id, ev, fn) => document.getElementById(id).addEventListener(ev, fn);
     on('te-gain', 'input', _applyGainToWave);
-    on('te-norm-enabled', 'change', e => { _meta.norm_enabled = e.target.checked; _wave?.setGain(_gainLinear()); });
     on('te-normalize', 'click', () => {
         document.getElementById('te-norm-enabled').checked = true;
         _meta.norm_enabled = true;
+        _meta.gain_db = 0;
+        _syncGainSliderToMeta();
+        _updateGainReadout();
         _wave?.setGain(_gainLinear());
+        refreshPreviewGain();
     });
     on('te-zoom', 'input', e => _wave?.setZoom(parseFloat(e.target.value)));
     on('te-fijar-inicio', 'click', () => { _wave?.fijar('start'); _updateCueReadout(); });
@@ -131,20 +157,20 @@ function _wireOnce() {
 }
 
 function _toggleWindowMode() {
-    const name = document.getElementById('te-name').textContent || '';
+    const zoom = _zoomValue(document.getElementById('te-zoom').value);
     const closeModal = () => {
         halt();
         document.getElementById('track-editor-modal').classList.add('hidden');
     };
-    if (document.body.classList.contains('editor-window-mode')) dockIn(_path, name, halt);
-    else popOut(_path, name, closeModal);
+    if (document.body.classList.contains('editor-window-mode')) dockIn(_path, _name, halt, zoom);
+    else popOut(_path, _name, closeModal, zoom);
 }
 
 async function _save() {
     try {
         await invoke('set_track_cue', { path: _path, startS: _meta.cue_start_s || 0, endS: _meta.cue_end_s });
         await invoke('set_track_gain', { path: _path, gainDb: _meta.gain_db || 0 });
-        await invoke('set_track_normalization', { path: _path, enabled: !!_meta.norm_enabled });
+        await invoke('set_track_normalization', { path: _path, enabled: true });
         await _close();
         _onSaved?.();
     } catch (e) { console.error('Error al guardar pista:', e); }

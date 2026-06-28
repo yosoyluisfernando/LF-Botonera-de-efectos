@@ -71,11 +71,18 @@ export function halt() {
     document.getElementById('te-play').classList.remove('te-active');
 }
 
+/** Actualiza en vivo el volumen efectivo de la previa si esta sonando. */
+export function refreshPreviewGain() {
+    if (_playing) {
+        invoke('set_audio_volume', { id: PLAY_ID, volume: _gainLinear() });
+    }
+}
+
 async function _playFrom(origin) {
     _wave?.setCursor(origin, false);
     try {
         await invoke('play_audio', {
-            id: PLAY_ID, path: _path, volume: 1.0,
+            id: PLAY_ID, path: _path, volume: _gainLinear(),
             loopMode: false, stopOther: false, overlap: false, restart: true,
             cueStartS: origin, cueEndS: null, gainDb: 0,
         });
@@ -101,4 +108,9 @@ function _loop() {
     }
     _wave?.setCursor(t, true);
     _raf = requestAnimationFrame(_loop);
+}
+
+function _gainLinear() {
+    const db = (_meta?.norm_gain_db || 0) + (_meta?.gain_db || 0);
+    return Math.pow(10, db / 20);
 }

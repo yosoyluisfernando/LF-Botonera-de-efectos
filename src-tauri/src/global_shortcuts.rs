@@ -138,9 +138,15 @@ fn matches_key(saved: &str, shortcut: &Shortcut) -> bool {
 }
 
 fn parse_shortcut(key: &str) -> Result<Shortcut, String> {
-    key.replace("Ctrl+", "Control+")
+    normalize_shortcut(key)
         .parse::<Shortcut>()
         .map_err(|e| format!("Atajo invalido {key}: {e}"))
+}
+
+fn normalize_shortcut(key: &str) -> String {
+    key.trim()
+        .replace("Ctrl+", "Control+")
+        .replace("Espacio", "Space")
 }
 
 fn cycle_paleta(state: &AppState, offset: i32) -> Result<(), String> {

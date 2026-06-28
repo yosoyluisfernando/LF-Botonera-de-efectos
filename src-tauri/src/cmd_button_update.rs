@@ -144,7 +144,7 @@ fn set_path(btn: &mut crate::types::ButtonData, path: String) {
 }
 
 fn validate_volume(volume: f32) -> Result<(), String> {
-    if volume.is_finite() && (0.0..=1.0).contains(&volume) {
+    if volume.is_finite() && (0.0..=16.0).contains(&volume) {
         Ok(())
     } else {
         Err("invalid_volume".to_string())

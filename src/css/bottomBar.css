@@ -36,7 +36,8 @@
     font-size: 28px;
     font-weight: bold;
     color: var(--accent-clock);
-    text-shadow: 0 1px 0 rgba(0,0,0,0.75), 0 0 3px rgba(0,0,0,0.45);
+    text-shadow: var(--clock-text-shadow);
+    -webkit-text-stroke: 0.7px var(--clock-text-stroke);
     line-height: 1;
     letter-spacing: 1px;
     white-space: nowrap;

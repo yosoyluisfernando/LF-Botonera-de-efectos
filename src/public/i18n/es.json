@@ -138,7 +138,8 @@
         "edit_track":    "Editor de pista (onda)…"
     },
     "track_editor": {
-        "title":          "Editor de pista — ",
+        "title":          "Editor de pista",
+        "title_separator": " — ",
         "popout":         "Abrir en ventana",
         "dock":           "Volver a modal",
         "set_start":      "Fijar inicio",

@@ -15,7 +15,8 @@ export function createWaveform(refs, hooks) {
     let duration = 0, peaks = [], gain = 1, zoom = 1;
     let cueStart = 0, cueEnd = null, cursorT = 0, drag = null;
 
-    const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#0078d4';
+    const cssVar = (n, fallback = '#0078d4') =>
+        getComputedStyle(document.documentElement).getPropertyValue(n).trim() || fallback;
     const baseW = () => container.clientWidth || 800;
     const dpr = () => window.devicePixelRatio || 1;
     const tToX = t => (t / (duration || 1)) * canvas.width;
@@ -41,7 +42,8 @@ export function createWaveform(refs, hooks) {
 
     function draw() {
         const w = canvas.width, h = canvas.height, mid = h / 2;
-        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = cssVar('--waveform-bg', '#0d0d0f');
+        ctx.fillRect(0, 0, w, h);
         const n = peaks.length / 2;
         const top = new Float32Array(w);
         let clipped = false;
@@ -57,14 +59,14 @@ export function createWaveform(refs, hooks) {
             if (amp > 1) { amp = 1; clipped = true; }
             top[i] = amp;
         }
-        ctx.fillStyle = clipped ? cssVar('--error-color') : cssVar('--accent-color');
+        ctx.fillStyle = clipped ? cssVar('--error-color') : cssVar('--waveform-color');
         ctx.beginPath();
         ctx.moveTo(0, mid);
         for (let i = 0; i < w; i++) ctx.lineTo(i, mid - top[i] * mid);
         for (let i = w - 1; i >= 0; i--) ctx.lineTo(i, mid + top[i] * mid);
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.strokeStyle = cssVar('--waveform-midline', 'rgba(255,255,255,0.08)');
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(w, mid); ctx.stroke();
         dim(0, cueStart);
@@ -75,7 +77,7 @@ export function createWaveform(refs, hooks) {
     function dim(t0, t1) {
         const x0 = Math.max(0, tToX(t0)), x1 = Math.min(canvas.width, tToX(t1));
         if (x1 <= x0) return;
-        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillStyle = cssVar('--waveform-dim-bg', 'rgba(0,0,0,0.55)');
         ctx.fillRect(x0, 0, x1 - x0, canvas.height);
     }
     function marker(t, color, lbl) {
@@ -147,6 +149,7 @@ export function createWaveform(refs, hooks) {
         e.preventDefault();
         hooks.onZoom(e.deltaY < 0 ? 1 : -1);
     }, { passive: false });
+    document.addEventListener('lf-theme-change', draw);
 
     return { setData, setGain, setMarkers, setCursor, getCursor, setZoom, fijar, clearEnd, relayout: layout };
 }

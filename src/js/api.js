@@ -146,3 +146,13 @@ export function listen(event, handler) {
     console.warn(`[Sin Backend Tauri] listen('${event}') — evento ignorado.`);
     return Promise.resolve(() => {});
 }
+
+/** Emite un evento Tauri para sincronizar ventanas del frontend. */
+export function emit(event, payload) {
+    if (window.__TAURI__?.event?.emit)
+        return window.__TAURI__.event.emit(event, payload);
+    if (!isBrowserFallback()) {
+        return Promise.reject(new Error(`TAURI_EVENT_NOT_READY:${event}`));
+    }
+    return Promise.resolve(null);
+}

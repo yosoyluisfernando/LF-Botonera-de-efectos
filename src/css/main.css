@@ -1,6 +1,6 @@
 /*
  * Archivo: main.css
- * Propósito: Reseteo CSS básico y estilos estructurales (Titlebar de Tauri).
+ * Propósito: Reseteo CSS básico y estilos estructurales de la aplicación.
  */
 
 * {
@@ -15,70 +15,6 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden; /* Prevenir scroll genérico */
   user-select: none; /* Prevenir selección de texto accidental */
-}
-
-/* Barra de título de Tauri (Permite arrastrar la ventana sin bordes) */
-.titlebar {
-  height: 30px;
-  background: var(--bg-secondary);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 0 0 10px; /* Sin padding derecho: los botones tocan el borde */
-  border-bottom: 1px solid var(--border-color);
-  /* Propiedad mágica de Tauri para arrastrar la ventana */
-  user-select: none;
-}
-
-.titlebar[data-tauri-drag-region] {
-  cursor: grab;
-}
-
-.titlebar[data-tauri-drag-region]:active {
-  cursor: grabbing;
-}
-
-.titlebar-title {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  pointer-events: none; /* El título no debe bloquear el drag */
-}
-
-/* Controles de ventana (minimizar / maximizar / cerrar) */
-.titlebar-logo {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-.titlebar-controls {
-  display: flex;
-  height: 100%;
-}
-
-.tb-btn {
-  width: 42px;
-  height: 100%;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.tb-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.tb-close:hover {
-  background: #c42b1c;
-  color: #ffffff;
 }
 
 .hidden { display: none !important; }
@@ -106,14 +42,14 @@ body {
 
 #loading-screen,
 #wizard-section {
-  height: calc(100vh - 30px);
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 #app-section {
-  height: calc(100vh - 30px);
+  height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 5px;

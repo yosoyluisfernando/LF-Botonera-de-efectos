@@ -138,7 +138,8 @@
         "edit_track": "Track editor (waveform)…"
     },
     "track_editor": {
-        "title": "Track editor — ",
+        "title": "Track editor",
+        "title_separator": " — ",
         "popout": "Open in window",
         "dock": "Return to modal",
         "set_start": "Set start",

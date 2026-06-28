@@ -27,7 +27,7 @@
     border: 1px solid var(--border-color);
     border-radius: 4px;
     overflow: hidden;
-    background: #0d0d0f;
+    background: var(--waveform-bg);
 }
 .te-wave-container {
     width: 100%;
@@ -61,14 +61,15 @@
 }
 .te-time-text {
     position: absolute;
-    top: 6px;
-    left: 6px;
+    bottom: 8px;
+    left: 8px;
     color: #fff;
-    background: rgba(0, 0, 0, 0.55);
+    background: var(--waveform-color);
     padding: 2px 6px;
     font-family: 'Courier New', Courier, monospace;
     font-size: 12px;
     border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
     pointer-events: none;
     z-index: 4;
 }
@@ -76,7 +77,7 @@
 .te-wave-container::-webkit-scrollbar-thumb {
     background: var(--bg-tertiary);
     border-radius: 6px;
-    border: 2px solid #0d0d0f;
+    border: 2px solid var(--waveform-bg);
 }
 .te-wave-container::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
 .te-status {
@@ -86,7 +87,7 @@
     align-items: center;
     justify-content: center;
     color: var(--text-secondary);
-    background: #0d0d0f;
+    background: var(--waveform-bg);
     font-size: 13px;
 }
 
@@ -125,6 +126,15 @@
 .te-btn.te-active { background: var(--success-strong); color: #fff; border-color: var(--success-strong); }
 .te-mark-start { border-left: 3px solid var(--success-strong); }
 .te-mark-end { border-left: 3px solid var(--error-color); }
+.te-window-btn {
+    min-width: 34px;
+    padding: 5px 10px;
+    line-height: 1;
+}
+#te-close:hover {
+    background: var(--soft-active-bg);
+    border-color: var(--soft-active-border);
+}
 
 /* ── Barra inferior: transporte + zoom + acciones ───────────────────── */
 .te-footer { justify-content: space-between; align-items: center; }
@@ -146,6 +156,7 @@
 /* ── Modo ventana (pop-out): el editor llena la ventana nativa ───────── */
 body.editor-window-mode { overflow: hidden; }
 body.editor-window-mode .titlebar { display: none; }
+body.editor-window-mode #te-close-x { display: none; }
 body.editor-window-mode #track-editor-modal { background: none; }
 body.editor-window-mode .track-editor-content {
     width: 100vw !important;

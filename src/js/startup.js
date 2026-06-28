@@ -8,7 +8,6 @@ import { invoke, listen, waitForTauri } from './api.js';
 import { loadLanguage, t } from './i18n.js';
 import { applyTheme } from './theme.js';
 import { initWizard } from './wizard.js';
-import { initTitlebar } from './titlebar.js';
 import { initTabs, updateTabPlayback, updateTabs } from './tabs.js';
 import { initProfiles, updateProfiles } from './profiles.js';
 import { initShortcuts, updateShortcuts } from './shortcuts.js';
@@ -38,7 +37,6 @@ export async function startApp() {
         // Ventana "pop-out": si la URL trae ?editor=<ruta>, arranca SOLO el editor.
         const editorPath = new URLSearchParams(location.search).get('editor');
         if (editorPath) { await _startEditorWindow(editorPath); return; }
-        initTitlebar();
         initColorPicker();
         initNumberInputs();
         _blockNativeContextMenu();
@@ -75,6 +73,7 @@ async function _startEditorWindow(rawPath) {
     const config = await invoke('get_config').catch(() => ({}));
     applyTheme(config.theme || 'dark');
     await loadLanguage(config.language || 'es');
+    listen('theme-changed', e => applyTheme(e.payload?.theme || 'dark')).catch(console.error);
     _wireCloseButtons();
     _blockNativeContextMenu();
     document.body.classList.add('editor-window-mode');
@@ -87,7 +86,9 @@ async function _startEditorWindow(rawPath) {
         invoke('stop_audio', { id: '__track_preview__' }).catch(() => {});
     });
     const editor = await import('./trackEditor.js');
-    editor.openTrackEditor(decodeURIComponent(rawPath), params.get('name') || '', null);
+    editor.openTrackEditor(decodeURIComponent(rawPath), params.get('name') || '', null, {
+        zoom: parseFloat(params.get('zoom') || '1'),
+    });
 }
 
 async function _loadConfig() {
@@ -140,7 +141,7 @@ async function _wireRuntimeEvents() {
 
 async function _openDockedEditor(payload) {
     const editor = await import('./trackEditor.js');
-    editor.openTrackEditor(payload.path, payload.name || '', null);
+    editor.openTrackEditor(payload.path, payload.name || '', null, { zoom: payload.zoom });
 }
 
 function _paintAudio(payload) {

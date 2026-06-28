@@ -138,7 +138,8 @@
         "edit_track": "Editor de faixa (onda)…"
     },
     "track_editor": {
-        "title": "Editor de faixa — ",
+        "title": "Editor de faixa",
+        "title_separator": " — ",
         "popout": "Abrir em janela",
         "dock": "Voltar ao modal",
         "set_start": "Definir início",

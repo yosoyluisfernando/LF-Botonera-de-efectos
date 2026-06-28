@@ -24,18 +24,6 @@
   </head>
   <body>
 
-    <header data-tauri-drag-region class="titlebar">
-      <div class="titlebar-title">
-        <img class="titlebar-logo" src="/icono_circular.png" alt="">
-        <span data-i18n="app.title">LF Botonera de Efectos</span>
-      </div>
-      <div class="titlebar-controls">
-        <button id="tb-min"   class="tb-btn" data-i18n-title="titlebar.minimize">─</button>
-        <button id="tb-max"   class="tb-btn" data-i18n-title="titlebar.maximize">☐</button>
-        <button id="tb-close" class="tb-btn tb-close" data-i18n-title="titlebar.close">✕</button>
-      </div>
-    </header>
-
     <!-- ── Wizard de primer arranque ─────────────────────────── -->
     <section id="wizard-section" class="hidden">
       <div id="wizard-area"></div>
@@ -184,9 +172,12 @@
               <label data-i18n="edit_modal.name">Nombre:</label>
               <input type="text" id="edit-name" autocomplete="off" spellcheck="false">
             </div>
-            <div class="col">
+            <div class="col" id="edit-volume-col">
               <label data-i18n="edit_modal.volume">Volumen:</label>
-              <input type="range" id="edit-volume" min="0" max="1" step="0.01" value="1">
+              <div class="te-gain-row">
+                <input type="range" id="edit-volume" min="-24" max="24" step="0.1" value="0">
+                <span id="edit-volume-readout" class="te-readout">0.0 dB</span>
+              </div>
             </div>
           </div>
           <div class="row">
@@ -220,7 +211,6 @@
       <div class="modal-content track-editor-content">
         <div class="modal-header">
           <h3><span data-i18n="track_editor.title">Editor de pista</span><span id="te-name"></span></h3>
-          <button class="close-btn" id="te-popout" data-i18n-title="track_editor.popout">⤢</button>
           <button class="close-btn" id="te-close-x">✕</button>
         </div>
         <div class="modal-body" id="track-editor-host">
@@ -236,11 +226,11 @@
           </div>
           <div class="te-markers">
             <button id="te-fijar-inicio" class="te-btn te-mark-start" data-i18n="track_editor.set_start">Fijar inicio</button>
-            <span class="te-readout"><strong id="te-cue-start">0.00s</strong></span>
             <button id="te-play-inicio" class="te-btn te-mark-start" data-i18n-title="track_editor.play_from_start">▶</button>
+            <span class="te-readout"><strong id="te-cue-start">0.00s</strong></span>
             <button id="te-fijar-fin" class="te-btn te-mark-end" data-i18n="track_editor.set_end">Fijar fin</button>
-            <span class="te-readout"><strong id="te-cue-end">—</strong></span>
             <button id="te-clear-end" class="te-btn" data-i18n="track_editor.clear_end">Quitar fin</button>
+            <span class="te-readout"><strong id="te-cue-end">—</strong></span>
             <span class="te-spacer"></span>
             <span class="te-readout"><span data-i18n="track_editor.duration">Duración</span>: <strong id="te-duration">—</strong></span>
           </div>
@@ -251,7 +241,7 @@
                 <input type="range" id="te-gain" min="-24" max="24" step="0.1" value="0">
                 <span id="te-gain-readout" class="te-readout">0.0 dB</span>
               </div>
-              <div class="checkbox-line">
+              <div class="checkbox-line hidden">
                 <input type="checkbox" id="te-norm-enabled">
                 <label for="te-norm-enabled" data-i18n="track_editor.auto_normalize">Normalización automática</label>
               </div>
@@ -274,6 +264,7 @@
             </div>
           </div>
           <div class="te-footer-actions">
+            <button id="te-popout" class="te-btn te-window-btn" data-i18n-title="track_editor.popout">&#x23CF;&#xFE0F;</button>
             <button id="te-close" class="btn-dark" data-i18n="track_editor.close">Cancelar</button>
             <button id="te-save"  class="btn-blue" data-i18n="track_editor.save">Guardar cues</button>
           </div>
