@@ -2,8 +2,9 @@
 /// Propósito: Esquema de datos serializable compartido entre Rust, UI y disco.
 use crate::types_fade::FadeConfig;
 use crate::types_locutions::LocutionConfig;
-use crate::types_norm::NormConfig;
+use crate::types_norm::{CueDetectConfig, NormConfig};
 use crate::types_preload::PreloadConfig;
+use crate::types_startup::StartupPromptState;
 use serde::{Deserialize, Serialize};
 
 // AudioConfig vive en su propio módulo; se re-exporta para que el resto del
@@ -120,7 +121,13 @@ pub struct AppConfig {
     #[serde(default)]
     pub norm: NormConfig,
     #[serde(default)]
+    pub cue_detect: CueDetectConfig,
+    #[serde(default)]
+    pub norm_prompted: bool,
+    #[serde(default)]
     pub fade: FadeConfig,
+    #[serde(default)]
+    pub startup: StartupPromptState,
     #[serde(default)]
     pub profiles: Vec<ProfileData>,
 }
@@ -177,7 +184,10 @@ impl Default for AppConfig {
             locutions: LocutionConfig::default(),
             preload: PreloadConfig::default(),
             norm: NormConfig::default(),
+            cue_detect: CueDetectConfig::default(),
+            norm_prompted: false,
             fade: FadeConfig::default(),
+            startup: StartupPromptState::default(),
             profiles: vec![profile],
         }
     }

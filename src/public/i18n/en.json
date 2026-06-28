@@ -174,6 +174,17 @@
         "save":        "Save",
         "cancel":      "Cancel"
     },
+    "cue_detect": {
+        "title": "Automatic cue detection",
+        "enabled": "Enable silence detection",
+        "detect_start": "Detect start point",
+        "detect_end": "Detect end point",
+        "start_thresh": "Start threshold (dBFS)",
+        "end_thresh": "End threshold (dBFS)",
+        "hint": "Reverse analysis avoids treating natural pauses as the end point.",
+        "dont_ask": "Do not ask again when opening the editor",
+        "need_one": "Enable at least start or end to use detection."
+    },
     "fade": {
         "title":          "Fades",
         "fade_in":        "Fade-in on start (sec):",
@@ -300,6 +311,19 @@
         "open_release": "Open download",
         "reminder_label": "Update",
         "reminder_title": "Update available"
+    },
+    "release_notes": {
+        "title": "What's new",
+        "ok": "Got it"
+    },
+    "donation": {
+        "title": "Support this project",
+        "p1": "Hello, my name is Luis Fernando Velásquez. I develop this project in my free time, with the intention of creating a free, open and useful tool for everyone.",
+        "p2": "If LF Botonera de Efectos has been useful to you, you can support me with a voluntary donation. Every contribution helps keep the project alive and improving.",
+        "p3": "The software will always remain free. Donating is a way to support it, not an obligation.",
+        "sign": "Sincerely: Luis Fernando Velásquez",
+        "support": "I want to support",
+        "later": "Not now"
     },
     "color_picker": {
         "title": "Select color",

@@ -1,48 +1,23 @@
-/// Módulo: cmd_tracks.rs
-/// Propósito: comandos IPC del editor de pistas. La UI es un control remoto: no
-/// hace DSP ni SQL, solo pide análisis/ventanas de onda y guarda cue/dB.
 use super::AppState;
 use crate::audio_analysis;
+use crate::cmd_track_response::{response_from, AnalyzeResponse};
 use crate::config;
+use crate::cue_detect;
 use crate::db;
 use crate::track_analysis_cache::CachedTrackAnalysis;
 use crate::types_track::TrackMeta;
-use serde::Serialize;
 use std::sync::Arc;
 
-/// Respuesta del análisis inicial al abrir el editor.
-#[derive(Serialize)]
-pub struct AnalyzeResponse {
-    /// Metadatos combinados (medidos ahora + cue/dB previos del usuario).
-    pub meta: TrackMeta,
-    /// Onda de toda la pista a la resolución pedida (pares [min,max]).
-    pub waveform: Vec<f32>,
-    pub duration_s: f64,
-    pub peak_db: Option<f64>,
-    pub lufs: Option<f64>,
-    pub suggested_norm_db: f64,
-}
-
-fn response_from(item: &CachedTrackAnalysis, meta: TrackMeta, buckets: usize) -> AnalyzeResponse {
-    let duration_s = item.envelope.duration_s();
-    AnalyzeResponse {
-        peak_db: item.meta.measured_peak_db,
-        lufs: item.meta.measured_lufs,
-        suggested_norm_db: item.meta.norm_gain_db,
-        waveform: item.envelope.view(0.0, duration_s, buckets),
-        duration_s,
-        meta,
-    }
-}
-
-/// Analiza un archivo (decodifica una vez): pico, LUFS, onda. Persiste lo medido
-/// preservando las ediciones del usuario y cachea el envolvente para el zoom.
 #[tauri::command]
 pub fn analyze_track(
     path: String,
     buckets: usize,
     state: tauri::State<AppState>,
 ) -> Result<AnalyzeResponse, String> {
+    let (norm, cue_detect) = {
+        let cfg = state.config.lock().unwrap();
+        (cfg.norm.clone(), cfg.cue_detect.clone())
+    };
     let key = db::normalize_key(&path);
     let (mtime, size) = audio_analysis::file_stamp(&path);
     if let Some(hit) = state.track_analysis.lock().unwrap().get(&key, mtime, size) {
@@ -63,32 +38,34 @@ pub fn analyze_track(
             .lock()
             .unwrap()
             .insert_arc(key, Arc::clone(&hit.pcm));
-        return Ok(response_from(&hit, merged, buckets));
+        let detected = cue_detect::detect_boundaries(
+            &hit.pcm.data,
+            hit.pcm.sample_rate,
+            hit.pcm.channels,
+            &cue_detect,
+        );
+        return Ok(response_from(&hit, merged, buckets, detected));
     }
 
-    let norm = state.config.lock().unwrap().norm.clone();
-    let analysis = audio_analysis::analyze(&path, &norm)?;
+    let analysis = audio_analysis::analyze(&path, &norm, &cue_detect)?;
     {
         let store = state.tracks.lock().unwrap();
         store.upsert(&analysis.meta)?;
     }
     let envelope = Arc::new(analysis.envelope);
     let pcm = Arc::new(analysis.pcm);
-    // Cachea el PCM ya decodificado → la previa/scrubbing del editor hace seek
-    // O(1) (sin descartar muestras una a una). Reúsa la decodificación.
     let cache = state.audio.lock().unwrap().preload_cache_handle();
     cache
         .lock()
         .unwrap()
         .insert_arc(key.clone(), Arc::clone(&pcm));
-
     let merged = state
         .tracks
         .lock()
         .unwrap()
         .get(&path)?
         .unwrap_or_else(|| analysis.meta.clone());
-
+    let detected = (analysis.auto_cue_start_s, analysis.auto_cue_end_s);
     let item = CachedTrackAnalysis {
         mtime: analysis.meta.mtime,
         size: analysis.meta.size,
@@ -102,11 +79,9 @@ pub fn analyze_track(
         .lock()
         .unwrap()
         .put(&key, Arc::clone(&item.envelope));
-    Ok(response_from(&item, merged, buckets))
+    Ok(response_from(&item, merged, buckets, detected))
 }
 
-/// Devuelve la onda de la ventana visible [start_s, end_s] a `buckets` columnas.
-/// Usa el envolvente cacheado (zoom/scroll instantáneo); si no está, re-analiza.
 #[tauri::command]
 pub fn waveform_view(
     path: String,
@@ -119,8 +94,11 @@ pub fn waveform_view(
     if let Some(env) = state.waveforms.lock().unwrap().get(&key) {
         return Ok(env.view(start_s, end_s, buckets));
     }
-    let norm = state.config.lock().unwrap().norm.clone();
-    let analysis = audio_analysis::analyze(&path, &norm)?;
+    let (norm, cue_detect) = {
+        let cfg = state.config.lock().unwrap();
+        (cfg.norm.clone(), cfg.cue_detect.clone())
+    };
+    let analysis = audio_analysis::analyze(&path, &norm, &cue_detect)?;
     let view = analysis.envelope.view(start_s, end_s, buckets);
     state
         .waveforms
@@ -130,7 +108,6 @@ pub fn waveform_view(
     Ok(view)
 }
 
-/// Lee los metadatos guardados de un archivo (o None si nunca se editó).
 #[tauri::command]
 pub fn get_track_meta(
     path: String,
@@ -139,7 +116,6 @@ pub fn get_track_meta(
     state.tracks.lock().unwrap().get(&path)
 }
 
-/// Guarda el punto de inicio (y fin opcional) del cue.
 #[tauri::command]
 pub fn set_track_cue(
     path: String,
@@ -150,7 +126,6 @@ pub fn set_track_cue(
     state.tracks.lock().unwrap().set_cue(&path, start_s, end_s)
 }
 
-/// Guarda el trim manual en dB.
 #[tauri::command]
 pub fn set_track_gain(
     path: String,
@@ -160,7 +135,6 @@ pub fn set_track_gain(
     state.tracks.lock().unwrap().set_gain(&path, gain_db)
 }
 
-/// Activa o desactiva la normalización automática para este archivo.
 #[tauri::command]
 pub fn set_track_normalization(
     path: String,
@@ -174,7 +148,22 @@ pub fn set_track_normalization(
         .set_normalization(&path, enabled)
 }
 
-/// Persiste la preferencia global del editor: modal o ventana flotante.
+#[tauri::command]
+pub fn recalculate_norm(path: String, state: tauri::State<AppState>) -> Result<f64, String> {
+    let norm = state.config.lock().unwrap().norm.clone();
+    let mut meta = state
+        .tracks
+        .lock()
+        .unwrap()
+        .get(&path)?
+        .ok_or("track_not_analyzed")?;
+    let peak = meta.measured_peak_db.unwrap_or(-120.0);
+    let g = audio_analysis::suggest_gain(meta.measured_lufs, peak, &norm);
+    meta.norm_gain_db = g;
+    state.tracks.lock().unwrap().upsert(&meta)?;
+    Ok(g)
+}
+
 #[tauri::command]
 pub fn set_editor_mode(mode: String, state: tauri::State<AppState>) -> Result<(), String> {
     if mode != "modal" && mode != "window" {

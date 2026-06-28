@@ -26,45 +26,25 @@
 /* ── Modal de ajustes del normalizador ────────────────────────────────────── */
 /* z-index 3300: por encima del editor de pistas (3200) en modal y pop-out */
 #norm-config-modal { z-index: 3300; }
-
-.norm-config-box {
-  max-width: 400px;
+#norm-config-modal .modal-section-title {
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+#norm-config-modal .modal-toggle-row {
+  align-items: center;
+  color: var(--text-primary);
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.norm-config-box h2 {
-  margin: 0 0 4px 0;
-  font-size: 1rem;
-}
-.norm-config-box label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.88rem;
-  color: var(--color-text-muted);
-}
-.norm-config-box select,
-.norm-config-box input[type="number"] {
-  padding: 5px 8px;
-  background: var(--color-input-bg);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  border-radius: 5px;
-  font-size: 0.9rem;
-  width: 100%;
-}
-.norm-config-box small {
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  opacity: 0.8;
-}
-.norm-config-box .modal-actions {
-  display: flex;
-  justify-content: flex-end;
   gap: 8px;
-  margin-top: 4px;
 }
+#norm-config-modal .modal-toggle-row input { width: auto; }
+#norm-config-modal .form-error {
+  color: var(--error-color);
+  font-size: 11px;
+  margin-top: 8px;
+}
+
 
 /* ── Fila Normalizar + engranaje ──────────────────────────────────────────── */
 .te-normalize-row {

@@ -23,3 +23,47 @@
 .update-reminder .pb-icon {
   font-weight: 800;
 }
+
+.release-notes-body {
+  max-height: 55vh;
+  overflow: auto;
+}
+
+.startup-modal {
+  height: auto;
+}
+
+.release-notes-body h4 {
+  color: var(--accent-color);
+  font-size: 13px;
+  margin: 12px 0 6px;
+}
+
+.release-notes-body p {
+  color: var(--text-primary);
+  line-height: 1.45;
+  margin: 7px 0;
+}
+
+.release-note-item {
+  padding-left: 12px;
+  position: relative;
+}
+
+.release-note-item::before {
+  content: "•";
+  left: 0;
+  position: absolute;
+}
+
+.donation-body p {
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.donation-body .donation-sign {
+  color: var(--text-secondary);
+  margin-bottom: 0;
+}

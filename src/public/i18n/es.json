@@ -174,6 +174,17 @@
         "save":        "Guardar",
         "cancel":      "Cancelar"
     },
+    "cue_detect": {
+        "title": "Detección automática de cue",
+        "enabled": "Activar detección de silencio",
+        "detect_start": "Detectar punto de inicio",
+        "detect_end": "Detectar punto de fin",
+        "start_thresh": "Umbral inicio (dBFS)",
+        "end_thresh": "Umbral fin (dBFS)",
+        "hint": "El análisis regresivo evita detectar pausas naturales como punto de fin.",
+        "dont_ask": "No volver a preguntar al abrir el editor",
+        "need_one": "Activa al menos inicio o fin para usar la detección."
+    },
     "fade": {
         "title":          "Fundidos (Fade)",
         "fade_in":        "Fade-in al iniciar (seg):",
@@ -300,6 +311,19 @@
         "open_release": "Abrir descarga",
         "reminder_label": "Update",
         "reminder_title": "Actualizacion disponible"
+    },
+    "release_notes": {
+        "title": "Qué hay de nuevo",
+        "ok": "Entendido"
+    },
+    "donation": {
+        "title": "Apoya este proyecto",
+        "p1": "Hola, mi nombre es Luis Fernando Velásquez. Desarrollo este proyecto en mi tiempo libre, con la intención de crear una herramienta gratuita, libre y útil para todos.",
+        "p2": "Si LF Botonera de Efectos te ha servido, puedes apoyarme con una donación voluntaria. Cada aporte ayuda a mantener vivo el proyecto y seguir mejorándolo.",
+        "p3": "El software siempre seguirá siendo gratuito. Donar es una forma de apoyar, no una obligación.",
+        "sign": "Atentamente: Luis Fernando Velásquez",
+        "support": "Quiero apoyar",
+        "later": "Ahora no"
     },
     "color_picker": {
         "title": "Seleccionar color",

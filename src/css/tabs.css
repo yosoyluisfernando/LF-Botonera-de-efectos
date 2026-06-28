@@ -106,10 +106,13 @@ body.mapping-mode .tab:hover {
 .modal-lg {
   width: 720px !important;
   max-width: 95vw;
-  height: 560px;
   max-height: 92vh;
   display: flex;
   flex-direction: column;
+}
+
+#settings-modal .modal-lg {
+  height: 560px;
 }
 
 .settings-body {

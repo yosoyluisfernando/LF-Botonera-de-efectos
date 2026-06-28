@@ -21,11 +21,12 @@ import { paintAudioTick } from './gridPlayback.js';
 import { updateClockTick, updateAudioTick } from './clockWidget.js';
 import { updateVuMeter } from './vuMeter.js';
 import { updateWeatherPanel } from './settingsLocutions.js';
-import { initUpdateNotifier } from './updateNotifier.js';
+import { initUpdateNotifier, startUpdateChecks } from './updateNotifier.js';
 import { initColorPicker } from './colorPalette.js';
 import { initNumberInputs } from './numberInputs.js';
 import { maybeShowPreloadDialog } from './preloadDialog.js';
 import { checkAudioDevicesOnStartup } from './audioDeviceRecovery.js';
+import { initStartupPrompts, runStartupPrompts } from './startupPrompts.js';
 
 let _closeWired = false;
 let _runtimeWired = false;
@@ -55,10 +56,13 @@ export async function startApp() {
 
         const grid = await invoke('get_grid_state');
         _initModules(config, grid);
+        initStartupPrompts();
         await _wireRuntimeEvents();
         _show('app-section');
         checkAudioDevicesOnStartup();
-        maybeShowPreloadDialog(); // Rust decide si toca (primer arranque)
+        await maybeShowPreloadDialog(); // Rust decide si toca (primer arranque)
+        await runStartupPrompts();
+        startUpdateChecks();
     } catch (e) {
         console.error('Error iniciando la app:', e);
         await loadLanguage('es').catch(() => {});

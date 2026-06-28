@@ -6,7 +6,7 @@ use crate::cmd_master_volume;
 use crate::config;
 use crate::types::{AppConfig, AudioConfig, PaletaData, ProfileData};
 use crate::types_fade::FadeConfig;
-use crate::types_norm::NormConfig;
+use crate::types_norm::{CueDetectConfig, NormConfig};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -172,5 +172,25 @@ pub fn set_norm_config(config_in: NormConfig, state: tauri::State<AppState>) -> 
 pub fn set_fade_config(config_in: FadeConfig, state: tauri::State<AppState>) -> Result<(), String> {
     let mut cfg = state.config.lock().unwrap();
     cfg.fade = config_in;
+    config::save_config(&cfg)
+}
+
+#[tauri::command]
+pub fn set_cue_detect_config(
+    config_in: CueDetectConfig,
+    state: tauri::State<AppState>,
+) -> Result<(), String> {
+    if config_in.enabled && !config_in.detect_start && !config_in.detect_end {
+        return Err("invalid_cue_detect_config".to_string());
+    }
+    let mut cfg = state.config.lock().unwrap();
+    cfg.cue_detect = config_in;
+    config::save_config(&cfg)
+}
+
+#[tauri::command]
+pub fn mark_norm_prompted(state: tauri::State<AppState>) -> Result<(), String> {
+    let mut cfg = state.config.lock().unwrap();
+    cfg.norm_prompted = true;
     config::save_config(&cfg)
 }

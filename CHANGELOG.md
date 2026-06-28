@@ -25,10 +25,17 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 ### Añadido
 - **Fundidos globales (Fade In / Fade Out):** configurables en segundos desde Ajustes → Principal. Valores independientes para fade-in al iniciar, fade-out al detener y fade-out al terminar naturalmente. Se aplican a todos los botones.
 - **Modo y objetivo de normalización configurable:** botón ⚙ en el editor de pistas permite elegir entre LUFS (volumen percibido) o Pico (dBFS) con valor objetivo y techo de pico personalizables. La configuración es global.
+- **Detección automática de cue:** el editor de pistas puede detectar silencio inicial y final para proponer puntos de inicio y fin al abrir un audio. Incluye interruptores globales para activar la detección completa, solo inicio o solo fin, y umbrales independientes en dBFS.
+- Aviso de primera apertura del editor de pistas para presentar los ajustes de normalización y detección de cue, con opción de no volver a mostrarlo.
+- Modal **Qué hay de nuevo** al abrir una versión instalada por primera vez, usando el changelog local de la aplicación.
 
 ### Cambiado
 - El normalizador automático ahora respeta el modo configurado por el usuario (LUFS/Peak) en lugar de usar siempre −14 LUFS.
+- El botón **Normalizar** del editor recalcula la ganancia con la configuración global actual sin volver a decodificar el archivo.
 - `stop_audio` y `stop_all_audio` aplican fade-out al detener si está configurado; si no, corte inmediato (comportamiento anterior).
+
+### Corregido
+- El modal de ajustes del normalizador vuelve a mostrarse con fondo, cabecera y botones consistentes con el resto de modales.
 
 ---
 

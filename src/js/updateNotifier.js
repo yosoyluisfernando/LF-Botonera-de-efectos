@@ -10,8 +10,9 @@ const CHECK_EVERY_MS = 12 * 60 * 60 * 1000;
 let _latestUrl = '';
 let _latestResult = null;
 let _wired = false;
+let _checksStarted = false;
 
-/** Conecta botones, revisa al iniciar y programa revisiones livianas cada 12 horas. */
+/** Conecta botones. Las revisiones se inician luego de los prompts de arranque. */
 export function initUpdateNotifier() {
     if (_wired) return;
     _wired = true;
@@ -23,6 +24,11 @@ export function initUpdateNotifier() {
         if (e.target?.id === 'update-notice-modal') _hideNotice();
     });
 
+}
+
+export function startUpdateChecks() {
+    if (_checksStarted) return;
+    _checksStarted = true;
     _check(false, true);
     setInterval(() => _check(false), CHECK_EVERY_MS);
 }

@@ -40,6 +40,42 @@ impl Default for NormConfig {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CueDetectConfig {
+    #[serde(default)]
+    pub enabled: bool,
+    #[serde(default = "default_cue_detect")]
+    pub detect_start: bool,
+    #[serde(default = "default_cue_detect")]
+    pub detect_end: bool,
+    #[serde(default = "default_start_thresh")]
+    pub start_thresh_db: f64,
+    #[serde(default = "default_end_thresh")]
+    pub end_thresh_db: f64,
+}
+
+fn default_cue_detect() -> bool {
+    true
+}
+fn default_start_thresh() -> f64 {
+    -36.0
+}
+fn default_end_thresh() -> f64 {
+    -48.0
+}
+
+impl Default for CueDetectConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            detect_start: true,
+            detect_end: true,
+            start_thresh_db: -36.0,
+            end_thresh_db: -48.0,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
