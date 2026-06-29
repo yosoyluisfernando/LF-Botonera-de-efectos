@@ -7,8 +7,10 @@
 import { initClockWidget }   from './clockWidget.js';
 import { initMasterVolume, refreshMasterVolume } from './masterVolume.js';
 import { initPlaybackModes, refreshPlaybackModes } from './playbackModes.js';
+import { initPlaybackProgressBar, refreshPlaybackProgressBar } from './playbackProgressBar.js';
 
 export function initBottomBar() {
+    initPlaybackProgressBar();
     initClockWidget();
     initPlaybackModes();
     initMasterVolume();
@@ -17,4 +19,5 @@ export function initBottomBar() {
 export function refreshBottomBar() {
     refreshPlaybackModes();
     refreshMasterVolume();
+    refreshPlaybackProgressBar();
 }

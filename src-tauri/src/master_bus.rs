@@ -108,20 +108,31 @@ impl MasterBus {
         fade_in_s: f64,
         fade_out_stop_s: f64,
         fade_out_end_s: f64,
+        position_offset_s: f64,
     ) -> ButtonState {
         let done_flag = Arc::new(AtomicBool::new(false));
         let stop_flag = Arc::new(AtomicBool::new(false));
         let vol_atomic = Arc::new(AtomicU32::new(volume.to_bits()));
         let sr = source.sample_rate();
         let ch = source.channels();
-        let total_samples = if duration > 0.0 {
-            (duration * sr as f64 * ch as f64).round() as usize
+        let fade_duration = if loop_mode {
+            duration
+        } else {
+            (duration - position_offset_s).max(0.0)
+        };
+        let total_samples = if fade_duration > 0.0 {
+            (fade_duration * sr as f64 * ch as f64).round() as usize
         } else {
             0
         };
         let (fade, fade_out_flag) = FadeRamp::new(
-            fade_in_s, fade_out_stop_s, fade_out_end_s,
-            sr, ch, total_samples, loop_mode,
+            fade_in_s,
+            fade_out_stop_s,
+            fade_out_end_s,
+            sr,
+            ch,
+            total_samples,
+            loop_mode,
         );
         self.controller.add(ButtonSource {
             inner: source,
@@ -138,6 +149,7 @@ impl MasterBus {
             fade_out_flag,
             volume: vol_atomic,
             start_time: Instant::now(),
+            position_offset_s,
             duration,
             loop_mode,
         }

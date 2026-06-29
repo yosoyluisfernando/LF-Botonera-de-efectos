@@ -60,6 +60,7 @@
     "settings": {
         "title": "Configuração Global",
         "tab_main": "Principal",
+        "tab_playback": "Reprodução",
         "tab_keys": "Atalhos de Teclado",
         "tab_locutions": "Hora e Clima",
         "tab_preload": "Pré-carregamento",
@@ -192,6 +193,20 @@
         "fade_out_end":   "Fade-out ao terminar (seg):",
         "hint":           "0 = sem fundido. Os fundidos se aplicam a todos os botões.",
         "save":           "Salvar"
+    },
+    "playback_progress": {
+        "enabled": "Mostrar barra de progresso",
+        "step": "Salto de avanço/retrocesso:",
+        "step_1": "1 segundo",
+        "step_2": "2 segundos",
+        "step_5": "5 segundos",
+        "step_10": "10 segundos",
+        "step_20": "20 segundos",
+        "step_30": "30 segundos",
+        "hint": "Controla o último áudio disparado pelos botões principais.",
+        "back": "Retroceder",
+        "forward": "Avançar",
+        "seek": "Alterar posição"
     },
     "preload": {
         "enable": "Usar pré-carregamento de áudio",

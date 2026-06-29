@@ -1,0 +1,67 @@
+.playback-progress-panel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 5px 10px;
+    background: var(--bottom-bg);
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    flex-shrink: 0;
+}
+
+.playback-progress-panel.hidden {
+    display: none;
+}
+
+.progress-seek-btn {
+    width: 30px;
+    height: 24px;
+    border: 1px solid var(--playback-border);
+    border-radius: 4px;
+    background: var(--playback-bg);
+    color: var(--text-primary);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.progress-seek-btn:hover:not(:disabled) {
+    background: var(--menu-hover-bg);
+}
+
+.progress-seek-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.main-progress-bar {
+    position: relative;
+    flex: 1;
+    height: 12px;
+    min-width: 80px;
+    border: 1px solid var(--playback-border);
+    border-radius: 3px;
+    background: var(--vu-channel-bg);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.main-progress-bar.disabled {
+    cursor: default;
+}
+
+.main-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--accent-color);
+}
+
+.main-progress-time {
+    width: 92px;
+    text-align: right;
+    color: var(--text-secondary);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    white-space: nowrap;
+}

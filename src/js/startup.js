@@ -18,6 +18,7 @@ import { initBottomBar, refreshBottomBar } from './bottomBar.js';
 import { initSettingsModal } from './settingsModal.js';
 import { initMapping } from './mapping.js';
 import { paintAudioTick } from './gridPlayback.js';
+import { updatePlaybackProgress } from './playbackProgressBar.js';
 import { updateClockTick, updateAudioTick } from './clockWidget.js';
 import { updateVuMeter } from './vuMeter.js';
 import { updateWeatherPanel } from './settingsLocutions.js';
@@ -150,6 +151,7 @@ async function _openDockedEditor(payload) {
 
 function _paintAudio(payload) {
     paintAudioTick(payload);
+    updatePlaybackProgress(payload);
     updateAudioTick(payload);
     updateVuMeter(payload);
     updateTabPlayback(payload);

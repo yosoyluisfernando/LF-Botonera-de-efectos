@@ -60,6 +60,7 @@
     "settings": {
         "title": "Global Settings",
         "tab_main": "General",
+        "tab_playback": "Playback",
         "tab_keys": "Keyboard Shortcuts",
         "tab_locutions": "Time & Weather",
         "tab_preload": "Preload",
@@ -192,6 +193,20 @@
         "fade_out_end":   "Fade-out on natural end (sec):",
         "hint":           "0 = no fade. Fades apply to all buttons.",
         "save":           "Save"
+    },
+    "playback_progress": {
+        "enabled": "Show progress bar",
+        "step": "Forward/back step:",
+        "step_1": "1 second",
+        "step_2": "2 seconds",
+        "step_5": "5 seconds",
+        "step_10": "10 seconds",
+        "step_20": "20 seconds",
+        "step_30": "30 seconds",
+        "hint": "Controls the last audio triggered from the main buttons.",
+        "back": "Back",
+        "forward": "Forward",
+        "seek": "Change position"
     },
     "preload": {
         "enable": "Use audio preload",

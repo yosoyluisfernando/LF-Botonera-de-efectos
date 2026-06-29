@@ -1,6 +1,3 @@
-/// Modulo: audio.rs
-/// Proposito: fachada publica del motor de audio; la ejecucion real vive en
-/// audio_thread.rs para mantener separadas las responsabilidades.
 use crate::audio_command::AudioCommand;
 use crate::audio_thread;
 use crate::master_bus::ButtonStateMap;
@@ -8,7 +5,6 @@ use crate::preload_cache::PreloadCache;
 use crate::preloader::Preloader;
 use crate::types_fade::FadeConfig;
 use crate::vu_meter::LastPressedInfo;
-use rodio::cpal::traits::{DeviceTrait, HostTrait};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::mpsc::{channel, Sender};
@@ -43,10 +39,20 @@ impl AudioEngine {
             Arc::clone(&master_level_l),
             Arc::clone(&master_level_r),
             Arc::clone(&master_volume),
+            Arc::clone(&last_pressed),
             Arc::clone(&preload_cache),
         );
-        Self { tx, button_states, master_level_l, master_level_r, master_volume,
-               last_pressed, preload_cache, preloader, preload_enabled }
+        Self {
+            tx,
+            button_states,
+            master_level_l,
+            master_level_r,
+            master_volume,
+            last_pressed,
+            preload_cache,
+            preloader,
+            preload_enabled,
+        }
     }
 
     pub fn preload_cache_handle(&self) -> Arc<Mutex<PreloadCache>> {
@@ -67,7 +73,10 @@ impl AudioEngine {
     }
 
     pub fn master_levels_handles(&self) -> (Arc<AtomicU32>, Arc<AtomicU32>) {
-        (Arc::clone(&self.master_level_l), Arc::clone(&self.master_level_r))
+        (
+            Arc::clone(&self.master_level_l),
+            Arc::clone(&self.master_level_r),
+        )
     }
 
     pub fn last_pressed_handle(&self) -> Arc<Mutex<Option<LastPressedInfo>>> {
@@ -75,16 +84,7 @@ impl AudioEngine {
     }
 
     pub fn get_available_devices(&self) -> Vec<String> {
-        let host = rodio::cpal::default_host();
-        let mut devices = vec!["default".to_string()];
-        if let Ok(devs) = host.output_devices() {
-            for device in devs {
-                if let Ok(name) = device.name() {
-                    devices.push(name);
-                }
-            }
-        }
-        devices
+        crate::audio_device_list::available_devices()
     }
 
     pub fn master_volume(&self) -> f32 {
@@ -92,11 +92,14 @@ impl AudioEngine {
     }
 
     pub fn set_master_volume(&self, volume: f32) {
-        self.master_volume.store(volume.clamp(0.0, 1.5).to_bits(), Ordering::Relaxed);
+        self.master_volume
+            .store(volume.clamp(0.0, 1.5).to_bits(), Ordering::Relaxed);
     }
 
     pub fn set_device(&self, device_name: &str) -> Result<(), String> {
-        self.send(AudioCommand::SetDevice { device_name: device_name.to_string() })
+        self.send(AudioCommand::SetDevice {
+            device_name: device_name.to_string(),
+        })
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -116,10 +119,22 @@ impl AudioEngine {
         to_pre: bool,
         fade: &FadeConfig,
     ) -> Result<(), String> {
-        *self.last_pressed.lock().unwrap() = Some(LastPressedInfo { id: id.clone() });
+        if !to_pre && !id.starts_with("__") {
+            *self.last_pressed.lock().unwrap() = Some(LastPressedInfo { id: id.clone() });
+        }
         self.send(AudioCommand::Play {
-            id, path: path.to_string(), volume, duration, loop_mode,
-            stop_other, overlap, restart, cue_start_s, cue_end_s, file_gain, to_pre,
+            id,
+            path: path.to_string(),
+            volume,
+            duration,
+            loop_mode,
+            stop_other,
+            overlap,
+            restart,
+            cue_start_s,
+            cue_end_s,
+            file_gain,
+            to_pre,
             fade_in_s: fade.fade_in_s,
             fade_out_stop_s: fade.fade_out_stop_s,
             fade_out_end_s: fade.fade_out_end_s,
@@ -127,25 +142,58 @@ impl AudioEngine {
     }
 
     pub fn set_pre_device(&self, device_name: &str) -> Result<(), String> {
-        self.send(AudioCommand::SetPreDevice { device_name: device_name.to_string() })
+        self.send(AudioCommand::SetPreDevice {
+            device_name: device_name.to_string(),
+        })
     }
 
-    pub fn stop(&self, id: &str) { let _ = self.tx.send(AudioCommand::Stop { id: id.to_string() }); }
-    pub fn stop_fade(&self, id: &str) { let _ = self.tx.send(AudioCommand::StopFade { id: id.to_string() }); }
-    pub fn stop_all(&self) { *self.last_pressed.lock().unwrap() = None; let _ = self.tx.send(AudioCommand::StopAll); }
-    pub fn stop_all_fade(&self) { *self.last_pressed.lock().unwrap() = None; let _ = self.tx.send(AudioCommand::StopAllFade); }
+    pub fn stop(&self, id: &str) {
+        let _ = self.tx.send(AudioCommand::Stop { id: id.to_string() });
+    }
+    pub fn stop_fade(&self, id: &str) {
+        let _ = self.tx.send(AudioCommand::StopFade { id: id.to_string() });
+    }
+    pub fn stop_all(&self) {
+        *self.last_pressed.lock().unwrap() = None;
+        let _ = self.tx.send(AudioCommand::StopAll);
+    }
+    pub fn stop_all_fade(&self) {
+        *self.last_pressed.lock().unwrap() = None;
+        let _ = self.tx.send(AudioCommand::StopAllFade);
+    }
 
     pub fn set_volume(&self, id: &str, volume: f32) {
-        let _ = self.tx.send(AudioCommand::SetVolume { id: id.to_string(), volume });
+        let _ = self.tx.send(AudioCommand::SetVolume {
+            id: id.to_string(),
+            volume,
+        });
+    }
+
+    pub fn seek_active(&self, delta_s: Option<f64>, position_s: Option<f64>) -> Result<(), String> {
+        self.send(AudioCommand::SeekActive {
+            delta_s,
+            position_s,
+        })
     }
 
     pub fn play_sequence(
-        &self, id: String, paths: Vec<String>, volume: f32, duration: f64,
+        &self,
+        id: String,
+        paths: Vec<String>,
+        volume: f32,
+        duration: f64,
     ) -> Result<(), String> {
-        self.send(AudioCommand::PlaySequence { id, paths, volume, duration })
+        self.send(AudioCommand::PlaySequence {
+            id,
+            paths,
+            volume,
+            duration,
+        })
     }
 
     fn send(&self, command: AudioCommand) -> Result<(), String> {
-        self.tx.send(command).map_err(|_| "Audio thread died".to_string())
+        self.tx
+            .send(command)
+            .map_err(|_| "Audio thread died".to_string())
     }
 }

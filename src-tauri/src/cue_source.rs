@@ -105,12 +105,39 @@ pub fn cued_source(
     if !has_cue {
         return audio_decode::source_from_path(path, loop_mode);
     }
+    if let Some(source) = seeked_cue(path, loop_mode, cue_start_s, cue_end_s) {
+        return Some(source);
+    }
     let base = audio_decode::source_from_path(path, false)?;
     let cued = CuedSource::new(base, cue_start_s, cue_end_s);
     if loop_mode {
         Some(Box::new(cued.repeat_infinite()))
     } else {
         Some(Box::new(cued))
+    }
+}
+
+fn seeked_cue(
+    path: &str,
+    loop_mode: bool,
+    cue_start_s: f64,
+    cue_end_s: Option<f64>,
+) -> Option<BoxSource> {
+    let base = audio_decode::source_from_path_at(path, false, cue_start_s)?;
+    let end = cue_end_s.map(|e| (e - cue_start_s).max(0.0));
+    let source = if let Some(end_s) = end {
+        CuedSource::new(base, 0.0, Some(end_s))
+    } else {
+        return if loop_mode {
+            Some(audio_decode::source_from_path_at(path, true, cue_start_s)?)
+        } else {
+            Some(base)
+        };
+    };
+    if loop_mode {
+        Some(Box::new(source.repeat_infinite()))
+    } else {
+        Some(Box::new(source))
     }
 }
 

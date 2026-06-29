@@ -26,7 +26,12 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "[2/3] src-tauri\Cargo.toml ..."
 $cargoPath = Join-Path $root "src-tauri\Cargo.toml"
 $cargo = Get-Content $cargoPath -Raw
-$cargo = [regex]::Replace($cargo, 'version = "\d+\.\d+\.\d+"', "version = `"$Version`"", 1)
+$cargo = [regex]::Replace(
+    $cargo,
+    '(\[package\][\s\S]*?version = )"\d+\.\d+\.\d+"',
+    "`${1}`"$Version`"",
+    1
+)
 [System.IO.File]::WriteAllText($cargoPath, $cargo, [System.Text.UTF8Encoding]::new($false))
 
 # 3. tauri.conf.json

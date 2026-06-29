@@ -22,19 +22,26 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ## [Sin publicar]
 
+---
+
+## [1.1.3] — 2026-06-28
+
 ### Añadido
 - **Fundidos globales (Fade In / Fade Out):** configurables en segundos desde Ajustes → Principal. Valores independientes para fade-in al iniciar, fade-out al detener y fade-out al terminar naturalmente. Se aplican a todos los botones.
 - **Modo y objetivo de normalización configurable:** botón ⚙ en el editor de pistas permite elegir entre LUFS (volumen percibido) o Pico (dBFS) con valor objetivo y techo de pico personalizables. La configuración es global.
 - **Detección automática de cue:** el editor de pistas puede detectar silencio inicial y final para proponer puntos de inicio y fin al abrir un audio. Incluye interruptores globales para activar la detección completa, solo inicio o solo fin, y umbrales independientes en dBFS.
+- **Barra de progreso opcional para reproducción principal:** configurable desde Ajustes → Reproducción, con retroceso/avance por 1, 2, 5, 10, 20 o 30 segundos y seek directo sobre el último audio disparado desde los botones.
 - Aviso de primera apertura del editor de pistas para presentar los ajustes de normalización y detección de cue, con opción de no volver a mostrarlo.
 - Modal **Qué hay de nuevo** al abrir una versión instalada por primera vez, usando el changelog local de la aplicación.
 
 ### Cambiado
+- Ajustes generales reordenado: Principal, Reproducción, Precarga, Hora y Clima, Atajos del Teclado, Acerca de. Los fundidos globales ahora viven en Reproducción.
 - El normalizador automático ahora respeta el modo configurado por el usuario (LUFS/Peak) en lugar de usar siempre −14 LUFS.
 - El botón **Normalizar** del editor recalcula la ganancia con la configuración global actual sin volver a decodificar el archivo.
 - `stop_audio` y `stop_all_audio` aplican fade-out al detener si está configurado; si no, corte inmediato (comportamiento anterior).
 
 ### Corregido
+- La barra de progreso ya no bloquea durante varios segundos al adelantar en canciones largas no precargadas; el backend usa seek real del decodificador cuando el formato lo permite.
 - El modal de ajustes del normalizador vuelve a mostrarse con fondo, cabecera y botones consistentes con el resto de modales.
 
 ---
@@ -139,7 +146,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ---
 
-[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.2...HEAD
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.3...HEAD
+[1.1.3]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.0.4...v1.1.0

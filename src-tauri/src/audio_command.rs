@@ -46,6 +46,10 @@ pub enum AudioCommand {
         id: String,
         volume: f32,
     },
+    SeekActive {
+        delta_s: Option<f64>,
+        position_s: Option<f64>,
+    },
     PlaySequence {
         id: String,
         paths: Vec<String>,

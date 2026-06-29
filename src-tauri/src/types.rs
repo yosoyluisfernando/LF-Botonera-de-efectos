@@ -3,6 +3,7 @@
 use crate::types_fade::FadeConfig;
 use crate::types_locutions::LocutionConfig;
 use crate::types_norm::{CueDetectConfig, NormConfig};
+use crate::types_playback_progress::PlaybackProgressConfig;
 use crate::types_preload::PreloadConfig;
 use crate::types_startup::StartupPromptState;
 use serde::{Deserialize, Serialize};
@@ -127,6 +128,8 @@ pub struct AppConfig {
     #[serde(default)]
     pub fade: FadeConfig,
     #[serde(default)]
+    pub playback_progress: PlaybackProgressConfig,
+    #[serde(default)]
     pub startup: StartupPromptState,
     #[serde(default)]
     pub profiles: Vec<ProfileData>,
@@ -187,6 +190,7 @@ impl Default for AppConfig {
             cue_detect: CueDetectConfig::default(),
             norm_prompted: false,
             fade: FadeConfig::default(),
+            playback_progress: PlaybackProgressConfig::default(),
             startup: StartupPromptState::default(),
             profiles: vec![profile],
         }

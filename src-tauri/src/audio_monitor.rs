@@ -158,6 +158,7 @@ mod tests {
             fade_out_flag: None,
             volume: Arc::new(AtomicU32::new(1.0f32.to_bits())),
             start_time: Instant::now() - elapsed,
+            position_offset_s: 0.0,
             duration,
             loop_mode: false,
         }

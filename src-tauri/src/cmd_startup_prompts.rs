@@ -57,10 +57,17 @@ fn donation_due(launch_count: u32, last_prompt: u32) -> bool {
 
 fn release_notes_for(version: &str) -> String {
     let unreleased = section("[Sin publicar]");
-    if !unreleased.trim().is_empty() {
+    if has_release_content(&unreleased) {
         return unreleased;
     }
     section(&format!("[{version}]"))
+}
+
+fn has_release_content(notes: &str) -> bool {
+    notes.lines().any(|line| {
+        let text = line.trim();
+        !text.is_empty() && text != "---"
+    })
 }
 
 fn section(marker: &str) -> String {
@@ -88,7 +95,7 @@ mod tests {
     }
 
     #[test]
-    fn extracts_unreleased_notes() {
+    fn extracts_current_release_notes() {
         assert!(release_notes_for(env!("CARGO_PKG_VERSION")).contains("###"));
     }
 }

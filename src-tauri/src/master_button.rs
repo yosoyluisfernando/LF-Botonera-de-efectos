@@ -18,6 +18,7 @@ pub struct ButtonState {
     pub fade_out_flag: Option<Arc<AtomicBool>>,
     pub volume: Arc<AtomicU32>,
     pub start_time: Instant,
+    pub position_offset_s: f64,
     pub duration: f64,
     pub loop_mode: bool,
 }
@@ -53,14 +54,18 @@ impl ButtonState {
         if self.loop_mode {
             let cycle_pos = self.position() % self.duration;
             let remaining = self.duration - cycle_pos;
-            if remaining <= 0.005 { self.duration } else { remaining }
+            if remaining <= 0.005 {
+                self.duration
+            } else {
+                remaining
+            }
         } else {
             (self.duration - self.position()).max(0.0)
         }
     }
 
     pub fn position(&self) -> f64 {
-        self.start_time.elapsed().as_secs_f64()
+        self.position_offset_s + self.start_time.elapsed().as_secs_f64()
     }
 }
 
@@ -147,6 +152,7 @@ mod tests {
             fade_out_flag: None,
             volume: Arc::new(AtomicU32::new(1.0f32.to_bits())),
             start_time: Instant::now() - elapsed,
+            position_offset_s: 0.0,
             duration,
             loop_mode,
         }

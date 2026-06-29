@@ -67,6 +67,8 @@ macro_rules! lf_invoke_handlers {
             cmd_playback::get_playback_state,
             cmd_playback::set_playback_mode,
             cmd_playback::set_solo_mode,
+            cmd_playback_progress::set_playback_progress_config,
+            cmd_playback_progress::seek_active_playback,
             cmd_tracks::analyze_track,
             cmd_tracks::waveform_view,
             cmd_tracks::get_track_meta,
