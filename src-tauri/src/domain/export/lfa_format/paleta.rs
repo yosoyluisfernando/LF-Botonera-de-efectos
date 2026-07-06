@@ -1,5 +1,5 @@
 use super::types::{default_out, default_text, default_type, LfaButton, LfaPaleta};
-use crate::colors::random_color;
+use crate::domain::colors::random_color;
 use crate::model::{ButtonData, PaletaData};
 
 /// Exporta la cuadricula completa: una entrada por celda, vacias incluidas.

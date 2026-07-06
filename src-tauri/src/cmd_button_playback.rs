@@ -3,7 +3,7 @@
 use super::AppState;
 use crate::cmd_audio::probe_duration_secs;
 use crate::engine::weather::playback as locution_playback;
-use crate::playback_mode::{PlaybackFlags, PlaybackMode};
+use crate::domain::playback::mode::{PlaybackFlags, PlaybackMode};
 use crate::model::{AppConfig, ButtonData};
 use crate::model::preload::PreloadStrategy;
 

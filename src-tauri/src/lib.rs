@@ -1,6 +1,4 @@
 pub mod app_setup;
-pub mod button_defaults;
-pub mod button_types;
 pub mod cmd_audio;
 pub mod cmd_button_flags;
 pub mod cmd_button_playback;
@@ -20,23 +18,11 @@ pub mod cmd_playback_progress;
 pub mod cmd_preload;
 pub mod cmd_profiles;
 pub mod cmd_startup_prompts;
-pub mod cmd_track_response;
 pub mod cmd_tracks;
 pub mod cmd_updates;
-pub mod colors;
+pub mod domain;
 pub mod engine;
-pub mod export_tracks;
-pub mod grid_move;
-pub mod grid_reorder;
-pub mod grid_resize;
-pub mod grid_view;
-pub mod lfa_format;
 pub mod model;
-pub mod playback_mode;
-pub mod playback_seek;
-pub mod playback_source;
-pub mod playback_state;
-pub mod random_folder;
 
 #[macro_use]
 mod register_handlers;
@@ -47,7 +33,7 @@ pub struct AppState {
     pub config: Arc<Mutex<model::AppConfig>>,
     pub audio: Mutex<engine::audio::AudioEngine>,
     pub history: Mutex<engine::persist::history::ConfigHistory>,
-    pub random_folders: Mutex<random_folder::RandomFolderState>,
+    pub random_folders: Mutex<domain::button::random_folder::RandomFolderState>,
     pub tracks: Arc<Mutex<engine::persist::tracks::TrackStore>>,
     pub waveforms: Mutex<engine::dsp::waveform::WaveformCache>,
     pub track_analysis: Mutex<engine::cache::track_analysis::TrackAnalysisCache>,
@@ -61,7 +47,7 @@ pub fn run() {
             config: Arc::new(Mutex::new(engine::persist::config_io::load_config())),
             audio: Mutex::new(engine::audio::AudioEngine::new()),
             history: Mutex::new(engine::persist::history::ConfigHistory::default()),
-            random_folders: Mutex::new(random_folder::RandomFolderState::default()),
+            random_folders: Mutex::new(domain::button::random_folder::RandomFolderState::default()),
             tracks: Arc::new(Mutex::new(engine::persist::tracks::TrackStore::open())),
             waveforms: Mutex::new(engine::dsp::waveform::WaveformCache::default()),
             track_analysis: Mutex::new(engine::cache::track_analysis::TrackAnalysisCache::default()),

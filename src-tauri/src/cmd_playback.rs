@@ -2,7 +2,7 @@
 /// Proposito: comandos IPC para modo base y toggle SOLO de reproduccion.
 use super::AppState;
 use crate::engine::persist::config_io as config;
-use crate::playback_mode::PlaybackMode;
+use crate::domain::playback::mode::PlaybackMode;
 use serde::Serialize;
 
 #[derive(Serialize)]

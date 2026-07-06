@@ -1,6 +1,6 @@
 use super::AppState;
 use crate::engine::dsp::analysis as audio_analysis;
-use crate::cmd_track_response::{response_from, AnalyzeResponse};
+use crate::domain::track_response::{response_from, AnalyzeResponse};
 use crate::engine::persist::config_io as config;
 use crate::engine::dsp::cue_detect;
 use crate::engine::persist::db;

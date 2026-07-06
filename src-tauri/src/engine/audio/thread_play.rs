@@ -2,7 +2,7 @@
 /// Proposito: operaciones auxiliares usadas por el hilo de audio.
 use crate::engine::audio::ops::{self as audio_ops, stop_removed};
 use crate::engine::audio::bus::{ButtonStateMap, MasterBus, SequenceSource};
-use crate::playback_source;
+use crate::domain::playback::source as playback_source;
 use crate::engine::cache::preload::PreloadCache;
 use std::sync::{Arc, Mutex};
 

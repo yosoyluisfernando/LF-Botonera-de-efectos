@@ -3,12 +3,12 @@
 /// de la pestaña/perfil, empaqueta los metadatos del editor (cue, dB) en un
 /// campo opcional `bdelf_tracks` para que no se pierdan (ver export_tracks.rs).
 use super::AppState;
+use crate::domain::export::lfa_format::{self, LfaPaleta, LfaProfile};
+use crate::domain::export::tracks as export_tracks;
+use crate::domain::grid::view::paleta_to_grid;
 use crate::engine::persist::config_io as config;
-use crate::export_tracks;
-use crate::grid_view::paleta_to_grid;
-use crate::lfa_format::{self, LfaPaleta, LfaProfile};
-use crate::model::{AppConfig, ProfileData};
 use crate::model::grid::GridState;
+use crate::model::{AppConfig, ProfileData};
 use serde_json::Value;
 
 /// Exporta la pestaña activa como .bdelf.

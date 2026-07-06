@@ -9,7 +9,7 @@
 ```
 Fase 1 — Modelo de datos .... [x] Completada
 Fase 2 — Motores ............ [x] Completada
-Fase 3 — Dominio ............ [ ] Pendiente
+Fase 3 — Dominio ............ [x] Completada
 Fase 4 — Puerta IPC ........ [ ] Pendiente
 Fase 5 — Núcleo ............. [ ] Pendiente
 Fase 6 — Deduplicación ..... [ ] Pendiente
@@ -50,12 +50,12 @@ Fase 8 — Verificación final . [ ] Pendiente
 - **Notas:** `tauri dev` no ejecutado: la fase solo reubica motores y actualiza imports; no cambia contratos IPC, UI ni flujos funcionales. Se verificó que no quedan imports `crate::...` hacia módulos de motor antiguos y que los archivos de `engine/` quedan bajo 200 líneas.
 
 ### Fase 3 — Dominio
-- **Estado:** ⬜ Pendiente
-- **Archivos movidos:** 0/14 (reducido: atajos se movieron a engine/input/)
-- **Tests:** —
-- **Build:** —
-- **Commit:** —
-- **Notas:** —
+- **Estado:** ✅ Completada
+- **Archivos movidos:** 18/18 listados en `MAPA_MOVIMIENTOS.md`
+- **Tests:** ✅ `cargo test --lib` — 55 passed, 0 failed, 1 ignored
+- **Build:** ✅ `npm run build`
+- **Commit:** `refactor: move business logic to domain directory`
+- **Notas:** `tauri dev` no ejecutado: la fase solo reubica lógica de dominio y actualiza imports; no cambia contratos IPC, UI ni flujos funcionales. Se verificó que no quedan archivos antiguos de dominio en `src-tauri/src/` y que ningún `.rs` supera 200 líneas.
 
 ### Fase 4 — Puerta IPC
 - **Estado:** ⬜ Pendiente

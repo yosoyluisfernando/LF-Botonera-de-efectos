@@ -1,7 +1,7 @@
 /// Modulo: cmd_button_types.rs
 /// Proposito: expone al frontend los tipos de boton permitidos.
 use super::AppState;
-use crate::button_types::{self, ButtonTypeState};
+use crate::domain::button::types::{self as button_types, ButtonTypeState};
 
 #[tauri::command]
 pub fn get_edit_button_types(

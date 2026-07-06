@@ -79,7 +79,7 @@ fn button_id(paleta_id: &str, index: u32) -> String {
 #[cfg(test)]
 mod tests {
     use super::resize_paleta;
-    use crate::button_defaults::new_button;
+    use crate::domain::button::defaults::new_button;
     use crate::model::PaletaData;
 
     #[test]
