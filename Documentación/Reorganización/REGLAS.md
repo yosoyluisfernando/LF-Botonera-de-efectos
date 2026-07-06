@@ -58,6 +58,18 @@ En ningún momento de ninguna fase el proyecto debe quedar en estado
 **todos los 13 movimientos y 40 actualizaciones** se hacen en la misma
 operación atómica. No hay estados intermedios rotos.
 
+Checklist antes de verificar:
+- Buscar imports antiguos con patrones amplios, no solo `crate::x`: incluir
+  imports agrupados como `use crate::{..., x::Tipo}`.
+- Crear re-exports solo de símbolos que existen realmente en el módulo movido.
+- Evitar `cargo fmt` global durante fases de movimiento; si se usa, revisar y
+  revertir cambios de formato que no pertenezcan a la fase.
+- Si `npm run build` requiere instalar dependencias, usar el lockfile existente
+  y no incluir cambios automáticos de `package-lock.json` salvo que sean
+  necesarios para la fase.
+- Repetir `cargo test --lib` después de cualquier limpieza del diff, no solo
+  después de la primera corrección.
+
 ## 7. El frontend espera
 
 La reorganización del frontend (`src/js/` → `bridge/`, `ui/`, `util/`)
