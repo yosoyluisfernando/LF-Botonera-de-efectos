@@ -1,7 +1,7 @@
 /// Modulo: playback_source.rs
 /// Proposito: construir fuentes de reproduccion normales y con seek.
-use crate::audio_decode::BoxSource;
-use crate::preload_cache::{self, PreloadCache};
+use crate::engine::audio::decode::BoxSource;
+use crate::engine::cache::preload::{self as preload_cache, PreloadCache};
 use rodio::Source;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;

@@ -1,4 +1,4 @@
-use crate::audio_decode;
+use crate::engine::audio::decode as audio_decode;
 /// Modulo: audio_formats.rs
 /// Proposito: lista unica de extensiones y validacion de archivos de audio.
 use std::path::Path;

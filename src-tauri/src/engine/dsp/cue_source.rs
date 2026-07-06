@@ -2,7 +2,7 @@
 /// Propósito: aplicar el "manual cue" (punto de inicio y recorte de fin) a una
 /// fuente de audio contando muestras. Saltar silencios/colas sin reescribir el
 /// archivo. Si hay bucle, se repite la región recortada.
-use crate::audio_decode::{self, BoxSource};
+use crate::engine::audio::decode::{self as audio_decode, BoxSource};
 use rodio::Source;
 use std::time::Duration;
 

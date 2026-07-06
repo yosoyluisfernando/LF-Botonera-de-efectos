@@ -1,6 +1,6 @@
 /// Modulo: random_folder.rs
 /// Proposito: resolver carpetas aleatorias con bolsa mezclada por boton.
-use crate::audio_formats;
+use crate::engine::audio::formats as audio_formats;
 use std::collections::{HashMap, VecDeque};
 use std::fs;
 use std::hash::{Hash, Hasher};

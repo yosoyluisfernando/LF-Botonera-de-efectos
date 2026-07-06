@@ -4,9 +4,10 @@
 /// si el archivo está cacheado (sin I/O) o decodifica perezoso como hasta hoy.
 /// La caché se LLENA en etapas posteriores (preloader, ver PLAN_PRECARGA.md);
 /// aquí queda la infraestructura y el enganche al motor.
-use crate::audio_decode::{self, BoxSource};
-use crate::cached_source::{CachedPcm, CachedSource};
-use crate::{cue_source, db};
+use crate::engine::audio::decode::{self as audio_decode, BoxSource};
+use crate::engine::cache::cached_source::{CachedPcm, CachedSource};
+use crate::engine::dsp::cue_source;
+use crate::engine::persist::db;
 use rodio::Source;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex};

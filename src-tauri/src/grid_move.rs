@@ -1,7 +1,7 @@
 /// Modulo: grid_move.rs
 /// Proposito: mover botones entre pestanas sin duplicar datos en la UI.
 use super::AppState;
-use crate::config;
+use crate::engine::persist::config_io as config;
 use crate::grid_reorder;
 use crate::model::{AppConfig, ButtonData, PaletaData};
 

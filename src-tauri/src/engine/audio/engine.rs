@@ -1,10 +1,10 @@
-use crate::audio_command::AudioCommand;
-use crate::audio_thread;
-use crate::master_bus::ButtonStateMap;
-use crate::preload_cache::PreloadCache;
-use crate::preloader::Preloader;
+use crate::engine::audio::command::AudioCommand;
+use crate::engine::audio::thread as audio_thread;
+use crate::engine::audio::bus::ButtonStateMap;
+use crate::engine::cache::preload::PreloadCache;
+use crate::engine::cache::preloader::Preloader;
 use crate::model::fade::FadeConfig;
-use crate::vu_meter::LastPressedInfo;
+use crate::engine::audio::vu::LastPressedInfo;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::mpsc::{channel, Sender};
@@ -84,7 +84,7 @@ impl AudioEngine {
     }
 
     pub fn get_available_devices(&self) -> Vec<String> {
-        crate::audio_device_list::available_devices()
+        crate::engine::audio::device_list::available_devices()
     }
 
     pub fn master_volume(&self) -> f32 {

@@ -1,7 +1,7 @@
 /// Modulo: cmd_master_volume.rs
 /// Proposito: comandos IPC y reglas de configuracion del volumen master.
 use super::AppState;
-use crate::config;
+use crate::engine::persist::config_io as config;
 use crate::model::{AppConfig, AudioConfig};
 use serde::Serialize;
 

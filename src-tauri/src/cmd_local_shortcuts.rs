@@ -2,7 +2,7 @@
 /// Proposito: resolver atajos capturados por la ventana con foco.
 use super::AppState;
 use crate::cmd_button_playback;
-use crate::config;
+use crate::engine::persist::config_io as config;
 use crate::model::AppConfig;
 use serde::Serialize;
 
@@ -35,7 +35,7 @@ pub fn handle_local_shortcut(
                 cycle_active_paleta(&mut cfg, offset)?;
                 config::save_config(&cfg)?;
             }
-            crate::preload_warm::warm_visible_tab(&state);
+            crate::engine::cache::warm::warm_visible_tab(&state);
             Ok(result(true, true))
         }
         LocalShortcutAction::SetPaleta(id) => {
@@ -44,7 +44,7 @@ pub fn handle_local_shortcut(
                 set_active_paleta(&mut cfg, &id)?;
                 config::save_config(&cfg)?;
             }
-            crate::preload_warm::warm_visible_tab(&state);
+            crate::engine::cache::warm::warm_visible_tab(&state);
             Ok(result(true, true))
         }
         LocalShortcutAction::PlayButton(id) => {

@@ -3,7 +3,7 @@
 /// de la pestaña/perfil, empaqueta los metadatos del editor (cue, dB) en un
 /// campo opcional `bdelf_tracks` para que no se pierdan (ver export_tracks.rs).
 use super::AppState;
-use crate::config;
+use crate::engine::persist::config_io as config;
 use crate::export_tracks;
 use crate::grid_view::paleta_to_grid;
 use crate::lfa_format::{self, LfaPaleta, LfaProfile};

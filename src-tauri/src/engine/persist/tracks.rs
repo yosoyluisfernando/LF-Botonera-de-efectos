@@ -2,7 +2,7 @@
 /// Propósito: CRUD por archivo sobre tracks.db. La UI nunca toca SQL: pasa por
 /// estos métodos vía comandos IPC (cmd_tracks.rs, etapa E.c). Separa el "qué se
 /// guarda" (types_track) del "cómo se guarda" (este módulo).
-use crate::db;
+use crate::engine::persist::db;
 use crate::model::track::TrackMeta;
 use rusqlite::{params, Connection, OptionalExtension, Row};
 

@@ -3,10 +3,12 @@
 /// precarga, hilos de monitor/reloj/historial/clima, recalentado de precarga y
 /// flush al cerrar). Separado de lib.rs, que queda como manifiesto puro
 /// (módulos, AppState y registro de comandos), sin lógica.
-use crate::{
-    audio_monitor, cmd_master_volume, cmd_meta, global_shortcuts, last_played, preload_warm,
-    weather, AppState,
-};
+use crate::engine::audio::monitor as audio_monitor;
+use crate::engine::cache::warm as preload_warm;
+use crate::engine::input::keyboard as global_shortcuts;
+use crate::engine::persist::last_played;
+use crate::engine::weather::client as weather;
+use crate::{cmd_master_volume, cmd_meta, AppState};
 use std::sync::Arc;
 use tauri::Manager;
 

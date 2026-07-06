@@ -5,7 +5,7 @@
 /// archivos nuevos). Lo usará la expulsión por tiempo de la precarga (§8 del
 /// PLAN_PRECARGA.md). touch_last_played solo afecta a filas existentes
 /// (archivos abiertos en el editor); el resto se cubre con la LRU en RAM.
-use crate::track_store::TrackStore;
+use crate::engine::persist::tracks::TrackStore;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::thread;

@@ -1,6 +1,6 @@
 /// Modulo: audio_device.rs
 /// Proposito: mantener el dispositivo de salida activo del hilo de audio.
-use crate::master_bus::{ButtonStateMap, MasterBus};
+use crate::engine::audio::bus::{ButtonStateMap, MasterBus};
 use rodio::cpal::traits::{DeviceTrait, HostTrait};
 use rodio::{OutputStream, OutputStreamHandle};
 use std::sync::atomic::AtomicU32;

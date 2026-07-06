@@ -1,18 +1,6 @@
 pub mod app_setup;
-pub mod audio;
-pub mod audio_analysis;
-pub mod audio_command;
-pub mod audio_decode;
-pub mod audio_device;
-pub mod audio_device_list;
-pub mod audio_formats;
-pub mod audio_monitor;
-pub mod audio_ops;
-pub mod audio_thread;
-pub mod audio_thread_play;
 pub mod button_defaults;
 pub mod button_types;
-pub mod cached_source;
 pub mod cmd_audio;
 pub mod cmd_button_flags;
 pub mod cmd_button_playback;
@@ -36,41 +24,19 @@ pub mod cmd_track_response;
 pub mod cmd_tracks;
 pub mod cmd_updates;
 pub mod colors;
-pub mod config;
-pub mod config_history;
-pub mod cue_detect;
-pub mod cue_source;
-pub mod db;
+pub mod engine;
 pub mod export_tracks;
-pub mod fade_ramp;
-pub mod geocode;
-pub mod global_shortcuts;
 pub mod grid_move;
 pub mod grid_reorder;
 pub mod grid_resize;
 pub mod grid_view;
-pub mod last_played;
 pub mod lfa_format;
-pub mod locution_playback;
-pub mod locutions;
-pub mod master_bus;
-pub mod master_button;
 pub mod model;
 pub mod playback_mode;
 pub mod playback_seek;
 pub mod playback_source;
 pub mod playback_state;
-pub mod preload_cache;
-pub mod preload_warm;
-pub mod preloader;
 pub mod random_folder;
-pub mod shortcut_rules;
-pub mod tab_reorder;
-pub mod track_analysis_cache;
-pub mod track_store;
-pub mod vu_meter;
-pub mod waveform;
-pub mod weather;
 
 #[macro_use]
 mod register_handlers;
@@ -79,27 +45,27 @@ use std::sync::{Arc, Mutex};
 
 pub struct AppState {
     pub config: Arc<Mutex<model::AppConfig>>,
-    pub audio: Mutex<audio::AudioEngine>,
-    pub history: Mutex<config_history::ConfigHistory>,
+    pub audio: Mutex<engine::audio::AudioEngine>,
+    pub history: Mutex<engine::persist::history::ConfigHistory>,
     pub random_folders: Mutex<random_folder::RandomFolderState>,
-    pub tracks: Arc<Mutex<track_store::TrackStore>>,
-    pub waveforms: Mutex<waveform::WaveformCache>,
-    pub track_analysis: Mutex<track_analysis_cache::TrackAnalysisCache>,
-    pub last_played: last_played::LastPlayed,
+    pub tracks: Arc<Mutex<engine::persist::tracks::TrackStore>>,
+    pub waveforms: Mutex<engine::dsp::waveform::WaveformCache>,
+    pub track_analysis: Mutex<engine::cache::track_analysis::TrackAnalysisCache>,
+    pub last_played: engine::persist::last_played::LastPlayed,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .manage(AppState {
-            config: Arc::new(Mutex::new(config::load_config())),
-            audio: Mutex::new(audio::AudioEngine::new()),
-            history: Mutex::new(config_history::ConfigHistory::default()),
+            config: Arc::new(Mutex::new(engine::persist::config_io::load_config())),
+            audio: Mutex::new(engine::audio::AudioEngine::new()),
+            history: Mutex::new(engine::persist::history::ConfigHistory::default()),
             random_folders: Mutex::new(random_folder::RandomFolderState::default()),
-            tracks: Arc::new(Mutex::new(track_store::TrackStore::open())),
-            waveforms: Mutex::new(waveform::WaveformCache::default()),
-            track_analysis: Mutex::new(track_analysis_cache::TrackAnalysisCache::default()),
-            last_played: last_played::LastPlayed::new(),
+            tracks: Arc::new(Mutex::new(engine::persist::tracks::TrackStore::open())),
+            waveforms: Mutex::new(engine::dsp::waveform::WaveformCache::default()),
+            track_analysis: Mutex::new(engine::cache::track_analysis::TrackAnalysisCache::default()),
+            last_played: engine::persist::last_played::LastPlayed::new(),
         })
         .setup(app_setup::on_setup)
         .plugin(
@@ -111,7 +77,7 @@ pub fn run() {
                 )
                 .build(),
         )
-        .plugin(global_shortcuts::plugin())
+        .plugin(engine::input::keyboard::plugin())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(lf_invoke_handlers!())

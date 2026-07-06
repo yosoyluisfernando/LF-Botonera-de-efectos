@@ -1,7 +1,7 @@
 /// Modulo: tab_reorder.rs
 /// Proposito: reordenar pestanas dentro de un perfil sin cambiar sus ids ni datos.
-use super::AppState;
-use crate::config;
+use crate::engine::persist::config_io as config;
+use crate::AppState;
 use crate::model::AppConfig;
 
 #[tauri::command]

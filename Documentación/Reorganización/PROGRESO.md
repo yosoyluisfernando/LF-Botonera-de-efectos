@@ -8,7 +8,7 @@
 
 ```
 Fase 1 — Modelo de datos .... [x] Completada
-Fase 2 — Motores ............ [ ] Pendiente
+Fase 2 — Motores ............ [x] Completada
 Fase 3 — Dominio ............ [ ] Pendiente
 Fase 4 — Puerta IPC ........ [ ] Pendiente
 Fase 5 — Núcleo ............. [ ] Pendiente
@@ -42,12 +42,12 @@ Fase 8 — Verificación final . [ ] Pendiente
 - **Notas:** `tauri dev` no ejecutado: la fase solo reubica tipos de datos y actualiza imports; no cambia flujos runtime ni UI. Se verificó además que todos los archivos de `model/` quedan bajo 200 líneas.
 
 ### Fase 2 — Motores
-- **Estado:** ⬜ Pendiente
-- **Archivos movidos:** 0/37 (33 originales + 4 del motor de entrada)
-- **Tests:** —
-- **Build:** —
-- **Commit:** —
-- **Notas:** —
+- **Estado:** ✅ Completada
+- **Archivos movidos:** 35/35 listados en `MAPA_MOVIMIENTOS.md`
+- **Tests:** ✅ `cargo test --lib` — 55 passed, 0 failed, 1 ignored
+- **Build:** ✅ `npm run build`
+- **Commit:** `refactor: move subsystems to engine directory`
+- **Notas:** `tauri dev` no ejecutado: la fase solo reubica motores y actualiza imports; no cambia contratos IPC, UI ni flujos funcionales. Se verificó que no quedan imports `crate::...` hacia módulos de motor antiguos y que los archivos de `engine/` quedan bajo 200 líneas.
 
 ### Fase 3 — Dominio
 - **Estado:** ⬜ Pendiente

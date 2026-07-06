@@ -1,5 +1,5 @@
-use super::AppState;
-use crate::{cmd_button_playback, config};
+use crate::engine::persist::config_io as config;
+use crate::{cmd_button_playback, AppState};
 /// Modulo: global_shortcuts.rs
 /// Proposito: registrar y ejecutar atajos globales desde Rust/Tauri.
 use std::collections::HashSet;
@@ -171,7 +171,7 @@ fn cycle_paleta(state: &AppState, offset: i32) -> Result<(), String> {
         .clone();
     config::save_config(&cfg)?;
     drop(cfg);
-    crate::preload_warm::warm_visible_tab(state);
+    crate::engine::cache::warm::warm_visible_tab(state);
     Ok(())
 }
 
@@ -187,7 +187,7 @@ fn set_paleta(state: &AppState, paleta_id: String) -> Result<(), String> {
         profile.active_paleta_id = paleta_id;
         config::save_config(&cfg)?;
         drop(cfg);
-        crate::preload_warm::warm_visible_tab(state);
+        crate::engine::cache::warm::warm_visible_tab(state);
     }
     Ok(())
 }

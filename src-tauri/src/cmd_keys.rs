@@ -2,9 +2,9 @@
 /// Propósito: Comandos IPC para los atajos globales de teclado (Fase 5):
 /// persistencia de las teclas configuradas y navegación cíclica de pestañas.
 use super::AppState;
-use crate::config;
-use crate::global_shortcuts;
-use crate::shortcut_rules;
+use crate::engine::persist::config_io as config;
+use crate::engine::input::keyboard as global_shortcuts;
+use crate::engine::input::rules as shortcut_rules;
 use crate::model::AppConfig;
 
 /// Guarda los atajos globales (detener todo / pestaña siguiente / anterior)
@@ -96,6 +96,6 @@ pub fn cycle_paleta(offset: i32, state: tauri::State<AppState>) -> Result<AppCon
     config::save_config(&cfg)?;
     let result = cfg.clone();
     drop(cfg);
-    crate::preload_warm::warm_visible_tab(&state);
+    crate::engine::cache::warm::warm_visible_tab(&state);
     Ok(result)
 }

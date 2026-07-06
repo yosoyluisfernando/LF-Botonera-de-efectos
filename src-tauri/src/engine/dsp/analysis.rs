@@ -1,10 +1,10 @@
 /// Analisis DSP de pistas fuera del hilo de audio.
-use crate::audio_decode;
-use crate::cached_source::CachedPcm;
-use crate::cue_detect;
+use crate::engine::audio::decode as audio_decode;
+use crate::engine::cache::cached_source::CachedPcm;
+use crate::engine::dsp::cue_detect;
 use crate::model::norm::{CueDetectConfig, NormConfig};
 use crate::model::track::TrackMeta;
-use crate::waveform::WaveEnvelope;
+use crate::engine::dsp::waveform::WaveEnvelope;
 use ebur128::{EbuR128, Mode};
 use rodio::Source;
 use std::fs;

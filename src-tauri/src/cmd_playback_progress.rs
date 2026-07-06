@@ -1,7 +1,7 @@
 /// Modulo: cmd_playback_progress.rs
 /// Proposito: comandos IPC para configurar y controlar la barra de progreso.
 use super::AppState;
-use crate::config;
+use crate::engine::persist::config_io as config;
 use crate::model::playback::PlaybackProgressConfig;
 
 #[tauri::command]

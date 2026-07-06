@@ -2,9 +2,11 @@
 /// Propósito: Comandos IPC del módulo de Locuciones Dinámicas (Fase 6).
 /// La resolución de archivos vive en locutions.rs y la red en weather.rs.
 use super::AppState;
-use crate::config;
+use crate::engine::persist::config_io as config;
+use crate::engine::weather::client as weather;
+use crate::engine::weather::geocode;
+use crate::engine::weather::playback as locution_playback;
 use crate::model::AppConfig;
-use crate::{geocode, locution_playback, weather};
 use serde::Serialize;
 
 #[derive(Serialize)]

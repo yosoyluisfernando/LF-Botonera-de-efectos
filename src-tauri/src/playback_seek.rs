@@ -1,10 +1,10 @@
 /// Modulo: playback_seek.rs
 /// Proposito: estado de reconstruccion y seek para botones principales.
-use crate::audio_ops;
-use crate::master_bus::{ButtonStateMap, MasterBus};
+use crate::engine::audio::ops as audio_ops;
+use crate::engine::audio::bus::{ButtonStateMap, MasterBus};
 use crate::playback_source;
-use crate::preload_cache::PreloadCache;
-use crate::vu_meter::LastPressedInfo;
+use crate::engine::cache::preload::PreloadCache;
+use crate::engine::audio::vu::LastPressedInfo;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 

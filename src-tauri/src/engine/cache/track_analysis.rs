@@ -1,9 +1,9 @@
 /// Modulo: track_analysis_cache.rs
 /// Proposito: cache efimera del analisis completo del editor de pistas.
 /// Evita re-decodificar y recalcular LUFS al mover el editor entre modal/ventana.
-use crate::cached_source::CachedPcm;
+use crate::engine::cache::cached_source::CachedPcm;
 use crate::model::track::TrackMeta;
-use crate::waveform::WaveEnvelope;
+use crate::engine::dsp::waveform::WaveEnvelope;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 

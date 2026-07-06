@@ -4,7 +4,7 @@
 /// defaults, decide si mostrar el diálogo de primer arranque y persiste. La UI
 /// no calcula ni decide nada (Regla 4).
 use super::AppState;
-use crate::config;
+use crate::engine::persist::config_io as config;
 use crate::model::preload::{PreloadConfig, PreloadStrategy};
 use serde::Serialize;
 
@@ -137,8 +137,8 @@ fn apply_runtime_preload(state: &tauri::State<AppState>, budget: u32, enabled: b
         return;
     }
     drop(cache);
-    crate::preload_warm::warm_for_strategy(state);
-    crate::preload_warm::warm_onplay_recent(state);
+    crate::engine::cache::warm::warm_for_strategy(state);
+    crate::engine::cache::warm::warm_onplay_recent(state);
 }
 
 /// Ajusta la RAM al valor permitido más cercano (32/64/128/256).

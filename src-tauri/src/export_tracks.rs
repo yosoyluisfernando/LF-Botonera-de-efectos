@@ -4,8 +4,8 @@
 /// la exportación y no se pierdan. Se guardan en un campo OPCIONAL `bdelf_tracks`
 /// (ruta→metadatos) que el LF Automatizador ignora → compatibilidad bidireccional
 /// (Regla 5). La lógica vive en Rust; la UI no interviene.
-use crate::audio_analysis::file_stamp;
-use crate::track_store::TrackStore;
+use crate::engine::dsp::analysis::file_stamp;
+use crate::engine::persist::tracks::TrackStore;
 use crate::model::{ButtonData, PaletaData};
 use serde_json::{Map, Value};
 

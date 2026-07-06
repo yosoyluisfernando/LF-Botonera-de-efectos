@@ -1,6 +1,6 @@
 /// Modulo: master_button.rs
 /// Proposito: estado y fuente controlable de un boton dentro del bus master.
-use crate::fade_ramp::FadeRamp;
+use crate::engine::dsp::fade::FadeRamp;
 use rodio::Source;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};

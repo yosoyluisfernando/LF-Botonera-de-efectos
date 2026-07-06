@@ -3,8 +3,8 @@
 /// humedad), caché en memoria y refresco automático cada 15 minutos (como el
 /// LFA) que emite el evento "weather-updated" hacia la UI. La geocodificación
 /// (nombre → coordenadas) vive en geocode.rs.
-use crate::config;
-use crate::geocode;
+use crate::engine::persist::config_io as config;
+use crate::engine::weather::geocode;
 use crate::model::AppConfig;
 use serde::Serialize;
 use std::sync::Mutex;

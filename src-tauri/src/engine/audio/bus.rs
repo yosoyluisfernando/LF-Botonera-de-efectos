@@ -1,10 +1,10 @@
-use crate::audio_decode;
+use crate::engine::audio::decode as audio_decode;
 /// Módulo: master_bus.rs
 /// Propósito: Master Bus de audio — todas las fuentes entran a un DynamicMixer;
 /// un único LevelSource mide el PICO de la señal sumada real post-mezcla.
-use crate::fade_ramp::FadeRamp;
-use crate::master_button::ButtonSource;
-use crate::vu_meter::LevelSource;
+use crate::engine::dsp::fade::FadeRamp;
+use crate::engine::audio::button::ButtonSource;
+use crate::engine::audio::vu::LevelSource;
 use rodio::dynamic_mixer::{self, DynamicMixerController};
 use rodio::source::Zero;
 use rodio::{OutputStreamHandle, Sink, Source};
@@ -13,7 +13,7 @@ use std::sync::atomic::{AtomicBool, AtomicU32};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-pub use crate::master_button::{ButtonState, ButtonStateMap};
+pub use crate::engine::audio::button::{ButtonState, ButtonStateMap};
 
 // ─── Fuente secuencial (para PlaySequence) ────────────────────────────────────
 

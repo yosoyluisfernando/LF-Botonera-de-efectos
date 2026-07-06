@@ -5,7 +5,7 @@
 | Fase | Nombre | Archivos afectados | Tipo de trabajo | Sesión estimada |
 |------|--------|--------------------|-----------------|-----------------|
 | 1 | Modelo de datos | ~10 archivos | Mover | Sesión 1 |
-| 2 | Motores | ~37 archivos | Mover | Sesión 1 |
+| 2 | Motores | 35 archivos | Mover | Sesión 1 |
 | 3 | Dominio | ~14 archivos | Mover | Sesión 2 |
 | 4 | Puerta IPC | ~22 archivos | Mover + split | Sesión 2 |
 | 5 | Núcleo | ~3 archivos | Mover + crear | Sesión 3 |

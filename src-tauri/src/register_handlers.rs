@@ -14,7 +14,7 @@ macro_rules! lf_invoke_handlers {
             cmd_paletas::create_paleta,
             cmd_paletas::delete_paleta,
             cmd_paletas::update_paleta_meta,
-            tab_reorder::reorder_paletas,
+            engine::input::tab_reorder::reorder_paletas,
             cmd_audio::get_audio_devices,
             cmd_audio::get_audio_device_status,
             cmd_audio::apply_configured_audio_devices,

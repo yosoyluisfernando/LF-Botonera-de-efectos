@@ -1,4 +1,4 @@
-use crate::track_analysis_cache::CachedTrackAnalysis;
+use crate::engine::cache::track_analysis::CachedTrackAnalysis;
 use crate::model::track::TrackMeta;
 use serde::Serialize;
 

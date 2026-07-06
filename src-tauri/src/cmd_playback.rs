@@ -1,7 +1,7 @@
 /// Modulo: cmd_playback.rs
 /// Proposito: comandos IPC para modo base y toggle SOLO de reproduccion.
 use super::AppState;
-use crate::config;
+use crate::engine::persist::config_io as config;
 use crate::playback_mode::PlaybackMode;
 use serde::Serialize;
 

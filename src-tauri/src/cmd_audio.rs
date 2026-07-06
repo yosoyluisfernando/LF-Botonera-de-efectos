@@ -1,9 +1,9 @@
 /// Modulo: cmd_audio.rs
 /// Proposito: comandos IPC relacionados con el motor de audio.
 use super::AppState;
-use crate::audio_device;
-use crate::audio_formats::validate_audio_file;
-use crate::config;
+use crate::engine::audio::device as audio_device;
+use crate::engine::audio::formats::validate_audio_file;
+use crate::engine::persist::config_io as config;
 use crate::model::fade::FadeConfig;
 use serde::Serialize;
 

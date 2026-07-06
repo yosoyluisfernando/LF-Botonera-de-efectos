@@ -2,7 +2,7 @@
 /// Propósito: conexión SQLite (tracks.db) y migración del esquema por
 /// `PRAGMA user_version`. Punto ÚNICO donde vive la diferencia de SO en la
 /// clave de archivo (Windows no distingue mayúsculas; Linux sí).
-use crate::config::get_data_dir;
+use crate::engine::persist::config_io::get_data_dir;
 use rusqlite::Connection;
 use std::path::{Path, PathBuf};
 

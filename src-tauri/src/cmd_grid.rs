@@ -1,11 +1,11 @@
 /// Módulo: cmd_grid.rs
 /// Propósito: Comandos IPC para gestionar botones de la pestaña activa.
 use super::AppState;
-use crate::audio_formats::{validate_audio_file, AUDIO_EXTENSIONS};
+use crate::engine::audio::formats::{validate_audio_file, AUDIO_EXTENSIONS};
 use crate::button_defaults::new_button;
 use crate::cmd_audio::probe_duration_secs;
 use crate::colors::{color_palette, random_color, text_for_theme, ColorOption};
-use crate::config;
+use crate::engine::persist::config_io as config;
 use crate::grid_view::paleta_to_grid;
 use crate::random_folder;
 use crate::model::{AppConfig, PaletaData};

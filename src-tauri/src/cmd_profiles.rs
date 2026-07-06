@@ -3,7 +3,7 @@
 /// (paletas) viven en cmd_paletas.rs (responsabilidad separada).
 use super::AppState;
 use crate::cmd_master_volume;
-use crate::config;
+use crate::engine::persist::config_io as config;
 use crate::model::{AppConfig, AudioConfig, PaletaData, ProfileData};
 use crate::model::fade::FadeConfig;
 use crate::model::norm::{CueDetectConfig, NormConfig};
@@ -80,7 +80,7 @@ pub fn set_active_profile(id: String, state: tauri::State<AppState>) -> Result<A
     let next = cfg.clone();
     drop(cfg);
     state.audio.lock().unwrap().set_master_volume(volume);
-    crate::preload_warm::warm_for_strategy(&state);
+    crate::engine::cache::warm::warm_for_strategy(&state);
     Ok(next)
 }
 

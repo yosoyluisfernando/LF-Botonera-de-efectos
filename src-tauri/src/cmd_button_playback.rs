@@ -2,7 +2,7 @@
 /// Proposito: reproducir cualquier tipo de boton resolviendo la logica en Rust.
 use super::AppState;
 use crate::cmd_audio::probe_duration_secs;
-use crate::locution_playback;
+use crate::engine::weather::playback as locution_playback;
 use crate::playback_mode::{PlaybackFlags, PlaybackMode};
 use crate::model::{AppConfig, ButtonData};
 use crate::model::preload::PreloadStrategy;
@@ -146,7 +146,7 @@ fn resolve_edit(state: &AppState, path: &str, fallback_dur: f64) -> ResolvedEdit
         Ok(Some(m)) => m,
         _ => return neutral,
     };
-    let (mtime, size) = crate::audio_analysis::file_stamp(path);
+    let (mtime, size) = crate::engine::dsp::analysis::file_stamp(path);
     if !meta.matches(mtime, size) {
         return neutral;
     }
