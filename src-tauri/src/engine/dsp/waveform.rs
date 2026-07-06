@@ -45,7 +45,12 @@ impl WaveEnvelope {
             maxs.push(if hi.is_finite() { hi } else { 0.0 });
             i = end;
         }
-        Self { mins, maxs, sample_rate, frames }
+        Self {
+            mins,
+            maxs,
+            sample_rate,
+            frames,
+        }
     }
 
     /// Duración total en segundos.
@@ -54,6 +59,24 @@ impl WaveEnvelope {
             return 0.0;
         }
         self.frames as f64 / self.sample_rate as f64
+    }
+
+    pub(crate) fn from_parts(
+        mins: Vec<f32>,
+        maxs: Vec<f32>,
+        sample_rate: u32,
+        frames: usize,
+    ) -> Self {
+        Self {
+            mins,
+            maxs,
+            sample_rate,
+            frames,
+        }
+    }
+
+    pub(crate) fn parts(&self) -> (&[f32], &[f32], u32, usize) {
+        (&self.mins, &self.maxs, self.sample_rate, self.frames)
     }
 
     /// Agrega la ventana visible [start_s, end_s] en `buckets` columnas. Devuelve
@@ -102,7 +125,11 @@ pub struct WaveformCache {
 
 impl Default for WaveformCache {
     fn default() -> Self {
-        Self { map: HashMap::new(), order: VecDeque::new(), cap: 6 }
+        Self {
+            map: HashMap::new(),
+            order: VecDeque::new(),
+            cap: 6,
+        }
     }
 }
 

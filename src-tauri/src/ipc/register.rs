@@ -86,6 +86,9 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_norm::set_cue_detect_config,
             ipc::cmd_norm::mark_norm_prompted,
             ipc::cmd_norm::set_fade_config,
+            ipc::cmd_norm::get_waveform_cache_stats,
+            ipc::cmd_norm::clear_waveform_cache,
+            ipc::cmd_norm::set_waveform_cache_config,
         ]
     };
 }

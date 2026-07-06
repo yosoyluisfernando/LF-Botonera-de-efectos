@@ -1,4 +1,5 @@
 use crate::engine::cache::track_analysis::CachedTrackAnalysis;
+use crate::engine::dsp::waveform::WaveEnvelope;
 use crate::model::track::TrackMeta;
 use serde::Serialize;
 
@@ -26,6 +27,26 @@ pub fn response_from(
         lufs: item.meta.measured_lufs,
         suggested_norm_db: item.meta.norm_gain_db,
         waveform: item.envelope.view(0.0, duration_s, buckets),
+        duration_s,
+        detected_start_s: detected.0,
+        detected_end_s: detected.1,
+        meta,
+    }
+}
+
+pub fn response_from_envelope(
+    envelope: &WaveEnvelope,
+    measured: &TrackMeta,
+    meta: TrackMeta,
+    buckets: usize,
+    detected: (Option<f64>, Option<f64>),
+) -> AnalyzeResponse {
+    let duration_s = envelope.duration_s();
+    AnalyzeResponse {
+        peak_db: measured.measured_peak_db,
+        lufs: measured.measured_lufs,
+        suggested_norm_db: measured.norm_gain_db,
+        waveform: envelope.view(0.0, duration_s, buckets),
         duration_s,
         detected_start_s: detected.0,
         detected_end_s: detected.1,

@@ -8,6 +8,7 @@ pub mod playback;
 pub mod preload;
 pub mod startup;
 pub mod track;
+pub mod waveform_cache;
 
 pub use audio::AudioConfig;
 pub use config::{AppConfig, ButtonData, PaletaData, ProfileData};
@@ -19,3 +20,4 @@ pub use playback::PlaybackProgressConfig;
 pub use preload::{PreloadConfig, PreloadStrategy};
 pub use startup::StartupPromptState;
 pub use track::{db_to_linear, TrackMeta};
+pub use waveform_cache::WaveformCacheConfig;

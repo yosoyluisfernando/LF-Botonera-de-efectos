@@ -1,4 +1,4 @@
-import { invoke } from '../bridge/api.js';
+import { invoke, listen } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
 import { createWaveform } from './waveformCanvas.js';
 import { bindTransport, play, playInicio, stop, halt, onCursorMark, refreshPreviewGain } from './trackTransport.js';
@@ -34,7 +34,7 @@ export async function openTrackEditor(path, name, onSaved, options = {}) {
         syncButton();
         _setStatus(null);
         const cfg = await invoke('get_config');
-        if (!cfg.norm_prompted) normConfig.open(cfg.norm || {}, cfg.cue_detect || {}, { firstTime: true });
+        if (!cfg.norm_prompted) normConfig.open(cfg.norm || {}, cfg.cue_detect || {}, { firstTime: true, waveformCache: cfg.waveform_cache || {} });
     } catch (e) {
         console.error('Error al analizar pista:', e);
         _setStatus(t('track_editor.error'));
@@ -127,6 +127,10 @@ function _zoomValue(value) {
 function _wireOnce() {
     if (_wired) return;
     _wired = true;
+    listen('track-analysis-progress', e => {
+        const p = e.payload || {}; if (p.path !== _path) return;
+        _setStatus(t(`track_editor.analysis_${p.stage}`) || t('track_editor.loading'));
+    }).catch(console.error);
     const on = (id, ev, fn) => document.getElementById(id).addEventListener(ev, fn);
     on('te-gain', 'input', _applyGainToWave);
     on('te-normalize', 'click', async () => {
@@ -153,7 +157,7 @@ function _wireOnce() {
     on('te-popout', 'click', _toggleWindowMode);
     on('te-norm-settings', 'click', async () => {
         const c = await invoke('get_config');
-        normConfig.open(c.norm || {}, c.cue_detect || {});
+        normConfig.open(c.norm || {}, c.cue_detect || {}, { waveformCache: c.waveform_cache || {} });
     });
 }
 
@@ -190,7 +194,7 @@ async function _close() {
 
 function _setStatus(text) {
     const el = document.getElementById('te-status');
-    if (!text) { el.classList.add('hidden'); return; }
+    if (!text) return el.classList.add('hidden');
     el.textContent = text;
     el.classList.remove('hidden');
 }

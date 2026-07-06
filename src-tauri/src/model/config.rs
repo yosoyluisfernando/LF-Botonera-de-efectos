@@ -6,6 +6,7 @@ use crate::model::norm::{CueDetectConfig, NormConfig};
 use crate::model::playback::PlaybackProgressConfig;
 use crate::model::preload::PreloadConfig;
 use crate::model::startup::StartupPromptState;
+use crate::model::waveform_cache::WaveformCacheConfig;
 use serde::{Deserialize, Serialize};
 
 // AudioConfig vive en su propio módulo; se re-exporta para que el resto del
@@ -45,12 +46,8 @@ pub struct ButtonData {
     pub shortcut: String,
 }
 
-fn default_type() -> String {
-    "audio".to_string()
-}
-fn default_vol() -> f32 {
-    1.0
-}
+fn default_type() -> String { "audio".to_string() }
+fn default_vol() -> f32 { 1.0 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PaletaData {
@@ -71,12 +68,8 @@ pub struct PaletaData {
     pub botones: Vec<ButtonData>,
 }
 
-fn default_rows() -> u32 {
-    5
-}
-fn default_cols() -> u32 {
-    5
-}
+fn default_rows() -> u32 { 5 }
+fn default_cols() -> u32 { 5 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ProfileData {
@@ -129,6 +122,8 @@ pub struct AppConfig {
     pub fade: FadeConfig,
     #[serde(default)]
     pub playback_progress: PlaybackProgressConfig,
+    #[serde(default)]
+    pub waveform_cache: WaveformCacheConfig,
     #[serde(default)]
     pub startup: StartupPromptState,
     #[serde(default)]
@@ -191,6 +186,7 @@ impl Default for AppConfig {
             norm_prompted: false,
             fade: FadeConfig::default(),
             playback_progress: PlaybackProgressConfig::default(),
+            waveform_cache: WaveformCacheConfig::default(),
             startup: StartupPromptState::default(),
             profiles: vec![profile],
         }

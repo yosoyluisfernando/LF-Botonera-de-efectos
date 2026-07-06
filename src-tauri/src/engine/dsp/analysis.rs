@@ -2,9 +2,9 @@
 use crate::engine::audio::decode as audio_decode;
 use crate::engine::cache::cached_source::CachedPcm;
 use crate::engine::dsp::cue_detect;
+use crate::engine::dsp::waveform::WaveEnvelope;
 use crate::model::norm::{CueDetectConfig, NormConfig};
 use crate::model::track::TrackMeta;
-use crate::engine::dsp::waveform::WaveEnvelope;
 use ebur128::{EbuR128, Mode};
 use rodio::Source;
 use std::fs;
@@ -16,6 +16,12 @@ pub struct AnalysisResult {
     pub meta: TrackMeta,
     pub envelope: WaveEnvelope,
     pub pcm: CachedPcm,
+    pub auto_cue_start_s: Option<f64>,
+    pub auto_cue_end_s: Option<f64>,
+}
+
+pub struct WaveformOnlyResult {
+    pub envelope: WaveEnvelope,
     pub auto_cue_start_s: Option<f64>,
     pub auto_cue_end_s: Option<f64>,
 }
@@ -64,6 +70,31 @@ pub fn analyze(
         meta,
         envelope,
         pcm,
+        auto_cue_start_s,
+        auto_cue_end_s,
+    })
+}
+
+pub fn analyze_waveform_only(
+    path: &str,
+    cue: &CueDetectConfig,
+) -> Result<WaveformOnlyResult, String> {
+    let src = audio_decode::source_from_path(path, false).ok_or("unsupported_audio_format")?;
+    let channels = src.channels().max(1);
+    let rate = src.sample_rate().max(1);
+    let samples: Vec<f32> = src.collect();
+    if samples.is_empty() {
+        return Err("empty_audio".to_string());
+    }
+    let envelope = WaveEnvelope::build(&samples, channels, rate, MAX_ENVELOPE_POINTS);
+    let pcm_data: Vec<i16> = samples
+        .into_iter()
+        .map(|s| (s.clamp(-1.0, 1.0) * 32767.0) as i16)
+        .collect();
+    let (auto_cue_start_s, auto_cue_end_s) =
+        cue_detect::detect_boundaries(&pcm_data, rate, channels, cue);
+    Ok(WaveformOnlyResult {
+        envelope,
         auto_cue_start_s,
         auto_cue_end_s,
     })

@@ -1,85 +1,22 @@
 use super::AppState;
+use crate::domain::track_response::AnalyzeResponse;
 use crate::engine::dsp::analysis as audio_analysis;
-use crate::domain::track_response::{response_from, AnalyzeResponse};
 use crate::engine::persist::config_io as config;
-use crate::engine::dsp::cue_detect;
 use crate::engine::persist::db;
-use crate::engine::cache::track_analysis::CachedTrackAnalysis;
 use crate::model::track::TrackMeta;
 use std::sync::Arc;
 
 #[tauri::command]
-pub fn analyze_track(
+pub async fn analyze_track(
     path: String,
     buckets: usize,
-    state: tauri::State<AppState>,
+    app: tauri::AppHandle,
 ) -> Result<AnalyzeResponse, String> {
-    let (norm, cue_detect) = {
-        let cfg = state.config.lock().unwrap();
-        (cfg.norm.clone(), cfg.cue_detect.clone())
-    };
-    let key = db::normalize_key(&path);
-    let (mtime, size) = audio_analysis::file_stamp(&path);
-    if let Some(hit) = state.track_analysis.lock().unwrap().get(&key, mtime, size) {
-        let merged = {
-            let store = state.tracks.lock().unwrap();
-            store.get(&path)?.unwrap_or_else(|| hit.meta.clone())
-        };
-        state
-            .waveforms
-            .lock()
-            .unwrap()
-            .put(&key, Arc::clone(&hit.envelope));
-        state
-            .audio
-            .lock()
-            .unwrap()
-            .preload_cache_handle()
-            .lock()
-            .unwrap()
-            .insert_arc(key, Arc::clone(&hit.pcm));
-        let detected = cue_detect::detect_boundaries(
-            &hit.pcm.data,
-            hit.pcm.sample_rate,
-            hit.pcm.channels,
-            &cue_detect,
-        );
-        return Ok(response_from(&hit, merged, buckets, detected));
-    }
-
-    let analysis = audio_analysis::analyze(&path, &norm, &cue_detect)?;
-    {
-        let store = state.tracks.lock().unwrap();
-        store.upsert(&analysis.meta)?;
-    }
-    let envelope = Arc::new(analysis.envelope);
-    let pcm = Arc::new(analysis.pcm);
-    let cache = state.audio.lock().unwrap().preload_cache_handle();
-    cache
-        .lock()
-        .unwrap()
-        .insert_arc(key.clone(), Arc::clone(&pcm));
-    let merged = state
-        .tracks
-        .lock()
-        .unwrap()
-        .get(&path)?
-        .unwrap_or_else(|| analysis.meta.clone());
-    let detected = (analysis.auto_cue_start_s, analysis.auto_cue_end_s);
-    let item = CachedTrackAnalysis {
-        mtime: analysis.meta.mtime,
-        size: analysis.meta.size,
-        meta: analysis.meta,
-        envelope,
-        pcm,
-    };
-    let item = state.track_analysis.lock().unwrap().put(key.clone(), item);
-    state
-        .waveforms
-        .lock()
-        .unwrap()
-        .put(&key, Arc::clone(&item.envelope));
-    Ok(response_from(&item, merged, buckets, detected))
+    tauri::async_runtime::spawn_blocking(move || {
+        crate::engine::dsp::editor_analysis::analyze_track(app, path, buckets)
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]

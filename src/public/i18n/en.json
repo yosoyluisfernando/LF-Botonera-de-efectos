@@ -160,6 +160,12 @@
         "save": "Save cues",
         "close": "Cancel",
         "loading": "Analyzing file…",
+        "analysis_cache": "Checking analysis cache…",
+        "analysis_waveform": "Rebuilding waveform…",
+        "analysis_decode": "Decoding audio and measuring LUFS/peak…",
+        "analysis_save": "Saving analysis…",
+        "analysis_cleanup": "Cleaning waveform cache…",
+        "analysis_ready": "Analysis ready.",
         "error": "Could not analyze the file.",
         "norm_settings": "Normalization settings"
     },
@@ -185,6 +191,15 @@
         "hint": "Reverse analysis avoids treating natural pauses as the end point.",
         "dont_ask": "Do not ask again when opening the editor",
         "need_one": "Enable at least start or end to use detection."
+    },
+    "waveform_cache": {
+        "title": "Waveform cache",
+        "max_mb": "Maximum size (MB):",
+        "max_days": "Keep for up to (days):",
+        "hint": "Stores the high-resolution waveform so tracks reopen without recalculating it. Maximum 31 days.",
+        "stats": "Cache in use",
+        "files": "files",
+        "clear": "Clear now"
     },
     "fade": {
         "title":          "Fades",
