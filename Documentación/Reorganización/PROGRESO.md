@@ -12,7 +12,7 @@ Fase 2 — Motores ............ [x] Completada
 Fase 3 — Dominio ............ [x] Completada
 Fase 4 — Puerta IPC ........ [x] Completada
 Fase 5 — Núcleo ............. [x] Completada
-Fase 6 — Deduplicación ..... [ ] Pendiente
+Fase 6 — Deduplicación ..... [x] Completada
 Fase 7 — Frontend ........... [ ] Pendiente (fase separada)
 Fase 8 — Verificación final . [ ] Pendiente
 ```
@@ -75,13 +75,13 @@ Fase 8 — Verificación final . [ ] Pendiente
 - **Notas:** `tauri dev` no ejecutado: la fase reubica el estado y setup sin cambiar contratos IPC, UI ni flujos funcionales. Se verificó que `AppState` solo se define en `core/state.rs`, que `app_setup.rs` ya no queda en raíz y que ningún `.rs` supera 200 líneas.
 
 ### Fase 6 — Helpers y deduplicación
-- **Estado:** ⬜ Pendiente
-- **Archivos nuevos:** 0/3
-- **Archivos actualizados:** 0/~18
-- **Tests:** —
-- **Build:** —
-- **Commit:** —
-- **Notas:** —
+- **Estado:** ✅ Completada
+- **Archivos nuevos:** 3/3 (`config_helpers.rs`, `actions.rs`, `clock.rs`)
+- **Archivos actualizados:** 18/~18
+- **Tests:** ✅ `cargo test --lib` — 55 passed, 0 failed, 1 ignored
+- **Build:** ✅ `npm run build`
+- **Commit:** `refactor: add helpers, centralize actions, deduplicate`
+- **Notas:** `tauri dev` no ejecutado: la fase solo deduplica lógica Rust y conserva contratos IPC/UI. Se verificó que `probe_duration_secs` ya vive en `engine/audio/formats.rs`, que el reloj delega en `domain/clock.rs`, que los atajos usan acciones centralizadas y que los archivos revisados no superan 200 líneas. `wc`/`bash` no estaban disponibles en este entorno; el conteo se hizo con PowerShell como respaldo y `tracks.rs` queda exactamente en 200 líneas.
 
 ### Fase 7 — Frontend (fase separada)
 - **Estado:** ⬜ Pendiente

@@ -1,6 +1,7 @@
+use crate::core::AppState;
+use crate::engine::input::actions as input_actions;
 use crate::engine::persist::config_io as config;
 use crate::ipc::cmd_button_playback;
-use crate::core::AppState;
 /// Modulo: global_shortcuts.rs
 /// Proposito: registrar y ejecutar atajos globales desde Rust/Tauri.
 use std::collections::HashSet;
@@ -66,9 +67,7 @@ enum ShortcutAction {
 fn find_action(state: &AppState, shortcut: &Shortcut) -> Result<ShortcutAction, String> {
     let cfg = state.config.lock().unwrap();
     let profile = cfg
-        .profiles
-        .iter()
-        .find(|p| p.id == cfg.active_profile_id)
+        .active_profile()
         .ok_or("Perfil activo no encontrado")?;
     if !profile.audio.global_keys {
         return Err("Atajos globales desactivados".to_string());
@@ -103,7 +102,7 @@ fn find_action(state: &AppState, shortcut: &Shortcut) -> Result<ShortcutAction, 
 }
 
 fn collect_keys(cfg: &crate::model::AppConfig) -> Vec<String> {
-    let Some(profile) = cfg.profiles.iter().find(|p| p.id == cfg.active_profile_id) else {
+    let Some(profile) = cfg.active_profile() else {
         return Vec::new();
     };
     if !profile.audio.global_keys {
@@ -152,24 +151,7 @@ fn normalize_shortcut(key: &str) -> String {
 
 fn cycle_paleta(state: &AppState, offset: i32) -> Result<(), String> {
     let mut cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == pid)
-        .ok_or("Perfil activo no encontrado")?;
-    let len = profile.paletas.len() as i32;
-    if len == 0 {
-        return Err("El perfil no tiene pestanas".to_string());
-    }
-    let current = profile
-        .paletas
-        .iter()
-        .position(|p| p.id == profile.active_paleta_id)
-        .unwrap_or(0) as i32;
-    profile.active_paleta_id = profile.paletas[(current + offset).rem_euclid(len) as usize]
-        .id
-        .clone();
+    input_actions::cycle_paleta(&mut cfg, offset)?;
     config::save_config(&cfg)?;
     drop(cfg);
     crate::engine::cache::warm::warm_visible_tab(state);
@@ -178,14 +160,7 @@ fn cycle_paleta(state: &AppState, offset: i32) -> Result<(), String> {
 
 fn set_paleta(state: &AppState, paleta_id: String) -> Result<(), String> {
     let mut cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == pid)
-        .ok_or("Perfil activo no encontrado")?;
-    if profile.paletas.iter().any(|p| p.id == paleta_id) {
-        profile.active_paleta_id = paleta_id;
+    if input_actions::activate_paleta(&mut cfg, &paleta_id)? {
         config::save_config(&cfg)?;
         drop(cfg);
         crate::engine::cache::warm::warm_visible_tab(state);

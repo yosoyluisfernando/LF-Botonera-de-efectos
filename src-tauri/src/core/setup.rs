@@ -17,11 +17,10 @@ use tauri::Manager;
 pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let state = app.state::<AppState>();
     let cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
     let master_volume = cmd_master_volume::startup_volume(&cfg);
     let preload_budget = cfg.preload.ram_budget_mb;
     let preload_enabled = cfg.preload.enabled;
-    let profile_audio = cfg.profiles.iter().find(|p| p.id == pid).map(|p| &p.audio);
+    let profile_audio = cfg.active_audio();
     let device = profile_audio
         .map(|a| a.out_main.clone())
         .unwrap_or_else(|| "default".to_string());

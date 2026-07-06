@@ -97,10 +97,7 @@ pub fn apply_tab_shortcut(
 }
 
 fn active_profile_mut(cfg: &mut AppConfig) -> Result<&mut ProfileData, String> {
-    let pid = cfg.active_profile_id.clone();
-    cfg.profiles
-        .iter_mut()
-        .find(|p| p.id == pid)
+    cfg.active_profile_mut()
         .ok_or("Perfil activo no encontrado".to_string())
 }
 

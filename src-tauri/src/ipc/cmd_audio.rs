@@ -54,8 +54,7 @@ pub fn apply_configured_audio_devices(state: tauri::State<AppState>) -> Result<A
 pub fn set_audio_device(device_name: String, state: tauri::State<AppState>) -> Result<(), String> {
     state.audio.lock().unwrap().set_device(&device_name)?;
     let mut cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
-    if let Some(p) = cfg.profiles.iter_mut().find(|p| p.id == pid) {
+    if let Some(p) = cfg.active_profile_mut() {
         p.audio.out_main = device_name;
     }
     config::save_config(&cfg)
@@ -111,9 +110,8 @@ pub fn play_audio(
 pub fn set_pre_device(device_name: String, state: tauri::State<AppState>) -> Result<(), String> {
     let out_main = {
         let mut cfg = state.config.lock().unwrap();
-        let pid = cfg.active_profile_id.clone();
         let mut main = String::new();
-        if let Some(p) = cfg.profiles.iter_mut().find(|p| p.id == pid) {
+        if let Some(p) = cfg.active_profile_mut() {
             p.audio.out_pre = device_name.clone();
             main = p.audio.out_main.clone();
         }
@@ -148,21 +146,9 @@ pub fn set_audio_volume(id: String, volume: f32, state: tauri::State<AppState>) 
     state.audio.lock().unwrap().set_volume(&id, volume);
 }
 
-/// Sonda la duracion de un archivo leyendo sus propiedades (lofty), sin
-/// decodificarlo. Funciona con MP3, WAV, OGG, FLAC, M4A. Devuelve -1 si falla.
-/// (rodio::Decoder::total_duration devuelve None en la mayoria de MP3,
-/// por eso se usa lofty como fuente de verdad.)
-pub fn probe_duration_secs(path: &str) -> f64 {
-    use lofty::file::AudioFile;
-    lofty::read_from_path(path)
-        .map(|f| f.properties().duration().as_secs_f64())
-        .unwrap_or(-1.0)
-}
-
 fn configured_devices(state: &AppState) -> (String, String) {
     let cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
-    let audio = cfg.profiles.iter().find(|p| p.id == pid).map(|p| &p.audio);
+    let audio = cfg.active_audio();
     (
         audio.map(|a| a.out_main.clone()).unwrap_or_else(|| "default".to_string()),
         audio.map(|a| a.out_pre.clone()).unwrap_or_default(),

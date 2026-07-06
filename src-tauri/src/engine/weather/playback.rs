@@ -1,6 +1,6 @@
 /// Modulo: locution_playback.rs
 /// Proposito: reproducir locuciones de hora y clima por una ruta unica.
-use crate::ipc::cmd_audio::probe_duration_secs;
+use crate::engine::audio::formats::probe_duration_secs;
 use crate::engine::weather::client as weather;
 use crate::engine::weather::resolver as locutions;
 use crate::model::AppConfig;

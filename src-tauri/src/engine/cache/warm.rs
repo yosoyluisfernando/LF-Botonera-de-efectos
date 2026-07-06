@@ -53,7 +53,7 @@ fn collect_paths(state: &AppState) -> Vec<String> {
     if !cfg.preload.enabled {
         return Vec::new();
     }
-    let Some(profile) = cfg.profiles.iter().find(|p| p.id == cfg.active_profile_id) else {
+    let Some(profile) = cfg.active_profile() else {
         return Vec::new();
     };
     let max = cfg.preload.max_duration_s as f64;

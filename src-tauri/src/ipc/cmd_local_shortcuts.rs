@@ -1,8 +1,9 @@
 /// Modulo: cmd_local_shortcuts.rs
 /// Proposito: resolver atajos capturados por la ventana con foco.
 use super::AppState;
-use crate::ipc::cmd_button_playback;
+use crate::engine::input::actions as input_actions;
 use crate::engine::persist::config_io as config;
+use crate::ipc::cmd_button_playback;
 use crate::model::AppConfig;
 use serde::Serialize;
 
@@ -32,7 +33,7 @@ pub fn handle_local_shortcut(
         LocalShortcutAction::Cycle(offset) => {
             {
                 let mut cfg = state.config.lock().unwrap();
-                cycle_active_paleta(&mut cfg, offset)?;
+                input_actions::cycle_paleta(&mut cfg, offset)?;
                 config::save_config(&cfg)?;
             }
             crate::engine::cache::warm::warm_visible_tab(&state);
@@ -41,8 +42,9 @@ pub fn handle_local_shortcut(
         LocalShortcutAction::SetPaleta(id) => {
             {
                 let mut cfg = state.config.lock().unwrap();
-                set_active_paleta(&mut cfg, &id)?;
-                config::save_config(&cfg)?;
+                if input_actions::activate_paleta(&mut cfg, &id)? {
+                    config::save_config(&cfg)?;
+                }
             }
             crate::engine::cache::warm::warm_visible_tab(&state);
             Ok(result(true, true))
@@ -64,9 +66,7 @@ enum LocalShortcutAction {
 
 fn resolve_local_action(cfg: &AppConfig, key: &str) -> Result<LocalShortcutAction, String> {
     let profile = cfg
-        .profiles
-        .iter()
-        .find(|p| p.id == cfg.active_profile_id)
+        .active_profile()
         .ok_or("Perfil activo no encontrado")?;
     if profile.audio.global_keys {
         return Ok(LocalShortcutAction::None);
@@ -87,52 +87,10 @@ fn resolve_local_action(cfg: &AppConfig, key: &str) -> Result<LocalShortcutActio
             return Ok(LocalShortcutAction::SetPaleta(paleta.id.clone()));
         }
     }
-    if let Some(active) = profile
-        .paletas
-        .iter()
-        .find(|p| p.id == profile.active_paleta_id)
-    {
-        for btn in &active.botones {
-            if same_key(&btn.shortcut, key) {
-                return Ok(LocalShortcutAction::PlayButton(btn.id.clone()));
-            }
-        }
+    if let Some(id) = input_actions::play_by_shortcut(cfg, key)? {
+        return Ok(LocalShortcutAction::PlayButton(id));
     }
     Ok(LocalShortcutAction::None)
-}
-
-fn cycle_active_paleta(cfg: &mut AppConfig, offset: i32) -> Result<(), String> {
-    let pid = cfg.active_profile_id.clone();
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == pid)
-        .ok_or("Perfil activo no encontrado")?;
-    let len = profile.paletas.len() as i32;
-    if len == 0 {
-        return Err("El perfil no tiene pestanas".to_string());
-    }
-    let current = profile
-        .paletas
-        .iter()
-        .position(|p| p.id == profile.active_paleta_id)
-        .unwrap_or(0) as i32;
-    let next = (current + offset).rem_euclid(len) as usize;
-    profile.active_paleta_id = profile.paletas[next].id.clone();
-    Ok(())
-}
-
-fn set_active_paleta(cfg: &mut AppConfig, paleta_id: &str) -> Result<(), String> {
-    let pid = cfg.active_profile_id.clone();
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == pid)
-        .ok_or("Perfil activo no encontrado")?;
-    if profile.paletas.iter().any(|p| p.id == paleta_id) {
-        profile.active_paleta_id = paleta_id.to_string();
-    }
-    Ok(())
 }
 
 fn same_key(saved: &str, key: &str) -> bool {

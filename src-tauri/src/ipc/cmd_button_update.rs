@@ -103,14 +103,7 @@ fn ensure_button(paleta: &mut PaletaData, index: u32, label: &str, bg: &str, tex
 }
 
 fn active_button(cfg: &AppConfig, index: u32) -> Option<&ButtonData> {
-    let profile = cfg
-        .profiles
-        .iter()
-        .find(|p| p.id == cfg.active_profile_id)?;
-    let paleta = profile
-        .paletas
-        .iter()
-        .find(|p| p.id == profile.active_paleta_id)?;
+    let paleta = cfg.active_paleta()?;
     paleta.botones.iter().find(|b| b.index == index)
 }
 

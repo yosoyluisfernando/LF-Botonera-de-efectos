@@ -21,11 +21,8 @@ pub fn get_playback_mode(state: tauri::State<AppState>) -> String {
 #[tauri::command]
 pub fn get_playback_state(state: tauri::State<AppState>) -> Result<PlaybackState, String> {
     let cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
     let profile = cfg
-        .profiles
-        .iter()
-        .find(|p| p.id == pid)
+        .active_profile()
         .ok_or("active_profile_not_found".to_string())?;
     let legacy_solo = profile.audio.playback_mode == "stop_others";
     Ok(PlaybackState {
@@ -40,8 +37,7 @@ pub fn get_playback_state(state: tauri::State<AppState>) -> Result<PlaybackState
 pub fn set_playback_mode(mode: String, state: tauri::State<AppState>) -> Result<(), String> {
     let mode = PlaybackMode::parse(&mode)?;
     let mut cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
-    if let Some(profile) = cfg.profiles.iter_mut().find(|p| p.id == pid) {
+    if let Some(profile) = cfg.active_profile_mut() {
         profile.audio.playback_mode = mode.as_str().to_string();
     }
     config::save_config(&cfg)
@@ -50,8 +46,7 @@ pub fn set_playback_mode(mode: String, state: tauri::State<AppState>) -> Result<
 #[tauri::command]
 pub fn set_solo_mode(enabled: bool, state: tauri::State<AppState>) -> Result<(), String> {
     let mut cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
-    if let Some(profile) = cfg.profiles.iter_mut().find(|p| p.id == pid) {
+    if let Some(profile) = cfg.active_profile_mut() {
         profile.audio.solo_mode = enabled;
         if profile.audio.playback_mode == "stop_others" {
             profile.audio.playback_mode = PlaybackMode::Normal.as_str().to_string();

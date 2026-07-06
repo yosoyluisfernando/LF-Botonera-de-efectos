@@ -92,17 +92,12 @@ pub fn startup_volume(cfg: &AppConfig) -> f32 {
 }
 
 fn active_audio(cfg: &AppConfig) -> Result<&AudioConfig, String> {
-    cfg.profiles
-        .iter()
-        .find(|profile| profile.id == cfg.active_profile_id)
-        .map(|profile| &profile.audio)
+    cfg.active_audio()
         .ok_or("active_profile_not_found".to_string())
 }
 
 fn active_audio_mut(cfg: &mut AppConfig) -> Result<&mut AudioConfig, String> {
-    cfg.profiles
-        .iter_mut()
-        .find(|profile| profile.id == cfg.active_profile_id)
+    cfg.active_profile_mut()
         .map(|profile| &mut profile.audio)
         .ok_or("active_profile_not_found".to_string())
 }

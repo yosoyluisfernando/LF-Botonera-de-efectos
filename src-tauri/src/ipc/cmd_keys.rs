@@ -2,9 +2,10 @@
 /// Propósito: Comandos IPC para los atajos globales de teclado (Fase 5):
 /// persistencia de las teclas configuradas y navegación cíclica de pestañas.
 use super::AppState;
-use crate::engine::persist::config_io as config;
+use crate::engine::input::actions as input_actions;
 use crate::engine::input::keyboard as global_shortcuts;
 use crate::engine::input::rules as shortcut_rules;
+use crate::engine::persist::config_io as config;
 use crate::model::AppConfig;
 
 /// Guarda los atajos globales (detener todo / pestaña siguiente / anterior)
@@ -25,11 +26,8 @@ pub fn set_global_keys(
     {
         return Err("reserved_system_shortcut".to_string());
     }
-    let pid = cfg.active_profile_id.clone();
     let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == pid)
+        .active_profile_mut()
         .ok_or("Perfil activo no encontrado")?;
     profile.audio.key_stop = key_stop;
     profile.audio.key_next = key_next;
@@ -53,11 +51,8 @@ pub fn clear_button_shortcut(
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
     let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == pid)
+        .active_profile_mut()
         .ok_or("Perfil activo no encontrado")?;
     if let Some(paleta) = profile.paletas.iter_mut().find(|p| p.id == paleta_id) {
         if let Some(btn) = paleta.botones.iter_mut().find(|b| b.index == index) {
@@ -76,23 +71,7 @@ pub fn clear_button_shortcut(
 #[tauri::command]
 pub fn cycle_paleta(offset: i32, state: tauri::State<AppState>) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
-    let pid = cfg.active_profile_id.clone();
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == pid)
-        .ok_or("Perfil activo no encontrado")?;
-    let len = profile.paletas.len() as i32;
-    if len == 0 {
-        return Err("El perfil no tiene pestañas".to_string());
-    }
-    let current = profile
-        .paletas
-        .iter()
-        .position(|p| p.id == profile.active_paleta_id)
-        .unwrap_or(0) as i32;
-    let next = (current + offset).rem_euclid(len) as usize;
-    profile.active_paleta_id = profile.paletas[next].id.clone();
+    input_actions::cycle_paleta(&mut cfg, offset)?;
     config::save_config(&cfg)?;
     let result = cfg.clone();
     drop(cfg);

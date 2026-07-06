@@ -1,15 +1,14 @@
-/// Módulo: cmd_grid.rs
-/// Propósito: Comandos IPC para gestionar botones de la pestaña activa.
+/// Modulo: cmd_grid.rs
+/// Proposito: comandos IPC para gestionar botones de la pestana activa.
 use super::AppState;
-use crate::engine::audio::formats::{validate_audio_file, AUDIO_EXTENSIONS};
 use crate::domain::button::defaults::new_button;
-use crate::ipc::cmd_audio::probe_duration_secs;
-use crate::domain::colors::{color_palette, random_color, text_for_theme, ColorOption};
-use crate::engine::persist::config_io as config;
-use crate::domain::grid::view::paleta_to_grid;
 use crate::domain::button::random_folder;
-use crate::model::{AppConfig, PaletaData};
+use crate::domain::colors::{color_palette, random_color, text_for_theme, ColorOption};
+use crate::domain::grid::view::paleta_to_grid;
+use crate::engine::audio::formats::{probe_duration_secs, validate_audio_file, AUDIO_EXTENSIONS};
+use crate::engine::persist::config_io as config;
 use crate::model::grid::GridState;
+use crate::model::{AppConfig, PaletaData};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -20,17 +19,7 @@ pub struct ButtonStyleSuggestion {
 
 /// Devuelve una referencia mutable a la paleta activa del perfil activo.
 pub(crate) fn active_paleta(cfg: &mut AppConfig) -> Result<&mut PaletaData, String> {
-    let pid = cfg.active_profile_id.clone();
-    let profile = cfg
-        .profiles
-        .iter_mut()
-        .find(|p| p.id == pid)
-        .ok_or("Perfil activo no encontrado")?;
-    let aid = profile.active_paleta_id.clone();
-    profile
-        .paletas
-        .iter_mut()
-        .find(|p| p.id == aid)
+    cfg.active_paleta_mut()
         .ok_or("Pestaña activa no encontrada".to_string())
 }
 
@@ -44,7 +33,7 @@ pub fn get_grid_state(state: tauri::State<AppState>) -> Result<GridState, String
             let secs = probe_duration_secs(&b.path);
             if secs > 0.0 {
                 b.duration = secs;
-                b.duration_str = format!("{:.1}s", secs);
+                b.duration_str = format!("{secs:.1}s");
                 changed = true;
             } else {
                 b.duration = -1.0;
@@ -157,7 +146,7 @@ fn file_stem_upper(path: &str) -> String {
 fn read_duration(path: &str) -> (f64, String) {
     let secs = probe_duration_secs(path);
     if secs > 0.0 {
-        (secs, format!("{:.1}s", secs))
+        (secs, format!("{secs:.1}s"))
     } else {
         (-1.0, String::new())
     }

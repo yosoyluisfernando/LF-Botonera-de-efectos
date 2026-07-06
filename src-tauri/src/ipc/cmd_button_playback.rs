@@ -1,7 +1,7 @@
 /// Modulo: cmd_button_playback.rs
 /// Proposito: reproducir cualquier tipo de boton resolviendo la logica en Rust.
 use super::AppState;
-use crate::ipc::cmd_audio::probe_duration_secs;
+use crate::engine::audio::formats::probe_duration_secs;
 use crate::engine::weather::playback as locution_playback;
 use crate::domain::playback::mode::{PlaybackFlags, PlaybackMode};
 use crate::model::{AppConfig, ButtonData};
@@ -71,7 +71,7 @@ fn play_file(
     path: String,
     duration: f64,
 ) -> Result<(), String> {
-    let profile = cfg.profiles.iter().find(|p| p.id == cfg.active_profile_id);
+    let profile = cfg.active_profile();
     let mode = profile
         .map(|p| p.audio.playback_mode.as_str())
         .unwrap_or("normal");

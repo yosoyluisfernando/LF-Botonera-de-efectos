@@ -34,3 +34,11 @@ pub fn validate_audio_file(path: &str) -> Result<(), String> {
     }
     Ok(())
 }
+
+/// Sonda la duracion de un archivo leyendo sus propiedades, sin decodificarlo.
+pub fn probe_duration_secs(path: &str) -> f64 {
+    use lofty::file::AudioFile;
+    lofty::read_from_path(path)
+        .map(|f| f.properties().duration().as_secs_f64())
+        .unwrap_or(-1.0)
+}
