@@ -6,7 +6,7 @@
 /// IMPORTANTE: no llamar con el lock de config tomado (volvería a bloquearlo).
 use crate::model::ButtonData;
 use crate::model::preload::PreloadStrategy;
-use crate::AppState;
+use crate::core::AppState;
 
 /// Encola según la estrategia activa. Para perfil completo: todos los audios
 /// cortos del perfil; para pestañas visibles: los de la pestaña activa.

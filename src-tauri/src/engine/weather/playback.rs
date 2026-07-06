@@ -4,7 +4,7 @@ use crate::ipc::cmd_audio::probe_duration_secs;
 use crate::engine::weather::client as weather;
 use crate::engine::weather::resolver as locutions;
 use crate::model::AppConfig;
-use crate::AppState;
+use crate::core::AppState;
 
 /// Reproduce la locucion de hora usando carpeta propia o configuracion global.
 pub fn play_time(

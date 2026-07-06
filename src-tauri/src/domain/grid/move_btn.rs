@@ -3,7 +3,7 @@
 use crate::domain::grid::reorder as grid_reorder;
 use crate::engine::persist::config_io as config;
 use crate::model::{AppConfig, ButtonData, PaletaData};
-use crate::AppState;
+use crate::core::AppState;
 
 #[tauri::command]
 pub fn move_button_to_paleta(

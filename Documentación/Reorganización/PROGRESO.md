@@ -11,7 +11,7 @@ Fase 1 — Modelo de datos .... [x] Completada
 Fase 2 — Motores ............ [x] Completada
 Fase 3 — Dominio ............ [x] Completada
 Fase 4 — Puerta IPC ........ [x] Completada
-Fase 5 — Núcleo ............. [ ] Pendiente
+Fase 5 — Núcleo ............. [x] Completada
 Fase 6 — Deduplicación ..... [ ] Pendiente
 Fase 7 — Frontend ........... [ ] Pendiente (fase separada)
 Fase 8 — Verificación final . [ ] Pendiente
@@ -67,12 +67,12 @@ Fase 8 — Verificación final . [ ] Pendiente
 - **Notas:** `tauri dev` no ejecutado: la fase mantiene nombres y firmas IPC, y solo reubica comandos/splits documentados. Se verificó que no quedan `cmd_*.rs` ni `register_handlers.rs` en `src-tauri/src/`, y que ningún `.rs` supera 200 líneas.
 
 ### Fase 5 — Núcleo
-- **Estado:** ⬜ Pendiente
-- **Archivos movidos/creados:** 0/4
-- **Tests:** —
-- **Build:** —
-- **Commit:** —
-- **Notas:** —
+- **Estado:** ✅ Completada
+- **Archivos movidos/creados:** 4/4
+- **Tests:** ✅ `cargo test --lib` — 55 passed, 0 failed, 1 ignored
+- **Build:** ✅ `npm run build`
+- **Commit:** `refactor: create core with AppState and setup`
+- **Notas:** `tauri dev` no ejecutado: la fase reubica el estado y setup sin cambiar contratos IPC, UI ni flujos funcionales. Se verificó que `AppState` solo se define en `core/state.rs`, que `app_setup.rs` ya no queda en raíz y que ningún `.rs` supera 200 líneas.
 
 ### Fase 6 — Helpers y deduplicación
 - **Estado:** ⬜ Pendiente

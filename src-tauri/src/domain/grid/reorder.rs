@@ -5,7 +5,7 @@ use crate::ipc::cmd_grid::{active_paleta, save_grid};
 use crate::domain::playback::state as playback_state;
 use crate::model::grid::GridState;
 use crate::model::ButtonData;
-use crate::AppState;
+use crate::core::AppState;
 
 #[tauri::command]
 pub fn reorder_buttons(

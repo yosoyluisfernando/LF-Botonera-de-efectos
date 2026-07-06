@@ -34,6 +34,7 @@ chrono = "0.4"
 rusqlite = { version = "0.32", features = ["bundled"] }
 ebur128 = "0.1"
 tauri-plugin-window-state = "2"
+thiserror = "2"
 
 [target."cfg(any(target_os = \"macos\", windows, target_os = \"linux\"))".dependencies]
 tauri-plugin-global-shortcut = "2.3.2"

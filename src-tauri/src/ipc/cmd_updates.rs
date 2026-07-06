@@ -2,7 +2,7 @@
 /// Propósito: Revisión segura de nuevas versiones publicadas en GitHub Releases.
 /// La UI no consulta GitHub directamente: Rust controla cadencia y comparación.
 use crate::engine::persist::config_io as config;
-use crate::AppState;
+use crate::core::AppState;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::State;

@@ -1,15 +1,15 @@
-/// Módulo: app_setup.rs
-/// Propósito: lógica de ARRANQUE de la app (dispositivo de audio, presupuesto de
+/// Modulo: core/setup.rs
+/// Proposito: logica de ARRANQUE de la app (dispositivo de audio, presupuesto de
 /// precarga, hilos de monitor/reloj/historial/clima, recalentado de precarga y
 /// flush al cerrar). Separado de lib.rs, que queda como manifiesto puro
-/// (módulos, AppState y registro de comandos), sin lógica.
+/// (modulos, AppState y registro de comandos), sin logica.
 use crate::engine::audio::monitor as audio_monitor;
 use crate::engine::cache::warm as preload_warm;
 use crate::engine::input::keyboard as global_shortcuts;
 use crate::engine::persist::last_played;
 use crate::engine::weather::client as weather;
 use crate::ipc::{cmd_master_volume, cmd_meta};
-use crate::AppState;
+use crate::core::AppState;
 use std::sync::Arc;
 use tauri::Manager;
 

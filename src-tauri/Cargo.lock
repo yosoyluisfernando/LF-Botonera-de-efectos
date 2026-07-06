@@ -4168,6 +4168,7 @@ dependencies = [
  "tauri-plugin-global-shortcut",
  "tauri-plugin-opener",
  "tauri-plugin-window-state",
+ "thiserror 2.0.18",
  "ureq",
 ]
 

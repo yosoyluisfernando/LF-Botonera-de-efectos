@@ -3,7 +3,7 @@
 /// El formato de fecha/hora se realiza en Rust para cumplir Regla 4 y Regla 6.
 use crate::engine::persist::config_io::save_config;
 use crate::model::AppConfig;
-use crate::AppState;
+use crate::core::AppState;
 use chrono::{Datelike, Local};
 use serde::Serialize;
 use std::sync::{Arc, Mutex};

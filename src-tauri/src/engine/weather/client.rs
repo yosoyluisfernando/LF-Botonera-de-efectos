@@ -130,7 +130,7 @@ pub fn start_auto_refresh(app: tauri::AppHandle) {
     use tauri::{Emitter, Manager};
     std::thread::spawn(move || loop {
         {
-            let state = app.state::<crate::AppState>();
+            let state = app.state::<crate::core::AppState>();
             if let Ok(now) = weather_now(&state.config, true) {
                 let _ = app.emit("weather-updated", now);
             }

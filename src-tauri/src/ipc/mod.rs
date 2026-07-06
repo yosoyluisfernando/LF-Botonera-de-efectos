@@ -25,4 +25,4 @@ pub mod cmd_updates;
 #[macro_use]
 pub mod register;
 
-pub use crate::AppState;
+pub use crate::core::AppState;

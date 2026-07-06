@@ -1,6 +1,6 @@
 use crate::engine::persist::config_io as config;
 use crate::ipc::cmd_button_playback;
-use crate::AppState;
+use crate::core::AppState;
 /// Modulo: global_shortcuts.rs
 /// Proposito: registrar y ejecutar atajos globales desde Rust/Tauri.
 use std::collections::HashSet;
