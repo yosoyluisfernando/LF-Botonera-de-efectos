@@ -5,7 +5,7 @@ use tauri::State;
 
 const CHANGELOG: &str = include_str!("../../../CHANGELOG.md");
 const FIRST_DONATION_PROMPT: u32 = 5;
-const DONATION_INTERVAL: u32 = 30;
+const DONATION_INTERVAL: u32 = 100;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -86,13 +86,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn donation_starts_on_fifth_launch_then_every_thirty() {
+    fn donation_starts_on_fifth_launch_then_every_hundred() {
         assert!(!donation_due(4, 0));
         assert!(donation_due(5, 0));
         assert!(!donation_due(5, 5));
-        assert!(!donation_due(30, 0));
-        assert!(donation_due(35, 5));
-        assert!(donation_due(65, 35));
+        assert!(!donation_due(35, 5));
+        assert!(donation_due(105, 5));
+        assert!(donation_due(205, 105));
     }
 
     #[test]
