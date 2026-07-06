@@ -3,7 +3,7 @@
 use super::AppState;
 use crate::domain::button::defaults::new_button;
 use crate::domain::button::types as button_types;
-use crate::cmd_grid::{active_paleta, save_grid};
+use crate::ipc::cmd_grid::{active_paleta, save_grid};
 use crate::engine::audio::formats::validate_audio_file;
 use crate::engine::input::keyboard as global_shortcuts;
 use crate::engine::input::rules as shortcut_rules;

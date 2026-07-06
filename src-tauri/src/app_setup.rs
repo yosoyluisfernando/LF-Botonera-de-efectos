@@ -8,7 +8,8 @@ use crate::engine::cache::warm as preload_warm;
 use crate::engine::input::keyboard as global_shortcuts;
 use crate::engine::persist::last_played;
 use crate::engine::weather::client as weather;
-use crate::{cmd_master_volume, cmd_meta, AppState};
+use crate::ipc::{cmd_master_volume, cmd_meta};
+use crate::AppState;
 use std::sync::Arc;
 use tauri::Manager;
 

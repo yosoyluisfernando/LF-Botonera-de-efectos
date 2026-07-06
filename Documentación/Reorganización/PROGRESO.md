@@ -10,7 +10,7 @@
 Fase 1 — Modelo de datos .... [x] Completada
 Fase 2 — Motores ............ [x] Completada
 Fase 3 — Dominio ............ [x] Completada
-Fase 4 — Puerta IPC ........ [ ] Pendiente
+Fase 4 — Puerta IPC ........ [x] Completada
 Fase 5 — Núcleo ............. [ ] Pendiente
 Fase 6 — Deduplicación ..... [ ] Pendiente
 Fase 7 — Frontend ........... [ ] Pendiente (fase separada)
@@ -58,13 +58,13 @@ Fase 8 — Verificación final . [ ] Pendiente
 - **Notas:** `tauri dev` no ejecutado: la fase solo reubica lógica de dominio y actualiza imports; no cambia contratos IPC, UI ni flujos funcionales. Se verificó que no quedan archivos antiguos de dominio en `src-tauri/src/` y que ningún `.rs` supera 200 líneas.
 
 ### Fase 4 — Puerta IPC
-- **Estado:** ⬜ Pendiente
-- **Archivos movidos:** 0/22
-- **Splits:** 0/2
-- **Tests:** —
-- **Build:** —
-- **Commit:** —
-- **Notas:** —
+- **Estado:** ✅ Completada
+- **Archivos movidos:** 22/22 comandos IPC + `register_handlers.rs`
+- **Splits:** 2/2 (`cmd_config.rs`, `cmd_norm.rs`)
+- **Tests:** ✅ `cargo test --lib` — 55 passed, 0 failed, 1 ignored
+- **Build:** ✅ `npm run build`
+- **Commit:** `refactor: move IPC commands to ipc directory`
+- **Notas:** `tauri dev` no ejecutado: la fase mantiene nombres y firmas IPC, y solo reubica comandos/splits documentados. Se verificó que no quedan `cmd_*.rs` ni `register_handlers.rs` en `src-tauri/src/`, y que ningún `.rs` supera 200 líneas.
 
 ### Fase 5 — Núcleo
 - **Estado:** ⬜ Pendiente

@@ -3,7 +3,7 @@
 use super::AppState;
 use crate::engine::audio::formats::{validate_audio_file, AUDIO_EXTENSIONS};
 use crate::domain::button::defaults::new_button;
-use crate::cmd_audio::probe_duration_secs;
+use crate::ipc::cmd_audio::probe_duration_secs;
 use crate::domain::colors::{color_palette, random_color, text_for_theme, ColorOption};
 use crate::engine::persist::config_io as config;
 use crate::domain::grid::view::paleta_to_grid;

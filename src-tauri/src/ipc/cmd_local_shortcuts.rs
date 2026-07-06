@@ -1,7 +1,7 @@
 /// Modulo: cmd_local_shortcuts.rs
 /// Proposito: resolver atajos capturados por la ventana con foco.
 use super::AppState;
-use crate::cmd_button_playback;
+use crate::ipc::cmd_button_playback;
 use crate::engine::persist::config_io as config;
 use crate::model::AppConfig;
 use serde::Serialize;

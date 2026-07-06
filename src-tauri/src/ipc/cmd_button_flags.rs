@@ -1,7 +1,7 @@
 /// Modulo: cmd_button_flags.rs
 /// Proposito: cambios atomicos de banderas de reproduccion por boton.
 use super::AppState;
-use crate::cmd_grid::{active_paleta, save_grid};
+use crate::ipc::cmd_grid::{active_paleta, save_grid};
 use crate::model::grid::GridState;
 
 #[tauri::command]

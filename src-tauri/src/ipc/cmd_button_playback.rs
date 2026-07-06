@@ -1,7 +1,7 @@
 /// Modulo: cmd_button_playback.rs
 /// Proposito: reproducir cualquier tipo de boton resolviendo la logica en Rust.
 use super::AppState;
-use crate::cmd_audio::probe_duration_secs;
+use crate::ipc::cmd_audio::probe_duration_secs;
 use crate::engine::weather::playback as locution_playback;
 use crate::domain::playback::mode::{PlaybackFlags, PlaybackMode};
 use crate::model::{AppConfig, ButtonData};

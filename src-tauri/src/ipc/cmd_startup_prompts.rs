@@ -3,7 +3,7 @@ use crate::AppState;
 use serde::Serialize;
 use tauri::State;
 
-const CHANGELOG: &str = include_str!("../../CHANGELOG.md");
+const CHANGELOG: &str = include_str!("../../../CHANGELOG.md");
 const FIRST_DONATION_PROMPT: u32 = 5;
 const DONATION_INTERVAL: u32 = 30;
 
