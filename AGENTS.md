@@ -56,18 +56,18 @@ El documento completo está en [`Documentación/REGLAS_PROYECTO.md`](Documentaci
 ```
 ┌───────────────────────────────────────────────────────┐
 │  Frontend — Vanilla JS + Vite                         │
-│  src/js/      (49 módulos, cada uno <200 líneas)      │
+│  src/js/      (bridge/, ui/, util/)                   │
 │  src/css/     (17 hojas de estilo por componente)     │
 │  src/public/  (i18n en 4 idiomas)                     │
 │                                                       │
-│  Acceso a Rust SOLO a través de api.js:               │
+│  Acceso a Rust SOLO a través de api.js (bridge/):     │
 │    invoke(cmd, args) → resultado                      │
 │    listen(evento, fn) → suscripción                   │
 └──────────────────────────┬────────────────────────────┘
                            │ IPC (window.__TAURI__)
 ┌──────────────────────────▼────────────────────────────┐
 │  Backend — Rust + Tauri v2                            │
-│  src-tauri/src/   (~65 módulos, cada uno <200 líneas) │
+│  src-tauri/src/ (core, model, engine, domain, ipc)    │
 │                                                       │
 │  AppState {                                           │
 │    config:   Arc<Mutex<AppConfig>>      → JSON        │
@@ -204,17 +204,17 @@ Para el mapa completo, ver [`Documentación/LIBRO_PROYECTO.md §3 y §4`](Docume
 
 | Archivo | Por qué es central |
 |---|---|
-| `src-tauri/src/lib.rs` | Define `AppState` y registra todos los comandos IPC |
-| `src-tauri/src/app_setup.rs` | Inicializa la app: dispositivo, hilos, precarga |
-| `src-tauri/src/types.rs` | Esquema de datos completo serializable |
-| `src-tauri/src/config.rs` | Persistencia JSON + migración automática |
-| `src-tauri/src/audio_thread.rs` | El único hilo que toca rodio/cpal |
-| `src-tauri/src/master_bus.rs` | Mezcla de fuentes + medición de nivel |
-| `src-tauri/src/cmd_button_playback.rs` | Lógica completa de disparo de un botón |
-| `src-tauri/src/track_store.rs` | CRUD de metadatos de pista en SQLite |
-| `src/js/api.js` | Única puerta de acceso al IPC desde el frontend |
-| `src/js/startup.js` | Bootstrap completo de la UI |
-| `src/js/trackEditor.js` | Orquestador del editor de pistas |
+| `src-tauri/src/core/state.rs` | Define `AppState` y mantiene todo el estado de la app |
+| `src-tauri/src/core/setup.rs` | Inicializa la app: dispositivo, hilos, precarga |
+| `src-tauri/src/model/` | Esquema de datos completo serializable |
+| `src-tauri/src/engine/persist/config_io.rs` | Persistencia JSON + migración automática |
+| `src-tauri/src/engine/audio/thread.rs` | El único hilo que toca rodio/cpal |
+| `src-tauri/src/engine/audio/bus.rs` | Mezcla de fuentes + medición de nivel |
+| `src-tauri/src/ipc/cmd_button_playback.rs` | Lógica completa de disparo de un botón |
+| `src-tauri/src/engine/persist/tracks.rs` | CRUD de metadatos de pista en SQLite |
+| `src/js/bridge/api.js` | Única puerta de acceso al IPC desde el frontend |
+| `src/js/ui/startup.js` | Bootstrap completo de la UI |
+| `src/js/ui/trackEditor.js` | Orquestador del editor de pistas |
 
 ---
 

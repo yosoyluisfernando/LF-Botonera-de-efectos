@@ -203,10 +203,10 @@ Ver [`Documentación/COMPILACION_Y_VERSIONES.md`](Documentación/COMPILACION_Y_V
 
 | Ruta | Descripción |
 |---|---|
-| `src/` | Interfaz HTML, CSS y JavaScript |
-| `src-tauri/src/` | Motor Rust, audio, configuración y comandos IPC |
+| `src/` | Frontend HTML, CSS y JS (Arquitectura en 3 capas: bridge, ui, util) |
+| `src-tauri/src/` | Backend Rust (Arquitectura en 5 capas: core, model, engine, domain, ipc) |
 | `src/public/i18n/` | Traducciones (es, en, pt-BR, pt-PT) |
-| `Documentación/` | Documentación técnica interna del proyecto |
+| `Documentación/` | Documentación técnica y normas para contribuir |
 | `.github/workflows/` | Pipelines de compilación y publicación automática |
 | `DEV.bat` | Lanzador del modo desarrollo (doble clic) |
 
@@ -218,7 +218,17 @@ Los instaladores de Windows no están firmados con certificado de desarrollador.
 
 ---
 
-## Comunidad
+## Comunidad y Contribuciones
+
+¡Las contribuciones son bienvenidas! Este proyecto sigue los estándares de la comunidad de software libre para asegurar un entorno colaborativo y respetuoso.
+
+| Documento | Descripción |
+|---|---|
+| **[Guía de Contribución](Documentación/CONTRIBUTING.md)** | Cómo empezar, reglas del código y cómo enviar un PR. |
+| **[Código de Conducta](Documentación/CODE_OF_CONDUCT.md)** | Nuestras normas para mantener un ambiente profesional e inclusivo. |
+| **[Política de Seguridad](Documentación/SECURITY.md)** | Cómo reportar vulnerabilidades de forma responsable. |
+
+También puedes unirte a nuestros espacios de comunicación:
 
 | Espacio | Enlace |
 |---|---|

@@ -34,7 +34,10 @@ La UI nunca contiene lógica de negocio: valida lo que Rust le da, lo pinta y re
 BOTONERA/
 ├── src/                     Frontend HTML/CSS/JS
 │   ├── index.html           Punto de entrada del webview
-│   ├── js/                  ~50 módulos ES (cada uno <200 líneas)
+│   ├── js/                  Arquitectura en 3 capas
+│   │   ├── bridge/          Capa IPC (api.js)
+│   │   ├── ui/              Componentes visuales y renderizado
+│   │   └── util/            Helpers y utilidades
 │   ├── css/                 Hojas de estilo por componente
 │   └── public/
 │       └── i18n/            Traducciones: es.json (fuente), en, pt-BR, pt-PT
@@ -44,7 +47,12 @@ BOTONERA/
 │   ├── tauri.conf.json      Config de la app (nombre, versión, ventanas, bundle)
 │   ├── capabilities/        Permisos del webview (default.json sin BOM)
 │   ├── icons/               Iconos del instalador
-│   └── src/                 ~65 módulos Rust (cada uno <200 líneas)
+│   └── src/                 Arquitectura Núcleo + Motores
+│       ├── core/            AppState, configuración global y setup
+│       ├── model/           Estructuras de datos (AppConfig, etc.)
+│       ├── engine/          Motores (audio, dsp, caché, input, weather)
+│       ├── domain/          Reglas de negocio puras
+│       └── ipc/             Comandos Tauri (endpoints)
 │
 ├── Documentación/           Documentación interna del proyecto
 │   ├── REGLAS_PROYECTO.md   Las 10 reglas inmutables (lectura obligatoria)

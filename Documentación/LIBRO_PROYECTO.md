@@ -92,92 +92,22 @@ Todos los archivos en `src-tauri/src/`. El **límite es 200 líneas por archivo*
 ```
 src-tauri/src/
 │
-│   ── Núcleo ──
-├── main.rs                  ← Entry point; solo llama lib::run(). No tocar.
-├── lib.rs                   ← Declara módulos, define AppState, registra IPC
-├── app_setup.rs             ← Inicialización: dispositivos, hilos, precarga caliente
+├── core/                    ← AppState, setup y configuración global
+├── model/                   ← Estructuras de datos puras (AppConfig, TrackMeta, etc.)
+├── engine/                  ← Motores autónomos
+│   ├── audio/               ← rodio/cpal, hilo principal, mezcla, dispositivos
+│   ├── dsp/                 ← symphonia, ebur128, cue, fade, waveform
+│   ├── cache/               ← LRU RAM, preloader, calentamiento
+│   ├── persist/             ← SQLite, config JSON, undo/redo
+│   ├── weather/             ← open-meteo, geocoding
+│   └── input/               ← Atajos globales de SO, reglas de dispatch
 │
-│   ── Tipos y datos ──
-├── types.rs                 ← AppConfig, ProfileData, PaletaData, ButtonData
-├── types_audio.rs           ← AudioConfig (por perfil)
-├── types_track.rs           ← TrackMeta (cue, dB, LUFS, mtime/size)
-├── types_preload.rs         ← PreloadConfig, PreloadStrategy
-├── types_locutions.rs       ← LocutionConfig
-├── types_grid.rs            ← Tipos auxiliares de la rejilla
-├── button_types.rs          ← Enum de tipos de botón
-├── button_defaults.rs       ← Valores por defecto de un botón vacío
-│
-│   ── Persistencia ──
-├── config.rs                ← load/save botonera_config.json; migración legada; get_data_dir()
-├── config_history.rs        ← Pila undo/redo en memoria
-├── db.rs                    ← Conexión SQLite (WAL), migración por PRAGMA user_version
-├── track_store.rs           ← CRUD de TrackMeta en SQLite
-├── last_played.rs           ← Buffer de última reproducción; debounce a tracks.db
-│
-│   ── Motor de audio ──
-├── audio.rs                 ← AudioEngine: fachada; posee el canal al hilo de audio
-├── audio_command.rs         ← Enum AudioCommand (Play, Stop, SetDevice…)
-├── audio_thread.rs          ← Hilo dedicado: procesa AudioCommand; gestiona device y device_pre
-├── audio_device.rs          ← AudioDeviceRuntime: crea/recrea OutputStream + MasterBus
-├── master_bus.rs            ← MasterBus: DynamicMixer + LevelSource + Sink. SequenceSource
-├── master_button.rs         ← ButtonSource (aplica ganancia); ButtonState, ButtonStateMap
-├── vu_meter.rs              ← LevelSource: mide PICO del PCM sumado en ventanas de 1024
-├── audio_decode.rs          ← source_from_path(): abre y decodifica con symphonia
-├── audio_formats.rs         ← Extensiones soportadas; can_decode(); validate_audio_file()
-├── audio_ops.rs             ← Operaciones sobre ButtonStateMap: purge, stop, set_volume
-├── audio_monitor.rs         ← Hilo: emite "audio-tick" cada 100 ms (progreso + VU)
-├── cached_source.rs         ← CachedPcm (i16) + CachedSource::new_at() — seek O(1)
-├── cue_source.rs            ← CuedSource: seek O(n) si no hay caché
-├── playback_mode.rs         ← PlaybackMode + resolve_flags(): combina modo global + flags botón
-├── playback_state.rs        ← Estado de reproducción expuesto a la UI
-├── random_folder.rs         ← Avanza secuencialmente por archivos de una carpeta
-│
-│   ── Precarga RAM ──
-├── preload_cache.rs         ← PreloadCache (HashMap + LRU + presupuesto). build_play_source()
-├── preloader.rs             ← Hilo receptor de rutas; decodifica e inserta en caché
-├── preload_warm.rs          ← Estrategias de calentamiento al arranque
-│
-│   ── Análisis DSP ──
-├── audio_analysis.rs        ← Decodifica PCM, mide LUFS y pico; calcula ganancia sugerida
-├── waveform.rs              ← WaveEnvelope (min/max); WaveformCache LRU; view() para zoom
-├── track_analysis_cache.rs  ← Caché en memoria de AnalysisResult (incluye PCM)
-│
-│   ── Comandos IPC (cmd_*.rs) ──
-├── cmd_profiles.rs          ← get_config, set_theme/language/button_text_size, perfiles
-├── cmd_paletas.rs           ← CRUD de pestañas
-├── cmd_audio.rs             ← play_audio, stop_audio, set_audio/pre_device, volumen
-├── cmd_button_playback.rs   ← play_button: disparo principal resolviendo tipo+cue+ganancia
-├── cmd_button_flags.rs      ← toggle_button_flag (loop, stop_other, overlap, restart)
-├── cmd_button_types.rs      ← get_edit_button_types
-├── cmd_button_update.rs     ← update_button_data, assign_file_to_button, clear_button
-├── cmd_grid.rs              ← get_grid_state, suggest_button_style, color_palette
-├── cmd_history.rs           ← undo_config, redo_config
-├── cmd_keys.rs              ← set_global_keys, cycle_paleta, clear_button_shortcut
-├── cmd_local_shortcuts.rs   ← handle_local_shortcut
-├── cmd_locutions.rs         ← Locuciones: config, preview, reproducción hora/clima
-├── cmd_master_volume.rs     ← get/set master volume y opciones boost/remember
-├── cmd_meta.rs              ← get_app_version, toggle_clock_format, start_clock_thread()
-├── cmd_playback.rs          ← get/set playback_mode, solo_mode
-├── cmd_preload.rs           ← get/set preload_config, stats, prompt
-├── cmd_tracks.rs            ← analyze_track, waveform_view, set_track_cue/gain/normalization
-├── cmd_updates.rs           ← check_for_updates (GitHub Releases API)
-├── cmd_export.rs            ← export/import tab/profile con y sin diálogo
-│
-│   ── Otros módulos ──
-├── export_tracks.rs         ← bdelf_tracks: inyecta/restaura cue+dB en exports
-├── global_shortcuts.rs      ← Plugin de atajos globales del SO; sync() aplica los guardados
-├── grid_move.rs             ← move_button_to_paleta
-├── grid_reorder.rs          ← reorder_buttons (swap)
-├── grid_resize.rs           ← Redimensiona rejilla al cambiar rows/cols
-├── grid_view.rs             ← get_grid_state: construye la vista de la paleta activa
-├── tab_reorder.rs           ← reorder_paletas
-├── shortcut_rules.rs        ← Valida combinaciones; reserva ESC y ENTER
-├── colors.rs                ← Colores aleatorios, adaptación al tema, paleta sugerida
-├── locutions.rs             ← Parser de patrones (HRS{hh}, MIN{mm}, TMP###…)
-├── locution_playback.rs     ← Construye secuencia de archivos y llama play_sequence
-├── weather.rs               ← Cliente HTTP open-meteo; caché 10 min; hilo refresco 15 min
-├── geocode.rs               ← Búsqueda de ciudad (geocoding.geo.admin.ch)
-├── lfa_format.rs            ← Fachada del módulo lfa_format/ (re-exporta los 3 sub-módulos)
+├── domain/                  ← Reglas de negocio puras (rutinas, grids, reloj)
+├── ipc/                     ← Comandos Tauri (puntos de entrada de UI)
+└── lfa_format/              ← Adaptadores bidireccionales con LF Automatizador
+```
+
+**Nota:** Anteriormente, el proyecto mantenía ~88 archivos `.rs` en la raíz. A partir de la versión 1.1.3, el código se ha estructurado jerárquicamente en **5 capas** para garantizar la separación de responsabilidades ("Núcleo + Motores").
 │
 └── lfa_format/              ← Conversión Botonera ↔ formato LFA
     ├── types.rs             ← LfaButton, LfaPaleta, LfaProfile, LfaConfig, LfaKeys
