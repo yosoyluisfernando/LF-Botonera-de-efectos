@@ -5,7 +5,7 @@ use super::AppState;
 use crate::config;
 use crate::global_shortcuts;
 use crate::shortcut_rules;
-use crate::types::AppConfig;
+use crate::model::AppConfig;
 
 /// Guarda los atajos globales (detener todo / pestaña siguiente / anterior)
 /// en el perfil activo.

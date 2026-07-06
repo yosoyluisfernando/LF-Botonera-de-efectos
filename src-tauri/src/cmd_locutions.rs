@@ -3,7 +3,7 @@
 /// La resolución de archivos vive en locutions.rs y la red en weather.rs.
 use super::AppState;
 use crate::config;
-use crate::types::AppConfig;
+use crate::model::AppConfig;
 use crate::{geocode, locution_playback, weather};
 use serde::Serialize;
 

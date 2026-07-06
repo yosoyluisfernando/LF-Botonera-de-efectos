@@ -2,7 +2,7 @@
 /// Proposito: reordenar pestanas dentro de un perfil sin cambiar sus ids ni datos.
 use super::AppState;
 use crate::config;
-use crate::types::AppConfig;
+use crate::model::AppConfig;
 
 #[tauri::command]
 pub fn reorder_paletas(

@@ -1,7 +1,7 @@
 /// Modulo: cmd_history.rs
 /// Proposito: comandos IPC para deshacer y rehacer cambios de configuracion.
 use super::AppState;
-use crate::{config, global_shortcuts, types::AppConfig};
+use crate::{config, global_shortcuts, model::AppConfig};
 
 #[tauri::command]
 pub fn undo_config(

@@ -1,13 +1,13 @@
 # Progreso de la Reorganización
 
-> Última actualización: 2026-07-05
+> Última actualización: 2026-07-06
 
 ---
 
 ## Estado general
 
 ```
-Fase 1 — Modelo de datos .... [ ] Pendiente
+Fase 1 — Modelo de datos .... [x] Completada
 Fase 2 — Motores ............ [ ] Pendiente
 Fase 3 — Dominio ............ [ ] Pendiente
 Fase 4 — Puerta IPC ........ [ ] Pendiente
@@ -34,12 +34,12 @@ Fase 8 — Verificación final . [ ] Pendiente
 ## Registro por fase
 
 ### Fase 1 — Modelo de datos
-- **Estado:** ⬜ Pendiente
-- **Archivos movidos:** 0/10
-- **Tests:** —
-- **Build:** —
-- **Commit:** —
-- **Notas:** —
+- **Estado:** ✅ Completada
+- **Archivos movidos:** 10/10
+- **Tests:** ✅ `cargo test --lib` — 55 passed, 0 failed, 1 ignored
+- **Build:** ✅ `npm run build`
+- **Commit:** `refactor: move data types to model directory`
+- **Notas:** `tauri dev` no ejecutado: la fase solo reubica tipos de datos y actualiza imports; no cambia flujos runtime ni UI. Se verificó además que todos los archivos de `model/` quedan bajo 200 líneas.
 
 ### Fase 2 — Motores
 - **Estado:** ⬜ Pendiente

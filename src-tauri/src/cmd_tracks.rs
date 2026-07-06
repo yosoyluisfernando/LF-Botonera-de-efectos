@@ -5,7 +5,7 @@ use crate::config;
 use crate::cue_detect;
 use crate::db;
 use crate::track_analysis_cache::CachedTrackAnalysis;
-use crate::types_track::TrackMeta;
+use crate::model::track::TrackMeta;
 use std::sync::Arc;
 
 #[tauri::command]

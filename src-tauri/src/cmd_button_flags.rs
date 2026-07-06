@@ -2,7 +2,7 @@
 /// Proposito: cambios atomicos de banderas de reproduccion por boton.
 use super::AppState;
 use crate::cmd_grid::{active_paleta, save_grid};
-use crate::types_grid::GridState;
+use crate::model::grid::GridState;
 
 #[tauri::command]
 pub fn toggle_button_flag(

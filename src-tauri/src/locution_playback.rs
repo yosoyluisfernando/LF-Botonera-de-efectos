@@ -2,7 +2,7 @@
 /// Proposito: reproducir locuciones de hora y clima por una ruta unica.
 use super::AppState;
 use crate::cmd_audio::probe_duration_secs;
-use crate::types::AppConfig;
+use crate::model::AppConfig;
 use crate::{locutions, weather};
 
 /// Reproduce la locucion de hora usando carpeta propia o configuracion global.

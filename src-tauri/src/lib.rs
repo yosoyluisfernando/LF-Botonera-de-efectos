@@ -55,6 +55,7 @@ pub mod locution_playback;
 pub mod locutions;
 pub mod master_bus;
 pub mod master_button;
+pub mod model;
 pub mod playback_mode;
 pub mod playback_seek;
 pub mod playback_source;
@@ -67,16 +68,6 @@ pub mod shortcut_rules;
 pub mod tab_reorder;
 pub mod track_analysis_cache;
 pub mod track_store;
-pub mod types;
-pub mod types_audio;
-pub mod types_fade;
-pub mod types_grid;
-pub mod types_locutions;
-pub mod types_norm;
-pub mod types_playback_progress;
-pub mod types_preload;
-pub mod types_startup;
-pub mod types_track;
 pub mod vu_meter;
 pub mod waveform;
 pub mod weather;
@@ -87,7 +78,7 @@ mod register_handlers;
 use std::sync::{Arc, Mutex};
 
 pub struct AppState {
-    pub config: Arc<Mutex<types::AppConfig>>,
+    pub config: Arc<Mutex<model::AppConfig>>,
     pub audio: Mutex<audio::AudioEngine>,
     pub history: Mutex<config_history::ConfigHistory>,
     pub random_folders: Mutex<random_folder::RandomFolderState>,

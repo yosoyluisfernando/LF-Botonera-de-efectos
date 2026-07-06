@@ -5,7 +5,7 @@
 /// (nombre → coordenadas) vive en geocode.rs.
 use crate::config;
 use crate::geocode;
-use crate::types::AppConfig;
+use crate::model::AppConfig;
 use serde::Serialize;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};

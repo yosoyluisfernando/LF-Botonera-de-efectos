@@ -6,7 +6,7 @@
 /// (Regla 5). La lógica vive en Rust; la UI no interviene.
 use crate::audio_analysis::file_stamp;
 use crate::track_store::TrackStore;
-use crate::types::{ButtonData, PaletaData};
+use crate::model::{ButtonData, PaletaData};
 use serde_json::{Map, Value};
 
 fn is_audio(b: &ButtonData) -> bool {
@@ -43,7 +43,7 @@ pub fn restore(store: &TrackStore, tracks: &Value) {
         return;
     };
     for (path, mv) in obj {
-        let Ok(meta) = serde_json::from_value::<crate::types_track::TrackMeta>(mv.clone()) else {
+        let Ok(meta) = serde_json::from_value::<crate::model::track::TrackMeta>(mv.clone()) else {
             continue;
         };
         let mut base = meta.clone();

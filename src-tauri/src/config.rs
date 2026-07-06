@@ -1,4 +1,4 @@
-use crate::types::{AppConfig, ButtonData};
+use crate::model::{AppConfig, ButtonData};
 /// Módulo: config.rs
 /// Propósito: Persistencia de AppConfig en disco con migración automática
 /// desde el formato antiguo (audio_device plano + grid_state.json separado).

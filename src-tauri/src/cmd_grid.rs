@@ -8,8 +8,8 @@ use crate::colors::{color_palette, random_color, text_for_theme, ColorOption};
 use crate::config;
 use crate::grid_view::paleta_to_grid;
 use crate::random_folder;
-use crate::types::{AppConfig, PaletaData};
-use crate::types_grid::GridState;
+use crate::model::{AppConfig, PaletaData};
+use crate::model::grid::GridState;
 use serde::Serialize;
 
 #[derive(Serialize)]

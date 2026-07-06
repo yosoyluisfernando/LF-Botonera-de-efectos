@@ -4,9 +4,9 @@
 use super::AppState;
 use crate::cmd_master_volume;
 use crate::config;
-use crate::types::{AppConfig, AudioConfig, PaletaData, ProfileData};
-use crate::types_fade::FadeConfig;
-use crate::types_norm::{CueDetectConfig, NormConfig};
+use crate::model::{AppConfig, AudioConfig, PaletaData, ProfileData};
+use crate::model::fade::FadeConfig;
+use crate::model::norm::{CueDetectConfig, NormConfig};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

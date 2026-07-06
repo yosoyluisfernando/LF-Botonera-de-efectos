@@ -3,7 +3,7 @@
 /// estos métodos vía comandos IPC (cmd_tracks.rs, etapa E.c). Separa el "qué se
 /// guarda" (types_track) del "cómo se guarda" (este módulo).
 use crate::db;
-use crate::types_track::TrackMeta;
+use crate::model::track::TrackMeta;
 use rusqlite::{params, Connection, OptionalExtension, Row};
 
 /// Columnas en el orden que esperan `map_row` y los INSERT/SELECT.

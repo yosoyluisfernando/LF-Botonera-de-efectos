@@ -4,8 +4,8 @@
 use super::AppState;
 use crate::cmd_grid::{active_paleta, save_grid};
 use crate::playback_state;
-use crate::types::ButtonData;
-use crate::types_grid::GridState;
+use crate::model::ButtonData;
+use crate::model::grid::GridState;
 
 #[tauri::command]
 pub fn reorder_buttons(

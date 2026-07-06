@@ -1,6 +1,6 @@
 /// Modulo: button_defaults.rs
 /// Proposito: construir botones nuevos con valores consistentes.
-use crate::types::ButtonData;
+use crate::model::ButtonData;
 
 pub fn new_button(paleta_id: &str, index: u32, label: &str, bg: &str, text: &str) -> ButtonData {
     ButtonData {

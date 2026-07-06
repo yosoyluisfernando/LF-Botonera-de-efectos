@@ -1,6 +1,6 @@
 /// Modulo: button_types.rs
 /// Proposito: fuente unica de tipos de boton y visibilidad por configuracion.
-use crate::types::AppConfig;
+use crate::model::AppConfig;
 use serde::Serialize;
 
 #[derive(Serialize)]

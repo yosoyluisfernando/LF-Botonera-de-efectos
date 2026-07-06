@@ -4,8 +4,8 @@
 /// el `Preloader` hace el trabajo en segundo plano. OnPlay se gestiona al
 /// disparar (cmd_button_playback). No bloquea: solo recolecta rutas y encola.
 /// IMPORTANTE: no llamar con el lock de config tomado (volvería a bloquearlo).
-use crate::types::ButtonData;
-use crate::types_preload::PreloadStrategy;
+use crate::model::ButtonData;
+use crate::model::preload::PreloadStrategy;
 use crate::AppState;
 
 /// Encola según la estrategia activa. Para perfil completo: todos los audios

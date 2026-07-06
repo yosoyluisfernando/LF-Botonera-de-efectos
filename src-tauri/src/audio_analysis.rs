@@ -2,8 +2,8 @@
 use crate::audio_decode;
 use crate::cached_source::CachedPcm;
 use crate::cue_detect;
-use crate::types_norm::{CueDetectConfig, NormConfig};
-use crate::types_track::TrackMeta;
+use crate::model::norm::{CueDetectConfig, NormConfig};
+use crate::model::track::TrackMeta;
 use crate::waveform::WaveEnvelope;
 use ebur128::{EbuR128, Mode};
 use rodio::Source;

@@ -3,7 +3,7 @@ use crate::audio_thread;
 use crate::master_bus::ButtonStateMap;
 use crate::preload_cache::PreloadCache;
 use crate::preloader::Preloader;
-use crate::types_fade::FadeConfig;
+use crate::model::fade::FadeConfig;
 use crate::vu_meter::LastPressedInfo;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};

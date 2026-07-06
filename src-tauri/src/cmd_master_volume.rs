@@ -2,7 +2,7 @@
 /// Proposito: comandos IPC y reglas de configuracion del volumen master.
 use super::AppState;
 use crate::config;
-use crate::types::{AppConfig, AudioConfig};
+use crate::model::{AppConfig, AudioConfig};
 use serde::Serialize;
 
 #[derive(Serialize)]

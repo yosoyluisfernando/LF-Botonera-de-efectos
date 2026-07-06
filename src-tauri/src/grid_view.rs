@@ -1,7 +1,7 @@
 /// Modulo: grid_view.rs
 /// Proposito: preparar la vista de grilla que consume el frontend.
-use crate::types::{ButtonData, PaletaData};
-use crate::types_grid::{ButtonView, GridState};
+use crate::model::{ButtonData, PaletaData};
+use crate::model::grid::{ButtonView, GridState};
 
 pub fn paleta_to_grid(paleta: &PaletaData) -> GridState {
     GridState {

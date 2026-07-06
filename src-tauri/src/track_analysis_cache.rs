@@ -2,7 +2,7 @@
 /// Proposito: cache efimera del analisis completo del editor de pistas.
 /// Evita re-decodificar y recalcular LUFS al mover el editor entre modal/ventana.
 use crate::cached_source::CachedPcm;
-use crate::types_track::TrackMeta;
+use crate::model::track::TrackMeta;
 use crate::waveform::WaveEnvelope;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;

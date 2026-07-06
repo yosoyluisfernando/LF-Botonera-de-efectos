@@ -1,6 +1,6 @@
 use super::paleta::{from_lfa_paleta, to_lfa_paleta};
 use super::types::{LfaConfig, LfaKeys, LfaProfile};
-use crate::types::{AudioConfig, PaletaData, ProfileData};
+use crate::model::{AudioConfig, PaletaData, ProfileData};
 
 /// Perfil completo -> formato LFA, incluyendo config de salidas y atajos.
 pub fn to_lfa_profile(p: &ProfileData) -> LfaProfile {

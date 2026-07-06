@@ -1,5 +1,5 @@
 /// Deteccion automatica de cue por pico en ventanas cortas.
-use crate::types_norm::CueDetectConfig;
+use crate::model::norm::CueDetectConfig;
 
 const WINDOW_S: f64 = 0.01;
 

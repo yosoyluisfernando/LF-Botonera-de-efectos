@@ -9,7 +9,7 @@ use crate::global_shortcuts;
 use crate::grid_reorder;
 use crate::grid_resize;
 use crate::shortcut_rules;
-use crate::types::{AppConfig, PaletaData};
+use crate::model::{AppConfig, PaletaData};
 
 #[tauri::command]
 pub fn set_active_paleta(

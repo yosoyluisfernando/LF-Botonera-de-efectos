@@ -5,7 +5,7 @@
 /// no calcula ni decide nada (Regla 4).
 use super::AppState;
 use crate::config;
-use crate::types_preload::{PreloadConfig, PreloadStrategy};
+use crate::model::preload::{PreloadConfig, PreloadStrategy};
 use serde::Serialize;
 
 /// Vista para la UI: el TTL ya viene partido en {valor, unidad} calculado por

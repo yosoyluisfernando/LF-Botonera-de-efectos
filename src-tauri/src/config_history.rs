@@ -1,6 +1,6 @@
 /// Modulo: config_history.rs
 /// Proposito: historial limitado para deshacer/rehacer cambios destructivos.
-use crate::types::AppConfig;
+use crate::model::AppConfig;
 
 const LIMIT: usize = 10;
 

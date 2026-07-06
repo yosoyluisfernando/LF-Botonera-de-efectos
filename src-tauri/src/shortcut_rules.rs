@@ -1,6 +1,6 @@
 /// Modulo: shortcut_rules.rs
 /// Proposito: reglas centrales para asignar atajos sin conflictos peligrosos.
-use crate::types::{AppConfig, ProfileData};
+use crate::model::{AppConfig, ProfileData};
 
 /// Valida y aplica la asignacion de atajo a un boton de la paleta activa.
 pub fn apply_button_shortcut(

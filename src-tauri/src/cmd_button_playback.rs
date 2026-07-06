@@ -4,8 +4,8 @@ use super::AppState;
 use crate::cmd_audio::probe_duration_secs;
 use crate::locution_playback;
 use crate::playback_mode::{PlaybackFlags, PlaybackMode};
-use crate::types::{AppConfig, ButtonData};
-use crate::types_preload::PreloadStrategy;
+use crate::model::{AppConfig, ButtonData};
+use crate::model::preload::PreloadStrategy;
 
 /// Comando IPC para disparar un boton por id desde la interfaz.
 #[tauri::command]

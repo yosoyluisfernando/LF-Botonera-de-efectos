@@ -1,16 +1,16 @@
 /// Módulo: types.rs
 /// Propósito: Esquema de datos serializable compartido entre Rust, UI y disco.
-use crate::types_fade::FadeConfig;
-use crate::types_locutions::LocutionConfig;
-use crate::types_norm::{CueDetectConfig, NormConfig};
-use crate::types_playback_progress::PlaybackProgressConfig;
-use crate::types_preload::PreloadConfig;
-use crate::types_startup::StartupPromptState;
+use crate::model::fade::FadeConfig;
+use crate::model::locutions::LocutionConfig;
+use crate::model::norm::{CueDetectConfig, NormConfig};
+use crate::model::playback::PlaybackProgressConfig;
+use crate::model::preload::PreloadConfig;
+use crate::model::startup::StartupPromptState;
 use serde::{Deserialize, Serialize};
 
 // AudioConfig vive en su propio módulo; se re-exporta para que el resto del
-// código siga usándolo como `crate::types::AudioConfig` sin cambios.
-pub use crate::types_audio::AudioConfig;
+// código siga usándolo como `crate::model::AudioConfig` sin cambios.
+pub use crate::model::audio::AudioConfig;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ButtonData {

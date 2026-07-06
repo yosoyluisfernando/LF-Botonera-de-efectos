@@ -2,7 +2,7 @@
 /// Propósito: Metadatos de la aplicación (versión) y el hilo del reloj.
 /// El formato de fecha/hora se realiza en Rust para cumplir Regla 4 y Regla 6.
 use crate::config::save_config;
-use crate::types::AppConfig;
+use crate::model::AppConfig;
 use crate::AppState;
 use chrono::{Datelike, Local};
 use serde::Serialize;

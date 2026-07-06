@@ -7,8 +7,8 @@ use crate::config;
 use crate::export_tracks;
 use crate::grid_view::paleta_to_grid;
 use crate::lfa_format::{self, LfaPaleta, LfaProfile};
-use crate::types::{AppConfig, ProfileData};
-use crate::types_grid::GridState;
+use crate::model::{AppConfig, ProfileData};
+use crate::model::grid::GridState;
 use serde_json::Value;
 
 /// Exporta la pestaña activa como .bdelf.

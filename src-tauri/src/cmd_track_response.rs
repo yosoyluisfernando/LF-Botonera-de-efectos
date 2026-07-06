@@ -1,5 +1,5 @@
 use crate::track_analysis_cache::CachedTrackAnalysis;
-use crate::types_track::TrackMeta;
+use crate::model::track::TrackMeta;
 use serde::Serialize;
 
 #[derive(Serialize)]

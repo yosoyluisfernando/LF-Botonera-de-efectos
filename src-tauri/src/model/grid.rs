@@ -1,6 +1,6 @@
 /// Modulo: types_grid.rs
 /// Proposito: contrato de vista que Rust entrega para pintar la grilla.
-use crate::types::ButtonData;
+use crate::model::ButtonData;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

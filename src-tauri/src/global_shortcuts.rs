@@ -101,7 +101,7 @@ fn find_action(state: &AppState, shortcut: &Shortcut) -> Result<ShortcutAction, 
     Err("Atajo no encontrado".to_string())
 }
 
-fn collect_keys(cfg: &crate::types::AppConfig) -> Vec<String> {
+fn collect_keys(cfg: &crate::model::AppConfig) -> Vec<String> {
     let Some(profile) = cfg.profiles.iter().find(|p| p.id == cfg.active_profile_id) else {
         return Vec::new();
     };

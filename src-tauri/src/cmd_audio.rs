@@ -4,7 +4,7 @@ use super::AppState;
 use crate::audio_device;
 use crate::audio_formats::validate_audio_file;
 use crate::config;
-use crate::types_fade::FadeConfig;
+use crate::model::fade::FadeConfig;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -85,7 +85,7 @@ pub fn play_audio(
     // Precarga el archivo en segundo plano: así adelantar/atrasar (seek) en la
     // pre-escucha o la previa del editor es instantáneo (O(1) en RAM).
     state.audio.lock().unwrap().enqueue_preload(path.clone());
-    let file_gain = gain_db.map(crate::types_track::db_to_linear).unwrap_or(1.0);
+    let file_gain = gain_db.map(crate::model::track::db_to_linear).unwrap_or(1.0);
     // Pre-escucha y preview del editor no usan fade: el operador controla el monitor
     // manualmente y un fade involuntario sería confuso.
     state.audio.lock().unwrap().play_file(

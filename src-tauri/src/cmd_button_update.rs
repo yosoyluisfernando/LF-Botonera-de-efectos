@@ -5,8 +5,8 @@ use crate::audio_formats::validate_audio_file;
 use crate::button_defaults::new_button;
 use crate::button_types;
 use crate::cmd_grid::{active_paleta, save_grid};
-use crate::types::{AppConfig, ButtonData, PaletaData};
-use crate::types_grid::GridState;
+use crate::model::{AppConfig, ButtonData, PaletaData};
+use crate::model::grid::GridState;
 use crate::{global_shortcuts, random_folder, shortcut_rules};
 
 #[tauri::command]
@@ -135,7 +135,7 @@ fn validate_button_assets(
     Ok(())
 }
 
-fn set_path(btn: &mut crate::types::ButtonData, path: String) {
+fn set_path(btn: &mut crate::model::ButtonData, path: String) {
     if path != btn.path {
         btn.duration = 0.0;
         btn.duration_str = String::new();

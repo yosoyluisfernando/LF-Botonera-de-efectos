@@ -3,7 +3,7 @@
 use super::AppState;
 use crate::cmd_button_playback;
 use crate::config;
-use crate::types::AppConfig;
+use crate::model::AppConfig;
 use serde::Serialize;
 
 #[derive(Serialize)]

@@ -3,7 +3,7 @@
 use super::AppState;
 use crate::config;
 use crate::grid_reorder;
-use crate::types::{AppConfig, ButtonData, PaletaData};
+use crate::model::{AppConfig, ButtonData, PaletaData};
 
 #[tauri::command]
 pub fn move_button_to_paleta(
@@ -108,7 +108,7 @@ fn move_button(btn: &mut ButtonData, paleta_id: &str, index: u32) {
 mod tests {
     use super::{first_empty_index, move_button};
     use crate::button_defaults::new_button;
-    use crate::types::PaletaData;
+    use crate::model::PaletaData;
 
     #[test]
     fn first_empty_uses_lowest_available_slot() {
