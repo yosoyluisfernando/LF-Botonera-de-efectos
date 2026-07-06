@@ -13,7 +13,7 @@ Fase 3 — Dominio ............ [x] Completada
 Fase 4 — Puerta IPC ........ [x] Completada
 Fase 5 — Núcleo ............. [x] Completada
 Fase 6 — Deduplicación ..... [x] Completada
-Fase 7 — Frontend ........... [ ] Pendiente (fase separada)
+Fase 7 — Frontend ........... [x] Completada
 Fase 8 — Verificación final . [ ] Pendiente
 ```
 
@@ -84,11 +84,12 @@ Fase 8 — Verificación final . [ ] Pendiente
 - **Notas:** `tauri dev` no ejecutado: la fase solo deduplica lógica Rust y conserva contratos IPC/UI. Se verificó que `probe_duration_secs` ya vive en `engine/audio/formats.rs`, que el reloj delega en `domain/clock.rs`, que los atajos usan acciones centralizadas y que los archivos revisados no superan 200 líneas. `wc`/`bash` no estaban disponibles en este entorno; el conteo se hizo con PowerShell como respaldo y `tracks.rs` queda exactamente en 200 líneas.
 
 ### Fase 7 — Frontend (fase separada)
-- **Estado:** ⬜ Pendiente
-- **Archivos movidos:** 0/54
-- **Build:** —
-- **Commit:** —
-- **Notas:** —
+- **Estado:** ✅ Completada
+- **Archivos movidos:** 54/54
+- **Tests:** ✅ `cargo test --lib` — 55 passed, 0 failed, 1 ignored
+- **Build:** ✅ `npm run build`
+- **Commit:** `refactor: reorganize frontend into bridge ui util directories`
+- **Notas:** `tauri dev` no ejecutado: la fase solo reorganiza módulos JS y actualiza imports/rutas de entrada; no cambia contratos IPC ni lógica funcional. La nueva estructura queda en `src/js/bridge`, `src/js/ui` y `src/js/util`. Se verificó que no quedan archivos `.js` sueltos en `src/js`, que `src/index.html` apunta a `/js/ui/theme.js` y `/js/ui/main.js`, y que ningún módulo JS supera 200 líneas.
 
 ### Fase 8 — Verificación final
 - **Estado:** ⬜ Pendiente
