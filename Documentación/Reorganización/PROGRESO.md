@@ -14,7 +14,7 @@ Fase 4 — Puerta IPC ........ [x] Completada
 Fase 5 — Núcleo ............. [x] Completada
 Fase 6 — Deduplicación ..... [x] Completada
 Fase 7 — Frontend ........... [x] Completada
-Fase 8 — Verificación final . [ ] Pendiente
+Fase 8 — Verificación final . [~] Automática completada
 ```
 
 ---
@@ -92,9 +92,16 @@ Fase 8 — Verificación final . [ ] Pendiente
 - **Notas:** `tauri dev` no ejecutado: la fase solo reorganiza módulos JS y actualiza imports/rutas de entrada; no cambia contratos IPC ni lógica funcional. La nueva estructura queda en `src/js/bridge`, `src/js/ui` y `src/js/util`. Se verificó que no quedan archivos `.js` sueltos en `src/js`, que `src/index.html` apunta a `/js/ui/theme.js` y `/js/ui/main.js`, y que ningún módulo JS supera 200 líneas.
 
 ### Fase 8 — Verificación final
-- **Estado:** ⬜ Pendiente
-- **Checklist completado:** 0/13
-- **Notas:** —
+- **Estado:** 🟨 Automática completada; prueba funcional interactiva pendiente
+- **Checklist automatizado:** 5/5
+- **Tests:** ✅ `cargo test --lib` — 55 passed, 0 failed, 1 ignored
+- **Build frontend:** ✅ `npm run build`
+- **Build Tauri:** ✅ `npm run tauri build`
+- **Bundles generados:**
+  - `src-tauri/target/release/bundle/msi/LF Botonera de Efectos_1.1.3_x64_en-US.msi`
+  - `src-tauri/target/release/bundle/nsis/LF Botonera de Efectos_1.1.3_x64-setup.exe`
+- **Límites:** ✅ todos los `.rs` y `.js` revisados quedan en 200 líneas o menos
+- **Notas:** `tauri dev` no ejecutado porque `tauri build` compiló frontend, backend release y empaquetadores MSI/NSIS sin errores. Quedan sin marcar como verificados desde esta sesión los puntos interactivos del checklist final: abrir la app visualmente, reproducir botones, pre-escucha, editor de pistas, arrastre de cues, atajos, export/import, tema, reloj/VU y CRUD de perfiles/pestañas.
 
 ---
 
