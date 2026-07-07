@@ -120,15 +120,22 @@ trackEditor.js → invoke('analyze_track', { path })
     │
     ▼
 cmd_tracks::analyze_track (Rust)
-    ├── Comprueba track_analysis_cache (evita re-analizar si mtime/size no cambió)
-    ├── audio_analysis::analyze(path):
+    ├── spawn_blocking → engine::dsp::editor_analysis::analyze_track()
+    ├── Emite "track-analysis-progress" por etapas: cache, decode, analyze, save, cleanup
+    ├── Comprueba TrackAnalysisCache en memoria (mtime/size)
+    ├── Si tracks.db sigue válido + waveform_disk hit:
+    │     └── Devuelve resultado sin decodificar el audio completo
+    ├── Si tracks.db sigue válido + falta waveform:
+    │     └── Reconstruye solo WaveEnvelope, guarda caché persistente y devuelve
+    ├── Si no hay caché válida:
     │     ├── Decodifica PCM completo (symphonia)
     │     ├── Mide LUFS integrado (ebur128)
     │     ├── Mide pico dBFS
-    │     ├── Calcula ganancia sugerida (objetivo −14 LUFS, techo −1 dBFS)
+    │     ├── Calcula ganancia sugerida según configuración global
     │     └── Construye WaveEnvelope (min/max por bucket, hasta 120k puntos)
     ├── Upsert en tracks.db (preserva cue/dB del usuario si ya había fila)
-    ├── Guarda PCM en PreloadCache (para seek O(1) instantáneo en la previa)
+    ├── Guarda WaveEnvelope en caché persistente de disco
+    ├── Inserta PCM en PreloadCache solo si la precarga está activa y el archivo cabe
     └── Devuelve AnalysisResult al frontend
     │
     ▼
@@ -149,7 +156,7 @@ trackTransport.js: cursor de reproducción con requestAnimationFrame
 PreloadCache (HashMap<String, Arc<CachedPcm>> + VecDeque LRU + bytes_used)
      │
      │ Llenado por 3 fuentes:
-     ├── analyze_track() → siempre cachea el PCM del archivo editado
+     ├── analyze_track() → cachea PCM solo si preload.enabled y duration <= max_duration_s
      ├── Preloader hilo → recibe rutas por canal; llama decode_pcm(); inserta
      └── warm_* en arranque → warm_for_strategy (FullProfile/VisibleTabs)
                               warm_onplay_recent (OnPlay + TTL desde last_played)
@@ -231,7 +238,7 @@ El campo `bdelf_tracks` (cue/dB por archivo) es opcional y el LFA lo ignora. Al 
 ## Testing
 
 ```bash
-# Tests unitarios de Rust (39 tests en v1.1.2)
+# Tests unitarios de Rust (suite actual: 61 passed, 1 ignored)
 cd src-tauri
 cargo test --lib
 

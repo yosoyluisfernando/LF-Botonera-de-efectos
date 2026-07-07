@@ -310,6 +310,7 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | (vacío) | startup.js → `_refresh()` |
 | `"track-editor-dock"` | `{path, name, zoom}` | startup.js → abre editor en modo modal |
+| `"track-analysis-progress"` | `{path, stage}` | trackEditor.js → actualiza progreso del análisis |
 | `"theme-changed"` | `{theme}` | ventana pop-out del editor |
 
 ---
@@ -398,7 +399,7 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 - `set_solo_mode(enabled)`
 
 ### Editor de pistas
-- `analyze_track(path)` → `AnalysisResult {waveform, peak_db, lufs, suggested_gain_db, duration_s, cue_start_s, cue_end_s, gain_db, norm_enabled, norm_gain_db}`
+- `analyze_track(path)` → análisis del editor con `track-analysis-progress`, caché en memoria/disco y `AnalysisResult {waveform, peak_db, lufs, suggested_gain_db, duration_s, cue_start_s, cue_end_s, gain_db, norm_enabled, norm_gain_db}`
 - `waveform_view(path, start_s, end_s, buckets)` → `Vec<[f32;2]>` (min/max por columna)
 - `get_track_meta(path)` → `TrackMeta`
 - `set_track_cue(path, cue_start_s, cue_end_s?)`
@@ -481,7 +482,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (39 tests)
+# Backend Rust (suite actual: 61 passed, 1 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
 

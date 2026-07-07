@@ -172,6 +172,7 @@ señal = muestra × file_gain(dB→lineal) × vol_botón(lineal 0-1) × master(l
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | — | startup.js → recarga la UI |
 | `"track-editor-dock"` | `{path, name, zoom}` | startup.js → abre editor en modal |
+| `"track-analysis-progress"` | `{path, stage}` | trackEditor.js → actualiza progreso del análisis |
 | `"theme-changed"` | `{theme}` | ventana pop-out del editor |
 
 `startup.js` también dispara el `CustomEvent('lf-audio-tick')` en el DOM cada vez que recibe `"audio-tick"` de Rust. Los módulos del editor usan `window.addEventListener('lf-audio-tick', ...)` porque es un `CustomEvent`, no un evento Tauri.
@@ -188,7 +189,7 @@ Para la lista completa ver [`CLAUDE.md §9`](CLAUDE.md).
 - `play_button(id)` → disparo principal de un botón
 - `play_audio(id, path, volume, ...)` → reproducción directa (pre-escucha, editor)
 - `stop_audio(id)`, `stop_all_audio`
-- `analyze_track(path)` → análisis DSP completo + envolvente de onda
+- `analyze_track(path)` → análisis del editor con caché/progreso + envolvente de onda
 - `set_track_cue(path, start, end?)` / `set_track_gain(path, dB)` / `set_track_normalization(path, enabled)`
 - `update_button_data(paleta_id, index, data)` → guarda edición de botón
 - `export_tab_by_id(paleta_id)` / `import_tab()` → formatos .bdelf
@@ -256,7 +257,7 @@ Es un `CustomEvent` del DOM que dispara `startup.js`. Usar `window.addEventListe
 El formato actual es `{paleta_id}_btn_{index}` (ejemplo: `paleta_1_btn_3`). El formato antiguo era `btn_{index}` y colisionaba entre paletas. `config.rs::normalize_button_ids()` migra automáticamente al cargar; no producir IDs en el formato viejo.
 
 ### El hilo de audio no hace I/O
-El hilo de audio (`audio_thread.rs`) **no** accede al disco. La decodificación ocurre en `preload_cache::build_play_source()` que llama a `audio_decode::source_from_path()`. El análisis DSP ocurre en el hilo de un comando IPC, nunca en el hilo de audio.
+El hilo de audio (`audio_thread.rs`) **no** accede al disco. La decodificación de reproducción ocurre en `preload_cache::build_play_source()` que llama a `audio_decode::source_from_path()`. El análisis del editor se lanza desde IPC en un worker bloqueante (`editor_analysis.rs`), nunca en el hilo de audio.
 
 ### `tracks.db` vs `botonera_config.json`
 Los datos de los **botones** (qué archivo, qué volumen, qué loop) viven en `botonera_config.json`. Los **metadatos del archivo** (cue, dB, LUFS, mtime) viven en `tracks.db`. Son dos persistencias independientes. El cue y el dB NO viajan en `botonera_config.json`.
@@ -275,7 +276,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (39 tests en v1.1.2)
+# Tests unitarios Rust (suite actual: 61 passed, 1 ignored)
 cd src-tauri
 cargo test --lib
 

@@ -357,7 +357,7 @@ AppState {
   history:        Mutex<ConfigHistory>       ← pila undo/redo
   random_folders: Mutex<RandomFolderState>
   tracks:         Arc<Mutex<TrackStore>>     ← acceso a tracks.db (Arc para compartir con flusher)
-  waveforms:      Mutex<WaveformCache>       ← envolventes en memoria (no persisten)
+  waveforms:      Mutex<WaveformCache>       ← envolventes calientes en memoria
   track_analysis: Mutex<TrackAnalysisCache>  ← resultados de análisis en memoria
   last_played:    LastPlayed                 ← buffer de última reproducción (debounce)
 }
@@ -410,7 +410,8 @@ main.js
         │                  → también dispara CustomEvent('lf-audio-tick') en el DOM
         ├── 'weather-updated' → settingsLocutions.js                      │
         ├── 'global-shortcut-refresh' → _refresh()                        │
-        └── 'track-editor-dock' → trackEditor.js (lazy import)            │
+        ├── 'track-editor-dock' → trackEditor.js (lazy import)            │
+        └── 'track-analysis-progress' → trackEditor.js                    │
 ```
 
 El editor de pistas se importa de forma **dinámica** (`import('./trackEditor.js')`) para no penalizar el tiempo de arranque.
@@ -429,11 +430,14 @@ El editor de pistas es la función más compleja del sistema. Permite al usuario
 | `trackTransport.js` | Controles de reproducción: Play, Stop cíclico, reanudar. Usa `requestAnimationFrame` para el cursor |
 | `waveformCanvas.js` | Dibuja la onda en un `<canvas>`: envolvente, marcadores de cue, playhead. Gestiona zoom y arrastre |
 | `trackEditorWindow.js` | Gestiona el modo ventana flotante (pop-out y docking) |
+| `editor_analysis.rs` | Orquesta el análisis en Rust con progreso, caché en memoria, `tracks.db` y caché persistente |
 | `audio_analysis.rs` | Decodifica el PCM completo, mide LUFS, calcula ganancia sugerida, construye la envolvente |
 | `waveform.rs` | Almacena la envolvente de alta resolución; `view()` agrega para el zoom actual |
-| `track_analysis_cache.rs` | Caché en memoria para no re-analizar si el archivo no cambió (mtime/size) |
+| `waveform_disk.rs` | Persiste envolventes del editor en disco con límites de tamaño/antigüedad |
+| `waveform_binary.rs` | Serializa y lee la envolvente persistente del editor |
+| `track_analysis_cache.rs` | Caché en memoria del análisis completo para no re-analizar si el archivo no cambió (mtime/size) |
 | `track_store.rs` | Persiste cue, dB y normalización en SQLite |
-| `cmd_tracks.rs` | Comandos IPC: analyze_track, waveform_view, set_track_cue/gain/normalization |
+| `cmd_tracks.rs` | Comandos IPC del editor; `analyze_track` delega en `editor_analysis.rs` mediante worker bloqueante |
 
 **Modelo de ganancia de 3 capas:**
 ```

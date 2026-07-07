@@ -22,6 +22,18 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ## [Sin publicar]
 
+### Añadido
+- Caché persistente de waveforms del editor de pistas en disco, con límites configurables de tamaño y antigüedad y opción para limpiarla desde los ajustes del normalizador.
+- Progreso de análisis del editor de pistas con etapas visibles mientras Rust revisa caché, reconstruye waveform, decodifica, guarda y limpia.
+
+### Cambiado
+- El análisis del editor de pistas se ejecuta en un worker bloqueante de Tauri y reutiliza caché en memoria, `tracks.db` y waveforms persistidas antes de decodificar de nuevo.
+- El recordatorio de donación mantiene el primer aviso en la apertura 5, pero la recurrencia pasa a cada 100 aperturas.
+- El editor solo inserta PCM en la caché RAM si la precarga está activa y la duración del archivo entra en el límite configurado.
+
+### Corregido
+- El editor de pistas evita congelamientos al analizar audios largos y reabre más rápido archivos ya analizados.
+
 ---
 
 ## [1.1.3] — 2026-06-28

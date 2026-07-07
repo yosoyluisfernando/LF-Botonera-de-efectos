@@ -85,6 +85,7 @@ La última versión estable está disponible en la página de releases:
 - **Zoom** con slider (1×–30×) y Ctrl+Rueda, con scroll horizontal en el canvas.
 - **Normalizador automático** al objetivo −14 LUFS (estándar de streaming) con techo de pico a −1 dBFS; activable por archivo.
 - **Ajuste manual de ganancia** en dB sobre la normalización automática.
+- **Análisis con progreso y caché persistente de waveform:** reabre pistas ya analizadas más rápido y evita recalcular la forma de onda cuando el archivo no cambió.
 - **Transporte completo:** Play (reinicia si ya sonaba, sin duplicar), Stop cíclico (pausa → vuelve a la marca → vuelve a 0:00), reproducción desde el punto de cue, cursor de reproducción animado a 60 fps.
 - **Ventana flotante (pop-out):** el editor puede sacarse como ventana independiente que se puede mover o minimizar.
 - **Persistencia por archivo**, no por botón: edita un audio una vez y el cue y la ganancia se aplican en todos los botones que usan ese archivo.
