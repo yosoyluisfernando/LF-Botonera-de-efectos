@@ -55,10 +55,10 @@ BOTONERA/
 │       └── ipc/             Comandos Tauri (endpoints)
 │
 ├── Documentación/           Documentación interna del proyecto
-│   ├── REGLAS_PROYECTO.md   Las 10 reglas inmutables (lectura obligatoria)
+│   ├── REGLAS_PROYECTO.md   Las 11 reglas inmutables (lectura obligatoria)
 │   └── COMPILACION_Y_VERSIONES.md  Proceso de release y notas de antivirus
 │
-├── .github/workflows/       CI: build.yml (dev), release-builds.yml (tags v*)
+├── .github/workflows/       Automatización de builds y releases
 ├── CLAUDE.md                Guía completa para IAs colaboradoras
 ├── COMPILAR.md              Instrucciones detalladas de compilación
 ├── MANUAL.md                Manual del usuario final
@@ -69,11 +69,42 @@ BOTONERA/
 
 ## Separación de responsabilidades
 
+### Backend actual en 5 capas
+
+El backend está organizado para que cada cambio tenga un lugar natural:
+
+| Capa | Qué contiene | Regla práctica |
+|---|---|---|
+| `core/` | `AppState`, setup inicial, errores comunes y arranque de hilos | Coordina la aplicación, no implementa lógica de producto |
+| `model/` | Tipos serializables: configuración, botones, pistas, precarga, normalización | Datos puros con `serde`; todo campo nuevo compatible debe usar `#[serde(default)]` |
+| `engine/` | Motores técnicos: audio, DSP, caché, persistencia, clima, entrada | Trabajo pesado, I/O, hilos, base de datos, audio y procesamiento |
+| `domain/` | Reglas de negocio: botones, rejilla, reproducción, exportación LFA | Decisiones del producto sin depender de Tauri ni de la UI |
+| `ipc/` | Comandos Tauri expuestos al frontend | Puerta fina: recibe datos, llama a `domain/` o `engine/`, devuelve respuesta |
+
+Los motores actuales son:
+
+| Motor | Responsabilidad |
+|---|---|
+| `engine/audio/` | Reproducción, mezcla, buses main/pre, dispositivos, VU, hilo de audio |
+| `engine/dsp/` | Análisis de audio, LUFS, cue, fade, waveform y análisis del editor |
+| `engine/cache/` | Precarga RAM, caché de análisis, caché persistente de waveforms |
+| `engine/persist/` | `botonera_config.json`, `tracks.db`, historial y últimos reproducidos |
+| `engine/input/` | Atajos globales/locales, reglas de conflicto y acciones de teclado |
+| `engine/weather/` | Geocoding, clima, locuciones dinámicas y reproducción asociada |
+
+El frontend está organizado en 3 capas:
+
+| Capa | Responsabilidad |
+|---|---|
+| `src/js/bridge/` | Acceso único a Tauri IPC y eventos |
+| `src/js/ui/` | Componentes visuales, modales, rejilla, editor, ajustes |
+| `src/js/util/` | Helpers sin estado crítico: i18n, colores, formato, inputs |
+
 ### Lo que hace el frontend
 
 - Renderizar la rejilla de botones, pestañas y perfiles con datos que vienen de Rust.
 - Capturar clics, drag & drop y teclado; llamar al IPC Rust correspondiente.
-- Suscribirse a eventos Rust (`audio-tick`, `clock-tick`, `weather-updated`) y actualizar la pantalla.
+- Suscribirse a eventos Rust (`audio-tick`, `clock-tick`, `weather-updated`, `track-analysis-progress`) y actualizar la pantalla.
 - Mostrar modales de edición, configuración y el editor de pistas.
 
 ### Lo que hace Rust
@@ -190,16 +221,16 @@ build_play_source(cache, path, loop, cue_start, cue_end)
 
 ## Compatibilidad con LF Automatizador
 
-El LFA usa nombres de campo distintos en JSON (`file`, `bg`, `text`, `loop`, `stopOther`). La conversión vive en `src-tauri/src/lfa_format/`:
+El LFA usa nombres de campo distintos en JSON (`file`, `bg`, `text`, `loop`, `stopOther`). La conversión vive en `src-tauri/src/domain/export/lfa_format/`:
 
 ```
 Botonera ──► to_lfa_paleta() ──► LfaPaleta (JSON .bdelf compatible con LFA)
-LFA .bdelf ──► from_lfa_paleta() ──► PaletaData (campo desconocido ignorado por serde)
+LFA .bdelf ──► from_lfa_paleta() ──► PaletaData (campos desconocidos ignorados por serde)
 ```
 
 **Regla de compatibilidad:** todo campo nuevo en el formato Botonera debe tener `#[serde(default)]` para que el LFA pueda deserializar la estructura ignorando el campo. Nunca añadir campos obligatorios a los tipos LFA.
 
-El campo `bdelf_tracks` (cue/dB por archivo) es opcional y el LFA lo ignora. Al importar, `export_tracks.rs::restore()` reescribe los metadatos en `tracks.db` adaptados al sistema de archivos local.
+El campo `bdelf_tracks` (cue/dB por archivo) es opcional y el LFA lo ignora. Al importar, `domain/export/tracks.rs::restore()` reescribe los metadatos en `tracks.db` adaptados al sistema de archivos local.
 
 ---
 
@@ -207,22 +238,23 @@ El campo `bdelf_tracks` (cue/dB por archivo) es opcional y el LFA lo ignora. Al 
 
 ### Nuevo comando IPC
 
-1. Crear o elegir el `cmd_*.rs` correspondiente.
+1. Crear o elegir el `ipc/cmd_*.rs` correspondiente.
 2. Añadir la función con `#[tauri::command]`.
-3. Registrarla en `lib.rs` dentro de `invoke_handler!(tauri::generate_handler![...])`.
-4. Añadir el wrapper en `api.js` (o simplemente llamar `invoke('nombre_comando', args)`).
-5. Si la función lee o modifica `AppConfig`, usar `state.config.lock().unwrap()` y llamar `config::save_config(&cfg)`.
+3. Registrar el comando en `ipc/register.rs` dentro de `lf_invoke_handlers!`.
+4. Llamar desde el frontend mediante `src/js/bridge/api.js`.
+5. Si la función lee o modifica `AppConfig`, usar `state.config.lock().unwrap()` y llamar `engine::persist::config_io::save_config(&cfg)`.
+6. Si aparece lógica de negocio, moverla a `domain/` o `engine/`; el archivo IPC debe quedar como una puerta fina.
 
 ### Nuevo tipo de botón
 
-1. Añadir la variante en `button_types.rs`.
-2. Añadir el caso en `cmd_button_playback::play_button_id()`.
-3. Añadir el renderizado en `editTypes.js`.
+1. Añadir la variante en `domain/button/types.rs`.
+2. Añadir el caso en `ipc/cmd_button_playback.rs`.
+3. Añadir el renderizado en `src/js/ui/editTypes.js`.
 4. Añadir la clave i18n en `es.json` y los 3 idiomas restantes.
 
 ### Nueva clave de configuración
 
-1. Añadir el campo con `#[serde(default)]` en el struct de `types.rs` (u otro `types_*.rs`).
+1. Añadir el campo con `#[serde(default)]` en el struct correspondiente dentro de `model/`.
 2. Implementar el `Default` o usar `#[serde(default = "fn")]`.
 3. Añadir el comando IPC de getter/setter si la UI necesita leerlo/escribirlo.
 4. Añadir la clave i18n si tiene texto visible.
@@ -246,19 +278,21 @@ cargo test --lib
 cd ..
 npm run build
 
-# Límite de 200 líneas por archivo Rust
-wc -l src-tauri/src/*.rs src-tauri/src/**/*.rs
+# Límite de 200 líneas por archivo Rust/JS
+wc -l src-tauri/src/**/*.rs src/js/**/*.js
 ```
 
 Los tests cubren:
-- `db.rs`: migración, idempotencia, `normalize_key`
-- `types_track.rs`: `sanitized_cue`, `effective_duration_s`, casos extremos
-- `audio_monitor.rs`: `compute_display_time` con múltiples instancias
-- `cached_source.rs`, `cue_source.rs`: seek y bucle
-- `preload_cache.rs`: LRU, presupuesto RAM
-- `cmd_preload.rs`: validación de parámetros de precarga
-- `track_store.rs`: upsert preservando ediciones, `recent_paths`
-- `last_played.rs`: debounce
+- `engine/persist/db.rs`: migración, idempotencia, `normalize_key`
+- `model/track.rs`: `sanitized_cue`, `effective_duration_s`, casos extremos
+- `engine/audio/monitor.rs`: `compute_display_time` con múltiples instancias
+- `engine/cache/cached_source.rs`, `engine/dsp/cue_source.rs`: seek y bucle
+- `engine/cache/preload.rs`: LRU, presupuesto RAM
+- `engine/cache/waveform_disk.rs`, `engine/cache/waveform_binary.rs`: caché persistente de waveforms
+- `ipc/cmd_preload.rs`: validación de parámetros de precarga
+- `ipc/cmd_startup_prompts.rs`: recordatorios de novedades y donación
+- `engine/persist/tracks.rs`: upsert preservando ediciones, `recent_paths`
+- `engine/persist/last_played.rs`: debounce
 
 No existen tests de UI (Tauri no expone un harness de integración para el webview). La verificación visual la hace el usuario en su máquina.
 
