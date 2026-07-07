@@ -101,7 +101,7 @@ Fase 8 — Verificación final . [x] Completada antes de main
   - `src-tauri/target/release/bundle/msi/LF Botonera de Efectos_1.1.3_x64_en-US.msi`
   - `src-tauri/target/release/bundle/nsis/LF Botonera de Efectos_1.1.3_x64-setup.exe`
 - **Límites:** ✅ todos los `.rs` y `.js` revisados quedan en 200 líneas o menos
-- **Notas:** `tauri dev` no ejecutado porque `tauri build` compiló frontend, backend release y empaquetadores MSI/NSIS sin errores. El usuario realizó pruebas funcionales después de la reorganización y aplicó mejoras adicionales. `main` no se actualiza todavía; queda pendiente hasta instrucción explícita del usuario.
+- **Notas:** `tauri dev` no ejecutado porque `tauri build` compiló frontend, backend release y empaquetadores MSI/NSIS sin errores. El usuario realizó pruebas funcionales después de la reorganización y aplicó mejoras adicionales. La rama `refactor/architecture` fue fusionada en `main`, se actualizó GitHub y la rama local fue cerrada.
 - **Cambios posteriores documentados antes de main:**
   - `feat: cache editor waveforms on disk`
   - `docs: update project guidance and contribution templates`

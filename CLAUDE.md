@@ -145,7 +145,7 @@ ButtonData {
 }
 ```
 
-**Notas de IDs de botón:** formato `{paleta_id}_btn_{index}`. `config.rs` normaliza al cargar para migrar el formato antiguo `btn_{index}` que colisionaba entre paletas.
+**Notas de IDs de botón:** formato `{paleta_id}_btn_{index}`. `config_io.rs` normaliza al cargar para migrar el formato antiguo `btn_{index}` que colisionaba entre paletas.
 
 ### TrackMeta (SQLite, 1 fila por archivo)
 ```
@@ -242,7 +242,7 @@ cmd_button_playback::play_button_id()
                                                     │
                                   ┌─────────────────┘
                                   ▼
-                           audio_thread (hilo dedicado)
+                           engine/audio/thread.rs (hilo dedicado)
                                   │
                           AudioCommand::Play{to_pre}
                                   │
@@ -252,7 +252,7 @@ cmd_button_playback::play_button_id()
               device.bus()               device_pre.bus() ──fallback──► device.bus()
                     │
                     ▼
-            preload_cache::build_play_source(path, loop, cue)
+            engine/cache/preload.rs::build_play_source(path, loop, cue)
                     ├── Cache HIT → CachedSource::new_at(pcm, offset) — O(1) seek
                     └── Cache MISS → audio_decode::source_from_path() + CuedSource (O(n))
                                           │
@@ -292,8 +292,8 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 
 | Hilo | Módulo | Descripción |
 |---|---|---|
-| Audio | `audio_thread` | Ejecuta el motor; único hilo que toca rodio/cpal |
-| Monitor | `audio_monitor` | Emite `"audio-tick"` cada 100 ms con progreso + VU |
+| Audio | `engine/audio/thread.rs` | Ejecuta el motor; único hilo que toca rodio/cpal |
+| Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con progreso + VU |
 | Reloj | `cmd_meta` | Emite `"clock-tick"` cada 1 s con hora y fecha localizadas |
 | Historial | `last_played` | Vuelca buffer en memoria a tracks.db cada 30 s (debounce) |
 | Preloader | `preloader` | Decodifica archivos cortos en segundo plano para la caché RAM |
@@ -427,7 +427,7 @@ A partir de la v1.1.3, el backend sigue una arquitectura de "Núcleo + Motores" 
 | `engine/` | Motores autónomos: `audio/` (rodio, hilos), `dsp/` (ebur128, symphonia, waveform), `cache/` (LRU), `persist/` (SQLite, JSON), `weather/` (open-meteo), `input/` (atajos). |
 | `domain/` | Reglas de negocio puras (relativas a grids, botones, y modos de reproducción). |
 | `ipc/` | Endpoints Tauri. Funciones finas que extraen parámetros y delegan en el dominio/motores. |
-| `lfa_format/` | Adaptadores de compatibilidad bidireccional con LF Automatizador (.bdelf). |
+| `domain/export/lfa_format/` | Adaptadores de compatibilidad bidireccional con LF Automatizador (.bdelf). |
 
 ## 11. Mapa de módulos Frontend (`src/`)
 
@@ -441,7 +441,7 @@ A partir de la v1.1.3, el frontend sigue una arquitectura de 3 capas en `src/js/
 
 ## 12. Formatos de exportación `.bdelf` / `.bdeplf`
 
-El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`). La conversión vive en `lfa_format/`.
+El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`). La conversión vive en `domain/export/lfa_format/`.
 
 `.bdelf` = exportación de una paleta:
 ```json
@@ -457,7 +457,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 }
 ```
 
-`bdelf_tracks` es **OPCIONAL** (solo lo añade la Botonera). El LFA lo ignora. Al importar, `export_tracks.rs::restore()` escribe los datos en `tracks.db` re-sellando con `mtime`/`size` del archivo local.
+`bdelf_tracks` es **OPCIONAL** (solo lo añade la Botonera). El LFA lo ignora. Al importar, `domain/export/tracks.rs::restore()` escribe los datos en `tracks.db` re-sellando con `mtime`/`size` del archivo local.
 
 ---
 
@@ -465,7 +465,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 
 1. `main.rs` → `lib::run()`
 2. `lib::run()` inicializa `AppState` (carga config, abre tracks.db, crea AudioEngine)
-3. Tauri llama `app_setup::on_setup()`:
+3. Tauri llama `core::setup::on_setup()`:
    - Aplica dispositivo de audio (out_main del perfil activo)
    - Aplica dispositivo de pre-escucha (out_pre, si difiere del principal)
    - Fija presupuesto de RAM de la caché
@@ -516,7 +516,7 @@ No lanzar la app por computer-use. El usuario prueba en su PC.
 
 - **`window.__TAURI__`** no está disponible al parsear módulos en producción (WebView2). Capturarlo al nivel del módulo lo congela como `undefined`. `api.js` lo resuelve dentro de cada función.
 - **`lf-audio-tick`** es un `CustomEvent` del DOM (dispara `startup.js`), NO un evento de Tauri. Escuchar con `window.addEventListener('lf-audio-tick', ...)`, nunca con `api.listen()`.
-- **IDs de botón** cambiaron de `btn_{index}` a `{paleta_id}_btn_{index}` para evitar colisiones entre pestañas. `config.rs::normalize_button_ids()` migra automáticamente al cargar.
+- **IDs de botón** cambiaron de `btn_{index}` a `{paleta_id}_btn_{index}` para evitar colisiones entre pestañas. `config_io.rs::normalize_button_ids()` migra automáticamente al cargar.
 - **Instalador MSI** tiene `upgradeCode` fijo (`43888972-…`). No cambiar entre versiones.
 - **`capabilities/default.json`** NO debe tener BOM: el parser de Tauri lo rechaza silenciosamente.
 - **Instancias `tauri dev`** acumuladas: matar TODAS las instancias de `tauri-app` y relanzar `npm run tauri dev`; matar solo una puede dejar Vite caído.

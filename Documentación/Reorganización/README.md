@@ -1,8 +1,8 @@
 # Reorganización Arquitectónica — Núcleo + Motores
 
-> **Estado:** 🟡 En planificación  
-> **Inicio:** 2026-07-05  
-> **Rama:** `refactor/architecture` (por crear)  
+> **Estado:** ✅ Completada y fusionada en `main`
+> **Inicio:** 2026-07-05
+> **Rama de trabajo:** `refactor/architecture` (cerrada tras merge)
 > **Versión base:** 1.1.3
 
 ## Qué es esto
@@ -34,17 +34,20 @@ tiene su propia carpeta y sus responsabilidades están claramente delimitadas.
 
 ## Cómo verificamos
 
-Después de **cada fase**:
+Durante la reorganización se verificó después de **cada fase**:
 ```bash
-cd src-tauri && cargo test --lib    # 39+ tests pasan
+cd src-tauri && cargo test --lib
 cd .. && npm run build              # Frontend compila sin errores
 ```
 
+En la verificación final antes de fusionar a `main` también se ejecutó
+`npm run tauri build`, generando los instaladores MSI y NSIS sin errores.
+
 La prueba funcional completa (app corriendo, reproduciendo audio, editor de
-pistas, atajos, etc.) la hace el usuario al final de todo el proceso.
+pistas, atajos, etc.) fue realizada por el usuario antes de actualizar `main`.
 
 Además de compilar, la IA debe hacer pruebas razonables de regresión con las
 herramientas disponibles. Si una fase toca comportamiento que solo puede
-validarse con la aplicación en ejecución, se intentará `tauri dev`; si no es
-posible completar esa prueba en el entorno de trabajo, se documentará el motivo
-en `PROGRESO.md` y quedará pendiente para la prueba funcional del usuario.
+validarse con la aplicación en ejecución, se intenta `tauri dev`; si no es
+posible completar esa prueba en el entorno de trabajo, se documenta el motivo
+en `PROGRESO.md` y queda pendiente para prueba funcional del usuario.

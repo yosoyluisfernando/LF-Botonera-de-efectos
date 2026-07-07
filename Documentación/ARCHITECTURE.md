@@ -131,11 +131,11 @@ El frontend está organizado en 3 capas:
    c. Consulta tracks.db por el archivo: cue, dB, normalización (mtime/size para validar)
    d. Combina modo global (AudioConfig.playback_mode) con flags del botón
    e. Envía AudioCommand::Play al canal del hilo de audio
-4. audio_thread recibe el comando:
+4. engine/audio/thread.rs recibe el comando:
    a. Decide bus de destino (main o pre)
    b. build_play_source: cache hit → O(1) seek; cache miss → decode + skip O(n)
    c. MasterBus::add_source → ButtonSource en el DynamicMixer
-5. audio_monitor (hilo) detecta el nuevo ButtonState → emite "audio-tick" cada 100ms
+5. engine/audio/monitor.rs detecta el nuevo ButtonState → emite "audio-tick" cada 100ms
 6. gridPlayback.js pinta el botón en verde + barra de progreso roja
 ```
 

@@ -104,92 +104,30 @@ src-tauri/src/
 │
 ├── domain/                  ← Reglas de negocio puras (rutinas, grids, reloj)
 ├── ipc/                     ← Comandos Tauri (puntos de entrada de UI)
-└── lfa_format/              ← Adaptadores bidireccionales con LF Automatizador
+└── domain/export/lfa_format/ ← Adaptadores bidireccionales con LF Automatizador
 ```
 
 **Nota:** Anteriormente, el proyecto mantenía ~88 archivos `.rs` en la raíz. A partir de la versión 1.1.3, el código se ha estructurado jerárquicamente en **5 capas** para garantizar la separación de responsabilidades ("Núcleo + Motores").
-│
-└── lfa_format/              ← Conversión Botonera ↔ formato LFA
-    ├── types.rs             ← LfaButton, LfaPaleta, LfaProfile, LfaConfig, LfaKeys
-    ├── paleta.rs            ← to/from_lfa_paleta
-    └── profile.rs           ← to/from_lfa_profile
-```
-
----
-
 ## 4. Árbol del frontend JavaScript
 
-Todos los archivos en `src/js/`. Mismo límite de 200 líneas.
+Todos los archivos viven bajo `src/js/` en tres capas. Mismo límite de 200 líneas.
 
 ```
 src/js/
-│
-│   ── Núcleo ──
-├── main.js                  ← Entry point Vite; solo importa startup.js
-├── api.js                   ← Wrapper IPC: invoke(), listen(), emit(), waitForTauri()
-├── startup.js               ← Orquesta el arranque; detecta modo pop-out del editor
-├── i18n.js                  ← loadLanguage(), t(key), data-i18n
-├── theme.js                 ← applyTheme(): clase CSS sin parpadeo
-│
-│   ── Inicio y configuración ──
-├── wizard.js                ← Asistente de primer arranque (3 pasos)
-├── settingsModal.js         ← Panel de configuración: audio, atajos, locuciones, precarga
-├── settingsLocutions.js     ← Sección de locuciones en ajustes
-├── settingsLocutionsTemplate.js ← Plantilla HTML del formulario de locuciones
-├── settingsPreload.js       ← Sección de precarga + indicador de RAM usada
-├── updateNotifier.js        ← Banner de actualización disponible
-├── audioDeviceRecovery.js   ← Detecta al arranque si el dispositivo de audio desapareció
-├── preloadDialog.js         ← Diálogo de primer arranque para configurar la precarga
-│
-│   ── Rejilla y botones ──
-├── grid.js                  ← Renderiza y actualiza la rejilla de botones
-├── gridDnd.js               ← Drag & drop de archivos externos + reordenamiento Alt+arrastre
-├── gridPlayback.js          ← paintAudioTick(): colorea botones (verde/barra roja)
-├── contextMenu.js           ← Menú contextual de botón (clic derecho)
-├── editModal.js             ← Modal completo de edición de botón
-├── editTypes.js             ← Campos específicos por tipo de botón
-├── editVolumeControl.js     ← Slider de volumen por botón
-├── gainDb.js                ← Conversión lineal ↔ dB para la UI
-├── deleteConfirm.js         ← Diálogo de confirmación de borrado
-│
-│   ── Pestañas y perfiles ──
-├── tabs.js                  ← Sistema de pestañas: render, crear, cambiar, indicador audio
-├── tabDnd.js                ← Reordenamiento de pestañas con arrastre
-├── tabModal.js              ← Modal para crear/editar pestaña
-├── profiles.js              ← Selector de perfiles: dropdown, crear, editar, eliminar
-├── profileModal.js          ← Modal para crear/editar perfil
-├── importer.js              ← Importación de .bdelf/.bdeplf
-│
-│   ── Atajos de teclado ──
-├── shortcuts.js             ← Listener global keydown; despacha a handle_local_shortcut
-├── shortcutSave.js          ← Captura y guardado de combinaciones
-├── keyInputs.js             ← Input especial que captura pulsaciones
-├── mapping.js               ← Modo de mapeo: overlay con teclas asignadas sobre la rejilla
-│
-│   ── Audio y reproducción ──
-├── prelisten.js             ← Panel flotante de pre-escucha: progreso, stop, seek
-├── masterVolume.js          ← Slider de volumen master + boost/remember
-├── playbackModes.js         ← Radio-buttons de modo global; getCurrentMode()
-│
-│   ── Barra inferior ──
-├── bottomBar.js             ← Init de clockWidget + vuMeter + playbackModes
-├── clockWidget.js           ← Reloj/fecha/contador regresivo; escucha clock-tick y audio-tick
-├── vuMeter.js               ← Vúmetro estéreo L/R con balística
-│
-│   ── Editor de pistas ──
-├── trackEditor.js           ← Orquestador: analiza, transporta, guarda, abre modal/ventana
-├── trackTransport.js        ← Controles Play/Stop: reloj rAF, playFrom(), stop cíclico
-├── trackEditorWindow.js     ← Pop-out: abre WebviewWindow, gestiona docking/undocking
-├── waveformCanvas.js        ← Dibuja onda en canvas: envolvente, marcadores cue, playhead
-│
-│   ── Utilidades visuales ──
-├── colorPalette.js          ← Selector de 32 colores + color personalizado
-├── colorAdapter.js          ← Adapta colores para contraste en tema claro/oscuro
-├── numberInputs.js          ← Controles numéricos con +/- y validación
-├── appDialog.js             ← Wrapper de tauri-plugin-dialog
-├── menuPosition.js          ← Posiciona menús sin salirse de la ventana
-├── titlebar.js              ← Barra de título personalizada (min, max, cerrar)
-└── typeIcons.js             ← Mapea tipo de botón a icono Unicode
+├── bridge/
+│   └── api.js               ← Wrapper IPC: invoke(), listen(), emit(), waitForTauri()
+├── ui/                      ← Componentes visuales y orquestadores de pantalla
+│   ├── main.js              ← Entry point Vite; solo importa startup.js
+│   ├── startup.js           ← Orquesta el arranque; detecta modo pop-out del editor
+│   ├── grid.js              ← Renderiza y actualiza la rejilla de botones
+│   ├── settingsModal.js     ← Panel de configuración
+│   ├── trackEditor.js       ← Orquestador del editor de pistas
+│   └── ...                  ← Modales, pestañas, perfiles, VU, pre-escucha, etc.
+└── util/                    ← Helpers sin estado crítico
+    ├── i18n.js              ← loadLanguage(), t(key), data-i18n
+    ├── colorAdapter.js      ← Contraste claro/oscuro
+    ├── gainDb.js            ← Conversión visual lineal ↔ dB
+    └── ...
 ```
 
 **CSS** (`src/css/`): un archivo por componente principal. `theme.css` define todas las *custom properties* de color. `main.css` define el layout. El resto son estilos de componentes específicos.
@@ -231,25 +169,25 @@ Este es el flujo más importante del sistema. Entenderlo explica por qué existe
        │  (el id es "{paleta_id}_btn_{index}")
        │
        ▼
-3. cmd_button_playback.rs :: play_button_id()
+3. ipc/cmd_button_playback.rs :: play_button_id()
    ├─ Lee AppConfig → perfil activo → paleta → botón (de RAM, sin I/O de disco)
    ├─ Según type del botón:
    │    "audio"          → play_file()
-   │    "time"           → locution_playback::play_time()
-   │    "temperature"    → locution_playback::play_climate()
-   │    "random_folder"  → random_folder::active_or_next_audio()
+   │    "time"           → engine/weather/playback.rs::play_time()
+   │    "temperature"    → engine/weather/playback.rs::play_climate()
+   │    "random_folder"  → domain/button/random_folder.rs
    │
    └─ play_file():
        ├─ Lee tracks.db: ¿hay cue/dB para este archivo? ¿sigue vigente (mtime/size)?
        ├─ Combina playback_mode global con flags del botón (loop, stop_other, overlap, restart)
-       └─ audio::AudioEngine::play_file() → envía AudioCommand::Play al canal
+   └─ engine/audio/engine.rs::AudioEngine::play_file() → envía AudioCommand::Play al canal
               │
               ▼
-4. audio_thread.rs (hilo dedicado)
+4. engine/audio/thread.rs (hilo dedicado)
    ├─ Decide bus de destino: to_pre=false → device.bus() (salida principal)
-   ├─ preload_cache::build_play_source()
+   ├─ engine/cache/preload.rs::build_play_source()
    │    ├─ Cache HIT  → CachedSource::new_at(pcm, offset) — seek O(1) instantáneo
-   │    └─ Cache MISS → audio_decode::source_from_path() + CuedSource (skip O(n))
+   │    └─ Cache MISS → engine/audio/decode.rs + CuedSource (skip O(n))
    │
    └─ MasterBus::add_source(source, vol_btn, duration, loop, file_gain)
         │  (envuelve en ButtonSource que aplica: muestra × file_gain × vol_btn × master)
@@ -258,7 +196,7 @@ Este es el flujo más importante del sistema. Entenderlo explica por qué existe
    └─► LevelSource (mide PICO en tiempo real)
         └─► Sink → OutputStreamHandle → dispositivo CPAL → altavoces
 
-6. MIENTRAS SUENA — audio_monitor.rs (hilo 100 ms)
+6. MIENTRAS SUENA — engine/audio/monitor.rs (hilo 100 ms)
    └─► emite "audio-tick" → Frontend:
         ├─ gridPlayback.js: botón en verde + barra roja de progreso
         ├─ tabs.js: pestaña con indicador de audio
@@ -315,7 +253,7 @@ Los módulos se organizan en capas. **Las capas inferiores no conocen las superi
 
 ```
 ┌──────────────────────────────────────────────┐
-│  COMANDOS IPC (cmd_*.rs)                     │  ← El frontend llega hasta aquí
+│  IPC (ipc/cmd_*.rs)                          │  ← El frontend llega hasta aquí
 │  Reciben argumentos del frontend,            │
 │  coordinan el estado y llaman a las capas    │
 │  inferiores. Sin lógica de negocio directa.  │
@@ -323,27 +261,24 @@ Los módulos se organizan en capas. **Las capas inferiores no conocen las superi
                  │ usa
 ┌────────────────▼─────────────────────────────┐
 │  LÓGICA DE NEGOCIO                           │
-│  config.rs, playback_mode.rs,                │
-│  locution_playback.rs, random_folder.rs,     │
-│  export_tracks.rs, lfa_format/, colors.rs…  │
+│  domain/playback, domain/button,             │
+│  domain/export, domain/colors…               │
 └────────────────┬─────────────────────────────┘
                  │ usa
 ┌────────────────▼─────────────────────────────┐
 │  MOTOR DE AUDIO                              │
-│  audio.rs → audio_thread.rs → master_bus.rs  │
-│  → master_button.rs → vu_meter.rs            │
-│  cached_source.rs / cue_source.rs            │
-│  preload_cache.rs / preloader.rs             │
+│  engine/audio, engine/dsp, engine/cache,     │
+│  engine/input, engine/weather                │
 └────────────────┬─────────────────────────────┘
                  │ usa
 ┌────────────────▼─────────────────────────────┐
 │  PERSISTENCIA                                │
-│  config.rs (JSON), db.rs + track_store.rs    │
+│  engine/persist/config_io.rs, db.rs, tracks.rs│
 │  (SQLite), last_played.rs (debounce)         │
 └────────────────┬─────────────────────────────┘
                  │ usa
 ┌────────────────▼─────────────────────────────┐
-│  TIPOS (types*.rs, button_types.rs)          │
+│  model/*.rs                                  │
 │  Solo structs + serde. Sin lógica pesada.    │
 └──────────────────────────────────────────────┘
 ```
@@ -436,7 +371,7 @@ El editor de pistas es la función más compleja del sistema. Permite al usuario
 | `waveform_disk.rs` | Persiste envolventes del editor en disco con límites de tamaño/antigüedad |
 | `waveform_binary.rs` | Serializa y lee la envolvente persistente del editor |
 | `track_analysis_cache.rs` | Caché en memoria del análisis completo para no re-analizar si el archivo no cambió (mtime/size) |
-| `track_store.rs` | Persiste cue, dB y normalización en SQLite |
+| `engine/persist/tracks.rs` | Persiste cue, dB y normalización en SQLite |
 | `cmd_tracks.rs` | Comandos IPC del editor; `analyze_track` delega en `editor_analysis.rs` mediante worker bloqueante |
 
 **Modelo de ganancia de 3 capas:**
@@ -496,7 +431,7 @@ Botón type="time"
 
 Botón type="temperature" / "humidity"
   └─► locution_playback::play_climate()
-        └─► weather.rs proporciona el valor actual (caché 10 min; open-meteo API)
+        └─► engine/weather/client.rs proporciona el valor actual (caché 10 min; open-meteo API)
               └─► locutions::parse_climate(valor, carpeta)
                     └─► mismo mecanismo de secuencia
 ```
@@ -511,15 +446,15 @@ Los archivos `.bdelf` (una paleta) y `.bdeplf` (un perfil completo) son el puent
 
 ```
 Exportar desde la Botonera:
-  cmd_export.rs
+  ipc/cmd_export.rs
     ├─ lfa_format::to_lfa_paleta(paleta) → JSON compatible con LFA
-    └─ export_tracks.rs → añade bdelf_tracks {ruta → cue+dB} como campo OPCIONAL
+    └─ domain/export/tracks.rs → añade bdelf_tracks {ruta → cue+dB} como campo OPCIONAL
          (el LFA ignora este campo; la Botonera lo usa al importar para restaurar ediciones)
 
 Importar en la Botonera:
-  cmd_export.rs
+  ipc/cmd_export.rs
     ├─ lfa_format::from_lfa_paleta(json) → PaletaData
-    └─ export_tracks.rs::restore() → escribe cue+dB en tracks.db
+    └─ domain/export/tracks.rs::restore() → escribe cue+dB en tracks.db
          (re-sella mtime/size del archivo local para que el cue aplique en esta máquina)
 ```
 
@@ -536,7 +471,7 @@ Al lanzar la aplicación, ocurre la siguiente secuencia:
 **Backend (Rust):**
 1. `main.rs` → `lib::run()`
 2. `lib::run()` crea `AppState`: carga `botonera_config.json`, abre `tracks.db`, crea `AudioEngine`
-3. Tauri llama `app_setup::on_setup()`:
+3. Tauri llama `core::setup::on_setup()`:
    - Aplica el dispositivo de audio del perfil activo
    - Fija el presupuesto de RAM de la caché de precarga
    - Arranca 4 hilos: monitor de audio, reloj, flusher de historial, refresco de clima

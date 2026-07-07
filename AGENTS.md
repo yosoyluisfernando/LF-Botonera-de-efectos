@@ -139,9 +139,9 @@ invoke('play_button', {id}) ─► cmd_button_playback::play_button_id()
      ├── Consulta tracks.db: cue, dB, mtime/size
      └── audio::AudioEngine::play_file() ─► AudioCommand::Play ─► canal mpsc
                                                                          │
-                                                              audio_thread (hilo)
+                                                              engine/audio/thread.rs (hilo)
                                                                          │
-                                                   preload_cache::build_play_source()
+                                                   engine/cache/preload.rs::build_play_source()
                                                          ├── Hit → CachedSource::new_at() O(1)
                                                          └── Miss → decode + CuedSource O(n)
                                                                          │
@@ -222,16 +222,16 @@ Para el mapa completo, ver [`Documentación/LIBRO_PROYECTO.md §3 y §4`](Docume
 ## 9. Cómo añadir una nueva función
 
 ### Nuevo comando IPC
-1. Crear o elegir el `cmd_*.rs` correspondiente.
+1. Crear o elegir el `src-tauri/src/ipc/cmd_*.rs` correspondiente.
 2. Añadir `#[tauri::command]` a la función.
-3. Registrar en `lib.rs` dentro de `invoke_handler!(tauri::generate_handler![...])`.
-4. Llamar desde el frontend con `invoke('nombre_comando', args)`.
-5. Si modifica `AppConfig`, llamar `config::save_config(&cfg)` al final.
+3. Registrar en `src-tauri/src/ipc/register.rs` dentro de `lf_invoke_handlers!`.
+4. Llamar desde el frontend a través de `src/js/bridge/api.js`.
+5. Si modifica `AppConfig`, llamar `engine::persist::config_io::save_config(&cfg)` al final.
 
 ### Nuevo tipo de botón
-1. Añadir el caso en `button_types.rs`.
-2. Añadir la rama en `cmd_button_playback::play_button_id()`.
-3. Añadir los campos de UI en `editTypes.js`.
+1. Añadir el caso en `src-tauri/src/domain/button/types.rs`.
+2. Añadir la rama en `src-tauri/src/ipc/cmd_button_playback.rs`.
+3. Añadir los campos de UI en `src/js/ui/editTypes.js`.
 4. Añadir las claves i18n en los 4 idiomas.
 
 ### Nueva clave i18n
@@ -254,10 +254,10 @@ En producción (WebView2), el objeto global se inyecta después de que los módu
 Es un `CustomEvent` del DOM que dispara `startup.js`. Usar `window.addEventListener('lf-audio-tick', fn)`, nunca `api.listen('lf-audio-tick', fn)`.
 
 ### IDs de botón: formato actual vs. legado
-El formato actual es `{paleta_id}_btn_{index}` (ejemplo: `paleta_1_btn_3`). El formato antiguo era `btn_{index}` y colisionaba entre paletas. `config.rs::normalize_button_ids()` migra automáticamente al cargar; no producir IDs en el formato viejo.
+El formato actual es `{paleta_id}_btn_{index}` (ejemplo: `paleta_1_btn_3`). El formato antiguo era `btn_{index}` y colisionaba entre paletas. `config_io.rs::normalize_button_ids()` migra automáticamente al cargar; no producir IDs en el formato viejo.
 
 ### El hilo de audio no hace I/O
-El hilo de audio (`audio_thread.rs`) **no** accede al disco. La decodificación de reproducción ocurre en `preload_cache::build_play_source()` que llama a `audio_decode::source_from_path()`. El análisis del editor se lanza desde IPC en un worker bloqueante (`editor_analysis.rs`), nunca en el hilo de audio.
+El hilo de audio (`engine/audio/thread.rs`) **no** accede al disco. La decodificación de reproducción ocurre en `engine/cache/preload.rs::build_play_source()` que llama a `engine/audio/decode.rs`. El análisis del editor se lanza desde IPC en un worker bloqueante (`engine/dsp/editor_analysis.rs`), nunca en el hilo de audio.
 
 ### `tracks.db` vs `botonera_config.json`
 Los datos de los **botones** (qué archivo, qué volumen, qué loop) viven en `botonera_config.json`. Los **metadatos del archivo** (cue, dB, LUFS, mtime) viven en `tracks.db`. Son dos persistencias independientes. El cue y el dB NO viajan en `botonera_config.json`.
