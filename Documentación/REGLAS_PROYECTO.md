@@ -48,7 +48,15 @@ El método estándar de verificación es `cargo test --lib` para el backend y `n
 
 El historial de git, los commits, las descripciones de pull request y los comentarios de código reflejan únicamente el trabajo de usuarios humanos reales con cuenta de GitHub. Las herramientas de IA que asisten en el desarrollo no aparecen como colaboradoras, coautoras ni firmantes. No se añaden trailers `Co-Authored-By` de asistentes de IA ni atribuciones de ningún tipo a modelos de lenguaje en el registro del proyecto. El reconocimiento al uso de herramientas de IA durante el desarrollo está documentado en la sección "Créditos de desarrollo" del `README.md` público.
 
-### 12. Espacio de trabajo limpio
+### 12. Seguridad y dependencias con criterio
+
+Toda dependencia nueva debe justificarse antes de añadirse. La evaluación mínima incluye: necesidad real, mantenimiento activo, licencia compatible con GPL-3.0-or-later, superficie de seguridad, tamaño/impacto en el build y si existe una alternativa ya presente en el proyecto o en la biblioteca estándar. No se incorporan paquetes por comodidad si el coste de mantenimiento o riesgo supera el beneficio.
+
+### 13. Documentación junto al cambio
+
+Todo cambio que modifique arquitectura, estructura de módulos, comandos IPC, modelo de datos, formatos de exportación, reglas de negocio o flujos relevantes debe actualizar la documentación correspondiente en el mismo cambio. Según el alcance, revisar `ARCHITECTURE.md`, `GLOSARIO.md`, `LIBRO_PROYECTO.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md` y las guías de `Documentación/Reorganización/` si aplica. La documentación no es una tarea posterior: forma parte de la definición de terminado.
+
+### 14. Espacio de trabajo limpio
 
 Los archivos temporales, planes de implementación completados y artefactos de compilación que han dejado de ser necesarios se eliminan del repositorio. El repo contiene código, documentación permanente y configuración; no ficheros de trabajo en curso.
 

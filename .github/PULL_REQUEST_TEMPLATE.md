@@ -18,6 +18,9 @@ Por favor, confirma que has cumplido con las reglas del proyecto marcando con un
 - [ ] **Regla 7:** No he añadido strings hardcodeados en el código. He utilizado claves de i18n (`t(key)`) y añadido las claves en `es.json`, `en.json`, `pt-BR.json` y `pt-PT.json`. / *No hardcoded UI strings, used i18n instead.*
 - [ ] **Regla 10 (Backend):** Ejecuté y pasaron todos los tests unitarios (`cd src-tauri && cargo test --lib`). / *Ran and passed Rust unit tests.*
 - [ ] **Regla 10 (Frontend):** Compilé el frontend sin errores (`npm run build`). / *Frontend builds without errors.*
+- [ ] **Regla 12:** Si añadí dependencias, justifiqué necesidad, licencia, mantenimiento, impacto y seguridad. / *New dependencies are justified.*
+- [ ] **Regla 13:** Actualicé la documentación relacionada si cambié arquitectura, IPC, modelo de datos, formatos o flujos importantes. / *Related docs are updated.*
+- [ ] **Regla 14:** No dejé archivos temporales, planes completados ni artefactos generados innecesarios. / *Working tree contains no temporary leftovers.*
 - [ ] El código está alineado con la arquitectura de "Núcleo + Motores" explicada en `ARCHITECTURE.md`. / *Code aligns with the Core+Engines architecture.*
 
 ## Notas adicionales / Additional notes

@@ -49,6 +49,12 @@ El documento completo está en [`Documentación/REGLAS_PROYECTO.md`](Documentaci
 
 11. **Las IAs no son colaboradoras del proyecto.** Commits, PRs y cualquier contribución registrada van únicamente a nombre de usuarios humanos reales con cuenta de GitHub (ejemplo: "Juan Pérez", "Yo Soy Luis Fernando"). Sin trailers `Co-Authored-By: <nombre de IA>`, sin firmas de asistente, sin atribuciones de IA en mensajes de commit, descripciones de PR ni comentarios de código. El historial de git debe reflejar exclusivamente a personas reales. El reconocimiento al uso de herramientas de IA en el desarrollo está documentado en la sección "Créditos de desarrollo" de `README.md`.
 
+12. **Dependencias con justificación.** Antes de añadir una dependencia, justificar necesidad, mantenimiento, licencia compatible, impacto en build y superficie de seguridad. Preferir código existente, estándar o local si resuelve el problema con menor riesgo.
+
+13. **Documentación junto al cambio.** Si cambia arquitectura, estructura, IPC, modelo de datos, formatos, reglas de negocio o flujos importantes, actualizar la documentación relacionada en el mismo cambio: `ARCHITECTURE.md`, `GLOSARIO.md`, `LIBRO_PROYECTO.md`, `CHANGELOG.md`, `AGENTS.md` o `CLAUDE.md` según corresponda.
+
+14. **Espacio de trabajo limpio.** No dejar planes temporales, artefactos generados, pruebas descartables ni archivos de trabajo en curso dentro del repositorio. Solo código, documentación permanente y configuración necesaria.
+
 ---
 
 ## 3. Arquitectura en una página

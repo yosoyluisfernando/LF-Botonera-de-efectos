@@ -6,7 +6,7 @@
 
 Para no duplicar información, todas las reglas de desarrollo y la arquitectura del proyecto se encuentran en la carpeta `Documentación/`. Antes de enviar un Pull Request (PR), **debes leer y comprender** los siguientes archivos:
 
-1. **[Reglas del Proyecto](REGLAS_PROYECTO.md):** Las 11 reglas inmutables del proyecto. Todo PR que incumpla estas reglas será rechazado (ej: no añadir librerías JS sin justificación profunda, mantener el límite de 200 líneas por archivo).
+1. **[Reglas del Proyecto](REGLAS_PROYECTO.md):** Las 14 reglas inmutables del proyecto. Todo PR que incumpla estas reglas será rechazado (ej: no añadir librerías JS sin justificación profunda, mantener el límite de 200 líneas por archivo, justificar dependencias nuevas y actualizar documentación cuando cambie la arquitectura).
 2. **[Arquitectura](ARCHITECTURE.md):** Explicación del modelo "Núcleo + Motores" (Backend en 5 capas, Frontend en 3 capas).
 3. **[Guía de Compilación](../COMPILAR.md):** Pasos detallados para configurar tu entorno (Node.js, Rust, Vite) y compilar la aplicación.
 

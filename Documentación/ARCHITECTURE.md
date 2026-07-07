@@ -55,7 +55,7 @@ BOTONERA/
 │       └── ipc/             Comandos Tauri (endpoints)
 │
 ├── Documentación/           Documentación interna del proyecto
-│   ├── REGLAS_PROYECTO.md   Las 11 reglas inmutables (lectura obligatoria)
+│   ├── REGLAS_PROYECTO.md   Las 14 reglas inmutables (lectura obligatoria)
 │   └── COMPILACION_Y_VERSIONES.md  Proceso de release y notas de antivirus
 │
 ├── .github/workflows/       Automatización de builds y releases
