@@ -1,0 +1,125 @@
+/**
+ * Archivo: profiles.js
+ * Propósito: Gestiona el botón de perfiles y su menú desplegable.
+ * Delega toda persistencia a Rust (Regla 4).
+ */
+
+import { invoke } from '../bridge/api.js';
+import { placeMenu } from '../util/menuPosition.js';
+import { t } from '../util/i18n.js';
+import { paintAdaptive } from '../util/colorAdapter.js';
+import { confirmDelete } from './deleteConfirm.js';
+import { appAlert } from './appDialog.js';
+
+let _config    = null;
+let _onRefresh = null;
+let _wired     = false;
+
+/** Inicializa el botón de perfiles y los listeners del menú contextual. */
+export function initProfiles(config, onRefresh) {
+    _config    = config;
+    _onRefresh = onRefresh;
+
+    if (_wired) {
+        updateProfiles(config, onRefresh);
+        return;
+    }
+    _wired = true;
+
+    document.getElementById('btn-profiles').addEventListener('click', e => {
+        e.stopPropagation();
+        const menu = document.getElementById('profile-context-menu');
+        if (!menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+            return;
+        }
+        const rect = e.currentTarget.getBoundingClientRect();
+        placeMenu(menu, rect.left - 150, rect.bottom + 5);
+    });
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#profile-context-menu') && e.target.id !== 'btn-profiles') {
+            document.getElementById('profile-context-menu')?.classList.add('hidden');
+        }
+    });
+
+    document.getElementById('menu-new-profile').addEventListener('click', () => {
+        _hideMenu();
+        import('./profileModal.js').then(m => m.openProfileModal(_config, null, _onRefresh));
+    });
+
+    document.getElementById('menu-edit-profile').addEventListener('click', () => {
+        _hideMenu();
+        const active = _config.profiles.find(p => p.id === _config.active_profile_id);
+        import('./profileModal.js').then(m => m.openProfileModal(_config, active, _onRefresh));
+    });
+
+    document.getElementById('menu-delete-profile').addEventListener('click', async () => {
+        _hideMenu();
+        const action = await confirmDelete('profile');
+        if (action === 'cancel') return;
+        try {
+            if (action === 'save_delete') {
+                await invoke('export_profile_by_id', { profileId: _config.active_profile_id });
+            }
+            await invoke('delete_profile', { id: _config.active_profile_id });
+            _onRefresh?.();
+        } catch (e) {
+            if (_isCanceled(e)) return;
+            // Rust devuelve códigos de error; aquí se traducen y muestran
+            const key = `errors.${e}`;
+            const msg = t(key);
+            await appAlert(msg === key ? String(e) : msg);
+        }
+    });
+
+    document.getElementById('menu-export-profile').addEventListener('click', () => {
+        _hideMenu();
+        import('./importer.js').then(m => m.exportProfile());
+    });
+    document.getElementById('menu-import-profile').addEventListener('click', () => {
+        _hideMenu();
+        import('./importer.js').then(m => m.importProfile(_onRefresh));
+    });
+
+    updateProfiles(config, onRefresh);
+}
+
+/** Actualiza el botón y la lista de perfiles con nueva configuración. */
+export function updateProfiles(config, onRefresh) {
+    _config    = config;
+    _onRefresh = onRefresh;
+
+    const profile = config.profiles.find(p => p.id === config.active_profile_id);
+    if (!profile) return;
+
+    const btn = document.getElementById('btn-profiles');
+    btn.textContent = `👤 ${profile.name}`;
+    paintAdaptive(btn, profile.bg || '#008c3a', profile.text || '#ffffff', 'profile');
+
+    _renderProfileList(config);
+}
+
+function _renderProfileList(config) {
+    const list = document.getElementById('profile-list');
+    list.innerHTML = '';
+    config.profiles.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p.name;
+        if (p.id === config.active_profile_id) li.classList.add('active-profile');
+        li.addEventListener('click', async () => {
+            _hideMenu();
+            await invoke('set_active_profile', { id: p.id });
+            _onRefresh?.();
+        });
+        list.appendChild(li);
+    });
+}
+
+function _hideMenu() {
+    document.getElementById('profile-context-menu')?.classList.add('hidden');
+}
+
+function _isCanceled(e) {
+    return String(e).toLowerCase().includes('cancel');
+}

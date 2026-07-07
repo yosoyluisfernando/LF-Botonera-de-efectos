@@ -15,16 +15,16 @@ Definiciones de todos los términos técnicos y conceptos propios del proyecto.
 Módulo JS que envuelve todas las llamadas a `window.__TAURI__`. Es el único punto de contacto entre el frontend y el backend. Exporta `invoke()`, `listen()`, `emit()` y `waitForTauri()`. El resto de módulos JS importan de aquí; ninguno accede directamente a `window.__TAURI__`.
 
 **`AppConfig`**
-Struct Rust (también JSON serializable) que representa la configuración completa de la aplicación: tema, idioma, perfiles, precarga, locuciones, etc. Se persiste en `botonera_config.json`. Ver [`types.rs`](../src-tauri/src/types.rs).
+Struct Rust (también JSON serializable) que representa la configuración completa de la aplicación: tema, idioma, perfiles, precarga, locuciones, caché persistente de waveform, etc. Se persiste en `botonera_config.json`. Ver [`config.rs`](../src-tauri/src/model/config.rs).
 
 **`AppState`**
-Objeto inyectado por Tauri en cada comando IPC. Contiene referencias a todo el estado compartido del backend: configuración, motor de audio, base de datos, caché de formas de onda, historial de reproducción. Ver [`lib.rs`](../src-tauri/src/lib.rs).
+Objeto inyectado por Tauri en cada comando IPC. Contiene referencias a todo el estado compartido del backend: configuración, motor de audio, base de datos, caché de formas de onda, historial de reproducción. Ver [`state.rs`](../src-tauri/src/core/state.rs).
 
 **`Arc<Mutex<T>>`**
 Patrón Rust para compartir estado entre hilos. `Arc` es un contador de referencias atómico (compartir el puntero); `Mutex` garantiza exclusión mutua (solo un hilo accede a la vez). Se usa extensivamente en `AppState` para pasar el estado a los hilos de audio, monitor y flusher.
 
 **`analyze_track`**
-Comando IPC (`cmd_tracks.rs`) que decodifica un archivo de audio completo y devuelve: envolvente de onda, LUFS, pico en dBFS, ganancia sugerida, y metadatos de cue ya guardados. La decodificación ocurre en el hilo del comando IPC, nunca en el hilo de audio. Resultado cacheado en `TrackAnalysisCache`.
+Comando IPC (`cmd_tracks.rs`) que analiza una pista para el editor y devuelve: envolvente de onda, LUFS, pico en dBFS, ganancia sugerida, duración y metadatos de cue ya guardados. Delega en `engine::dsp::editor_analysis` mediante `spawn_blocking`, emite `track-analysis-progress`, reutiliza `TrackAnalysisCache`, `tracks.db` y caché persistente de waveform antes de decodificar el audio completo. Nunca corre en el hilo de audio.
 
 **`audio-tick`**
 Evento Tauri emitido por `audio_monitor.rs` cada ~100 ms mientras hay audio reproduciéndose. Payload: `{buttons[], display_remaining, display_duration, master_level_l, master_level_r}`. Startup.js lo re-emite como `CustomEvent('lf-audio-tick')` en el DOM (distinto al evento Tauri).
@@ -354,7 +354,10 @@ Indicador visual del nivel de audio en decibelios. En la Botonera muestra los ca
 Struct en `waveform.rs` que almacena la envolvente de onda de un archivo: pares `(min, max)` por segmento, con hasta 120.000 puntos. El método `view(start_s, end_s, buckets)` agrega la ventana visible para el zoom actual del canvas.
 
 **`WaveformCache`**
-Caché LRU en memoria (capacidad 6) de `WaveEnvelope`. No persiste a disco. Se descarta al cerrar el editor de pistas.
+Caché LRU en memoria (capacidad 6) de `WaveEnvelope`. Acelera vistas recientes durante la sesión del editor y se complementa con la caché persistente en disco.
+
+**`WaveformDiskCache`**
+Caché persistente de `WaveEnvelope` para el editor de pistas. Vive en disco, se invalida por `mtime`/`size`, y respeta los límites configurados de tamaño máximo y antigüedad máxima.
 
 **`WebView2`**
 Motor de renderizado web de Microsoft basado en Chromium. Tauri v2 lo usa en Windows para mostrar el frontend. Requiere Windows 10 20H2+ (normalmente ya viene instalado). En Linux se usa WebKit.

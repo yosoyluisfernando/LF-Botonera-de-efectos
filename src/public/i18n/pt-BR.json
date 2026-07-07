@@ -160,6 +160,12 @@
         "save": "Salvar cues",
         "close": "Cancelar",
         "loading": "Analisando arquivo…",
+        "analysis_cache": "Verificando cache de análise…",
+        "analysis_waveform": "Reconstruindo waveform…",
+        "analysis_decode": "Decodificando áudio e medindo LUFS/pico…",
+        "analysis_save": "Salvando análise…",
+        "analysis_cleanup": "Limpando cache de waveform…",
+        "analysis_ready": "Análise pronta.",
         "error": "Não foi possível analisar o arquivo.",
         "norm_settings": "Configurações de normalização"
     },
@@ -185,6 +191,15 @@
         "hint": "A análise reversa evita detectar pausas naturais como ponto final.",
         "dont_ask": "Não perguntar novamente ao abrir o editor",
         "need_one": "Ative pelo menos início ou fim para usar a detecção."
+    },
+    "waveform_cache": {
+        "title": "Cache de waveform",
+        "max_mb": "Tamanho máximo (MB):",
+        "max_days": "Manter por até (dias):",
+        "hint": "Guarda a forma de onda em alta resolução para reabrir faixas sem recalcular. Máximo de 31 dias.",
+        "stats": "Cache em uso",
+        "files": "arquivos",
+        "clear": "Limpar agora"
     },
     "fade": {
         "title":          "Fundidos (Fade)",
