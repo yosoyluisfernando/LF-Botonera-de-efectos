@@ -18,6 +18,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 **Qué NO registrar:** refactorizaciones internas sin impacto en el usuario, commits de CI/CD, actualizaciones de documentación técnica, renombrado de variables.
 
+**Tampoco los bugs que nacen y mueren dentro de `[Sin publicar]`.** Si una función todavía no se ha publicado, un fallo suyo no le ocurrió a nadie: registrarlo sería contar el proceso de desarrollo, no un cambio en el programa del usuario. En su lugar, **corrige la entrada que describe esa función** para que cuente cómo quedó. Este archivo narra los cambios entre versiones publicadas, no el camino hasta ellas.
+
 ---
 
 ## [Sin publicar]
@@ -25,7 +27,7 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 ### Añadido
 - Panel lateral de botones fijos con alcance global o por perfil, posición izquierda/derecha, columnas configurables, DnD y controles de reproducción independientes.
 - Panel fijo redimensionable, con una a cinco columnas y filas ilimitadas o capacidad limitada configurable hasta veinte filas.
-- **Modo reproductor en el panel lateral:** una lista de reproducción propia, pensada para dejar música de fondo mientras se disparan los efectos. Tiene su propio motor de audio, así que suena de forma independiente: el Stop general y el Solo de los efectos no la cortan, y el reproductor tiene su propio botón de detener.
+- **Modo reproductor en el panel lateral:** una lista de reproducción propia, pensada para dejar música de fondo mientras se disparan los efectos. Suena de forma independiente: el Stop general y el Solo de los efectos no la cortan, y el reproductor tiene su propio botón de detener. El volumen máster sí la gobierna, como a todo lo que sale por la salida principal, y la música se refleja en el vúmetro; para bajar la música y hablar encima sin tocar los efectos está el volumen propio del reproductor.
 - Reproductor con tres modos de avance: normal, repetir la lista y aleatorio. El modo decide qué canción viene; que el reproductor se detenga al terminar la actual lo decide el botón **Detener al finalizar**, que se combina con cualquiera de los tres (por ejemplo: pararse en cada canción y que la siguiente salga al azar). La pista que suena se ve en verde y la marcada como siguiente en naranja, con los mismos colores que usa LF Automatizador. Lo que se marca como siguiente se respeta siempre, sin importar el modo, y sigue a su canción aunque se reordene la lista.
 - El naranja indica siempre qué sonará al pulsar reproducir, también con el reproductor detenido: no desaparece al parar, y al añadir canciones a una lista vacía la primera queda marcada sola.
 - En la lista del reproductor, un doble clic reproduce la canción si está detenido, o la marca como siguiente si ya hay música sonando, sin cortarla.
@@ -53,14 +55,7 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - **La paleta de colores de los botones tiene ahora variedad real.** Antes eran 32 colores, pero en la práctica se veían 16: la mitad eran el mismo tono en otra intensidad, y la app iguala las intensidades para que el texto se lea en tema claro y oscuro. Además había seis azules y seis rojos, pero un solo verde. Ahora son 24 colores repartidos por todo el círculo de color, y ninguno se repite. Los botones que ya tienes conservan su color.
 - El texto de los botones nuevos se lee mejor sobre los colores más vivos: antes se elegía blanco o negro con una regla fija que en algunos fondos acertaba mal; ahora se elige el que de verdad contrasta más. Los botones que ya tienes conservan sus colores.
 
-### Cambiado
-- **El volumen máster ahora también gobierna la música del reproductor.** Antes el reproductor era un motor completamente aparte y el máster no lo tocaba: bajarlo dejaba la música sonando igual de alta. Ahora todo lo que sale por la salida principal —botonera, panel fijo y música— responde al máster. El reproductor **sigue teniendo su propio volumen**, que es lo que se usa para bajar la música y hablar encima sin tocar los efectos. Lo que no cambia es el transporte: el Stop general y el Solo de los efectos siguen sin detener la música.
-- **La música del reproductor ya aparece en el vúmetro.** Antes la aguja se quedaba plana con música sonando si no había ningún efecto, porque el reproductor iba por su cuenta. Ahora el vúmetro muestra todo lo que sale al aire.
-- **Si el reproductor comparte salida con los efectos, ya no abre la tarjeta por segunda vez.** Antes cada uno abría la suya y era el sistema operativo quien las mezclaba, fuera del control de la aplicación. Ahora comparten la misma salida. Si le asignas una tarjeta propia al reproductor, sigue saliendo por ella y entonces no le afecta el máster: es una salida directa.
-
 ### Corregido
-- **El vúmetro iba muy lento y no llegaba a marcar el nivel real cuando solo sonaba la música del reproductor.** La aguja tiene un decaimiento suave para bajar con elegancia cuando se acaba el sonido, pero se estaba aplicando en todos los ticks si no había ningún efecto sonando: cada actualización tardaba casi un segundo en llegar, así que con música de fondo la aguja siempre iba por detrás y nunca alcanzaba el volumen real. Ahora el decaimiento suave se usa solo cuando de verdad se acaba el sonido.
-
 - **La pre-escucha se colaba en la salida principal si no tenías una tarjeta de sonido dedicada para ella.** Al no haber una segunda salida configurada —que es el caso por defecto—, la pre-escucha y la previa del editor acababan mezcladas con lo que sale al aire: les afectaba el volumen máster y movían el vúmetro como si fueran programa. Con una tarjeta dedicada no pasaba, así que el mismo botón se comportaba distinto según el equipo. Ahora la pre-escucha es siempre un canal aparte: aunque comparta altavoces con la salida principal porque solo tengas una tarjeta, no pasa por el máster ni cuenta en el vúmetro.
 
 - **Algunas canciones no mostraban su duración** (y por eso no dejaban adelantar ni atrasar, ni mostraban el tiempo). El audio estaba bien: fallaba porque el archivo tenía el título o el artista guardados con una codificación inválida, algo habitual en MP3 antiguos, y eso tiraba la lectura entera. Ahora solo se lee la duración, sin las etiquetas. Lo que ya estuviera guardado sin duración —botones de la botonera, del panel fijo y canciones de la lista— la recupera al abrir la aplicación.
