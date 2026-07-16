@@ -313,10 +313,11 @@ cmd_button_playback::play_button_id()
 
 **La topología:**
 ```
-  Efectos ─┐
-           ├─► Programa ─► fader (master) ─► medidor (vúmetro) ─► tarjeta
-  Panel ───┘
-  Cue ──────────────────► fader ──────────► medidor ──────────► tarjeta
+  Efectos ──────┐
+  Panel ────────┼─► Programa ─► fader (MASTER) ─► medidor (vúmetro) ─► tarjeta
+  Reproductor ──┘   (su fader = volumen del reproductor)
+
+  Cue ──────────────────────► fader ──────────► medidor ──────────► tarjeta
 ```
 
 **La consola (`engine/console/`)** es dueña de las salidas y de los buses. El motor de efectos
@@ -385,8 +386,8 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 |---|---|---|
 | Consola | `engine/console/thread.rs` | Hilo guardián: **único dueño de las tarjetas abiertas** (`OutputStream` no es Send). Solo atiende ruteo; reproducir no pasa por aquí |
 | Audio | `engine/audio/thread.rs` | Motor de efectos: comandos, estados de botón y fades |
-| Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con progreso + VU. **Solo emite si hay efectos sonando** (en reposo calla) |
-| Monitor reproductor | `engine/player/monitor.rs` | Emite `"player-tick"` cada 100 ms. Propio, porque el reproductor es un motor independiente y suena sin efectos |
+| Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con progreso + VU. **En reposo calla**; reposo = ni efectos ni reproductor, porque los dos suman en el bus que mide el vúmetro |
+| Monitor reproductor | `engine/player/monitor.rs` | Emite `"player-tick"` cada 100 ms. Propio, porque el reproductor tiene su cola y su transporte y suena sin efectos |
 | Reloj | `cmd_meta` | Emite `"clock-tick"` cada 1 s con hora y fecha localizadas |
 | Historial | `last_played` | Vuelca buffer en memoria a tracks.db cada 30 s (debounce) |
 | Preloader | `preloader` | Decodifica archivos cortos en segundo plano para la caché RAM |
@@ -495,9 +496,19 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `set_solo_mode(enabled)`
 
 ### Reproductor auxiliar (modo reproductor del panel fijo)
-Motor **independiente** del de efectos: su propio hilo, `OutputStream`, dispositivo y volumen.
-El Stop general y el Solo de los efectos **no** lo detienen. Los índices son POSICIONES 0-based
-en la cola. Ver `Documentación/PLAN_MODO_REPRODUCTOR.md`.
+Motor **independiente** en lo que importa: su hilo, su cola, su avance y su transporte. El Stop
+general y el Solo de los efectos **no** lo detienen. Lo que ya **no** tiene es tarjeta propia:
+entrega sus fuentes al bus `Reproductor` de la consola, que suma en el programa — por eso
+**obedece al máster** (en volumen, no en transporte) y aparece en el vúmetro.
+
+**Su volumen es el fader del bus `Reproductor`.** Bajar la música para hablar encima es mover ese
+fader, y no toca los efectos. El máster es otra cosa: baja los tres buses a la vez.
+
+Su `output_device` vacío = `Routing::Program` (suma en el programa); un nombre =
+`Routing::Device(x)`, sale por esa tarjeta y **deja de obedecer al máster**. Ojo al traducir "" a
+un nombre de tarjeta en el camino: lo sacaría del programa sin querer.
+
+Los índices son POSICIONES 0-based en la cola. Ver `Documentación/PLAN_MODO_REPRODUCTOR.md`.
 
 - `get_player` → `PlayerView {tracks, mode, volume, output_device, total_s, snapshot}`
 - `get_player_snapshot` → `PlayerSnapshot` (ligero)
@@ -566,8 +577,10 @@ dos son sus clientes. `MasterBus` y `AudioDeviceRuntime` desaparecieron absorbid
 Fases y decisiones: `Documentación/PLAN_CONSOLA_VIRTUAL.md`.
 
 **`engine/player/` (reproductor auxiliar), por responsabilidad:**
-`mod.rs` (handle `PlayerEngine`), `thread.rs` (hilo; único dueño del `OutputStream` y los 2 decks),
-`deck.rs` (un `Sink` de rodio + estados), `queue.rs` (datos de la cola), `queue_ops.rs` (transporte),
+`mod.rs` (handle `PlayerEngine`), `thread.rs` (hilo; dueño de los 2 decks),
+`source.rs` (`DeckSource` + `DeckHandle`: la fuente en el bus y su mando — sustituye al `Sink`
+sosteniendo a mano posición, fin de pista y pausa),
+`deck.rs` (estados de un deck), `queue.rs` (datos de la cola), `queue_ops.rs` (transporte),
 `queue_select.rs` (elegir siguiente + pre-carga ping-pong), `resolve.rs` (resuelve los tipos
 especiales **al sonar**), `exec.rs` (traduce acciones a rodio), `monitor.rs` (emite `"player-tick"`).
 La regla pura de avance vive en `domain/player/advance.rs`; el cue/ganancia en `domain/playback/edit.rs`.

@@ -48,7 +48,11 @@ impl AppState {
             Arc::clone(&random_folders),
             Arc::clone(&tracks),
         );
-        let player = PlayerEngine::new(audio.preload_cache_handle(), resolver);
+        let player = PlayerEngine::new(
+            audio.preload_cache_handle(),
+            resolver,
+            Arc::clone(&console),
+        );
         Self {
             config,
             console,

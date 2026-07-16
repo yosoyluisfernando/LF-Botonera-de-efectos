@@ -170,7 +170,7 @@ invoke('play_button', {id}) ─► cmd_button_playback::play_button_id()
                                                                          │
                                     engine/console: DynamicMixer → FaderSource → LevelSource
                                                                          │
-                                              Efectos, Panel ─► Programa (fader = MASTER)
+                                     Efectos, Panel, Reproductor ─► Programa (fader = MASTER)
                                               Cue ─────────────────────┐  │
                                                                        ▼  ▼
                                                           OutputEndpoint (play_raw)

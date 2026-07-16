@@ -4,6 +4,7 @@
 /// Toda la lógica de cálculo vive en Rust (Regla 4).
 use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup};
 use crate::engine::audio::last_pressed::LastPressedInfo;
+use crate::engine::player::PlayerSnapshot;
 use serde::Serialize;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
@@ -38,9 +39,10 @@ pub fn start(
     master_level_l: Arc<AtomicU32>,
     master_level_r: Arc<AtomicU32>,
     last_pressed: Arc<Mutex<Option<LastPressedInfo>>>,
+    player: Arc<Mutex<PlayerSnapshot>>,
 ) {
     thread::spawn(move || {
-        let mut was_empty = false;
+        let mut was_idle = false;
         loop {
             let (buttons, display_remaining, display_duration) = {
                 let mut map = button_states.lock().unwrap();
@@ -77,12 +79,16 @@ pub fn start(
                 (buttons, rem, dur)
             };
 
-            let is_empty = buttons.is_empty();
-            // Cuando no hay nada sonando, los atómicos aún pueden retener el último
-            // pico medido (el LevelSource necesita ~21ms más para medir el silencio).
-            // Forzar 0.0 aquí garantiza que el tick final lleve nivel cero y el
-            // vúmetro anime correctamente hasta la base en lugar de quedar colgado.
-            let (ml, mr) = if is_empty {
+            // El vúmetro mide el bus Programa, y ahí suman los efectos, el panel
+            // Y el reproductor. Así que "no hay nada sonando" no es "no hay
+            // botones": con música de fondo y sin efectos hay señal de sobra, y
+            // callar aquí dejaría la aguja plana mientras suena la música.
+            let idle = buttons.is_empty() && !player.lock().unwrap().playing;
+            // En reposo los atómicos aún pueden retener el último pico medido (el
+            // LevelSource necesita ~21ms más para medir el silencio). Forzar 0.0
+            // garantiza que el tick final lleve nivel cero y el vúmetro baje hasta
+            // la base en lugar de quedarse colgado.
+            let (ml, mr) = if idle {
                 (0.0f32, 0.0f32)
             } else {
                 (
@@ -90,7 +96,7 @@ pub fn start(
                     f32::from_bits(master_level_r.load(Ordering::Relaxed)),
                 )
             };
-            if !is_empty || !was_empty {
+            if !idle || !was_idle {
                 let _ = app.emit(
                     "audio-tick",
                     AudioTickPayload {
@@ -102,7 +108,7 @@ pub fn start(
                     },
                 );
             }
-            was_empty = is_empty;
+            was_idle = idle;
             thread::sleep(Duration::from_millis(100));
         }
     });

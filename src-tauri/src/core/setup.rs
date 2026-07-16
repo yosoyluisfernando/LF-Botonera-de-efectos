@@ -50,6 +50,18 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
         .unwrap()
         .set_budget(preload_budget);
 
+    // El reproductor auxiliar. Su dispositivo se pasa TAL CUAL: vacio significa
+    // "suma en el programa" (y obedece al master), no "la tarjeta de los
+    // efectos". Traducirlo aqui lo sacaria del programa.
+    // Va antes del monitor de audio porque este necesita su snapshot: el
+    // reproductor suma en el mismo bus que mide el vumetro.
+    let player_snapshot = {
+        let player = state.player.lock().unwrap();
+        player.set_device(&player_device_cfg);
+        player.set_volume(player_volume);
+        player.snapshot_handle()
+    };
+
     // Hilo monitor: emite "audio-tick" con progreso, tiempo restante y niveles VU.
     // El vumetro mide el bus Programa: el mismo que gobierna el master, que es la
     // unica forma de que la aguja no mienta sobre lo que el fader controla.
@@ -60,22 +72,9 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
         ll,
         lr,
         engine.last_pressed_handle(),
+        Arc::clone(&player_snapshot),
     );
     drop(engine);
-
-    // Motor propio del reproductor auxiliar: dispositivo y volumen propios. Si
-    // el dispositivo configurado esta vacio, sale por el mismo de los efectos.
-    let player_device = if player_device_cfg.is_empty() {
-        device.clone()
-    } else {
-        player_device_cfg
-    };
-    let player_snapshot = {
-        let player = state.player.lock().unwrap();
-        player.set_device(&player_device);
-        player.set_volume(player_volume);
-        player.snapshot_handle()
-    };
     // Sincroniza el modo y la cola guardados con el motor del reproductor.
     crate::ipc::cmd_player::apply_startup(&state);
 

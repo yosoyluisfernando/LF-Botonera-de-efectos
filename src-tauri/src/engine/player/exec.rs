@@ -7,21 +7,21 @@
 use super::deck::{Deck, DeckTrack};
 use super::queue::DeckAction;
 use super::resolve::{QueueResolver, ResolvedPlayback};
-use crate::engine::audio::sequence::SequenceSource;
 use crate::engine::audio::decode::BoxSource;
+use crate::engine::audio::sequence::SequenceSource;
 use crate::engine::cache::preload::{build_play_source, PreloadCache};
-use std::sync::atomic::{AtomicU32, Ordering};
+use crate::engine::console::Bus;
 use std::sync::{Arc, Mutex};
 
 pub fn exec_all(
     actions: Vec<DeckAction>,
     decks: &mut [Deck],
+    bus: Option<&Bus>,
     cache: &Arc<Mutex<PreloadCache>>,
-    volume: &Arc<AtomicU32>,
     resolver: &QueueResolver,
 ) {
     for action in actions {
-        exec(action, decks, cache, volume, resolver);
+        exec(action, decks, bus, cache, resolver);
     }
 }
 
@@ -52,8 +52,8 @@ fn track_of(play: &ResolvedPlayback) -> DeckTrack {
 fn exec(
     action: DeckAction,
     decks: &mut [Deck],
+    bus: Option<&Bus>,
     cache: &Arc<Mutex<PreloadCache>>,
-    volume: &Arc<AtomicU32>,
     resolver: &QueueResolver,
 ) {
     match action {
@@ -61,7 +61,13 @@ fn exec(
             let Some(target) = decks.get_mut(deck) else {
                 return;
             };
-            let vol = f32::from_bits(volume.load(Ordering::Relaxed));
+            // Sin bus no hay donde entregar la fuente: la tarjeta no esta. Se
+            // marca fallido, igual que un archivo ilegible, para que el motor no
+            // se quede esperando a una pista que nunca va a sonar.
+            let Some(bus) = bus else {
+                target.fail();
+                return;
+            };
             // Se resuelve AHORA: la hora avanza, el clima cambia y el aleatorio
             // debe dar una cancion nueva en cada pasada.
             let source = resolver
@@ -73,7 +79,7 @@ fn exec(
                 target.fail();
                 return;
             };
-            target.load(source, track_of(&play), vol);
+            target.load(bus, source, track_of(&play));
             if autoplay {
                 target.play();
             }
@@ -85,14 +91,16 @@ fn exec(
             let Some(target) = decks.get_mut(deck) else {
                 return;
             };
+            let Some(bus) = bus else {
+                return;
+            };
             if !target.can_seek() {
                 return;
             }
             let t = target.track().clone();
-            let vol = f32::from_bits(volume.load(Ordering::Relaxed));
             let at = (t.cue_start_s + position_s).max(0.0);
             if let Some(source) = build_play_source(cache, &t.path, false, at, t.cue_end_s) {
-                target.reload_at(source, position_s, vol);
+                target.reload_at(bus, source, position_s);
             }
         }
         DeckAction::Resume { deck } => {

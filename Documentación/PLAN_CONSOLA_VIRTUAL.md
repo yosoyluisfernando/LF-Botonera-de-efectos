@@ -274,6 +274,34 @@ obedece al máster, esta fase deja de ser opcional: para sumar en PGM tiene que 
 propias del bus, de las que dependen la barra de progreso, el contador y el relevo entre decks.
 Se hace **sola**, después de que lo demás esté firme, y se prueba antes de seguir.
 
+**Fase 4.5 — Cambio de tarjeta en caliente.** Pedida por el autor el 2026-07-16 tras probar la
+Fase 3: cambiar de salida **no debe callar nada** — ni la botonera, ni el panel, ni el
+reproductor.
+
+**Sin cortar del todo es imposible, y conviene saber por qué:** al soltar un `OutputStream`, su
+mixer vive *dentro* del callback de cpal, así que las fuentes que contiene mueren con él. No hay
+forma de sacarlas y llevarlas a la tarjeta nueva. Las alternativas que lo permitirían —un
+`Arc<Mutex>` leído muestra a muestra, o un ring buffer con hilo de render— meten un candado o
+latencia en el camino del audio a cambio de una operación que se hace una vez al configurar el
+equipo. No compensa.
+
+**Lo que sí se hace:** reconstruir cada fuente en la tarjeta nueva **por la posición en la que
+iba**. La música no se pierde, sigue donde estaba; hay un salto de milisegundos, que además es
+inevitable porque el altavoz físico también cambia. La pieza ya existe: `seek_source.rs` (Fase
+E.4 del reproductor) reconstruye en ~10 ms sea cual sea la distancia, y `playback_seek` ya lo hace
+para un botón — aquí es para todos.
+
+**Va después de la Fase 4 a propósito.** Hacerlo antes obligaría a escribirlo dos veces: una para
+los efectos y otra para el reproductor cuando entre al bus. Con el reproductor ya dentro, se
+resuelve una vez para los tres.
+
+Lo que hay que resolver, anotado antes de empezar:
+- `replays` solo guarda los botones de la botonera principal (`main_button`); harían falta también
+  los del panel.
+- Las locuciones (`SequenceSource`) son varios archivos encadenados y **no se pueden
+  reposicionar**: al cambiar de tarjeta habrá que decidir si se reinician o se dejan caer.
+- Un botón con `overlap` tiene varias instancias del mismo id, cada una en su posición.
+
 **Fase 5 — Vúmetros por bus.** Cada bus expone su nivel. El evento `audio-tick` crece con los
 niveles por bus (campos nuevos, opcionales). El reproductor por fin tiene vúmetro.
 
@@ -517,6 +545,50 @@ máster a la consola, que era su sitio.
 **Lo que sigue pendiente:** el reproductor conserva su `OutputStream` propio, así que la doble
 apertura de tarjeta y su ausencia del vúmetro siguen. Los faders de `Efectos`, `Panel` y `Cue`
 existen y están a 1.0, pero no se ven ni se pueden mover: eso es la Fase 6.
+
+### Fase 4 — completada (2026-07-16)
+
+**El reproductor entra en la consola.** Era la fase delicada: la única que tocaba un motor que
+funcionaba bien. Con ella se cierran los cuatro hallazgos de la auditoría.
+
+**Los decks dejan de ser `Sink`.** Nace `engine/player/source.rs` con `DeckSource` y `DeckHandle`,
+que sostienen a mano las tres cosas que el `Sink` daba gratis y que una fuente metida en un mixer
+ya no puede responder:
+
+- **Posición** (`sink.get_pos`) → contar las muestras consumidas.
+- **Terminó** (`sink.empty`) → un flag que la fuente marca al agotarse.
+- **Pausa** (`sink.pause`) → un flag; en pausa devuelve silencio **sin pedir muestra** a la fuente,
+  así que al reanudar sigue por donde iba. Devolver `None` la retiraría del mixer y pausar sería
+  en realidad parar. Seis pruebas cubren justo esto, porque de ello dependen la barra de progreso,
+  el contador y el relevo entre canciones.
+
+**El volumen del reproductor resultó ser el fader de su bus**, y eso no estaba planeado: sale
+gratis y resuelve los dos gestos que se confundían en la conversación inicial. Bajar la música
+para hablar encima es mover el fader del bus `Reproductor` (no toca los efectos); bajarlo todo es
+el máster, que es el fader de `Programa`. Los dos se multiplican, así que se tienen ambos sin
+elegir. El `DeckSource` solo aplica la ganancia de **su** pista, que es del archivo.
+
+**Se cierra el hallazgo tercero:** el reproductor ya no abre una segunda vez la tarjeta que
+comparte con los efectos. Ahora entrega al bus como cualquier otro.
+
+**Se cierra la pregunta del autor sobre el vúmetro:** el bus `Programa` suma `Efectos`, `Panel` y
+`Reproductor`, así que el vúmetro los muestra a los tres. Hubo que arreglar el monitor, que
+usaba "no hay botones" como sinónimo de "no hay nada sonando" y habría dejado la aguja plana con
+música de fondo. Ahora el reposo es "ni efectos ni reproductor", que es lo que de verdad significa
+que el bus esté en silencio.
+
+**Un bug que el compilador no podía ver.** `cmd_player_config` y `core/setup.rs` traducían el
+dispositivo vacío al nombre de la salida principal. Con la consola eso ya no es lo mismo: `""`
+significa `Routing::Program` (suma en el programa, obedece al máster) y un nombre significa
+`Routing::Device` (salida directa, ajena al máster). Traducirlo habría dejado al reproductor
+sonando por su cuenta en la misma tarjeta — exactamente lo que hacía antes — y la decisión del
+autor no se habría cumplido, sin que nada fallara.
+
+**Verificación:** `cargo build --lib` sin avisos, `cargo test --lib` con 158 pruebas (6 nuevas),
+`npm run build` correcto, ningún archivo sobre 200 líneas.
+
+**Lo que la Fase 4 NO hace:** cambiar de tarjeta sigue cortando lo que suena. Es la Fase 4.5, que
+ahora ya se puede hacer una sola vez para los tres motores.
 
 ---
 

@@ -1,9 +1,15 @@
 //! Modulo: engine/player/mod.rs
-//! Proposito: motor propio del reproductor auxiliar (modo reproductor). Es
-//! INDEPENDIENTE del motor de efectos: su propio hilo, su propio OutputStream y
-//! dispositivo, y su propio volumen. Dos decks con pre-carga ping-pong. Reutiliza
-//! `build_play_source` (cue/cache) y `find_device`; la decision de avance vive en
-//! `domain::player`. Guia: Documentacion/PLAN_MODO_REPRODUCTOR.md.
+//! Proposito: motor propio del reproductor auxiliar (modo reproductor).
+//!
+//! Sigue siendo INDEPENDIENTE del motor de efectos en lo que importa: su hilo, su
+//! cola, su avance y su transporte. El Stop general y el Solo de los efectos no
+//! lo tocan. Lo que ya NO tiene es tarjeta propia: entrega sus fuentes al bus
+//! `Reproductor` de la consola, que suma en el programa. Por eso obedece al
+//! master (decision del autor, 2026-07-16) — en volumen, no en transporte.
+//!
+//! Su volumen es el fader de ese bus: bajar la musica para hablar encima es mover
+//! ese fader, y no toca a los efectos. Dos decks con pre-carga ping-pong.
+//! Guia: Documentacion/PLAN_MODO_REPRODUCTOR.md y PLAN_CONSOLA_VIRTUAL.md.
 mod deck;
 mod exec;
 pub mod monitor;
@@ -12,6 +18,7 @@ mod queue_edit;
 mod queue_ops;
 mod queue_select;
 pub mod resolve;
+mod source;
 mod thread;
 
 pub use queue::QueueEntry;
@@ -19,14 +26,14 @@ pub use resolve::QueueResolver;
 
 use crate::domain::player::PlayerMode;
 use crate::engine::cache::preload::PreloadCache;
+use crate::engine::console::{BusId, ConsoleEngine, Routing};
 use serde::Serialize;
-use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::mpsc::{channel, sync_channel, Sender};
 use std::sync::{Arc, Mutex};
 
 /// Comandos que el handle envia al hilo del motor.
 pub enum PlayerCommand {
-    SetDevice(String),
+    SetRouting(Routing),
     SetQueue(Vec<QueueEntry>),
     SetMode(PlayerMode),
     SetStopAfter(bool),
@@ -40,7 +47,6 @@ pub enum PlayerCommand {
     Pause,
     Resume,
     Stop,
-    SetVolume(f32),
     Sync(std::sync::mpsc::SyncSender<()>),
 }
 
@@ -70,34 +76,54 @@ pub struct PlayerSnapshot {
 }
 
 /// Handle del motor (Send + Sync). No toca audio; todo pasa por el canal al hilo
-/// dedicado, unico dueno del OutputStream y los decks.
+/// dedicado, dueno de los decks.
 pub struct PlayerEngine {
     tx: Sender<PlayerCommand>,
-    volume: Arc<AtomicU32>,
+    console: Arc<ConsoleEngine>,
     snapshot: Arc<Mutex<PlayerSnapshot>>,
 }
 
 impl PlayerEngine {
     /// Arranca el hilo del motor. `cache` se comparte con la precarga de efectos.
     /// `resolver` traduce los tipos especiales en el momento de sonar.
-    pub fn new(cache: Arc<Mutex<PreloadCache>>, resolver: QueueResolver) -> Self {
+    pub fn new(
+        cache: Arc<Mutex<PreloadCache>>,
+        resolver: QueueResolver,
+        console: Arc<ConsoleEngine>,
+    ) -> Self {
         let (tx, rx) = channel::<PlayerCommand>();
-        let volume = Arc::new(AtomicU32::new(1.0f32.to_bits()));
         let snapshot = Arc::new(Mutex::new(PlayerSnapshot::default()));
-        let volume_thread = Arc::clone(&volume);
         let snapshot_thread = Arc::clone(&snapshot);
+        // El volumen del reproductor ES el fader de su bus: el hilo lo lee de la
+        // consola para el snapshot, no lo guarda por su cuenta.
+        let volume_thread = console.volume_handle(BusId::Reproductor);
+        let console_thread = Arc::clone(&console);
         std::thread::spawn(move || {
-            thread::run(rx, cache, volume_thread, snapshot_thread, resolver)
+            thread::run(
+                rx,
+                cache,
+                volume_thread,
+                snapshot_thread,
+                resolver,
+                console_thread,
+            )
         });
-        Self { tx, volume, snapshot }
+        Self { tx, console, snapshot }
     }
 
     fn send(&self, cmd: PlayerCommand) {
         let _ = self.tx.send(cmd);
     }
 
+    /// Por donde sale. Vacio = suma en el programa (y obedece al master); un
+    /// nombre = su propia tarjeta, ajeno al programa.
     pub fn set_device(&self, name: &str) {
-        self.send(PlayerCommand::SetDevice(name.to_string()));
+        let routing = if name.is_empty() {
+            Routing::Program
+        } else {
+            Routing::Device(name.to_string())
+        };
+        self.send(PlayerCommand::SetRouting(routing));
     }
     pub fn set_queue(&self, entries: Vec<QueueEntry>) {
         self.send(PlayerCommand::SetQueue(entries));
@@ -142,14 +168,16 @@ impl PlayerEngine {
         self.send(PlayerCommand::Stop);
     }
 
-    /// Fija el volumen propio (0.0..=1.5) y lo comunica al hilo.
+    /// El volumen del reproductor **es el fader de su bus**: mueve la musica sin
+    /// tocar los efectos, que es lo que hace falta para hablar encima. No pasa
+    /// por el hilo — es un atomico, y aplicarlo debe ser inmediato aunque el
+    /// motor este ocupado resolviendo la siguiente pista.
     pub fn set_volume(&self, volume: f32) {
-        let clamped = volume.clamp(0.0, 1.5);
-        self.volume.store(clamped.to_bits(), Ordering::Relaxed);
-        self.send(PlayerCommand::SetVolume(clamped));
+        self.console
+            .set_fader(BusId::Reproductor, volume.clamp(0.0, 1.5));
     }
     pub fn volume(&self) -> f32 {
-        f32::from_bits(self.volume.load(Ordering::Relaxed))
+        self.console.fader(BusId::Reproductor)
     }
 
     /// Handle crudo del snapshot para el monitor. A diferencia de `snapshot()`,

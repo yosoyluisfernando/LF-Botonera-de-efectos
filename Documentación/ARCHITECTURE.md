@@ -97,7 +97,7 @@ Los motores actuales son:
 |---|---|
 | `engine/console/` | La consola de audio: **dueña de las salidas físicas y de los buses**. Los demás motores de audio son sus clientes: le piden un bus y le entregan fuentes |
 | `engine/audio/` | Reproducción de efectos: botones, fades, estados, hilo de audio. Pide sus buses a la consola |
-| `engine/player/` | Reproductor auxiliar (música de fondo): motor **independiente** del de efectos, con su hilo, sus dos decks y su volumen |
+| `engine/player/` | Reproductor auxiliar (música de fondo): motor **independiente** en cola, avance y transporte, con su hilo y sus dos decks. Ya no tiene tarjeta propia: entrega al bus `Reproductor` de la consola |
 | `engine/dsp/` | Análisis de audio, LUFS, cue, fade, waveform y análisis del editor |
 | `engine/cache/` | Precarga RAM, caché de análisis, caché persistente de waveforms |
 | `engine/persist/` | `botonera_config.json`, `tracks.db`, historial y últimos reproducidos |
@@ -196,15 +196,21 @@ ellos. Que dos cosas salgan por el mismo altavoz no las convierte en el mismo bu
 ### La topología
 
 ```
-  Efectos ─┐
-           ├─► Programa ─► fader (master) ─► medidor (vúmetro) ─► tarjeta
-  Panel ───┘
-  Cue ──────────────────► fader ──────────► medidor ──────────► tarjeta
+  Efectos ──────┐
+  Panel ────────┼─► Programa ─► fader (MASTER) ─► medidor (vúmetro) ─► tarjeta
+  Reproductor ──┘   (su fader = volumen del reproductor)
+
+  Cue ──────────────────────► fader ──────────► medidor ──────────► tarjeta
 ```
 
 El bus `Programa` es especial: su fader **es** el volumen máster y su medidor **es** el
 vúmetro de la barra inferior. Que sean el mismo bus no es casualidad — es la única forma
-de que la aguja no mienta sobre lo que el fader controla.
+de que la aguja no mienta sobre lo que el fader controla. Y por eso el vúmetro muestra
+los tres: efectos, panel y música.
+
+Cada bus tiene su propio fader, y ahí está la diferencia entre dos gestos que se confunden:
+**bajar la música para hablar encima** es mover el fader del bus `Reproductor` (no toca los
+efectos); **bajarlo todo** es mover el máster, que es el fader de `Programa`.
 
 El **CUE nunca entra en `Programa`**, ni compartiendo tarjeta. Si no tiene una propia usa
 `Routing::ProgramDevice`: sale por el mismo conector que el programa, pero con su propio

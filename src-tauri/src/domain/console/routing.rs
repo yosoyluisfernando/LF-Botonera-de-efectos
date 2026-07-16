@@ -10,6 +10,9 @@ pub enum BusId {
     Efectos,
     /// Botones del panel fijo (`PlaybackGroup::Fixed`).
     Panel,
+    /// El reproductor auxiliar (la musica de fondo). Su fader es el volumen del
+    /// reproductor: bajarlo deja hablar encima sin tocar los efectos.
+    Reproductor,
     /// Pre-escucha y previa del editor. **Nunca suma en programa.**
     Cue,
     /// El programa (PGM): la suma de los buses que van al aire. Su fader es el
@@ -36,10 +39,18 @@ pub enum Routing {
 
 impl BusId {
     /// Los buses que entran en la suma del programa, en orden estable.
-    pub const PROGRAM_INPUTS: [BusId; 2] = [BusId::Efectos, BusId::Panel];
+    pub const PROGRAM_INPUTS: [BusId; 3] =
+        [BusId::Efectos, BusId::Panel, BusId::Reproductor];
 
-    /// Todos los buses que la consola construye.
-    pub const ALL: [BusId; 4] = [BusId::Programa, BusId::Efectos, BusId::Panel, BusId::Cue];
+    /// Todos los buses que la consola construye. El programa va primero: los que
+    /// suman en el se cuelgan de su controller, asi que tiene que existir antes.
+    pub const ALL: [BusId; 5] = [
+        BusId::Programa,
+        BusId::Efectos,
+        BusId::Panel,
+        BusId::Reproductor,
+        BusId::Cue,
+    ];
 
     /// El ruteo por defecto de cada bus al arrancar.
     pub fn default_routing(self) -> Routing {

@@ -57,22 +57,21 @@ pub fn player_set_volume(
     Ok(())
 }
 
-/// Fija el dispositivo de salida propio. "" = el mismo de los efectos.
+/// Fija el dispositivo de salida propio.
+///
+/// **"" no se traduce a un nombre de tarjeta**, y es importante: vacio significa
+/// "suma en el programa", asi que el reproductor obedece al master y cuenta en su
+/// vumetro. Resolverlo aqui al nombre de la salida principal lo sacaria del
+/// programa y lo dejaria sonando por su cuenta en la misma tarjeta — que es
+/// justo lo que hacia antes de que existiera la consola.
 #[tauri::command]
 pub fn player_set_device(device: String, state: tauri::State<AppState>) -> Result<(), String> {
-    let resolved = {
+    {
         let mut cfg = state.config.lock().unwrap();
         cfg.player.output_device = device.clone();
         config_io::save_config(&cfg)?;
-        if device.is_empty() {
-            cfg.active_audio()
-                .map(|a| a.out_main.clone())
-                .unwrap_or_else(|| "default".into())
-        } else {
-            device
-        }
-    };
-    state.player.lock().unwrap().set_device(&resolved);
+    }
+    state.player.lock().unwrap().set_device(&device);
     Ok(())
 }
 

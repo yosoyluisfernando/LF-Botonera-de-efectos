@@ -97,9 +97,11 @@ y `#[serde(default)]`. Dos recordatorios firmes del usuario:
   patrón que la pre-escucha.
   > **Desactualizado (2026-07-16).** `engine/audio/device.rs` y `AudioDeviceRuntime` ya no
   > existen: los absorbió `engine/console/`, que es la dueña de las tarjetas. `find_device` y
-  > `device_available` viven ahora en `engine/console/device.rs`. El reproductor **sigue**
-  > abriendo su propio `OutputStream`; deja de hacerlo en la Fase 4 de
-  > [`PLAN_CONSOLA_VIRTUAL.md`](PLAN_CONSOLA_VIRTUAL.md).
+  > `device_available` viven ahora en `engine/console/device.rs`. Y el reproductor **ya no abre
+  > su propio `OutputStream`**: desde la Fase 4 de
+  > [`PLAN_CONSOLA_VIRTUAL.md`](PLAN_CONSOLA_VIRTUAL.md) entrega sus fuentes al bus
+  > `Reproductor` de la consola, obedece al máster y aparece en el vúmetro. Sus decks tampoco son
+  > `Sink`: ver `DeckSource` / `DeckHandle` en `engine/player/source.rs`.
 - **Construcción de fuentes con cue y caché:** `engine/cache/preload.rs::build_play_source`
   devuelve un `BoxSource` (fuente rodio con cue de inicio/fin y caché ya aplicados),
   apto para `Sink::append`. Así el reproductor respeta el editor de pistas sin lógica nueva.

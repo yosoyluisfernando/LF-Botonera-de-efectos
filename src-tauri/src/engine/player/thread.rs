@@ -1,16 +1,19 @@
 //! Modulo: engine/player/thread.rs
-//! Proposito: hilo dedicado del motor del reproductor. Unico dueno del
-//! OutputStream propio y los dos decks (rodio no es Send). Traduce comandos y el
-//! fin natural de pista en acciones de la cola (`QueueState`) y las ejecuta sobre
-//! los decks. Sondea el fin del deck activo para el avance ping-pong.
+//! Proposito: hilo dedicado del motor del reproductor. Dueno de los dos decks;
+//! traduce comandos y el fin natural de pista en acciones de la cola
+//! (`QueueState`) y las ejecuta sobre ellos. Sondea el fin del deck activo para
+//! el avance ping-pong.
+//!
+//! Ya NO posee tarjeta: entrega sus fuentes al bus `Reproductor` de la consola,
+//! como el motor de efectos entrega las suyas a los suyos. Sigue siendo un motor
+//! independiente —su cola, su avance, su transporte— pero comparte la salida.
 use super::deck::{Deck, DeckStatus};
 use super::exec::exec_all;
 use super::queue::{DeckAction, QueueState};
 use super::resolve::QueueResolver;
 use super::{PlayerCommand, PlayerSnapshot};
-use crate::engine::console::device::find_device;
 use crate::engine::cache::preload::PreloadCache;
-use rodio::{OutputStream, OutputStreamHandle};
+use crate::engine::console::{BusId, ConsoleEngine, Routing};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::mpsc::{Receiver, RecvTimeoutError};
 use std::sync::{Arc, Mutex};
@@ -19,7 +22,6 @@ use std::time::Duration;
 const TICK: Duration = Duration::from_millis(100);
 
 struct Motor {
-    stream: Option<(OutputStream, OutputStreamHandle)>,
     decks: Vec<Deck>,
     queue: QueueState,
 }
@@ -30,13 +32,19 @@ pub fn run(
     volume: Arc<AtomicU32>,
     snapshot: Arc<Mutex<PlayerSnapshot>>,
     resolver: QueueResolver,
+    console: Arc<ConsoleEngine>,
 ) {
-    let mut motor = Motor { stream: None, decks: Vec::new(), queue: QueueState::new() };
+    // Los dos decks del ping-pong. Se crean una vez: ya no dependen de que haya
+    // tarjeta, porque no la abren — entregan al bus cuando cargan.
+    let mut motor = Motor {
+        decks: vec![Deck::new(), Deck::new()],
+        queue: QueueState::new(),
+    };
     loop {
         let sync = match rx.recv_timeout(TICK) {
             Ok(PlayerCommand::Sync(done)) => Some(done),
             Ok(cmd) => {
-                handle(cmd, &mut motor, &cache, &volume, &resolver);
+                handle(cmd, &mut motor, &cache, &resolver, &console);
                 None
             }
             Err(RecvTimeoutError::Timeout) => None,
@@ -45,7 +53,8 @@ pub fn run(
         let active = motor.queue.active_deck();
         if motor.decks.get_mut(active).is_some_and(|d| d.poll_finished()) {
             let actions = motor.queue.advance(false);
-            exec_all(actions, &mut motor.decks, &cache, &volume, &resolver);
+            let bus = console.bus(BusId::Reproductor);
+            exec_all(actions, &mut motor.decks, bus.as_ref(), &cache, &resolver);
         }
         refresh(&motor, &snapshot, &volume);
         if let Some(done) = sync {
@@ -58,12 +67,12 @@ fn handle(
     cmd: PlayerCommand,
     motor: &mut Motor,
     cache: &Arc<Mutex<PreloadCache>>,
-    volume: &Arc<AtomicU32>,
     resolver: &QueueResolver,
+    console: &Arc<ConsoleEngine>,
 ) {
     let actions = match cmd {
-        PlayerCommand::SetDevice(name) => {
-            open_device(&name, motor);
+        PlayerCommand::SetRouting(routing) => {
+            set_routing(routing, motor, console);
             return;
         }
         PlayerCommand::SetQueue(entries) => motor.queue.set_entries(entries),
@@ -93,15 +102,10 @@ fn handle(
             return;
         }
         PlayerCommand::Resume => resume(motor),
-        PlayerCommand::SetVolume(v) => {
-            for deck in motor.decks.iter() {
-                deck.apply_volume(v);
-            }
-            return;
-        }
         PlayerCommand::Sync(_) => return,
     };
-    exec_all(actions, &mut motor.decks, cache, volume, resolver);
+    let bus = console.bus(BusId::Reproductor);
+    exec_all(actions, &mut motor.decks, bus.as_ref(), cache, resolver);
 }
 
 /// Reanudar: si el deck activo esta en pausa, sigue; si estaba detenido, arranca
@@ -126,39 +130,20 @@ fn resume(motor: &mut Motor) -> Vec<DeckAction> {
     motor.queue.resume_next()
 }
 
-/// Abre (o reabre) el OutputStream propio en el dispositivo dado y recrea los dos
-/// decks. Si el dispositivo no esta disponible, suelta el stream: la recuperacion
-/// la maneja el flujo de dispositivos que ya existe en la botonera.
-fn open_device(name: &str, motor: &mut Motor) {
-    // Cambiar o perder la salida detiene el transporte: no deben sobrevivir
-    // indices "sonando" asociados a decks que acaban de ser destruidos.
+/// Cambia por donde sale el reproductor. `Routing::Program` = suma en el
+/// programa, asi que obedece al master; `Device(x)` = sale por su tarjeta, ajeno
+/// a el.
+///
+/// Reconstruir el grafo mata las fuentes que estuvieran sonando en ese bus, asi
+/// que el transporte se detiene: no deben sobrevivir indices "sonando" apuntando
+/// a fuentes que ya no existen. La Fase 4.5 lo hara en caliente reconstruyendolas
+/// en su posicion.
+fn set_routing(routing: Routing, motor: &mut Motor, console: &Arc<ConsoleEngine>) {
     let _ = motor.queue.stop();
-    let Some(device) = find_device(name) else {
-        motor.stream = None;
-        motor.decks.clear();
-        return;
-    };
-    match OutputStream::try_from_device(&device) {
-        Ok((s, handle)) => {
-            let mut fresh = Vec::new();
-            for _ in 0..2 {
-                if let Some(deck) = Deck::new(&handle) {
-                    fresh.push(deck);
-                }
-            }
-            if fresh.len() != 2 {
-                motor.stream = None;
-                motor.decks.clear();
-                return;
-            }
-            motor.decks = fresh;
-            motor.stream = Some((s, handle));
-        }
-        Err(_) => {
-            motor.stream = None;
-            motor.decks.clear();
-        }
+    for deck in motor.decks.iter_mut() {
+        deck.stop();
     }
+    console.set_bus_routing(BusId::Reproductor, routing);
 }
 
 fn refresh(motor: &Motor, snapshot: &Arc<Mutex<PlayerSnapshot>>, volume: &Arc<AtomicU32>) {

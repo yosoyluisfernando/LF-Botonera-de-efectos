@@ -131,6 +131,12 @@ impl ConsoleEngine {
         f32::from_bits(self.state.lock().unwrap().slots[&bus].volume.load(Ordering::Relaxed))
     }
 
+    /// El atomico del fader, para quien lo lea muy a menudo (el monitor del
+    /// reproductor, 10 veces por segundo) y no quiera pagar el candado cada vez.
+    pub fn volume_handle(&self, bus: BusId) -> Arc<AtomicU32> {
+        Arc::clone(&self.state.lock().unwrap().slots[&bus].volume)
+    }
+
     /// Mueve el fader del bus. Afecta a lo que YA esta sonando por el.
     ///
     /// No pone techo: el maximo es una regla de producto (el modo boost llega a

@@ -137,7 +137,20 @@ Struct en `cue_source.rs` que implementa seek saltando muestras (O(n)). Se usa c
 *Decibeles relativos a la escala completa* (Full Scale). El valor 0 dBFS es el máximo sin distorsión. Los valores medidos son negativos (ej. −6 dBFS). El objetivo de pico en la normalización de la Botonera es −1 dBFS.
 
 **`deck`**
-Cada una de las dos "pletinas" del reproductor auxiliar (`engine/player/deck.rs`). Un deck envuelve un `Sink` de rodio y reproduce **una** pista a la vez, con estados `Empty`, `Loaded`, `Playing`, `Paused`, `Finished` y `Failed`. `Loaded` significa pre-cargado y en pausa, listo para arrancar al instante. `Finished` es fin natural (sink vacío) a la espera de relevo. `Failed` es "no se pudo cargar" (carpeta aleatoria vacía, sin clima, archivo ilegible): `poll_finished` lo trata como terminado para que el motor releve y **la música siga**, en vez de callarse esperando una pista que no existe. El motor alterna los dos decks en *ping-pong*. Concepto adaptado de `player.rs` del LF Automatizador 2.0.
+Cada una de las dos "pletinas" del reproductor auxiliar (`engine/player/deck.rs`). Reproduce **una** pista a la vez, con estados `Empty`, `Loaded`, `Playing`, `Paused`, `Finished` y `Failed`. `Loaded` significa pre-cargado y en pausa, listo para arrancar al instante. `Finished` es fin natural a la espera de relevo.
+
+`Failed` es "no se pudo cargar" (carpeta aleatoria vacía, sin clima, archivo ilegible): `poll_finished` lo trata como terminado para que el motor releve y **la música siga**, en vez de callarse esperando una pista que no existe. El motor alterna los dos decks en *ping-pong*. Concepto adaptado de `player.rs` del LF Automatizador 2.0.
+
+**Ya no envuelve un `Sink` de rodio:** entrega su fuente al bus `Reproductor` de la [consola](#c), como el motor de efectos entrega las suyas. Lo que el `Sink` daba gratis lo sostiene ahora `DeckSource`.
+
+**`DeckSource` / `DeckHandle`**
+La fuente de un [deck](#d) dentro del bus, y el mando para controlarla desde fuera (`engine/player/source.rs`). Sustituyen al `Sink` de rodio, del que el reproductor dependía para tres cosas que una fuente metida en un mixer ya no puede "responder":
+
+- **Posición** (`sink.get_pos`): se cuentan las muestras consumidas.
+- **Terminó** (`sink.empty`): un flag que la fuente marca al agotarse.
+- **Pausa** (`sink.pause`): un flag; en pausa devuelve silencio **sin pedir muestra** a la fuente, así que al reanudar sigue por donde iba. Devolver `None` la retiraría del mixer y pausar sería en realidad parar.
+
+El volumen no está aquí: es el fader del bus. La fuente solo aplica la ganancia de **su** pista, que es del archivo y no del reproductor.
 
 **`SeekSource`**
 Fuente de audio (`engine/audio/seek_source.rs`) que abre un archivo **ya posicionado**, con salto de verdad. La usa `source_from_path_at`, así que sirve a los **dos** motores: efectos y reproductor.
@@ -367,7 +380,9 @@ Modo de reproducción global del perfil. Valores: `"normal"`, `"loop"`, `"overla
 Evento Tauri que emite `engine/player/monitor.rs` cada 100 ms con el `PlayerSnapshot`. Lo escucha `runtimeEvents.js` y lo pinta `playerView.js`. Es **independiente** del `audio-tick` de los efectos por una razón concreta: el `audio-tick` calla cuando no hay efectos sonando, y la música de fondo suele sonar sola; colgar la lista de aquel tick la dejaba sin pintar.
 
 **`PlayerEngine`**
-Handle del motor del reproductor auxiliar (`engine/player/mod.rs`). Es `Send + Sync` y no toca audio: envía comandos por un canal al hilo dedicado, que es el único dueño del `OutputStream` y de los dos decks (rodio no es `Send`). Vive en `AppState.player`.
+Handle del motor del reproductor auxiliar (`engine/player/mod.rs`). Es `Send + Sync` y no toca audio: envía comandos por un canal al hilo dedicado, dueño de los dos decks. Vive en `AppState.player`. Ya no posee tarjeta: entrega sus fuentes al bus `Reproductor` de la [consola](#c).
+
+Su `set_volume` **no pasa por el canal**: mueve el fader del bus, que es un atómico, y aplicar el volumen debe ser inmediato aunque el motor esté ocupado resolviendo la siguiente pista.
 
 **`PlayerSnapshot`**
 Estado en vivo del reproductor que Rust entrega a la interfaz: `playing`, `path`, `position_s`, `duration_s`, `current_index` (verde), `next_index` (naranja), `mode`, `stop_after` y `queue_len`. La UI solo lo pinta.
@@ -398,7 +413,11 @@ Pre-escucha: reproducir un audio sin que salga al aire (los auriculares del locu
 **Cómo era antes (corregido en la Fase 3):** si `out_pre` estaba vacío —el caso por defecto— ese bus no existía y la pre-escucha **caía al principal**, donde le pegaba el máster y movía el vúmetro. Con tarjeta dedicada no pasaba, así que el mismo botón se comportaba distinto según el equipo.
 
 **`PlayerConfig`**
-Configuración persistida del reproductor auxiliar, colgada de `AppConfig.player`. Es **global**: hay un solo reproductor compartido entre perfiles. Contiene `tracks` (la cola, que reutiliza `ButtonData`), `playback_mode`, `volume` (0.0–1.5, independiente del master) y `output_device` (`""` = el mismo de los efectos).
+Configuración persistida del reproductor auxiliar, colgada de `AppConfig.player`. Es **global**: hay un solo reproductor compartido entre perfiles. Contiene `tracks` (la cola, que reutiliza `ButtonData`), `playback_mode`, `volume` (0.0–1.5) y `output_device`.
+
+`volume` **es el fader del bus `Reproductor`**: baja la música sin tocar los efectos, que es lo que hace falta para hablar encima. Es distinto del máster, que baja los tres buses a la vez; los dos se multiplican.
+
+`output_device` vacío = [`Routing::Program`](#r): suma en el programa y **obedece al máster**. Un nombre = `Routing::Device(x)`: sale por esa tarjeta y deja de obedecerlo. **Trampa:** traducir `""` al nombre de la salida principal en el camino lo sacaría del programa sin querer — parecería lo mismo y no lo es.
 
 **`ProfileData`**
 Struct Rust (`model/content.rs`) que representa un perfil. Contiene `AudioConfig`, `active_paleta_id`, `Vec<PaletaData>` y `fixed_buttons` (los botones del panel fijo cuando el alcance es por perfil).
@@ -432,7 +451,11 @@ Enum de `domain/console/routing.rs`. Dice a dónde entrega un [bus](#b) su seña
 Tipo de botón que reproduce archivos de una carpeta de forma secuencial. `random_folder.rs` mantiene el estado de qué archivo toca a continuación por cada botón. El nombre histórico es `random_folder` pero el comportamiento es secuencial (avanza uno a uno).
 
 **`reproductor auxiliar`**
-La lista de reproducción del panel lateral, pensada para dejar **música de fondo** sonando mientras se disparan los efectos. Tiene **motor propio** (`engine/player/`), independiente del de efectos: su hilo, su `OutputStream`, su dispositivo y su volumen. Por eso el Stop general y el Solo de los efectos no lo cortan; tiene su propio Stop. Es uno solo y global. Idea tomada de los reproductores auxiliares del LF Automatizador v1; la arquitectura, del motor Rust del 2.0.
+La lista de reproducción del panel lateral, pensada para dejar **música de fondo** sonando mientras se disparan los efectos. Tiene **motor propio** (`engine/player/`) e independiente del de efectos en lo que importa: su hilo, su cola, su avance y su transporte. Por eso el Stop general y el Solo de los efectos no lo cortan; tiene su propio Stop. Es uno solo y global.
+
+**Lo que sí comparte es la salida.** Desde la Fase 4 de la [consola](#c) no tiene tarjeta propia: entrega sus fuentes al bus `Reproductor`, que suma en el programa. De ahí que **obedezca al máster** (decisión del autor, 2026-07-16) y aparezca en el vúmetro. La distinción que importa: el máster lo gobierna en **volumen**, no en **transporte** — bajarlo baja la música, pero pararlo todo no la para.
+
+Idea tomada de los reproductores auxiliares del LF Automatizador v1; la arquitectura, del motor Rust del 2.0.
 
 **`resolución tardía`**
 Resolver una pista **en el momento de sonar** en vez de al pre-cargarla (`engine/player/resolve.rs`). Es obligatorio para la locución horaria y el clima: la pre-carga ocurre mientras suena la pista anterior, así que precargarlas diría la hora de hace varios minutos. La carpeta aleatoria sí se precarga, porque elegir la canción por adelantado no la estropea.
