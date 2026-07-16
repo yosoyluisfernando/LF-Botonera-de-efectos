@@ -7,7 +7,7 @@
 use super::deck::{Deck, DeckTrack};
 use super::queue::DeckAction;
 use super::resolve::{QueueResolver, ResolvedPlayback};
-use crate::engine::audio::bus::SequenceSource;
+use crate::engine::audio::sequence::SequenceSource;
 use crate::engine::audio::decode::BoxSource;
 use crate::engine::cache::preload::{build_play_source, PreloadCache};
 use std::sync::atomic::{AtomicU32, Ordering};

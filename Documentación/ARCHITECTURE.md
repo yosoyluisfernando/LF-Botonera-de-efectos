@@ -60,7 +60,7 @@ BOTONERA/
 │   └── src/                 Arquitectura Núcleo + Motores
 │       ├── core/            AppState, configuración global y setup
 │       ├── model/           Estructuras de datos (AppConfig, etc.)
-│       ├── engine/          Motores (audio, player, dsp, caché, input, weather)
+│       ├── engine/          Motores (console, audio, player, dsp, caché, input, weather)
 │       ├── domain/          Reglas de negocio puras
 │       └── ipc/             Comandos Tauri (endpoints)
 │
@@ -95,8 +95,9 @@ Los motores actuales son:
 
 | Motor | Responsabilidad |
 |---|---|
-| `engine/audio/` | Reproducción de efectos, mezcla, buses main/pre, dispositivos, VU, hilo de audio |
-| `engine/player/` | Reproductor auxiliar (música de fondo): motor **independiente** del de efectos, con su hilo, su salida, sus dos decks y su volumen |
+| `engine/console/` | La consola de audio: **dueña de las salidas físicas y de los buses**. Los demás motores de audio son sus clientes: le piden un bus y le entregan fuentes |
+| `engine/audio/` | Reproducción de efectos: botones, fades, estados, hilo de audio. Pide sus buses a la consola |
+| `engine/player/` | Reproductor auxiliar (música de fondo): motor **independiente** del de efectos, con su hilo, sus dos decks y su volumen |
 | `engine/dsp/` | Análisis de audio, LUFS, cue, fade, waveform y análisis del editor |
 | `engine/cache/` | Precarga RAM, caché de análisis, caché persistente de waveforms |
 | `engine/persist/` | `botonera_config.json`, `tracks.db`, historial y últimos reproducidos |
@@ -144,12 +145,49 @@ El frontend está organizado en 3 capas:
    d. Combina modo global (AudioConfig.playback_mode) con flags del botón
    e. Envía AudioCommand::Play al canal del hilo de audio
 4. engine/audio/thread.rs recibe el comando:
-   a. Decide bus de destino (main o pre)
+   a. Pide a la consola el bus de destino (BusId::Main o BusId::Pre)
    b. build_play_source: cache hit → O(1) seek; cache miss → decode + skip O(n)
-   c. MasterBus::add_source → ButtonSource en el DynamicMixer
+   c. attach_button → ButtonSource dentro del bus de la consola
 5. engine/audio/monitor.rs detecta el nuevo ButtonState → emite "audio-tick" cada 100ms
 6. gridPlayback.js pinta el botón en verde + barra de progreso roja
 ```
+
+---
+
+## La consola de audio (`engine/console/`)
+
+La consola es dueña de las **salidas físicas** y de los **buses**. No produce audio: lo
+recibe y lo encamina. Por eso no es un motor *al lado* de `audio/` y `player/`, sino
+*debajo*: ambos son sus clientes.
+
+**Por qué es un motor propio y no una pieza de `engine/audio/`:** `OutputStream` no es
+`Send` (lleva un `cpal::Stream` dentro), así que alguien tiene que ser su dueño y quedarse
+quieto en un hilo. Cuando cada motor abría su propia tarjeta había *dos* hilos dueños de
+salidas, y por eso no podía existir un punto de suma común. La consola centraliza esa
+propiedad en un hilo guardián y reparte lo que sí viaja entre hilos: `OutputStreamHandle`
+(`Clone + Send + Sync`) y el controller de cada bus (`Arc`, `Send + Sync`).
+
+Las piezas:
+
+- **`OutputEndpoint`** — una tarjeta física abierta **exactamente una vez**. rodio ya trae
+  el mixer de salida dentro de `OutputStream` (`play_raw` añade a él), así que un endpoint
+  no construye nada: mantiene el stream vivo y reparte su handle. Un registro por nombre
+  garantiza que pedir la misma tarjeta dos veces devuelva la misma.
+- **`Bus`** — un punto de suma con su medidor: mixer + `LevelSource`, enchufado al endpoint
+  con `play_raw`. **No lleva `Sink`**: un bus nunca se pausa, así que esa capa sobra.
+- **`BusSlot`** — lo que un bus conserva aunque su tarjeta no exista: los atómicos de nivel
+  y volumen. Se crean una vez y viven siempre, porque el monitor y las fuentes que ya suenan
+  los tienen cogidos; un cambio de tarjeta no debe dejarlos apuntando a la nada.
+
+**La distinción que sostiene todo:** un bus es una *señal*; un endpoint es un *conector*.
+Varios buses enchufados a la misma tarjeta se suman **en el conector**, sin tocarse entre
+ellos. Que dos cosas salgan por el mismo altavoz no las convierte en el mismo bus.
+
+**Reproducir no pasa por el hilo de la consola.** `DynamicMixerController::add` toma `&self`
+y su `Arc` es `Send + Sync`, así que cada motor añade fuentes a su bus desde su propio hilo.
+El hilo guardián solo atiende cambios de ruteo.
+
+Plan y fases: [`PLAN_CONSOLA_VIRTUAL.md`](PLAN_CONSOLA_VIRTUAL.md).
 
 ---
 

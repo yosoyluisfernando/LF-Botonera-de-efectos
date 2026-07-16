@@ -1,8 +1,8 @@
 /// Modulo: playback_state.rs
 /// Proposito: mantener la identidad de reproduccion cuando una accion de grilla
 /// cambia ids de botones sin detener el audio activo.
-use crate::engine::audio::bus::ButtonStateMap;
-use crate::engine::audio::vu::LastPressedInfo;
+use crate::engine::audio::button::ButtonStateMap;
+use crate::engine::audio::last_pressed::LastPressedInfo;
 use std::sync::{Arc, Mutex};
 
 /// Remapea estados activos desde ids antiguos hacia ids nuevos.
@@ -50,7 +50,7 @@ fn remap_last_pressed(last_pressed: &mut Option<LastPressedInfo>, mappings: &[(S
 #[cfg(test)]
 mod tests {
     use super::remap_button_state_keys;
-    use crate::engine::audio::bus::ButtonStateMap;
+    use crate::engine::audio::button::ButtonStateMap;
 
     #[test]
     fn remaps_swapped_keys_without_losing_state_entries() {

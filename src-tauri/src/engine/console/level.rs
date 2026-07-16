@@ -1,27 +1,17 @@
-/// Módulo: vu_meter.rs
-/// Propósito: LevelSource — mide el PICO absoluto por ventana de ~1024 muestras (~23ms).
-/// Usado por MasterBus para medir el PICO de la señal sumada real post-mezcla.
-/// No hace cálculos RMS ni fórmulas de combinación: pico puro sobre PCM f32.
+/// Modulo: engine/console/level.rs
+/// Proposito: LevelSource — mide el PICO absoluto por ventana de ~1024 muestras
+/// (~23ms). Es el medidor de un bus: va DESPUES del mixer, asi que mide la suma
+/// real de ese bus y de ningun otro. No hace RMS ni formulas de combinacion:
+/// pico puro sobre PCM f32.
 use rodio::Source;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
-// ─── Tipos compartidos con audio.rs ──────────────────────────────────────────
-
-/// Información del último botón presionado (para el reloj/contador de la UI).
-#[derive(Clone)]
-pub struct LastPressedInfo {
-    pub id: String,
-}
-
-// ─── Fuente monitoreada ───────────────────────────────────────────────────────
-
 const WINDOW: usize = 1024;
 
 /// Envuelve Source<Item=f32> actualizando el PICO cada ~1024 muestras.
-/// Canal L = muestras de índice par; canal R = índice impar (stereo interleaved).
-/// Colocado DESPUÉS del DynamicMixer mide el pico de la mezcla real completa.
+/// Canal L = muestras de indice par; canal R = indice impar (stereo interleaved).
 pub struct LevelSource<S: Source<Item = f32>> {
     inner: S,
     level_l: Arc<AtomicU32>,
@@ -54,15 +44,11 @@ impl<S: Source<Item = f32>> Iterator for LevelSource<S> {
     fn next(&mut self) -> Option<f32> {
         let s = self.inner.next()?;
         let abs = s.abs();
-        if self.ch_idx == 0 {
-            if abs > self.peak_l {
-                self.peak_l = abs;
-            }
+        if self.ch_idx == 0 && abs > self.peak_l {
+            self.peak_l = abs;
         }
-        if self.ch_idx == 1 || self.channels < 2 {
-            if abs > self.peak_r {
-                self.peak_r = abs;
-            }
+        if (self.ch_idx == 1 || self.channels < 2) && abs > self.peak_r {
+            self.peak_r = abs;
         }
         self.ch_idx = (self.ch_idx + 1) % self.channels.max(1);
         self.count += 1;

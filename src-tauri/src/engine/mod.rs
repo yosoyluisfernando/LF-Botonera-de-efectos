@@ -1,5 +1,6 @@
 pub mod audio;
 pub mod cache;
+pub mod console;
 pub mod dsp;
 pub mod input;
 pub mod persist;

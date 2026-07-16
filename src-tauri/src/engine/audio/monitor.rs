@@ -2,9 +2,8 @@
 /// Propósito: Hilo de monitoreo que emite "audio-tick" cada ~100ms con el estado
 /// de reproducción, tiempo restante para el reloj y niveles del vúmetro master.
 /// Toda la lógica de cálculo vive en Rust (Regla 4).
-use crate::engine::audio::bus::ButtonStateMap;
-use crate::engine::audio::button::PlaybackGroup;
-use crate::engine::audio::vu::LastPressedInfo;
+use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup};
+use crate::engine::audio::last_pressed::LastPressedInfo;
 use serde::Serialize;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
@@ -145,9 +144,8 @@ fn compute_display_time(
 #[cfg(test)]
 mod tests {
     use super::compute_display_time;
-    use crate::engine::audio::bus::{ButtonState, ButtonStateMap};
-    use crate::engine::audio::button::PlaybackGroup;
-    use crate::engine::audio::vu::LastPressedInfo;
+    use crate::engine::audio::button::{ButtonState, ButtonStateMap, PlaybackGroup};
+    use crate::engine::audio::last_pressed::LastPressedInfo;
     use std::sync::atomic::{AtomicBool, AtomicU32};
     use std::sync::{Arc, Mutex};
     use std::time::{Duration, Instant};

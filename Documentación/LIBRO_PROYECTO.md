@@ -195,17 +195,18 @@ Este es el flujo más importante del sistema. Entenderlo explica por qué existe
               │
               ▼
 4. engine/audio/thread.rs (hilo dedicado)
-   ├─ Decide bus de destino: to_pre=false → device.bus() (salida principal)
+   ├─ Pide el bus a la consola: to_pre=false → console.bus(BusId::Main)
    ├─ engine/cache/preload.rs::build_play_source()
    │    ├─ Cache HIT  → CachedSource::new_at(pcm, offset) — seek O(1) instantáneo
    │    └─ Cache MISS → engine/audio/decode.rs + CuedSource (skip O(n))
    │
-   └─ MasterBus::add_source(source, vol_btn, duration, loop, file_gain)
+   └─ engine/audio/attach.rs::attach_button(bus, source, args)
         │  (envuelve en ButtonSource que aplica: muestra × file_gain × vol_btn × master)
         ▼
-5. DynamicMixer<f32>
+5. engine/console/ — Bus: DynamicMixer<f32>
    └─► LevelSource (mide PICO en tiempo real)
-        └─► Sink → OutputStreamHandle → dispositivo CPAL → altavoces
+        └─► play_raw → OutputEndpoint → dispositivo CPAL → altavoces
+            (la tarjeta se abre UNA vez; varios buses en ella se suman en el conector)
 
 6. MIENTRAS SUENA — engine/audio/monitor.rs (hilo 100 ms)
    └─► emite "audio-tick" → Frontend:
@@ -215,7 +216,7 @@ Este es el flujo más importante del sistema. Entenderlo explica por qué existe
         └─ vuMeter.js: vúmetro L/R con balística
 ```
 
-> Ver glosario: [AudioEngine](#), [AudioCommand](#), [MasterBus](#), [ButtonSource](#), [file_gain](#), [ButtonState](#), [CachedSource](#)
+> Ver glosario: [AudioEngine](#), [AudioCommand](#), [consola](#), [Bus](#), [OutputEndpoint](#), [ButtonSource](#), [file_gain](#), [ButtonState](#), [CachedSource](#)
 
 ---
 
@@ -613,8 +614,9 @@ de vuelta al exportar): carpeta vacía significa "la que diga Ajustes". Una carp
 fila sí se respeta y manda sobre la global.
 
 Una locución son **varios archivos** ("son", "las", "tres"), pero suenan como **una sola pista**
-gracias a `SequenceSource`, que ya existía en `engine/audio/bus.rs` para las locuciones de los
-botones. Por eso los tipos especiales caben en un deck sin tocar el deck ni el ping-pong.
+gracias a `SequenceSource`, que ya existía para las locuciones de los botones (hoy en
+`engine/audio/sequence.rs`). Por eso los tipos especiales caben en un deck sin tocar el deck ni
+el ping-pong.
 
 **Si la resolución falla** —carpeta vacía, sin internet para el clima, falta el archivo de esa
 hora— el deck queda en `Failed`, que `poll_finished` trata como terminado: el motor releva y **la

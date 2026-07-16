@@ -1,74 +1,63 @@
 use crate::domain::playback::seek::{self as playback_seek, ReplayInfo};
-use crate::engine::audio::bus::ButtonStateMap;
+use crate::engine::audio::button::ButtonStateMap;
 use crate::engine::audio::command::AudioCommand;
-use crate::engine::audio::device::AudioDeviceRuntime;
+use crate::engine::audio::last_pressed::LastPressedInfo;
 use crate::engine::audio::ops as audio_ops;
 use crate::engine::audio::thread_play::{play_file, play_sequence, PlayArgs};
-use crate::engine::audio::vu::LastPressedInfo;
 use crate::engine::cache::preload::PreloadCache;
+use crate::engine::console::{BusId, ConsoleEngine};
 use std::collections::HashMap;
-use std::sync::atomic::AtomicU32;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-#[allow(clippy::too_many_arguments)]
 pub fn spawn(
     rx: Receiver<AudioCommand>,
     states: Arc<Mutex<ButtonStateMap>>,
-    master_l: Arc<AtomicU32>,
-    master_r: Arc<AtomicU32>,
-    master_volume: Arc<AtomicU32>,
     last_pressed: Arc<Mutex<Option<LastPressedInfo>>>,
     cache: Arc<Mutex<PreloadCache>>,
+    console: Arc<ConsoleEngine>,
 ) {
-    thread::spawn(move || {
-        run(
-            rx,
-            states,
-            master_l,
-            master_r,
-            master_volume,
-            last_pressed,
-            cache,
-        )
-    });
+    thread::spawn(move || run(rx, states, last_pressed, cache, console));
 }
 
 fn run(
     rx: Receiver<AudioCommand>,
     states: Arc<Mutex<ButtonStateMap>>,
-    master_l: Arc<AtomicU32>,
-    master_r: Arc<AtomicU32>,
-    master_volume: Arc<AtomicU32>,
     last_pressed: Arc<Mutex<Option<LastPressedInfo>>>,
     cache: Arc<Mutex<PreloadCache>>,
+    console: Arc<ConsoleEngine>,
 ) {
-    let mut device = AudioDeviceRuntime::new();
-    let mut device_pre = AudioDeviceRuntime::new();
-    let pre_volume = Arc::new(AtomicU32::new(1.0f32.to_bits()));
-    let pre_l = Arc::new(AtomicU32::new(0));
-    let pre_r = Arc::new(AtomicU32::new(0));
     let mut replays: HashMap<String, ReplayInfo> = HashMap::new();
+    // La ultima tarjeta pedida para el bus principal, para saber si de verdad
+    // cambia. Reaplicar la misma salida (al arrancar, al reconectar) no debe
+    // callar lo que este sonando.
+    let mut current_main = String::new();
 
     for cmd in rx {
         audio_ops::purge_done(&states);
         match cmd {
             AudioCommand::SetDevice { device_name } => {
-                device.set_device(
-                    &states,
-                    &master_l,
-                    &master_r,
-                    &master_volume,
-                    device_name,
-                    true,
-                );
+                // Cambiar de tarjeta se lleva por delante lo que sonaba: esas
+                // fuentes viven en un bus que esta a punto de desaparecer, y sin
+                // limpiar quedarian colgadas en el mapa sin llegar a terminar
+                // nunca (nadie las itera ya, asi que jamas marcan done).
+                // Que el bus no exista cuenta como cambio: hay que reabrirlo.
+                if device_name != current_main || console.bus(BusId::Main).is_none() {
+                    states.lock().unwrap().clear();
+                    replays.clear();
+                }
+                current_main = device_name.clone();
+                console.set_bus_device(BusId::Main, &device_name);
             }
             AudioCommand::SetPreDevice { device_name } => {
+                // Sin tarjeta propia el bus de pre-escucha no existe, y quien
+                // quiera sonar en el cae al principal. Ese fallback es el que la
+                // Fase 3 elimina; aqui se conserva tal cual estaba.
                 if device_name.is_empty() {
-                    device_pre.clear();
+                    console.close_bus(BusId::Pre);
                 } else {
-                    device_pre.set_device(&states, &pre_l, &pre_r, &pre_volume, device_name, false);
+                    console.set_bus_device(BusId::Pre, &device_name);
                 }
             }
             AudioCommand::Play {
@@ -109,13 +98,13 @@ fn run(
                     replays.retain(|key, _| key == &id);
                 }
                 let bus = if to_pre {
-                    device_pre.bus().or_else(|| device.bus())
+                    console.bus(BusId::Pre).or_else(|| console.bus(BusId::Main))
                 } else {
-                    device.bus()
+                    console.bus(BusId::Main)
                 };
                 let played = play_file(
                     &states,
-                    bus,
+                    bus.as_ref(),
                     &cache,
                     PlayArgs {
                         id,
@@ -166,7 +155,7 @@ fn run(
             } => {
                 playback_seek::seek_active(
                     &states,
-                    device.bus(),
+                    console.bus(BusId::Main).as_ref(),
                     &cache,
                     &last_pressed,
                     &replays,
@@ -181,7 +170,15 @@ fn run(
                 duration,
                 group,
             } => {
-                play_sequence(&states, device.bus(), id, paths, volume, duration, group);
+                play_sequence(
+                    &states,
+                    console.bus(BusId::Main).as_ref(),
+                    id,
+                    paths,
+                    volume,
+                    duration,
+                    group,
+                );
             }
         }
     }

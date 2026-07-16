@@ -1,11 +1,12 @@
 use crate::domain::playback::source as playback_source;
-use crate::engine::audio::bus::{ButtonStateMap, MasterBus};
-use crate::engine::audio::button::PlaybackGroup;
+use crate::engine::audio::attach::{attach_button, AttachArgs};
+use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup};
+use crate::engine::audio::last_pressed::LastPressedInfo;
 /// Modulo: playback_seek.rs
 /// Proposito: estado de reconstruccion y seek para botones principales.
 use crate::engine::audio::ops as audio_ops;
-use crate::engine::audio::vu::LastPressedInfo;
 use crate::engine::cache::preload::PreloadCache;
+use crate::engine::console::Bus;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
@@ -27,7 +28,7 @@ pub struct ReplayInfo {
 #[allow(clippy::too_many_arguments)]
 pub fn seek_active(
     states: &Arc<Mutex<ButtonStateMap>>,
-    bus: Option<&MasterBus>,
+    bus: Option<&Bus>,
     cache: &Arc<Mutex<PreloadCache>>,
     last_pressed: &Mutex<Option<LastPressedInfo>>,
     replays: &HashMap<String, ReplayInfo>,
@@ -64,17 +65,20 @@ pub fn seek_active(
         return;
     };
     audio_ops::stop_id(states, &id);
-    let state = bus.add_source(
+    let state = attach_button(
+        bus,
         source,
-        info.volume,
-        info.duration,
-        info.loop_mode,
-        info.file_gain,
-        info.fade_in_s,
-        info.fade_out_stop_s,
-        info.fade_out_end_s,
-        target,
-        PlaybackGroup::Main,
+        AttachArgs {
+            volume: info.volume,
+            duration: info.duration,
+            loop_mode: info.loop_mode,
+            file_gain: info.file_gain,
+            fade_in_s: info.fade_in_s,
+            fade_out_stop_s: info.fade_out_stop_s,
+            fade_out_end_s: info.fade_out_end_s,
+            position_offset_s: target,
+            group: PlaybackGroup::Main,
+        },
     );
     states.lock().unwrap().entry(id).or_default().push(state);
 }

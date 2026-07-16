@@ -38,11 +38,11 @@ Enum Rust en `engine/audio/command.rs`. Variantes: `Play`, `Stop`, `StopAll`, `S
 **`AudioConfig`**
 Struct de configuración de audio por perfil. Contiene los dispositivos de salida (`out_main`, `out_pre`), atajos globales, modo de reproducción y volumen master. Ver [`audio.rs`](../src-tauri/src/model/audio.rs).
 
-**`AudioDeviceRuntime`**
-Struct en `engine/audio/device.rs` que gestiona el ciclo de vida de un `OutputStream` y su `MasterBus`. Al cambiar de dispositivo, recrea el stream sin interrumpir el hilo de audio.
+**`AudioDeviceRuntime`** — *eliminado*
+Struct que gestionaba el ciclo de vida de un `OutputStream` y su `MasterBus`. Desapareció al nacer [`engine/console/`](#c): las tarjetas son de la consola, no del motor de efectos. Su sustituto es [`OutputEndpoint`](#o).
 
 **`AudioEngine`**
-Fachada pública del motor de audio en `engine/audio/engine.rs`. Posee el `Sender<AudioCommand>` hacia el hilo de audio. También posee los `Arc` de atómicos (nivel VU, volumen master) y el `Preloader`. No toca rodio directamente.
+Fachada pública del motor de efectos en `engine/audio/engine.rs`. Posee el `Sender<AudioCommand>` hacia el hilo de audio y el `Preloader`. **Ya no posee tarjetas ni crea sus atómicos**: los niveles y el volumen del bus se los pide a la [consola](#c), porque son del bus y sobreviven a que la tarjeta se cambie. No toca rodio directamente.
 
 ---
 
@@ -56,6 +56,17 @@ Extensión de archivo para exportar un perfil completo. Similar al `.bdelf` pero
 
 **`botón`**
 Celda de la rejilla a la que se asigna un archivo de audio (u otro tipo). Representado por `ButtonData` en Rust. Tiene id único, tipo, ruta, volumen, flags de comportamiento y atajo de teclado.
+
+**`Bus`**
+Struct Rust (`engine/console/bus.rs`). Un punto de suma **con nombre**: un `DynamicMixer` con un [`LevelSource`](#v) detrás que mide su pico, enchufado a un [`OutputEndpoint`](#o) con `play_raw`. Sustituye al antiguo `MasterBus`, del que se diferencia en que **no lleva `Sink`**.
+
+Un bus es una **señal**, no una tarjeta. Esa distinción es la razón de ser de la [consola](#c): dos buses pueden salir por el mismo altavoz sin ser el mismo bus, porque se suman en el conector y no entre ellos. Se clona barato (solo son `Arc`) y se le añaden fuentes desde cualquier hilo.
+
+**`BusId`**
+Enum de los buses que la consola conoce: `Main` (efectos de la botonera y del panel fijo) y `Pre` ([pre-escucha](#p)). La Fase 3 los abre a Efectos / Panel / Reproductor / Cue.
+
+**`BusSlot`**
+Lo que un bus conserva **aunque su tarjeta no exista**: los atómicos de nivel y volumen. Se crean una vez en `ConsoleEngine::new()` y viven siempre, porque el monitor y las fuentes que ya suenan los tienen cogidos; un cambio de tarjeta no debe dejarlos apuntando a la nada. Que un `BusId` falte en `ConsoleState::live` significa exactamente "ese bus no existe ahora mismo".
 
 **`ButtonData`**
 Struct Rust (`model/content.rs`) que representa un botón. Campo `type_field` se serializa como `"type"` en JSON. El campo `vol` es un multiplicador lineal 0–1, no en dB (ver [trim](#trim)). Es el ladrillo común: lo usan la rejilla, el panel fijo y la cola del reproductor, por eso vive en el contenido y no cuelga de ningún módulo concreto.
@@ -72,6 +83,15 @@ Struct Rust (`engine/audio/button.rs`) que rastrea el estado de reproducción de
 ---
 
 ## C
+
+**`consola` / `ConsoleEngine`**
+El motor `engine/console/`: **dueño de las salidas físicas y de los buses**. No produce audio, lo recibe y lo encamina; por eso no es un motor *al lado* de `audio/` y `player/`, sino *debajo*: ambos son sus clientes.
+
+**Por qué es un motor propio:** `OutputStream` no es `Send` (lleva un `cpal::Stream` dentro), así que alguien tiene que ser su dueño y quedarse quieto en un hilo. Cuando cada motor abría su propia tarjeta había *dos* hilos dueños de salidas, y por eso no podía existir un punto de suma común. La consola centraliza esa propiedad en un hilo guardián y reparte lo que sí viaja: `OutputStreamHandle` (`Clone + Send + Sync`) y el controller de cada [bus](#b) (`Arc`, `Send + Sync`).
+
+**Reproducir no pasa por su hilo.** `DynamicMixerController::add` toma `&self`, así que cada motor añade fuentes a su bus desde el suyo. El hilo guardián solo atiende cambios de ruteo.
+
+Plan y fases: [`PLAN_CONSOLA_VIRTUAL.md`](PLAN_CONSOLA_VIRTUAL.md).
 
 **`CachedPcm`**
 Struct en `engine/cache/cached_source.rs` que almacena el PCM decodificado como `Vec<i16>`, más la tasa de muestreo y el número de canales. Compartido via `Arc<CachedPcm>` entre la caché y las fuentes activas.
@@ -129,7 +149,7 @@ Función en `engine/cache/preload.rs` que decodifica un archivo a `Vec<i16>` par
 Interruptor del reproductor auxiliar: cuando está activo, al terminar la pista actual la siguiente **no arranca sola** hasta que se pulsa reproducir. Funciona en cualquier modo y **conserva** la pista marcada como siguiente. En el LF Automatizador 2.0 el concepto equivalente es `SilenceReason::StopAfterCurrent`. En Rust es el campo `stop_after` de `QueueState`; en el IPC, `player_set_stop_after`.
 
 **`DynamicMixer`**
-Componente de rodio que mezcla múltiples fuentes de audio en tiempo real. El `MasterBus` usa uno para combinar todos los botones activos en una sola señal antes de enviarla al dispositivo.
+Componente de rodio que mezcla múltiples fuentes de audio en tiempo real. Cada [`Bus`](#b) usa uno para combinar sus fuentes en una sola señal. Su controller es `Arc<DynamicMixerController<f32>>` y `add()` toma `&self`: es `Send + Sync`, así que cualquier motor puede añadir fuentes a un bus desde su propio hilo sin pasar por la consola. `OutputStream` **también lleva uno dentro**, y por eso varios buses enchufados a la misma tarjeta se suman solos, en el conector.
 
 ---
 
@@ -255,8 +275,8 @@ El naranja es además la **guía de qué viene**, así que no desaparece con el 
 **`master_volume`**
 Volumen global del perfil activo. Rango 0–1 (o 0–1.5 en modo boost). Es la tercera capa del modelo de ganancia. Se aplica atómicamente en cada muestra dentro de `ButtonSource`.
 
-**`MasterBus`**
-Struct en `engine/audio/bus.rs`. Combina un `DynamicMixer<f32>` (mezcla todas las fuentes) con un `LevelSource` (mide el PICO del audio sumado) y un `Sink` (envía al dispositivo de audio). Existe uno para la salida principal y otro para la pre-escucha.
+**`MasterBus`** — *eliminado*
+Combinaba un `DynamicMixer<f32>`, un `LevelSource` y un `Sink` en un solo objeto. Ese era justo el problema: fundía la *señal* con el *conector*. Su sustituto es [`Bus`](#b), que es lo mismo **menos el `Sink`** y se enchufa a un [`OutputEndpoint`](#o) con `play_raw`. Un bus nunca se pausa, así que la capa de control del `Sink` sobraba.
 
 **`modo de avance`**
 Cómo recorre la cola el reproductor auxiliar. Es un modo **de lista**, no de un botón. Tres valores: `normal` (recorre y se detiene al final), `repeat` (da la vuelta) y `random` (al azar, evitando repetir la actual). El modo dice **qué** pista viene; que el reproductor se pare al acabar lo decide **detener al finalizar**, que es un interruptor aparte y se combina con los tres. Por encima del modo manda además **marcar siguiente**. La regla pura es `domain::player::next_index`.
@@ -286,6 +306,11 @@ Ganancia calculada por el normalizador automático para llevar el audio a −14 
 **`OnPlay`**
 Estrategia de precarga que encola un archivo en la caché RAM justo cuando se reproduce por primera vez. En las siguientes reproducciones, el archivo ya está en caché y el seek es O(1).
 
+**`OutputEndpoint`**
+Struct Rust (`engine/console/endpoint.rs`). Una tarjeta física abierta **exactamente una vez**. Un `EndpointRegistry` las indexa por nombre, así que pedir dos veces la misma tarjeta devuelve la misma: eso es lo que impide que dos motores la abran por separado y dejen que el sistema operativo sume sus flujos fuera de nuestro control.
+
+Un endpoint **no construye ningún mixer**: `OutputStream` ya lleva uno dentro (`play_raw` añade a él). Solo mantiene el stream vivo —si se suelta, el `Weak` del handle deja de resolver— y reparte su handle. Un endpoint es un **conector**; lo que lleva señal es el [bus](#b).
+
 **`open-meteo`**
 API de clima gratuita y de código abierto usada por `engine/weather/client.rs` para obtener temperatura y humedad actuales a partir de coordenadas geográficas. La caché es de 10 minutos.
 
@@ -302,7 +327,7 @@ Pestaña de la rejilla de botones. Un perfil puede tener múltiples paletas. Cad
 **`PaletaData`**
 Struct Rust (`model/content.rs`) que representa una paleta. Su id tiene el formato `"paleta_1"`, `"paleta_2"`, etc.
 
-**Trampa:** su campo `audio_out` **no enruta nada**. Existe solo por compatibilidad con LF Automatizador (se guarda y se exporta en `.bdelf`), pero el motor de la Botonera lo ignora: todo suena por el `out_main` del perfil. Hoy solo hay dos salidas de efectos (`device` y `device_pre` en `engine/audio/thread.rs`), elegidas con el booleano `to_pre`.
+**Trampa:** su campo `audio_out` **no enruta nada**. Existe solo por compatibilidad con LF Automatizador (se guarda y se exporta en `.bdelf`), pero el motor de la Botonera lo ignora: todo suena por el `out_main` del perfil. Hoy solo hay dos buses de efectos (`BusId::Main` y `BusId::Pre` en [`engine/console/`](#c)), elegidos con el booleano `to_pre`.
 
 **`perfil`**
 Configuración raíz que agrupa una o más paletas. Un perfil tiene nombre, colores, ajustes de audio (dispositivos, atajos, modo de reproducción) y una lista de paletas. Representado por `ProfileData`.
@@ -357,7 +382,9 @@ Struct en `engine/cache/preload.rs`. `HashMap<String, Arc<CachedPcm>>` con lista
 Enum Rust: `FullProfile`, `VisibleTabs`, `OnPlay`. Controla qué archivos se precalientan automáticamente. Ver [`preload.rs`](../src-tauri/src/model/preload.rs).
 
 **`prelisten`**
-Pre-escucha: reproducir un audio en un dispositivo de salida separado (auriculares del locutor) sin que salga al aire. Se usa el ID especial `__prelisten__` para el panel de pre-escucha, y `__track_preview__` para la previa dentro del editor. Los comandos con `to_pre=true` se enrutan al `device_pre` del hilo de audio.
+Pre-escucha: reproducir un audio en un dispositivo de salida separado (auriculares del locutor) sin que salga al aire. Se usa el ID especial `__prelisten__` para el panel de pre-escucha, y `__track_preview__` para la previa dentro del editor. Los comandos con `to_pre=true` se enrutan al bus `BusId::Pre` de la [consola](#c).
+
+**Trampa:** si no hay tarjeta de pre-escucha configurada, ese bus **no existe** y la pre-escucha **cae al bus principal**, donde le pega el volumen master y suma al vúmetro de programa. Con tarjeta dedicada no ocurre: el mismo botón se comporta distinto según el equipo. La Fase 3 de la [consola](#c) lo elimina.
 
 **`PlayerConfig`**
 Configuración persistida del reproductor auxiliar, colgada de `AppConfig.player`. Es **global**: hay un solo reproductor compartido entre perfiles. Contiene `tracks` (la cola, que reutiliza `ButtonData`), `playback_mode`, `volume` (0.0–1.5, independiente del master) y `output_device` (`""` = el mismo de los efectos).
@@ -410,7 +437,7 @@ Función interna de `cmd_button_playback.rs`. Al reproducir un botón, si la pre
 Crate Rust de serialización/deserialización. Se usa con `serde_json` para convertir structs Rust ↔ JSON. `#[serde(default)]` es obligatorio en todo campo nuevo del modelo de datos para mantener compatibilidad con archivos más antiguos (y con el LFA).
 
 **`Sink`**
-Componente de rodio que consume una fuente de audio y la envía al dispositivo de salida CPAL. El `MasterBus` crea un único `Sink` para todo el audio del bus.
+Componente de rodio que consume una fuente de audio y la envía al dispositivo de salida CPAL. Aporta control de transporte (pausa, reanudación, volumen) sobre `play_raw`. Los [buses](#b) **no usan `Sink`**: un bus nunca se pausa, así que esa capa sobraba y se enchufan con `play_raw` directo. Quien sí los usa son los decks del [reproductor](#r), que sí paran y reanudan.
 
 **`solo_mode`**
 Campo de `AudioConfig`. Si es `true`, reproducir cualquier botón para automáticamente todos los demás (equivalente a que todos los botones tengan `stop_other=true`).
@@ -451,7 +478,7 @@ Estrategia de precarga que carga en RAM los audios cortos de la pestaña activa,
 Ver [trim](#trim).
 
 **`vúmetro`**
-Indicador visual del nivel de audio en decibelios. En la Botonera muestra los canales estéreo L/R de la señal sumada en el `MasterBus`. Implementado en `vu_meter.rs` (medición en Rust) y `vuMeter.js` (animación en el frontend con balística de release suave).
+Indicador visual del nivel de audio en decibelios. En la Botonera muestra los canales estéreo L/R de la señal sumada en el bus principal. Implementado en `engine/console/level.rs` (medición en Rust: pico puro sobre PCM, ventana de ~1024 muestras) y `vuMeter.js` (animación en el frontend con balística de release suave). El [reproductor](#r) todavía no tiene vúmetro: sus decks van directos al `Sink`, sin pasar por un bus medido. Lo gana en la Fase 5 de la [consola](#c).
 
 ---
 

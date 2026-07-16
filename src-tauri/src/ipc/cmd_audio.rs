@@ -1,7 +1,7 @@
 /// Modulo: cmd_audio.rs
 /// Proposito: comandos IPC relacionados con el motor de audio.
 use super::AppState;
-use crate::engine::audio::device as audio_device;
+use crate::engine::console::device as audio_device;
 use crate::engine::audio::formats::validate_audio_file;
 use crate::engine::persist::config_io as config;
 use crate::model::fade::FadeConfig;
@@ -16,14 +16,15 @@ pub struct AudioDeviceStatus {
     pub pre_available: bool,
 }
 
+/// Las tarjetas son de la consola, no del motor de efectos: se le preguntan a ella.
 #[tauri::command]
-pub fn get_audio_devices(state: tauri::State<AppState>) -> Vec<String> {
-    state.audio.lock().unwrap().get_available_devices()
+pub fn get_audio_devices() -> Vec<String> {
+    audio_device::available_devices()
 }
 
 #[tauri::command]
 pub fn get_audio_device_status(state: tauri::State<AppState>) -> AudioDeviceStatus {
-    let devices = state.audio.lock().unwrap().get_available_devices();
+    let devices = audio_device::available_devices();
     let (main, pre) = configured_devices(&state);
     AudioDeviceStatus {
         main_available: device_is_available(&main),

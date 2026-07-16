@@ -1,10 +1,12 @@
 use crate::domain::playback::source as playback_source;
-use crate::engine::audio::bus::{ButtonStateMap, MasterBus, SequenceSource};
-use crate::engine::audio::button::PlaybackGroup;
+use crate::engine::audio::attach::{attach_button, AttachArgs};
+use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup};
 /// Modulo: audio_thread_play.rs
 /// Proposito: operaciones auxiliares usadas por el hilo de audio.
 use crate::engine::audio::ops::{self as audio_ops, stop_removed};
+use crate::engine::audio::sequence::SequenceSource;
 use crate::engine::cache::preload::PreloadCache;
+use crate::engine::console::Bus;
 use std::sync::{Arc, Mutex};
 
 pub struct PlayArgs {
@@ -28,7 +30,7 @@ pub struct PlayArgs {
 
 pub fn play_file(
     states: &Arc<Mutex<ButtonStateMap>>,
-    bus: Option<&MasterBus>,
+    bus: Option<&Bus>,
     cache: &Arc<Mutex<PreloadCache>>,
     args: PlayArgs,
 ) -> bool {
@@ -53,17 +55,20 @@ pub fn play_file(
     ) else {
         return false;
     };
-    let btn_state = bus.add_source(
+    let btn_state = attach_button(
+        bus,
         source,
-        args.volume,
-        args.duration,
-        args.loop_mode,
-        args.file_gain,
-        args.fade_in_s,
-        args.fade_out_stop_s,
-        args.fade_out_end_s,
-        args.position_offset_s,
-        args.group,
+        AttachArgs {
+            volume: args.volume,
+            duration: args.duration,
+            loop_mode: args.loop_mode,
+            file_gain: args.file_gain,
+            fade_in_s: args.fade_in_s,
+            fade_out_stop_s: args.fade_out_stop_s,
+            fade_out_end_s: args.fade_out_end_s,
+            position_offset_s: args.position_offset_s,
+            group: args.group,
+        },
     );
     states.entry(args.id).or_default().push(btn_state);
     true
@@ -71,7 +76,7 @@ pub fn play_file(
 
 pub fn play_sequence(
     states: &Arc<Mutex<ButtonStateMap>>,
-    bus: Option<&MasterBus>,
+    bus: Option<&Bus>,
     id: String,
     paths: Vec<String>,
     volume: f32,
@@ -82,17 +87,20 @@ pub fn play_sequence(
     let mut states = states.lock().unwrap();
     stop_removed(states.remove(&id));
     if let Some(seq) = SequenceSource::from_paths(&paths) {
-        let btn_state = bus.add_source(
+        let btn_state = attach_button(
+            bus,
             Box::new(seq),
-            volume,
-            duration,
-            false,
-            1.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            group,
+            AttachArgs {
+                volume,
+                duration,
+                loop_mode: false,
+                file_gain: 1.0,
+                fade_in_s: 0.0,
+                fade_out_stop_s: 0.0,
+                fade_out_end_s: 0.0,
+                position_offset_s: 0.0,
+                group,
+            },
         );
         states.entry(id).or_default().push(btn_state);
     }

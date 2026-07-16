@@ -7,10 +7,16 @@ Reglas aplicadas: `Documentación/REGLAS_PROYECTO.md` (en especial la 4, la 5 y 
 
 ---
 
-## 1. Cómo viaja el audio hoy, de verdad
+## 1. Cómo viajaba el audio antes de la Fase 1
 
-Antes de proponer nada, esto es lo que hay en el disco, leído módulo a módulo. Es importante
-porque tres de los cuatro problemas de abajo no se ven desde la interfaz.
+> **Nota (Fase 1 completada):** esta sección es la **auditoría de partida**, y describe el motor
+> tal como estaba **antes** de que naciera `engine/console/`. Se conserva porque explica *por qué*
+> se hizo lo que se hizo. Para el estado actual, ver `ARCHITECTURE.md` y el registro de la
+> sección 10. Los cuatro hallazgos siguen siendo el mapa de lo que falta: la Fase 1 arregló la
+> propiedad de las tarjetas, no el fallback de la pre-escucha ni el master.
+
+Esto es lo que había en el disco, leído módulo a módulo. Es importante porque tres de los cuatro
+problemas de abajo no se ven desde la interfaz.
 
 ### Hay tres motores, no uno
 
@@ -363,10 +369,65 @@ cumplirse por fin. Tampoco lo propongo; lo dejo como consecuencia disponible.
 
 ---
 
-## 9. Resumen en tres frases
+## 9. Registro de fases
 
-Hoy hay tres motores que se ignoran, un máster que no es una etapa sino un acuerdo, y una
-pre-escucha que se cuela en el programa cuando solo tienes una tarjeta. La consola virtual separa
-*señal* de *conector*, que es la distinción que pediste y la que hoy el código no puede expresar.
-Se puede hacer en fases pequeñas y verificables, y las tres primeras ya pagan solas aunque nunca
-se dibuje una sola tira de canal.
+### Fase 1 — completada (2026-07-16)
+
+**Nace `engine/console/`.** El hilo guardián toma la propiedad de las tarjetas y los motores
+pasan a pedirle buses. Sin cambio audible: la aplicación suena exactamente igual.
+
+**Lo que se movió:**
+
+- Nacen `engine/console/`: `mod.rs` (`ConsoleEngine`, `BusId`, `BusSlot`), `thread.rs` (guardián),
+  `endpoint.rs` (`OutputEndpoint` + registro por nombre), `bus.rs` (`Bus`), `level.rs`
+  (`LevelSource`), `device.rs` (`find_device` / `available_devices`).
+- **Desaparecen** `engine/audio/bus.rs` (`MasterBus`), `engine/audio/device.rs`
+  (`AudioDeviceRuntime`), `engine/audio/device_list.rs` y `engine/audio/vu.rs`, absorbidos.
+- `MasterBus::add_source` se convierte en `engine/audio/attach.rs::attach_button`. **Se queda en
+  el motor de efectos a propósito:** un bus solo sabe sumar fuentes; que un botón tenga fades,
+  trim, estado y grupo es asunto de quien sabe de botones. La consola no sabe qué es un botón.
+- `SequenceSource` sale a `engine/audio/sequence.rs`; `LastPressedInfo` a
+  `engine/audio/last_pressed.rs` (estaba mezclado con `LevelSource`, que es del bus).
+- `AudioEngine` deja de crear sus atómicos: se los pide a la consola, porque los niveles y el
+  volumen **son del bus** y sobreviven a que la tarjeta se caiga o se cambie.
+- `get_available_devices` se cae de `AudioEngine`: listar tarjetas no es asunto del motor de
+  efectos. `cmd_audio` se lo pregunta a la consola.
+
+**Se rompió un acoplamiento:** `engine/player/` importaba `device::find_device` del motor de
+efectos. Ahora ambos dependen de la consola, no uno del otro.
+
+**Un bug cazado durante la fase.** La primera versión limpiaba los estados de botón en *todo*
+`SetDevice`, pero el `AudioDeviceRuntime` original salía temprano si el dispositivo era el mismo
+y su bus vivía. Reaplicar la misma salida (al arrancar, al reconectar) habría callado la botonera.
+El hilo de efectos recuerda ahora la última tarjeta pedida y solo limpia si de verdad cambia — o
+si el bus no existe, que también obliga a reabrir.
+
+**Lo que la Fase 1 NO hizo, y conviene no dar por hecho:**
+
+- **La doble apertura de tarjeta sigue.** El reproductor conserva su `OutputStream` propio. Se
+  decidió sacarlo de esta fase: unirlo ahora obligaba a modelar un "cliente de endpoint" que la
+  Fase 4 tira, porque allí el reproductor pasa a ser un bus. Era construir un andamio para
+  demolerlo. Se arregla en la Fase 4.
+- **El fallback de la pre-escucha sigue intacto**, a propósito: es la Fase 3.
+- **El master sigue aplicándose por fuente**, a propósito: es la Fase 2.
+
+**Verificación:** `cargo build --lib` sin avisos (que es como compila el usuario), `cargo test
+--lib` con 140 pruebas (3 nuevas sobre qué tarjetas siguen en uso), `npm run build` correcto,
+ningún archivo sobre 200 líneas. `engine/audio/engine.rs` llegó a 201 y bajó a 197 quitando el
+passthrough de dispositivos, no recortando comentarios.
+
+**Nota sobre las pruebas nuevas.** Solo cubren `devices_in_use`, la regla pura de qué tarjeta
+sigue haciendo falta. Abrir tarjetas de verdad necesita hardware, así que `EndpointRegistry` y
+`Bus` **no tienen prueba unitaria**: son envoltorios finos sobre rodio y cpal. Que la misma
+tarjeta se abra una sola vez se comprueba en el equipo del autor, no aquí.
+
+---
+
+## 10. Resumen en tres frases
+
+Había tres motores que se ignoraban, un máster que no es una etapa sino un acuerdo entre fuentes,
+y una pre-escucha que se cuela en el programa cuando solo tienes una tarjeta. La consola separa
+*señal* de *conector*, que es la distinción que el código no podía expresar: la Fase 1 ya le dio
+un dueño único a las salidas, y quedan el fader (Fase 2) y el fin del fallback (Fase 3). Se hace
+en fases pequeñas y verificables, y las tres primeras pagan solas aunque nunca se dibuje una sola
+tira de canal.

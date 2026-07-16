@@ -162,11 +162,13 @@ invoke('play_button', {id}) ─► cmd_button_playback::play_button_id()
                                                          ├── Hit → CachedSource::new_at() O(1)
                                                          └── Miss → decode + CuedSource O(n)
                                                                          │
-                                                              MasterBus::add_source()
+                                                    attach_button() → bus de la consola
                                                                          │
                                                    ButtonSource: s × file_gain × vol_btn × master
                                                                          │
-                                                              DynamicMixer → LevelSource → Sink
+                                              engine/console: DynamicMixer → LevelSource
+                                                                         │
+                                                          OutputEndpoint (play_raw)
                                                                                               │
                                                                                          Altavoces
 ```
@@ -175,8 +177,19 @@ invoke('play_button', {id}) ─► cmd_button_playback::play_button_id()
 ```
 señal = muestra × file_gain(dB→lineal) × vol_botón(lineal 0-1) × master(lineal 0-1.5)
 ```
+El `master` lo aplica **cada fuente por su cuenta**, no un fader del bus: no es una etapa,
+es un acuerdo entre fuentes. La Fase 2 de la consola lo convierte en un fader real.
 
-**Pre-escucha:** los comandos con `to_pre=true` van al bus `device_pre` (segundo OutputStream). Si `device_pre` no está configurado, cae al bus principal.
+**La consola (`engine/console/`)** es dueña de las salidas físicas y de los buses; el motor
+de efectos le pide un bus (`BusId::Main`, `BusId::Pre`) y le entrega fuentes. Reproducir NO
+pasa por su hilo: el controller del bus es `Arc<...>` y `add()` toma `&self`, así que cada
+motor añade desde el suyo. El hilo guardián solo atiende ruteo, porque `OutputStream` no es
+`Send` y alguien tiene que ser su dueño.
+
+**Pre-escucha:** los comandos con `to_pre=true` van al bus `BusId::Pre`. Si no tiene tarjeta
+propia ese bus no existe y **caen al bus principal** — donde les pega el master y suman al
+vúmetro de programa. Es un fallback conocido: la Fase 3 de la consola lo elimina. Ver
+[`PLAN_CONSOLA_VIRTUAL.md`](Documentación/PLAN_CONSOLA_VIRTUAL.md).
 
 ---
 
@@ -241,8 +254,10 @@ Para el mapa completo, ver [`Documentación/LIBRO_PROYECTO.md §3 y §4`](Docume
 | `src-tauri/src/core/setup.rs` | Inicializa la app: dispositivo, hilos, precarga |
 | `src-tauri/src/model/` | Esquema de datos completo serializable |
 | `src-tauri/src/engine/persist/config_io.rs` | Persistencia JSON + migración automática |
-| `src-tauri/src/engine/audio/thread.rs` | El único hilo que toca rodio/cpal en los efectos |
-| `src-tauri/src/engine/audio/bus.rs` | Mezcla de fuentes + medición de nivel |
+| `src-tauri/src/engine/audio/thread.rs` | Hilo de los efectos: comandos, estados y fades |
+| `src-tauri/src/engine/console/thread.rs` | Hilo guardián: único dueño de las tarjetas abiertas |
+| `src-tauri/src/engine/console/bus.rs` | Un bus: mezcla de fuentes + medición de nivel |
+| `src-tauri/src/engine/console/endpoint.rs` | Una tarjeta física abierta exactamente una vez |
 | `src-tauri/src/engine/player/thread.rs` | Hilo del reproductor auxiliar: único dueño de su salida y sus dos decks |
 | `src-tauri/src/domain/player/advance.rs` | Regla pura de los cuatro modos: qué pista suena después |
 | `src-tauri/src/ipc/cmd_button_playback.rs` | Lógica completa de disparo de un botón |

@@ -95,6 +95,11 @@ y `#[serde(default)]`. Dos recordatorios firmes del usuario:
   `find_device`, `device_available`) y el flujo de recuperación (`audioDeviceRecovery.js`,
   `get_audio_device_status`). El reproductor abre su propio `OutputStream` con el mismo
   patrón que la pre-escucha.
+  > **Desactualizado (2026-07-16).** `engine/audio/device.rs` y `AudioDeviceRuntime` ya no
+  > existen: los absorbió `engine/console/`, que es la dueña de las tarjetas. `find_device` y
+  > `device_available` viven ahora en `engine/console/device.rs`. El reproductor **sigue**
+  > abriendo su propio `OutputStream`; deja de hacerlo en la Fase 4 de
+  > [`PLAN_CONSOLA_VIRTUAL.md`](PLAN_CONSOLA_VIRTUAL.md).
 - **Construcción de fuentes con cue y caché:** `engine/cache/preload.rs::build_play_source`
   devuelve un `BoxSource` (fuente rodio con cue de inicio/fin y caché ya aplicados),
   apto para `Sink::append`. Así el reproductor respeta el editor de pistas sin lógica nueva.

@@ -276,7 +276,7 @@ cmd_button_playback::play_button_id()
                     ┌─────────────┴────────────────┐
                     │ to_pre=false                  │ to_pre=true
                     ▼                               ▼
-              device.bus()               device_pre.bus() ──fallback──► device.bus()
+        console.bus(BusId::Main)     console.bus(BusId::Pre) ──fallback──► bus(Main)
                     │
                     ▼
             engine/cache/preload.rs::build_play_source(path, loop, cue)
@@ -284,21 +284,33 @@ cmd_button_playback::play_button_id()
                     └── Cache MISS → audio_decode::source_from_path() + CuedSource (O(n))
                                           │
                                           ▼
-                               MasterBus::add_source(source, volume, duration, loop_mode, file_gain)
+                    engine/audio/attach.rs::attach_button(bus, source, args)
                                           │
                                           ▼
                                ButtonSource { inner, stop_flag, done_flag, file_gain, volume, master_volume }
                                (implementa Iterator<Item=f32>; aplica: s × file_gain × vol_btn × master)
                                           │
                                           ▼
-                               DynamicMixer<f32>
+                    ══ engine/console/ ═══════════════════════════════
+                               Bus: DynamicMixer<f32>
                                           │
                                           ▼
                                LevelSource (mide PICO del PCM sumado → atomic)
                                           │
                                           ▼
-                               Sink → OutputStreamHandle → dispositivo CPAL
+                               play_raw → OutputEndpoint (una tarjeta, abierta 1 vez)
+                                          │
+                                          ▼
+                               mixer interno de OutputStream → dispositivo CPAL
 ```
+
+**La consola (`engine/console/`)** es dueña de las salidas y de los buses. El motor de efectos
+le pide un bus y le entrega fuentes. **Reproducir NO pasa por su hilo:** el controller del bus
+es `Arc<DynamicMixerController<f32>>` (Send + Sync) y `add()` toma `&self`. El hilo guardián
+solo atiende ruteo, porque `OutputStream` no es `Send` y alguien debe ser su dueño.
+
+Varios buses en la **misma tarjeta** se suman en el `OutputEndpoint`, no entre ellos: un bus es
+una *señal*, un endpoint es un *conector*. Esa es toda la idea.
 
 **Modelo de ganancia (3 capas):**
 ```
@@ -308,10 +320,20 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 - `vol_botón`: `ButtonData.vol` (lineal 0–1; se preserva para compat `.bdelf`)
 - `master`: `AudioConfig.master_volume` (0–1.5 en modo boost)
 
+**Trampa del master:** no es un fader ni una etapa. Es un atómico que **cada `ButtonSource` lee
+y se aplica a sí mismo**, así que el "programa" no existe en ningún punto del código: es solo el
+resultado de que varias fuentes obedezcan el mismo número. Por eso el reproductor no lo obedece
+(motor aparte). La Fase 2 de la consola lo convierte en un fader real del bus.
+
 **Pre-escucha:**
 - ID especial `__prelisten__` para la barra de pre-escucha
 - ID especial `__track_preview__` para la previa dentro del editor de pistas
-- Ambos van con `to_pre=true` → enrutados a `device_pre` si existe; si no, a `device`
+- Ambos van con `to_pre=true` → al bus `BusId::Pre` si existe; si no, **caen al `Main`**
+
+**Trampa del fallback:** `out_pre` viene vacío por defecto, y entonces el bus `Pre` no existe. La
+pre-escucha cae al `Main`, donde **le pega el master y suma al vúmetro de programa**. Con tarjeta
+de pre-escucha dedicada no ocurre. O sea: el mismo botón se comporta distinto según el equipo. Es
+conocido y la Fase 3 lo elimina — ver `Documentación/PLAN_CONSOLA_VIRTUAL.md`.
 
 ---
 
@@ -319,7 +341,8 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 
 | Hilo | Módulo | Descripción |
 |---|---|---|
-| Audio | `engine/audio/thread.rs` | Ejecuta el motor; único hilo que toca rodio/cpal |
+| Consola | `engine/console/thread.rs` | Hilo guardián: **único dueño de las tarjetas abiertas** (`OutputStream` no es Send). Solo atiende ruteo; reproducir no pasa por aquí |
+| Audio | `engine/audio/thread.rs` | Motor de efectos: comandos, estados de botón y fades |
 | Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con progreso + VU. **Solo emite si hay efectos sonando** (en reposo calla) |
 | Monitor reproductor | `engine/player/monitor.rs` | Emite `"player-tick"` cada 100 ms. Propio, porque el reproductor es un motor independiente y suena sin efectos |
 | Reloj | `cmd_meta` | Emite `"clock-tick"` cada 1 s con hora y fecha localizadas |
@@ -480,10 +503,20 @@ A partir de la v1.1.3, el backend sigue una arquitectura de "Núcleo + Motores" 
 |---|---|
 | `core/` | `AppState`, setup inicial, configuración global y mapeo de errores |
 | `model/` | Tipos puros (AppConfig, TrackMeta, etc.) y serialización serde. Sin lógica de I/O. |
-| `engine/` | Motores autónomos: `audio/` (rodio, hilos), `player/` (reproductor auxiliar), `dsp/` (ebur128, symphonia, waveform), `cache/` (LRU), `persist/` (SQLite, JSON), `weather/` (open-meteo), `input/` (atajos). |
+| `engine/` | Motores autónomos: `console/` (salidas físicas y buses), `audio/` (efectos), `player/` (reproductor auxiliar), `dsp/` (ebur128, symphonia, waveform), `cache/` (LRU), `persist/` (SQLite, JSON), `weather/` (open-meteo), `input/` (atajos). |
 | `domain/` | Reglas de negocio puras (relativas a grids, botones, y modos de reproducción). |
 | `ipc/` | Endpoints Tauri. Funciones finas que extraen parámetros y delegan en el dominio/motores. |
 | `domain/export/lfa_format/` | Adaptadores de compatibilidad bidireccional con LF Automatizador (.bdelf/.LFPlay). |
+
+**`engine/console/` (la consola de audio), por responsabilidad:**
+`mod.rs` (handle `ConsoleEngine` + `BusId` + `BusSlot`), `thread.rs` (hilo guardián: único dueño
+de las tarjetas), `endpoint.rs` (`OutputEndpoint`: una tarjeta abierta **una vez** + registro por
+nombre), `bus.rs` (`Bus`: mixer + medidor, enchufado con `play_raw`; **sin `Sink`**),
+`level.rs` (`LevelSource`), `device.rs` (`find_device` / `available_devices`).
+
+Es un motor **debajo** de `audio/` y `player/`, no al lado: no produce audio, lo encamina, y los
+dos son sus clientes. `MasterBus` y `AudioDeviceRuntime` desaparecieron absorbidos por él.
+Fases y decisiones: `Documentación/PLAN_CONSOLA_VIRTUAL.md`.
 
 **`engine/player/` (reproductor auxiliar), por responsabilidad:**
 `mod.rs` (handle `PlayerEngine`), `thread.rs` (hilo; único dueño del `OutputStream` y los 2 decks),

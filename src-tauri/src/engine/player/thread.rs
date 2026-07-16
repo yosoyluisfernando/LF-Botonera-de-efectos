@@ -8,7 +8,7 @@ use super::exec::exec_all;
 use super::queue::{DeckAction, QueueState};
 use super::resolve::QueueResolver;
 use super::{PlayerCommand, PlayerSnapshot};
-use crate::engine::audio::device::find_device;
+use crate::engine::console::device::find_device;
 use crate::engine::cache::preload::PreloadCache;
 use rodio::{OutputStream, OutputStreamHandle};
 use std::sync::atomic::{AtomicU32, Ordering};

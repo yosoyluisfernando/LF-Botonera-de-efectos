@@ -1,16 +1,18 @@
-use crate::engine::audio::bus::ButtonStateMap;
-use crate::engine::audio::button::PlaybackGroup;
+use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup};
 use crate::engine::audio::command::AudioCommand;
+use crate::engine::audio::last_pressed::LastPressedInfo;
 use crate::engine::audio::thread as audio_thread;
-use crate::engine::audio::vu::LastPressedInfo;
 use crate::engine::cache::preload::PreloadCache;
 use crate::engine::cache::preloader::Preloader;
+use crate::engine::console::{BusId, ConsoleEngine};
 use crate::model::fade::FadeConfig;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
 
+/// Motor de efectos: botones de la botonera y del panel fijo. Ya no posee
+/// tarjetas — pide sus buses a la consola, que es su dueña.
 pub struct AudioEngine {
     tx: Sender<AudioCommand>,
     button_states: Arc<Mutex<ButtonStateMap>>,
@@ -24,12 +26,13 @@ pub struct AudioEngine {
 }
 
 impl AudioEngine {
-    pub fn new() -> Self {
+    pub fn new(console: Arc<ConsoleEngine>) -> Self {
         let (tx, rx) = channel::<AudioCommand>();
         let button_states: Arc<Mutex<ButtonStateMap>> = Arc::new(Mutex::new(HashMap::new()));
-        let master_level_l = Arc::new(AtomicU32::new(0));
-        let master_level_r = Arc::new(AtomicU32::new(0));
-        let master_volume = Arc::new(AtomicU32::new(1.0f32.to_bits()));
+        // Los niveles y el volumen del bus los crea la consola, no este motor:
+        // son del BUS, y sobreviven a que la tarjeta se caiga o se cambie.
+        let (master_level_l, master_level_r) = console.levels(BusId::Main);
+        let master_volume = console.volume(BusId::Main);
         let last_pressed = Arc::new(Mutex::new(None));
         let preload_cache = Arc::new(Mutex::new(PreloadCache::new(128)));
         let preload_enabled = Arc::new(AtomicBool::new(false));
@@ -37,11 +40,9 @@ impl AudioEngine {
         audio_thread::spawn(
             rx,
             Arc::clone(&button_states),
-            Arc::clone(&master_level_l),
-            Arc::clone(&master_level_r),
-            Arc::clone(&master_volume),
             Arc::clone(&last_pressed),
             Arc::clone(&preload_cache),
+            console,
         );
         Self {
             tx,
@@ -77,10 +78,6 @@ impl AudioEngine {
     pub fn last_pressed_handle(&self) -> Arc<Mutex<Option<LastPressedInfo>>> {
         Arc::clone(&self.last_pressed)
     }
-    pub fn get_available_devices(&self) -> Vec<String> {
-        crate::engine::audio::device_list::available_devices()
-    }
-
     pub fn master_volume(&self) -> f32 {
         f32::from_bits(self.master_volume.load(Ordering::Relaxed))
     }
