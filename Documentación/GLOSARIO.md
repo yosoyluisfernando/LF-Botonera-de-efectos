@@ -79,6 +79,13 @@ Struct en `engine/cache/cached_source.rs` que almacena el PCM decodificado como 
 **`CachedSource`**
 Struct en `engine/cache/cached_source.rs` que implementa `Source<Item=f32>`. Lee desde un `Arc<CachedPcm>` y permite crear instancias en cualquier posición con `new_at(pcm, offset)` en tiempo O(1). Solución al problema de seek con latencia creciente.
 
+**`probe_duration_secs`**
+Lee la duración de un archivo de audio (`engine/audio/formats.rs`). Devuelve `-1.0` si no puede.
+
+**Trampa:** pide las propiedades **sin las etiquetas** (`read_tags(false)`), y es a propósito. Solo se necesita la duración, pero leer las etiquetas de paso hacía perder el archivo entero: un MP3 con el título o el artista mal codificados —frecuente en rippeos viejos con acentos— devolvía `TextDecode("Found invalid encoding")` y con él la duración, que no tiene nada que ver con el texto. El audio estaba perfecto. Los `-1` que quedaron guardados se recuperan al cargar (`config_migrate::recover_missing_durations`).
+
+**Cuesta ~40 ms por archivo**, así que no se llama a la ligera: por eso la carga de una carpeta grande va en segundo plano, y la migración solo reintenta lo que está sin leer.
+
 **`paleta de colores`**
 Los 24 colores que la Botonera ofrece para los botones (`domain/palette.rs`). **Varían solo en MATIZ, y es a propósito.**
 

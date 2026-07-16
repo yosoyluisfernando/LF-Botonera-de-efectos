@@ -23,7 +23,11 @@
   border-bottom:1px solid var(--border-color); }
 .fixed-playback-modes button { border:1px solid var(--border-color); background:var(--bg-secondary);
   color:var(--text-primary); border-radius:3px; padding:4px 0; cursor:pointer; transition:background 0.12s ease; }
+/* Faltaba el hover: la transicion estaba puesta pero no habia estado al que ir,
+   asi que estos botones no reaccionaban al raton como los del reproductor. */
+.fixed-playback-modes button:hover { background:var(--playback-hover-bg); }
 .fixed-playback-modes button.active { background:var(--action-accent); color:#fff; }
+.fixed-playback-modes button.active:hover { background:var(--action-accent-hover); }
 .fixed-playback-modes [data-fixed-stop] { background:var(--danger-bg); color:var(--danger-text);
   border-color:var(--danger-border); }
 .fixed-playback-modes [data-fixed-stop]:hover { background:var(--error-color); color:#fff; border-color:var(--error-color); }

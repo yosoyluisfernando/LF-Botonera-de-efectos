@@ -13,7 +13,7 @@ import { initPlayerSettings, loadPlayerSettings, savePlayerSettings } from './se
 let _loadedScope = 'global';
 
 export function initFixedPanelSettings() {
-    document.getElementById('fixed-view').addEventListener('change', _syncColumns);
+    document.getElementById('fixed-view').addEventListener('change', _syncButtonsOnly);
     document.getElementById('fixed-row-mode').addEventListener('change', _syncRows);
     initPlayerSettings();
 }
@@ -34,7 +34,7 @@ export async function loadFixedPanelSettings(config, devices) {
     // Despues de fijar `fixed-view`: la seccion Reproductor se muestra u oculta
     // segun esa presentacion, asi que necesita el valor ya puesto.
     loadPlayerSettings(config, devices);
-    _syncColumns();
+    _syncButtonsOnly();
     _syncRows();
 }
 
@@ -76,6 +76,11 @@ function _syncRows() {
     document.getElementById('fixed-rows-row').classList.toggle('hidden', !limited);
 }
 
-function _syncColumns() {
-    document.getElementById('fixed-columns-row').classList.toggle('hidden', !_isButtonsView());
+/** Oculta lo que solo aplica a la rejilla de botones fijos. Los "controles de
+ *  reproducción" son los modos de esos BOTONES (loop, multi, solo, stop…): el
+ *  reproductor tiene su propio transporte, así que ahí la opción no pinta nada. */
+function _syncButtonsOnly() {
+    const buttons = _isButtonsView();
+    document.getElementById('fixed-columns-row').classList.toggle('hidden', !buttons);
+    document.getElementById('fixed-modes-row').classList.toggle('hidden', !buttons);
 }

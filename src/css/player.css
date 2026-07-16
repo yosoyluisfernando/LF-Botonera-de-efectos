@@ -85,6 +85,10 @@
 .player-transport { display:flex; align-items:center; gap:3px; padding:5px; }
 .player-transport button { padding:4px 7px; }
 .player-transport button.active { background:var(--action-accent); color:#fff; }
+/* El Stop se avisa en rojo al pasar por encima: en directo hay que localizarlo
+   de un vistazo, y sobre todo NO pulsarlo por error. Va DESPUES del hover
+   generico de .player-transport button, o ese lo pisaria. */
+#player-stop:hover { background:var(--error-color); color:#fff; border-color:var(--error-color); }
 
 /* Progreso de una carga larga (carpeta grande): se ve en la cabecera, donde el
    operador esta mirando, para que nunca parezca que no hace nada. */

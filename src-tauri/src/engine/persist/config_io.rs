@@ -1,4 +1,7 @@
-use crate::engine::persist::config_migrate::{clear_locution_markers, normalize_button_ids, normalize_playback_modes};
+use crate::engine::persist::config_migrate::{
+    clear_locution_markers, normalize_button_ids, normalize_playback_modes,
+    recover_missing_durations,
+};
 use crate::model::{AppConfig, ButtonData};
 /// Módulo: config.rs
 /// Propósito: Persistencia de AppConfig en disco con migración automática
@@ -69,6 +72,7 @@ pub fn load_config() -> AppConfig {
             normalize_button_ids(&mut cfg);
             normalize_playback_modes(&mut cfg);
             clear_locution_markers(&mut cfg);
+            recover_missing_durations(&mut cfg);
             return cfg;
         }
     }

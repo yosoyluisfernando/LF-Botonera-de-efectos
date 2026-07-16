@@ -17,11 +17,11 @@ dónde está y guarda lo que solo vive en la conversación.
 
 ## 1. Estado (2026-07-16)
 
-- **Rama:** `codex/panel-lateral-fijo`. Último commit: `d7947df` "Añade el modo reproductor al
-  panel lateral" (105 archivos).
-- **Sin commitear:** el arreglo del salto de posición (`seek_source.rs`) y la retirada del modo
-  `manual`. Ambos verificados.
-- **Verificación:** 121 pruebas, `cargo build --lib` sin avisos, `npm run build` correcto,
+- **Rama:** `codex/panel-lateral-fijo`. Último commit: `6f6ed5d` "Permite pintar varios botones de
+  una vez con Ctrl+clic".
+- **Sin commitear:** los tres retoques de interfaz, el arreglo de la duración
+  (`probe_duration_secs` sin etiquetas) y la migración que la recupera. Todo verificado.
+- **Verificación:** 137 pruebas, `cargo build --lib` sin avisos, `npm run build` correcto,
   ningún archivo sobre 200 líneas.
 - **El modo reproductor está completo.** Lo que queda son mejoras, no deudas: ver §5.
 
@@ -79,6 +79,12 @@ Del reproductor (el detalle y el porqué, en `PLAN_MODO_REPRODUCTOR.md` §2):
 - **Reaplicar el dispositivo del reproductor corta la música**: solo enviarlo si cambió.
 - **No editar los i18n con scripts que reserialicen**: reformatean los 4 archivos enteros. Editar
   el texto directamente. Los cuatro deben cuadrar en número de claves.
+- **`probe_duration_secs` NO debe leer etiquetas.** Un MP3 con el título mal codificado hacía
+  fallar la lectura entera y se perdía la duración (`TextDecode: Found invalid encoding`). Solo
+  se piden las propiedades. Cuesta ~40 ms por archivo: no llamarlo a la ligera.
+- **Sin duración hay DOS valores, y no son lo mismo:** `0.0` es "aún no se ha mirado" y `-1.0` es
+  "se miró y falló". `get_grid_state` solo reintenta con `0.0`, así que un botón en `-1` no se
+  recuperaba nunca por sí solo: de eso se encarga `recover_missing_durations` al cargar.
 - **`player_set_volume` persiste**: al arrastrar un deslizador, `persist: false`.
 
 ---
@@ -118,3 +124,35 @@ en Ajustes → Panel fijo** (`player_set_large_folder_action`), que era el requi
 rectificar si se respondió mal.
 
 Verificación: 124 pruebas, `cargo build --lib` sin avisos, 400 claves i18n cuadradas.
+
+---
+
+## 7. Hecho después (misma fecha)
+
+**C — Colores.** Paleta de **24** en `domain/palette.rs`, repartidos por el círculo de color; se
+midieron 26 parejas a menos de 12° de tono, y como el tema iguala las intensidades (oscuro L≤0.30,
+claro S≥0.90) los 32 de antes se veían como 16. **Sin marrón ni gris** (decisión del autor).
+`readable_text` elige el que más contrasta en vez de aplicar un umbral fijo de 0.45.
+
+**D — Selección múltiple** en vez de la política de colores: `buttonSelection.js` escucha en fase
+de **captura**, para que Ctrl+clic no dispare el sonido. Clic derecho → pintar los seleccionados
+(`set_buttons_color`). Un índice caducado se ignora en vez de abortar la tanda.
+
+**E — Tres retoques de interfaz.** En modo reproductor se ocultan los "controles de reproducción"
+(son los modos de los BOTONES fijos, no del reproductor); animación al pasar el ratón por los
+controles de los botones fijos; y rojizo en el Stop del reproductor. Ojo con el ORDEN del CSS: la
+regla de `#player-stop:hover` va **al final**, o la genérica de `.player-transport button:hover`
+la pisa.
+
+**F — La duración que no aparecía.** Eran mixes de ~10 min con la etiqueta mal codificada. Ver la
+trampa de `probe_duration_secs` en §4. El arreglo tiene dos mitades: dejar de leer etiquetas (para
+lo nuevo) y `recover_missing_durations` (para lo ya guardado). **Cubre los cuatro sitios** donde
+hay duración: cola del reproductor, botones globales del panel, botones fijos del perfil y los de
+cada paleta — no solo la cola, que fue el primer intento y se quedó corto.
+
+**Sobre el CHANGELOG:** la duración y el salto van en *Corregido* aunque parezcan del reproductor,
+porque `probe_duration_secs` existe desde la reescritura a Tauri y `cmd_grid.rs` lo usa: afectan a
+la botonera **ya publicada**. El contraste del texto, no: solo toca botones nuevos, así que es
+*Cambiado*.
+
+Verificación: 137 pruebas, `cargo build --lib` sin avisos, `npm run build` correcto.

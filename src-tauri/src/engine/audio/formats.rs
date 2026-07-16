@@ -36,9 +36,20 @@ pub fn validate_audio_file(path: &str) -> Result<(), String> {
 }
 
 /// Sonda la duracion de un archivo leyendo sus propiedades, sin decodificarlo.
+/// Duracion en segundos, o -1.0 si no se puede leer.
+///
+/// **Se piden las propiedades SIN las etiquetas** (`read_tags(false)`). Solo
+/// necesitamos la duracion, y leer las etiquetas de paso hacia perder el archivo
+/// entero: un MP3 con el titulo o el artista mal codificados (frecuente en
+/// rippeos viejos con acentos) devolvia `TextDecode("Found invalid encoding")` y
+/// con el la duracion, que no tiene nada que ver con el texto. El audio estaba
+/// perfecto; solo sobraba leer lo que no usamos.
 pub fn probe_duration_secs(path: &str) -> f64 {
+    use lofty::config::ParseOptions;
     use lofty::file::AudioFile;
-    lofty::read_from_path(path)
+    use lofty::probe::Probe;
+    Probe::open(path)
+        .and_then(|probe| probe.options(ParseOptions::new().read_tags(false)).read())
         .map(|f| f.properties().duration().as_secs_f64())
         .unwrap_or(-1.0)
 }
