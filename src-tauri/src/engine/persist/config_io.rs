@@ -1,3 +1,4 @@
+use crate::engine::persist::config_migrate::{clear_locution_markers, normalize_button_ids, normalize_playback_modes};
 use crate::model::{AppConfig, ButtonData};
 /// Módulo: config.rs
 /// Propósito: Persistencia de AppConfig en disco con migración automática
@@ -133,49 +134,6 @@ fn migrate(old: LegacyConfig) -> AppConfig {
     cfg
 }
 
-/// Migracion: las listas del LFA importadas antes guardaron su MARCADOR
-/// (`time_locution`…) como si fuera una carpeta, y asi la locucion no sonaba
-/// nunca. Se vacia para que use la carpeta de Ajustes, como hace el LFA con las
-/// suyas. Solo toca lo que es exactamente un marcador: una carpeta real se queda.
-pub(crate) fn clear_locution_markers(cfg: &mut AppConfig) {
-    for track in cfg.player.tracks.iter_mut() {
-        let is_locution = matches!(track.type_field.as_str(), "time" | "temperature" | "humidity");
-        let is_marker = matches!(
-            track.folder.trim(),
-            "time_locution" | "temperature_locution" | "humidity_locution"
-        );
-        if is_locution && is_marker {
-            track.folder.clear();
-        }
-    }
-}
-
-/// Garantiza que los ids de botón sean únicos entre pestañas
-/// (formato "{paleta_id}_btn_{index}"). Migra configs con el formato
-/// antiguo "btn_{index}", que colisionaba entre pestañas.
-fn normalize_button_ids(cfg: &mut AppConfig) {
-    for profile in cfg.profiles.iter_mut() {
-        for paleta in profile.paletas.iter_mut() {
-            let pid = paleta.id.clone();
-            for b in paleta.botones.iter_mut() {
-                let expected = format!("{}_btn_{}", pid, b.index);
-                if b.id != expected {
-                    b.id = expected;
-                }
-            }
-        }
-    }
-}
-
-fn normalize_playback_modes(cfg: &mut AppConfig) {
-    for profile in cfg.profiles.iter_mut() {
-        if profile.audio.playback_mode == "stop_others" {
-            profile.audio.playback_mode = "normal".to_string();
-            profile.audio.solo_mode = true;
-        }
-    }
-}
-
 fn load_legacy_grid() -> Option<LegacyGrid> {
     let path = get_data_dir().join("grid_state.json");
     fs::read_to_string(&path)
@@ -191,7 +149,3 @@ pub fn save_config(config: &AppConfig) -> Result<(), String> {
     let data = serde_json::to_string_pretty(config).map_err(|e| e.to_string())?;
     fs::write(dir.join("botonera_config.json"), data).map_err(|e| e.to_string())
 }
-
-#[cfg(test)]
-#[path = "config_io_tests.rs"]
-mod config_io_tests;

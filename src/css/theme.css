@@ -54,6 +54,9 @@
      mismo valor en claro y oscuro, para que la lista se lea igual siempre. */
   --player-playing-bg: #27ae60;
   --player-next-bg: #d35400;
+  /* Gris: marcada como siguiente pero retenida por "detener al finalizar". El
+     LFA ya tenia este concepto y este color (.row-manual-next). */
+  --player-held-bg: #3b3f46;
   --player-state-text: #ffffff;
 
   --vu-green: #208c4d;
@@ -135,6 +138,9 @@
   /* Mismos valores que en oscuro: ver la nota del bloque de arriba. */
   --player-playing-bg: #27ae60;
   --player-next-bg: #d35400;
+  /* Gris: marcada como siguiente pero retenida por "detener al finalizar". El
+     LFA ya tenia este concepto y este color (.row-manual-next). */
+  --player-held-bg: #3b3f46;
   --player-state-text: #ffffff;
 
   --vu-green: #04cf56;

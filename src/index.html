@@ -61,6 +61,7 @@
           <!-- Modo reproductor: cola propia + transporte (motor independiente) -->
           <div id="player-view" class="player-view">
             <div class="player-header"><span data-i18n="player.title">Reproductor</span>
+              <span id="player-drop-progress" class="player-drop-progress hidden"></span>
               <span class="player-actions">
                 <button id="player-clear" data-i18n-title="player.clear">🧹</button>
                 <button id="player-open" data-i18n-title="player.open">📂</button>
@@ -558,13 +559,19 @@
                   <option value="normal" data-i18n="player.mode_normal">Normal (recorre la lista y para al final)</option>
                   <option value="repeat" data-i18n="player.mode_repeat">Repetir (al acabar vuelve al principio)</option>
                   <option value="random" data-i18n="player.mode_random">Aleatorio (al azar, sin repetir la actual)</option>
-                  <option value="manual" data-i18n="player.mode_manual">Manual (no avanza solo)</option>
                 </select>
               </div></div>
               <div class="row"><div class="col">
                 <label for="player-volume"><span data-i18n="player.volume">Volumen del reproductor:</span>
                   <span id="player-volume-readout" class="player-volume-readout">100%</span></label>
                 <input id="player-volume" type="range" min="0" max="100" step="1" value="100">
+              </div></div>
+              <div class="row"><div class="col"><label data-i18n="player.large_folder">Al soltar más de 250 canciones:</label>
+                <select id="player-large-folder">
+                  <option value="ask" data-i18n="player.large_folder_ask">Preguntar</option>
+                  <option value="always" data-i18n="player.large_folder_always">Añadir siempre</option>
+                  <option value="never" data-i18n="player.large_folder_never">No añadir nunca</option>
+                </select>
               </div></div>
               <p class="hint" data-i18n="player.settings_hint">El reproductor tiene su propio volumen y su propia salida: es independiente de los efectos.</p>
             </div>

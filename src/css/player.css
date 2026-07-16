@@ -32,8 +32,11 @@
 .player-row-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .player-row-dur { font-variant-numeric:tabular-nums; flex:none; }
 /* Verde = sonando, naranja = siguiente, con los colores exactos del LFA v1.
-   .playing va despues: si una fila fuera ambas cosas, manda la que suena. */
+   Gris = marcada pero retenida por "detener al finalizar": se respeta, pero no
+   sonara sola. .playing va al final: si una fila fuera ambas cosas, manda la
+   que suena. */
 .player-row.next { background:var(--player-next-bg); color:var(--player-state-text); font-weight:bold; }
+.player-row.next-held { background:var(--player-held-bg); color:var(--player-state-text); font-weight:bold; }
 .player-row.playing { background:var(--player-playing-bg); color:var(--player-state-text); font-weight:bold; }
 /* Arrastre: origen atenuado, destino marcado. */
 .player-row.drag-source { opacity:.45; }
@@ -82,3 +85,8 @@
 .player-transport { display:flex; align-items:center; gap:3px; padding:5px; }
 .player-transport button { padding:4px 7px; }
 .player-transport button.active { background:var(--action-accent); color:#fff; }
+
+/* Progreso de una carga larga (carpeta grande): se ve en la cabecera, donde el
+   operador esta mirando, para que nunca parezca que no hace nada. */
+.player-drop-progress { font-size:10px; font-weight:normal; color:var(--accent-clock);
+  font-variant-numeric:tabular-nums; }

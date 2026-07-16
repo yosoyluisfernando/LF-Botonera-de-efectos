@@ -4,7 +4,6 @@
 //! Configurar la cola (contenido, modo, interruptores) vive en `queue_edit.rs`;
 //! elegir que pista viene y pre-cargarla, en `queue_select.rs`.
 use super::queue::{DeckAction, QueueState};
-use crate::domain::player::{next_index, PlayerMode};
 
 impl QueueState {
     /// Empieza a reproducir el indice dado (accion explicita del operador).
@@ -67,10 +66,10 @@ impl QueueState {
         }
         // Loop: la pista actual vuelve a empezar en vez de avanzar. Va lo primero
         // porque manda sobre todo lo demas: mientras este puesto, la cancion no
-        // "termina", asi que ni Manual ni "detener al finalizar" llegan a actuar.
-        // Solo en fin natural: el boton Siguiente (`forced`) es del operador y
-        // avanza igual. Lo marcado sigue en naranja, esperando su turno: el Loop
-        // dice CUANDO acaba esta, no QUE viene despues.
+        // "termina", asi que "detener al finalizar" no llega a actuar. Solo en fin
+        // natural: el boton Siguiente (`forced`) es del operador y avanza igual.
+        // Lo marcado sigue en naranja, esperando su turno: el Loop dice CUANDO
+        // acaba esta, no QUE viene despues.
         if !forced && self.loop_current {
             if let Some(current) = self.current.filter(|&i| self.playable(i)) {
                 return vec![DeckAction::Load {
@@ -81,22 +80,10 @@ impl QueueState {
             }
         }
         let preloaded = self.loaded_other.take();
-        if !forced && self.mode == PlayerMode::Manual && self.marked.is_none() {
-            let base = self.current.or(self.cursor);
-            let first = next_index(PlayerMode::Normal, self.entries.len(), base, None, self.rand());
-            self.marked = self.resolve_playable(first);
-            self.current = None;
-            return vec![DeckAction::StopAll];
-        }
-        let mut target = match preloaded {
+        let target = match preloaded {
             Some(t) => Some(t),
             None => self.peek_next(),
         };
-        if forced && self.mode == PlayerMode::Manual && target.is_none() {
-            let base = self.current.or(self.cursor);
-            let first = next_index(PlayerMode::Normal, self.entries.len(), base, None, self.rand());
-            target = self.resolve_playable(first);
-        }
         let Some(target) = target else {
             // Fin de la lista: para, pero deja en naranja por donde se retomaria.
             self.current = None;
@@ -142,3 +129,7 @@ mod queue_special_tests;
 #[cfg(test)]
 #[path = "queue_loop_tests.rs"]
 mod queue_loop_tests;
+
+#[cfg(test)]
+#[path = "queue_stop_after_tests.rs"]
+mod queue_stop_after_tests;

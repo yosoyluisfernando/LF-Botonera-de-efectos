@@ -3,6 +3,7 @@
 Guía para cualquier IA colaboradora (independientemente del modelo o plataforma).
 Lee este archivo completo antes de proponer o escribir código.
 
+> **Empieza por [`Documentación/CONTINUIDAD_SESION.md`](Documentación/CONTINUIDAD_SESION.md)**: estado del trabajo, decisiones cerradas y trampas ya verificadas.
 > Si usas Claude Code, lee también [`CLAUDE.md`](CLAUDE.md) para instrucciones específicas de esa herramienta.
 > Para una narrativa completa del proyecto, consulta [`Documentación/LIBRO_PROYECTO.md`](Documentación/LIBRO_PROYECTO.md).
 > Para el glosario de términos, consulta [`Documentación/GLOSARIO.md`](Documentación/GLOSARIO.md).
@@ -103,7 +104,7 @@ AppConfig
   ├── fixed_panel: FixedPanelConfig {scope, view: "player"|"buttons", side, columns, rows, width, ...}
   ├── player: PlayerConfig          ← reproductor auxiliar, global (uno solo)
   │     ├── tracks: Vec<ButtonData>   (la cola; reutiliza ButtonData, admite todos los tipos)
-  │     ├── playback_mode: "normal"|"repeat"|"random"|"manual"
+  │     ├── playback_mode: "normal"|"repeat"|"random"
   │     ├── volume: f32               (0.0..=1.5, independiente del master)
   │     └── output_device: String     ("" = el mismo de los efectos)
   └── profiles: Vec<ProfileData>
@@ -219,7 +220,7 @@ Para la lista completa ver [`CLAUDE.md §9`](CLAUDE.md).
 - `player_play_index(index)` / `player_activate_index(index)` → el motor decide si reproduce o marca
 - `player_next` / `player_prev` / `player_stop` / `player_pause` / `player_resume`
 - `player_mark_next(index?)` → marcar siguiente. **Es ley:** se respeta en todos los modos
-- `player_set_mode(mode)` → "normal" | "repeat" | "random" | "manual"
+- `player_set_mode(mode)` → "normal" | "repeat" | "random". El modo dice QUÉ pista viene; que se pare al acabar lo decide `player_set_stop_after`, que se combina con los tres
 - `player_set_stop_after(enabled)` → al acabar la actual, no arranca sola
 - `player_set_volume(volume)` / `player_set_device(device)` → salida propia ("" = la de los efectos)
 - `player_add_track(path, index?)` / `player_add_button(buttonId, index?)` → sin `index`, al final

@@ -12,7 +12,9 @@ let _ok = null;
 let _alt = null;
 let _cancel = null;
 let _resolve = null;
+let _remember = null;
 let _values = null;
+let _wantsRemember = false;
 
 /** Muestra un aviso modal sin usar alert nativo del WebView. */
 export function appAlert(message) {
@@ -41,6 +43,20 @@ export function appConfirm3(message, labels) {
     });
 }
 
+/**
+ * Confirmación con un check de "recordar siempre".
+ * Devuelve `{ choice: true|false, remember: bool }`, para que quien pregunta
+ * decida qué guardar. El resto de diálogos no cambian.
+ */
+export function appConfirmRemember(message, rememberLabel, labels) {
+    return _open(message, {
+        buttons: { ok: true, cancel: true },
+        labels,
+        values: { ok: true, cancel: false },
+        remember: rememberLabel,
+    });
+}
+
 function _open(message, opts) {
     _ensureDialog();
     _title.textContent = t('app.title');
@@ -57,6 +73,12 @@ function _open(message, opts) {
     _cancel.classList.toggle('hidden', !opts.buttons.cancel);
     _modal.classList.toggle('dialog-wide', !!opts.buttons.alt);
     _values = opts.values;
+    _wantsRemember = !!opts.remember;
+    // Check opcional "recordar siempre": se pide por `opts.remember` y su estado
+    // viaja con la respuesta, para que quien pregunta guarde la decision.
+    _remember.classList.toggle('hidden', !opts.remember);
+    _remember.querySelector('span').textContent = opts.remember ?? '';
+    _remember.querySelector('input').checked = false;
     _modal.classList.remove('hidden');
     _ok.focus();
     return new Promise(resolve => { _resolve = resolve; });
@@ -77,6 +99,9 @@ function _ensureDialog() {
         </div>
         <div class="modal-body">
           <p class="confirm-text"></p>
+          <label class="checkbox-line app-dialog-remember hidden">
+            <input type="checkbox"><span></span>
+          </label>
         </div>
         <div class="modal-footer">
           <button class="btn-dark app-dialog-cancel" type="button"></button>
@@ -91,6 +116,7 @@ function _ensureDialog() {
     _ok = _modal.querySelector('.app-dialog-ok');
     _alt = _modal.querySelector('.app-dialog-alt');
     _cancel = _modal.querySelector('.app-dialog-cancel');
+    _remember = _modal.querySelector('.app-dialog-remember');
 
     _modal.querySelector('.close-btn').addEventListener('click', () => _finish('cancel'));
     _cancel.addEventListener('click', () => _finish('cancel'));
@@ -103,6 +129,9 @@ function _ensureDialog() {
 
 function _finish(kind) {
     _modal?.classList.add('hidden');
-    _resolve?.(_values?.[kind]);
+    const remember = !!_remember?.querySelector('input')?.checked;
+    // Con check: {choice, remember}. Sin el: el valor de siempre, para no
+    // romper a quien ya llamaba a appConfirm/appConfirm3.
+    _resolve?.(_wantsRemember ? { choice: _values?.[kind], remember } : _values?.[kind]);
     _resolve = null;
 }

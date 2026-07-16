@@ -94,8 +94,16 @@ export function paintPlayerTick(snapshot) {
     const rows = document.querySelectorAll('#player-rows .player-row');
     rows.forEach(row => {
         const position = Number(row.dataset.index);
+        const isNext = snapshot.next_index === position;
         row.classList.toggle('playing', snapshot.current_index === position);
-        row.classList.toggle('next', snapshot.next_index === position);
+        // Naranja = "suena a continuación". Con "detener al finalizar" puesto no
+        // va a sonar sola, así que se marca en gris: sigue siendo lo elegido y se
+        // respeta, pero avisa de que habrá que pulsar play. Parado no aplica: no
+        // hay una "actual" tras la que sonar, y ahí el naranja es la guía de por
+        // dónde se retomaría.
+        const held = isNext && snapshot.stop_after && snapshot.playing;
+        row.classList.toggle('next', isNext && !held);
+        row.classList.toggle('next-held', held);
     });
     document.getElementById('player-stop-after').classList.toggle('active', !!snapshot.stop_after);
     document.getElementById('player-play').classList.toggle('active', !!snapshot.playing);

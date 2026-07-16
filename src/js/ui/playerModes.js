@@ -11,11 +11,11 @@ import { t } from '../util/i18n.js';
 import { placeMenu } from '../util/menuPosition.js';
 
 // El orden es el de Ajustes: la misma lista en los dos sitios.
-const MODES = ['normal', 'repeat', 'random', 'manual'];
+// El modo dice QUÉ pista viene; si el reproductor se para al acabar lo decide el
+// botón "detener al finalizar", que se combina con cualquiera de los tres.
+const MODES = ['normal', 'repeat', 'random'];
 // Mismo estilo de transporte que ▶ ⏸ ■ ⏭: símbolos monocromos, no emojis.
-// `manual` comparte el icono de "detener al finalizar" a propósito: los dos
-// significan "para al acabar esta" (uno como modo, el otro de una vez).
-const ICONS = { normal: '→', repeat: '∞', random: '⇄', manual: '▶■' };
+const ICONS = { normal: '→', repeat: '∞', random: '⇄' };
 
 let _menu = null;
 let _mode = 'normal';

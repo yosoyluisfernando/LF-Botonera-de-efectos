@@ -10,7 +10,7 @@ import { invoke, listen } from '../bridge/api.js';
 import { drawGrid } from './grid.js';
 import { appConfirm, appConfirm3 } from './appDialog.js';
 import { alertIpcError } from './ipcError.js';
-import { dropFileOnPlayer } from './playerDnd.js';
+import { dropOnPlayer } from './playerDrop.js';
 import { t } from '../util/i18n.js';
 
 let _onRefresh = null;
@@ -25,12 +25,15 @@ export function initFileDrop(onRefresh) {
     listen('tauri://drag-drop', async e => {
         const target = _dropTargetAt(e.payload.position);
         _markFileTarget(null);
-        const path = e.payload.paths?.[0]; // Un solo archivo por soltado (regla de producto).
-        if (!target || !path) return;
+        const paths = e.payload.paths ?? [];
+        if (!target || !paths.length) return;
         try {
-            if (target.closest('#player-view')) await dropFileOnPlayer(target, path);
-            else if (target.closest('#fixed-panel')) await _dropFileOnFixed(target, path);
-            else await _dropFileOnGrid(target, path);
+            // El reproductor admite carpetas y varios archivos a la vez; la
+            // botonera (rejilla y panel fijo) sigue siendo de UN archivo y sin
+            // carpetas. Son dos herramientas distintas, no una incoherencia.
+            if (target.closest('#player-view')) await dropOnPlayer(target, paths);
+            else if (target.closest('#fixed-panel')) await _dropFileOnFixed(target, paths[0]);
+            else await _dropFileOnGrid(target, paths[0]);
         } catch (err) {
             console.error('Error al asignar archivo soltado:', err);
             await alertIpcError(err);

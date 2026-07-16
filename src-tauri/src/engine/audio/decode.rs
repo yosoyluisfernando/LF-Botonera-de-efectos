@@ -1,5 +1,6 @@
 /// Modulo: audio_decode.rs
 /// Proposito: decodificacion central, incluyendo Ogg/Opus de WhatsApp.
+use crate::engine::audio::seek_source;
 use opus_decoder::OpusDecoder;
 use rodio::{buffer::SamplesBuffer, Decoder, Source};
 use std::fs::File;
@@ -21,6 +22,19 @@ pub fn source_from_path(path: &str, loop_mode: bool) -> Option<BoxSource> {
 /// Abre un archivo ya posicionado en `start_s`. En formatos soportados por
 /// rodio/symphonia usa seek real; evita descartar muestras una por una.
 pub fn source_from_path_at(path: &str, loop_mode: bool, start_s: f64) -> Option<BoxSource> {
+    // Sin salto, no hace falta posicionar nada: el camino normal es mas simple.
+    if start_s <= 0.0 {
+        return source_from_path(path, loop_mode);
+    }
+    // `seek_source` primero: es el unico que posiciona DE VERDAD. El `try_seek`
+    // de rodio falla siempre (no informa del tamano del archivo a symphonia), y
+    // cuando falla hay que descartar las muestras una a una hasta el punto
+    // pedido: ~55 ms por segundo saltado. Ver `seek_source.rs`.
+    if !loop_mode {
+        if let Some(source) = seek_source::seek_source(path, start_s) {
+            return Some(source);
+        }
+    }
     rodio_source_at(path, loop_mode, start_s).or_else(|| opus_source_at(path, loop_mode, start_s))
 }
 
@@ -132,61 +146,5 @@ fn is_opus_header(packet: &[u8]) -> bool {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use std::fs;
-    use std::path::Path;
-
-    #[test]
-    fn source_from_path_at_reads_near_requested_position() {
-        let path = std::env::temp_dir().join(format!("lf_seek_{}.wav", std::process::id()));
-        let samples = (0..8000)
-            .map(|i| if i < 4000 { 1000i16 } else { 10000i16 })
-            .collect::<Vec<_>>();
-        write_mono_wav(&path, 8000, &samples);
-
-        let mut source = source_from_path_at(path.to_str().unwrap(), false, 0.5).unwrap();
-        let first = source.next().unwrap();
-        let _ = fs::remove_file(path);
-
-        assert!(first > 0.2);
-    }
-
-    #[test]
-    #[ignore]
-    fn manual_seek_probe_from_env() {
-        let path = std::env::var("LF_SEEK_TEST_FILE").unwrap();
-        let pos = std::env::var("LF_SEEK_TEST_POS")
-            .ok()
-            .and_then(|v| v.parse::<f64>().ok())
-            .unwrap_or(180.0);
-        let start = std::time::Instant::now();
-        let mut source = source_from_path_at(&path, false, pos).unwrap();
-        let opened_ms = start.elapsed().as_millis();
-        let _ = source.next();
-        let first_ms = start.elapsed().as_millis();
-        println!("seek probe: open={}ms first_sample={}ms", opened_ms, first_ms);
-        assert!(first_ms < 1500);
-    }
-
-    fn write_mono_wav(path: &Path, sample_rate: u32, samples: &[i16]) {
-        let mut bytes = Vec::new();
-        let data_len = (samples.len() * 2) as u32;
-        bytes.extend_from_slice(b"RIFF");
-        bytes.extend_from_slice(&(36 + data_len).to_le_bytes());
-        bytes.extend_from_slice(b"WAVEfmt ");
-        bytes.extend_from_slice(&16u32.to_le_bytes());
-        bytes.extend_from_slice(&1u16.to_le_bytes());
-        bytes.extend_from_slice(&1u16.to_le_bytes());
-        bytes.extend_from_slice(&sample_rate.to_le_bytes());
-        bytes.extend_from_slice(&(sample_rate * 2).to_le_bytes());
-        bytes.extend_from_slice(&2u16.to_le_bytes());
-        bytes.extend_from_slice(&16u16.to_le_bytes());
-        bytes.extend_from_slice(b"data");
-        bytes.extend_from_slice(&data_len.to_le_bytes());
-        for sample in samples {
-            bytes.extend_from_slice(&sample.to_le_bytes());
-        }
-        fs::write(path, bytes).unwrap();
-    }
-}
+#[path = "decode_tests.rs"]
+mod decode_tests;

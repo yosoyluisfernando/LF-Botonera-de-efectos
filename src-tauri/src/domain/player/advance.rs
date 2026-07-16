@@ -2,7 +2,14 @@
 //! Proposito: regla pura de avance de la cola del reproductor auxiliar. Sin
 //! audio ni I/O: dado el modo, el tamano de la cola, la pista actual y la pista
 //! marcada como siguiente, decide el indice de la proxima. Es la fuente de
-//! verdad de los cuatro modos. La ejecucion (decks, pre-carga) vive en el motor.
+//! verdad de los tres modos. La ejecucion (decks, pre-carga) vive en el motor.
+//!
+//! El modo dice QUE pista viene; **no** dice si el reproductor se para. De eso se
+//! encarga "detener al finalizar", que es un interruptor aparte y se combina con
+//! cualquier modo. Hubo un cuarto modo, `manual`, que hacia justo eso: no avanzar
+//! solo. Se quito porque duplicaba el interruptor y ademas limitaba, ya que para
+//! elegir la siguiente forzaba el orden normal: "manual + aleatorio" era
+//! imposible. Con el interruptor, cualquier combinacion funciona.
 
 /// Modo de avance de la cola. Fuente unica de verdad para el reproductor.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -10,7 +17,6 @@ pub enum PlayerMode {
     Normal,
     Repeat,
     Random,
-    Manual,
 }
 
 impl PlayerMode {
@@ -19,10 +25,11 @@ impl PlayerMode {
             "normal" => Ok(Self::Normal),
             "repeat" => Ok(Self::Repeat),
             "random" => Ok(Self::Random),
-            "manual" => Ok(Self::Manual),
             _ => Err("invalid_player_mode".into()),
         }
     }
+    /// Tolerante: una configuracion antigua puede traer el modo `manual`, que ya
+    /// no existe. Cae a Normal, que es lo que hacia para elegir la siguiente.
     pub fn from_config(value: &str) -> Self {
         Self::parse(value).unwrap_or(Self::Normal)
     }
@@ -31,7 +38,6 @@ impl PlayerMode {
             Self::Normal => "normal",
             Self::Repeat => "repeat",
             Self::Random => "random",
-            Self::Manual => "manual",
         }
     }
 }
@@ -42,7 +48,10 @@ impl PlayerMode {
 ///   usa siempre, sin importar el modo (el motor luego lo consume).
 /// - Sin marcado: **Normal** avanza y se detiene al final (`None`); **Repeat** da
 ///   la vuelta; **Random** elige al azar evitando repetir la actual si hay mas de
-///   una; **Manual** no avanza solo (`None`).
+///   una.
+///
+/// Siempre responde QUE pista viene. Si el reproductor debe pararse antes de
+/// arrancarla es cosa de "detener al finalizar", no del modo.
 ///
 /// `rand` es un valor `0.0..1.0` inyectado para que Random sea probable de forma
 /// pura y determinista en las pruebas.
@@ -62,7 +71,6 @@ pub fn next_index(
         }
     }
     match mode {
-        PlayerMode::Manual => None,
         PlayerMode::Normal => match current {
             Some(c) if c + 1 < len => Some(c + 1),
             None => Some(0),

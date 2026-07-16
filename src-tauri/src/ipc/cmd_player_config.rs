@@ -75,3 +75,19 @@ pub fn player_set_device(device: String, state: tauri::State<AppState>) -> Resul
     state.player.lock().unwrap().set_device(&resolved);
     Ok(())
 }
+
+/// Que hacer al soltar una carpeta con muchas canciones: "ask" | "always" |
+/// "never". El aviso lo guarda con su check "recordar siempre"; este comando
+/// existe para poder cambiarlo despues desde Ajustes, por si se respondio mal.
+#[tauri::command]
+pub fn player_set_large_folder_action(
+    action: String,
+    state: tauri::State<AppState>,
+) -> Result<(), String> {
+    if !crate::model::player::LARGE_FOLDER_ACTIONS.contains(&action.as_str()) {
+        return Err("invalid_large_folder_action".into());
+    }
+    let mut cfg = state.config.lock().unwrap();
+    cfg.player.large_folder_action = action;
+    config_io::save_config(&cfg)
+}

@@ -19,7 +19,7 @@
         "btn_start": "Comenzar"
     },
     "tabs": {
-        "default_name": "BOTONERA 1",
+        "new_name": "Pestaña",
         "add_tooltip": "Nueva Pestaña",
         "context": {
             "edit":   "Editar Pestaña...",
@@ -408,6 +408,14 @@
         "col_title": "Título",
         "col_duration": "Duración",
         "total": "Total",
+        "many_tracks_confirm": "Vas a añadir {count} canciones al reproductor. Puede tardar un poco. ¿Continuar?",
+        "remember_choice": "Recordar siempre (no volver a preguntar)",
+        "do_add": "Añadir",
+        "adding": "Añadiendo {done} de {total}…",
+        "large_folder": "Al soltar más de 250 canciones:",
+        "large_folder_ask": "Preguntar",
+        "large_folder_always": "Añadir siempre",
+        "large_folder_never": "No añadir nunca",
         "loop": "Repetir esta canción (bucle)",
         "time_hint": "Clic para cambiar entre tiempo transcurrido y restante",
         "play": "Reproducir",
@@ -429,16 +437,15 @@
         "mode_name_normal": "Normal",
         "mode_name_repeat": "Repetir la lista",
         "mode_name_random": "Aleatorio",
-        "mode_name_manual": "Manual",
         "mode_normal": "Normal (recorre la lista y para al final)",
         "mode_repeat": "Repetir (al acabar vuelve al principio)",
         "mode_random": "Aleatorio (al azar, sin repetir la actual)",
-        "mode_manual": "Manual (no avanza solo)",
         "volume": "Volumen del reproductor:",
         "device": "Salida del reproductor:",
         "device_same": "La misma de los efectos"
     },
     "errors": {
+        "player_no_audio_found": "No se encontró ningún audio en lo que soltaste.",
         "fatal_ipc":       "Error fatal de comunicación con el motor nativo.",
         "only_profile":    "No se puede eliminar el único perfil.",
         "only_tab":        "No se puede eliminar la única pestaña.",

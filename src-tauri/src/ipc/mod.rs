@@ -23,6 +23,7 @@ pub mod cmd_playback_progress;
 pub mod cmd_player;
 pub mod cmd_player_file;
 pub mod cmd_player_config;
+pub mod cmd_player_drop;
 pub mod cmd_player_queue;
 pub mod cmd_preload;
 pub mod cmd_profiles;

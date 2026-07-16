@@ -42,3 +42,38 @@ pub fn probe_duration_secs(path: &str) -> f64 {
         .map(|f| f.properties().duration().as_secs_f64())
         .unwrap_or(-1.0)
 }
+
+/// Todos los audios de una carpeta y sus subcarpetas, en orden alfabetico por
+/// ruta completa (asi cada subcarpeta queda agrupada y ordenada).
+///
+/// Solo mira las extensiones: listar es barato (medido, ~21 ms para 1.910
+/// archivos en 53 carpetas), mientras que abrir cada archivo para saber su
+/// duracion cuesta ~40 ms **por archivo**. Por eso quien llame a esto puede
+/// contar de inmediato y dejar lo caro para despues.
+pub fn audio_files_recursive(folder: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut pending = vec![std::path::PathBuf::from(folder)];
+    // Pila explicita en vez de recursion: un arbol muy anidado no debe poder
+    // desbordar la pila del hilo.
+    while let Some(dir) = pending.pop() {
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue; // una carpeta sin permisos no aborta el resto
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            match entry.file_type() {
+                Ok(t) if t.is_dir() => pending.push(path),
+                Ok(t) if t.is_file() && is_audio_path(&path) => {
+                    out.push(path.to_string_lossy().to_string());
+                }
+                _ => {}
+            }
+        }
+    }
+    out.sort();
+    out
+}
+
+#[cfg(test)]
+#[path = "formats_tests.rs"]
+mod formats_tests;

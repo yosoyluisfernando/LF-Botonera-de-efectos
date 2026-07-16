@@ -234,7 +234,7 @@ AppConfig
   │     └── columns, row_mode, rows, width: distribución y capacidad persistentes
   ├── player: PlayerConfig — el reproductor auxiliar (uno solo, global)
   │     ├── tracks[]: la cola (reutiliza ButtonData: admite todos los tipos)
-  │     ├── playback_mode: "normal" | "repeat" | "random" | "manual"
+  │     ├── playback_mode: "normal" | "repeat" | "random"
   │     ├── volume: propio, independiente del master (0.0–1.5)
   │     └── output_device: "" = el mismo de los efectos
   └── profiles[]

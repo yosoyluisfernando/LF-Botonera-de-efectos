@@ -19,7 +19,7 @@
         "btn_start": "Start"
     },
     "tabs": {
-        "default_name": "SOUNDBOARD 1",
+        "new_name": "Tab",
         "add_tooltip": "New Tab",
         "context": {
             "edit": "Edit Tab...",
@@ -408,6 +408,14 @@
         "col_title": "Title",
         "col_duration": "Duration",
         "total": "Total",
+        "many_tracks_confirm": "You are about to add {count} tracks to the player. It may take a moment. Continue?",
+        "remember_choice": "Remember my choice (do not ask again)",
+        "do_add": "Add",
+        "adding": "Adding {done} of {total}…",
+        "large_folder": "When dropping more than 250 tracks:",
+        "large_folder_ask": "Ask",
+        "large_folder_always": "Always add",
+        "large_folder_never": "Never add",
         "loop": "Repeat this track (loop)",
         "time_hint": "Click to switch between elapsed and remaining time",
         "play": "Play",
@@ -429,16 +437,15 @@
         "mode_name_normal": "Normal",
         "mode_name_repeat": "Repeat the list",
         "mode_name_random": "Random",
-        "mode_name_manual": "Manual",
         "mode_normal": "Normal (plays through the list and stops at the end)",
         "mode_repeat": "Repeat (starts over when it ends)",
         "mode_random": "Random (at random, never repeating the current one)",
-        "mode_manual": "Manual (does not advance on its own)",
         "volume": "Player volume:",
         "device": "Player output:",
         "device_same": "Same as the effects"
     },
     "errors": {
+        "player_no_audio_found": "No audio was found in what you dropped.",
         "fatal_ipc": "Fatal communication error with the native engine.",
         "only_profile": "The only profile cannot be deleted.",
         "only_tab": "The only tab cannot be deleted.",

@@ -24,6 +24,8 @@ pub struct PlayerView {
     pub total_s: f64,
     /// "elapsed" | "remaining": que ensena el contador de la pista.
     pub time_display: String,
+    /// "ask" | "always" | "never" al soltar una carpeta grande.
+    pub large_folder_action: String,
     pub snapshot: PlayerSnapshot,
 }
 
@@ -48,6 +50,7 @@ pub(crate) fn player_view(state: &AppState) -> PlayerView {
         output_device: cfg.player.output_device.clone(),
         total_s: queue_total_s(&cfg.player.tracks),
         time_display: cfg.player.time_display.clone(),
+        large_folder_action: cfg.player.large_folder_action.clone(),
         snapshot,
     }
 }

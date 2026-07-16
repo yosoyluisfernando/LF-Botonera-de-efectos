@@ -62,13 +62,13 @@ fn reindex(tracks: &mut [ButtonData]) {
 }
 
 /// Inserta en la posicion indicada (o al final si no se envia) y renumera.
-fn insert_track(tracks: &mut Vec<ButtonData>, btn: ButtonData, index: Option<u32>) {
+pub(super) fn insert_track(tracks: &mut Vec<ButtonData>, btn: ButtonData, index: Option<u32>) {
     let position = index.map_or(tracks.len(), |i| (i as usize).min(tracks.len()));
     tracks.insert(position, btn);
     reindex(tracks);
 }
 
-fn next_id(tracks: &[ButtonData]) -> String {
+pub(super) fn next_id(tracks: &[ButtonData]) -> String {
     (1..)
         .map(|n| format!("player_btn_{n}"))
         .find(|id| tracks.iter().all(|track| track.id != *id))

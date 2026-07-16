@@ -39,7 +39,10 @@ export async function openTabModal(config, paleta, onRefresh) {
         textEl.value  = paleta.tab_text || '#ffffff';
     } else {
         const count   = _tabCount(config);
-        nameEl.value  = `${t('tabs.default_name')} ${count + 1}`;
+        // "Pestaña 3", no "BOTONERA 1 3": el nombre base traía un número pegado
+        // y al concatenarle la posición salían nombres raros. El número va por
+        // posición, así que renombrar una pestaña no descoloca a las siguientes.
+        nameEl.value  = _newTabName(count);
         rowsEl.value  = 5;
         colsEl.value  = 5;
         bgEl.value    = '#3a3f44';
@@ -55,7 +58,7 @@ export async function openTabModal(config, paleta, onRefresh) {
     document.getElementById('btn-save-tab').onclick = async () => {
         const datos = {
             profileId: config.active_profile_id,
-            nombre:    nameEl.value.trim() || t('tabs.default_name'),
+            nombre:    nameEl.value.trim() || _newTabName(_tabCount(config)),
             rows:      parseInt(rowsEl.value) || 5,
             cols:      parseInt(colsEl.value) || 5,
             audioOut:  audioEl.value,
@@ -114,4 +117,9 @@ function _tabCount(config) {
     return config.profiles
         .find(p => p.id === config.active_profile_id)
         ?.paletas.length ?? 0;
+}
+
+/** Nombre propuesto para una pestaña nueva: "Pestaña 3" (por posición). */
+function _newTabName(count) {
+    return `${t('tabs.new_name')} ${count + 1}`;
 }

@@ -5,7 +5,7 @@
 //! cuando el reproductor esta detenido. El transporte (play/stop/avanzar) vive en
 //! `queue_ops.rs`; aqui no se ejecuta nada sobre los decks.
 use super::queue::{DeckAction, QueueState};
-use crate::domain::player::{next_index, PlayerMode};
+use crate::domain::player::next_index;
 
 impl QueueState {
     /// Salta a una posicion de lo que suena. No cambia de pista ni de deck: solo
@@ -46,11 +46,7 @@ impl QueueState {
         if self.entries.is_empty() || self.current.is_some() || self.marked.is_some() {
             return;
         }
-        let mode = match self.mode {
-            PlayerMode::Random => PlayerMode::Random,
-            _ => PlayerMode::Normal,
-        };
-        let cand = next_index(mode, self.entries.len(), self.cursor, None, self.rand());
+        let cand = next_index(self.mode, self.entries.len(), self.cursor, None, self.rand());
         self.marked = self
             .resolve_playable(cand)
             .or_else(|| self.resolve_playable(Some(0)));

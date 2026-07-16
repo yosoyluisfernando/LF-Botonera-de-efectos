@@ -19,7 +19,7 @@
         "btn_start": "Começar"
     },
     "tabs": {
-        "default_name": "BOTONERA 1",
+        "new_name": "Aba",
         "add_tooltip": "Nova Aba",
         "context": {
             "edit": "Editar Aba...",
@@ -408,6 +408,14 @@
         "col_title": "Título",
         "col_duration": "Duração",
         "total": "Total",
+        "many_tracks_confirm": "Você vai adicionar {count} músicas ao reprodutor. Pode demorar um pouco. Continuar?",
+        "remember_choice": "Lembrar sempre (não perguntar de novo)",
+        "do_add": "Adicionar",
+        "adding": "Adicionando {done} de {total}…",
+        "large_folder": "Ao soltar mais de 250 músicas:",
+        "large_folder_ask": "Perguntar",
+        "large_folder_always": "Sempre adicionar",
+        "large_folder_never": "Nunca adicionar",
         "loop": "Repetir esta música (loop)",
         "time_hint": "Clique para alternar entre tempo decorrido e restante",
         "play": "Reproduzir",
@@ -429,16 +437,15 @@
         "mode_name_normal": "Normal",
         "mode_name_repeat": "Repetir a lista",
         "mode_name_random": "Aleatório",
-        "mode_name_manual": "Manual",
         "mode_normal": "Normal (percorre a lista e para no fim)",
         "mode_repeat": "Repetir (ao terminar, volta ao início)",
         "mode_random": "Aleatório (ao acaso, sem repetir a atual)",
-        "mode_manual": "Manual (não avança sozinho)",
         "volume": "Volume do reprodutor:",
         "device": "Saída do reprodutor:",
         "device_same": "A mesma dos efeitos"
     },
     "errors": {
+        "player_no_audio_found": "Nenhum áudio foi encontrado no que você soltou.",
         "fatal_ipc": "Erro fatal de comunicação com o motor nativo.",
         "only_profile": "Não é possível excluir o único perfil.",
         "only_tab": "Não é possível excluir a única aba.",

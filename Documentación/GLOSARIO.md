@@ -101,6 +101,13 @@ Struct en `cue_source.rs` que implementa seek saltando muestras (O(n)). Se usa c
 **`deck`**
 Cada una de las dos "pletinas" del reproductor auxiliar (`engine/player/deck.rs`). Un deck envuelve un `Sink` de rodio y reproduce **una** pista a la vez, con estados `Empty`, `Loaded`, `Playing`, `Paused`, `Finished` y `Failed`. `Loaded` significa pre-cargado y en pausa, listo para arrancar al instante. `Finished` es fin natural (sink vacío) a la espera de relevo. `Failed` es "no se pudo cargar" (carpeta aleatoria vacía, sin clima, archivo ilegible): `poll_finished` lo trata como terminado para que el motor releve y **la música siga**, en vez de callarse esperando una pista que no existe. El motor alterna los dos decks en *ping-pong*. Concepto adaptado de `player.rs` del LF Automatizador 2.0.
 
+**`SeekSource`**
+Fuente de audio (`engine/audio/seek_source.rs`) que abre un archivo **ya posicionado**, con salto de verdad. La usa `source_from_path_at`, así que sirve a los **dos** motores: efectos y reproductor.
+
+**Por qué existe:** `rodio::Decoder` envuelve el lector en su `ReadSeekSource`, que informa `byte_len() = None`. Symphonia necesita el tamaño del archivo para posicionarse en formatos sin índice, así que su `try_seek` **fallaba siempre** (FLAC: `Unseekable`; MP3: `end of stream`) y se caía a `CuedSource`, que llega al punto **descartando las muestras una a una**: medido, ~55 ms por segundo saltado (6,6 s de silencio para ir al minuto 2). Solo no se notaba en los efectos, porque están en la caché de RAM y allí `CachedSource::new_at` ya era O(1). La solución es no pasar por rodio: symphonia acepta el `File` directamente y `File` **sí** implementa `MediaSource` informando del tamaño. Con eso, saltar cuesta ~10 ms **sea cual sea la distancia**.
+
+**Trampa:** el salto cae al principio del **bloque que contiene** el punto, no al punto exacto (en FLAC, ~90 ms antes). Hay que descartar ese sobrante (`skip`), o se devuelve audio anterior al pedido.
+
 **`decode_pcm`**
 Función en `engine/cache/preload.rs` que decodifica un archivo a `Vec<i16>` para guardarlo en la `PreloadCache`. Solo se llama desde el hilo del `Preloader` o desde el análisis de pistas. Nunca desde el hilo de audio.
 
@@ -227,7 +234,7 @@ Flag de `ButtonData`. Si está activo, el archivo se reproduce en bucle infinito
 ## M
 
 **`marcar siguiente`**
-Señalar qué pista de la cola sonará a continuación en el reproductor auxiliar. Se pinta en **naranja**. Es **ley**: si hay una pista marcada, se respeta siempre, sin importar el modo de avance (incluido `manual`). La marca sigue a **su canción**, no a la posición: al reordenar la lista se conserva por `id`, y si esa canción se borra, la marca se cae (no salta a otra). En Rust es el campo `marked` de `QueueState`, y la regla vive en `domain/player/advance.rs`. En el IPC, `player_mark_next`.
+Señalar qué pista de la cola sonará a continuación en el reproductor auxiliar. Se pinta en **naranja**. Es **ley**: si hay una pista marcada, se respeta siempre, sin importar el modo de avance. La marca sigue a **su canción**, no a la posición: al reordenar la lista se conserva por `id`, y si esa canción se borra, la marca se cae (no salta a otra). En Rust es el campo `marked` de `QueueState`, y la regla vive en `domain/player/advance.rs`. En el IPC, `player_mark_next`.
 
 El naranja es además la **guía de qué viene**, así que no desaparece con el reproductor detenido: al pulsar Stop, lo que estaba pre-cargado pasa a marcado, y si no hay nada marcado se calcula lo que sonaría al pulsar reproducir (`ensure_upcoming_marked`, en `engine/player/queue_select.rs`). De ahí sale también que, al añadir canciones a una lista vacía, la primera quede marcada sola: el invariante es "**detenido y con cola ⇒ hay naranja**".
 
@@ -238,7 +245,9 @@ Volumen global del perfil activo. Rango 0–1 (o 0–1.5 en modo boost). Es la t
 Struct en `engine/audio/bus.rs`. Combina un `DynamicMixer<f32>` (mezcla todas las fuentes) con un `LevelSource` (mide el PICO del audio sumado) y un `Sink` (envía al dispositivo de audio). Existe uno para la salida principal y otro para la pre-escucha.
 
 **`modo de avance`**
-Cómo recorre la cola el reproductor auxiliar. Es un modo **de lista**, no de un botón. Cuatro valores: `normal` (recorre y se detiene al final), `repeat` (da la vuelta), `random` (al azar, evitando repetir la actual) y `manual` (no avanza solo). Por encima del modo mandan **marcar siguiente** y **detener al finalizar**. La regla pura es `domain::player::next_index`.
+Cómo recorre la cola el reproductor auxiliar. Es un modo **de lista**, no de un botón. Tres valores: `normal` (recorre y se detiene al final), `repeat` (da la vuelta) y `random` (al azar, evitando repetir la actual). El modo dice **qué** pista viene; que el reproductor se pare al acabar lo decide **detener al finalizar**, que es un interruptor aparte y se combina con los tres. Por encima del modo manda además **marcar siguiente**. La regla pura es `domain::player::next_index`.
+
+**Hubo un cuarto modo, `manual`**, que no avanzaba solo. Se quitó porque duplicaba el interruptor **y además limitaba**: para elegir la siguiente forzaba el orden normal, así que "manual + aleatorio" era imposible. Con el interruptor, cualquier combinación funciona (por ejemplo, pararse en cada pista y que la siguiente salga al azar). Una configuración antigua con `manual` se migra a `normal` al cargar (`config_io::normalize_playback_modes`); lo de "no avanzar solo" lo da ahora el botón, que **no** se persiste, igual que el Loop.
 
 **`modo reproductor`**
 Una de las dos presentaciones del panel lateral (`fixed_panel.view = "player"`); la otra es `"buttons"`. Muestra el reproductor auxiliar con su lista. Sustituyó a la antigua vista `"list"`, que enseñaba los botones fijos en lista compacta; las configuraciones antiguas se migran solas en `cmd_fixed_panel::state`.

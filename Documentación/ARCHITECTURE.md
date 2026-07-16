@@ -180,8 +180,9 @@ tomado del motor Rust de LF Automatizador 2.0, adaptado (dos decks bastan aquí)
 | `engine/player/monitor.rs` | Emite `"player-tick"` cada 100 ms |
 
 **Los cuatro modos de avance** (a nivel de lista, no de botón): `normal` recorre y se detiene al
-final; `repeat` da la vuelta; `random` elige al azar sin repetir la actual; `manual` no avanza
-solo. Dos reglas por encima del modo:
+final; `repeat` da la vuelta; `random` elige al azar sin repetir la actual. El modo dice QUE
+pista viene; que el reproductor se pare al acabar lo decide "detener al finalizar", un
+interruptor aparte que se combina con los tres. Dos reglas por encima del modo:
 
 - **Lo marcado como siguiente es ley:** si hay una pista marcada, se respeta siempre. La marca
   sigue a su canción por `id`, no a la posición: sobrevive a reordenar la lista.
@@ -224,7 +225,7 @@ sí se precarga, porque elegir la canción por adelantado no la estropea.
 2. playerView.js → invoke('player_resume') | el hilo detecta el fin del deck activo
 3. queue_ops.rs::advance() pregunta a domain/player/advance.rs qué pista sigue
    a. ¿Hay pista marcada como siguiente? → esa (es ley)
-   b. Si no, según el modo: normal / repeat / random / manual
+   b. Si no, según el modo: normal / repeat / random
    c. ¿"Detener al finalizar" activo y fin natural? → parar y conservar la marcada
 4. exec.rs carga la pista en el deck ocioso (resolve.rs si es hora/clima/aleatorio)
    y reutiliza build_play_source: cue y ganancia del editor + caché RAM

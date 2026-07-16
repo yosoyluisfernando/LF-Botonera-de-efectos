@@ -1,5 +1,7 @@
 # Plan — Modo Reproductor (reproductor auxiliar del panel fijo)
 
+> Para retomar el hilo: [`CONTINUIDAD_SESION.md`](CONTINUIDAD_SESION.md).
+
 Documento guía de trabajo. Define **qué queremos**, **cómo lo vamos a hacer** y
 **qué resultado esperamos**. Sirve para retomar el flujo en próximas conversaciones
 sin perder contexto. Se actualiza a medida que avanzan las fases.
@@ -35,12 +37,15 @@ ejemplo para música de fondo mientras se disparan efectos.
    botones fijos. El modo botones sigue mostrando los botones fijos; el modo reproductor
    muestra esta cola. Son dos herramientas distintas que conviven en el mismo panel.
 3. **Un solo reproductor.** Uno en el panel. Ampliar a dos queda para el futuro.
-4. **Cuatro modos de avance** (a nivel de lista, no de un botón suelto):
+4. **Tres modos de avance** (a nivel de lista, no de un botón suelto):
    - **Normal:** reproduce la lista en orden, una vez, y se detiene al final.
    - **Repetir:** reproduce en orden y al terminar vuelve al inicio, en bucle.
    - **Aleatorio:** elige pistas al azar de forma indefinida.
-   - **Manual:** reproduce la pista actual y se detiene, esperando que el usuario dispare
-     la siguiente.
+
+   El modo dice **qué** pista viene; que el reproductor se pare al acabar lo decide el botón
+   "detener al finalizar", que se combina con los tres. _(Hubo un cuarto modo, `manual`, que
+   hacía justo eso; se quitó en la Fase E.5 porque duplicaba el botón **y** limitaba: forzaba
+   el orden normal, así que no convivía con aleatorio. Ver el registro de avance.)_
 5. **Avance secuencial simple.** La siguiente pista empieza cuando la actual termina, sin
    solapamiento. Los fundidos/crossfade quedan como mejora futura opcional.
 6. **Recorte por el editor de pistas existente.** Los puntos de inicio y fin se marcan con
@@ -550,6 +555,54 @@ Nombres de reproductores internos: `player-a` y `player-b` (convención heredada
   `audio_out` de las paletas **no enruta nada**, solo se guarda y se exporta por compatibilidad
   con el LFA. Habría hecho falta un tercer `AudioDeviceRuntime` y cambiar el booleano `to_pre`
   por una decisión de tres — cirugía en el corazón del motor de efectos.
+
+- **Fase E.4 — completada (el salto de posición, arreglado de raíz).**
+  - **El síntoma:** adelantar la canción dejaba un silencio largo. Medido antes de tocar nada:
+    0,5 s para saltar 10 s · 1,6 s para 30 s · 3,3 s para 60 s · **6,6 s para 120 s**.
+  - **La causa:** el salto real **nunca funcionó, en ningún formato**. `rodio::Decoder` envuelve
+    el lector en su `ReadSeekSource`, que informa `byte_len() = None`; symphonia necesita el
+    tamaño del archivo para posicionarse en formatos sin índice, así que `try_seek` fallaba
+    siempre (FLAC: `Unseekable`; MP3: `end of stream`) y se caía a `CuedSource`, que llega al
+    punto **descartando las muestras una a una** (~55 ms por segundo saltado). En la botonera
+    principal no se notaba porque sus efectos duran segundos y **están en la caché de RAM**,
+    donde `CachedSource::new_at` ya era O(1): no era mejor código, eran otros datos.
+  - **El arreglo:** `engine/audio/seek_source.rs`, que usa symphonia directamente pasándole el
+    `File` — `File` **sí** implementa `MediaSource` informando del tamaño. Va enchufado en
+    `source_from_path_at`, el punto único por el que pasan **los dos motores**: arregla el
+    reproductor *y* la botonera principal con canciones largas, que era lo pedido.
+  - **Resultado medido:** saltar cuesta **~10 ms sea cual sea la distancia** (de 6,6 s a 10 ms
+    para ir al minuto 2), y la diferencia con el audio de referencia es **0,000000** muestra a
+    muestra: cae exacto.
+  - **Un bug que cazó una prueba que ya existía:** el salto aterriza al principio del bloque que
+    contiene el punto (en FLAC, ~90 ms antes), no en el punto. Sin descartar ese sobrante
+    (`skip`) se devolvía audio ANTERIOR al pedido, y
+    `source_from_path_at_reads_near_requested_position` lo detectó al instante.
+  - Se descartaron: **actualizar rodio a 0.22** (donde `with_byte_len` ya lo resuelve) por ser
+    cirugía en la librería que mueve todo el audio — queda como mejora futura; y **precargar la
+    canción entera**, medido en 9 s de decodificación y 25 MB por canción.
+  - Verificación: 118 pruebas (5 nuevas en `seek_source_tests.rs`, con un WAV generado al vuelo
+    para no depender de ningún archivo del equipo), `cargo build --lib` sin avisos. Los tests se
+    comprobaron reintroduciendo la regresión. `decode.rs` llegó a 206 líneas y sus pruebas
+    salieron a `decode_tests.rs`.
+
+- **Fase E.5 — completada (fuera el modo `manual`: eran tres modos, no cuatro).**
+  - **Por qué.** `manual` (no avanzar solo) y el botón "detener al finalizar" hacían lo mismo, y
+    el código lo confirmaba: `manual` **además limitaba**, porque para elegir la siguiente
+    forzaba `PlayerMode::Normal` — o sea que "manual + aleatorio" era **imposible**. El botón,
+    en cambio, usa `peek_next()`, que respeta el modo vigente. Era duplicado *y* peor.
+  - **Ahora:** tres modos (`normal`, `repeat`, `random`) que dicen **qué** pista viene, y un
+    interruptor que decide **si se para al acabar**, combinable con los tres. Se gana lo que
+    antes no existía: pararse en cada pista con la siguiente elegida al azar.
+  - Decisión del autor: el interruptor **no se persiste**, igual que el Loop, aunque el modo al
+    que sustituye sí se guardaba. Es de transporte y empezar apagado es predecible.
+  - **Migración:** una configuración con `playback_mode = "manual"` pasa a `"normal"` al cargar
+    (`config_io::normalize_playback_modes`), que es lo que `manual` hacía para elegir la
+    siguiente. `PlayerMode::from_config` ya era tolerante, pero se migra explícitamente para no
+    dejar en disco un valor que no existe.
+  - Al quitar `manual` sobraron dos ramas en `advance` y el `match` de `ensure_upcoming_marked`
+    que existía solo para sortearlo: `queue_ops.rs` ya no necesita ni importar la regla pura.
+  - Verificación: 121 pruebas (3 nuevas, incluida la combinación que antes era imposible),
+    `cargo build --lib` sin avisos, 391 claves i18n cuadradas en los cuatro idiomas.
 
 ---
 

@@ -3,6 +3,10 @@
 Guía de contexto completa para una IA que colabora en este proyecto.
 Lee todo antes de tocar código.
 
+> **¿Retomas el trabajo o acabas de perder el hilo de la conversación?**
+> Lee primero [`Documentación/CONTINUIDAD_SESION.md`](Documentación/CONTINUIDAD_SESION.md):
+> estado actual, decisiones ya cerradas y trampas verificadas. Evita rehacer lo hecho.
+
 ---
 
 ## 1. Identidad del proyecto
@@ -413,7 +417,7 @@ en la cola. Ver `Documentación/PLAN_MODO_REPRODUCTOR.md`.
 - `player_activate_index(index)` — doble clic: **el motor decide** (detenido reproduce; sonando marca siguiente)
 - `player_next` / `player_prev` / `player_stop` / `player_pause` / `player_resume`
 - `player_mark_next(index?)` — marcar siguiente (naranja). **Es ley**: se respeta en todos los modos
-- `player_set_mode(mode)` — "normal" | "repeat" | "random" | "manual"
+- `player_set_mode(mode)` — "normal" | "repeat" | "random". Dice QUÉ pista viene; que el reproductor se pare al acabar lo decide `player_set_stop_after`, que se combina con los tres (hubo un modo `manual` que duplicaba eso y además forzaba el orden normal: se quitó y se migra a `normal`)
 - `player_set_stop_after(enabled)` — al acabar la actual no arranca sola
 - `player_set_loop(enabled)` — **Loop**: repite la canción ACTUAL (≠ modo `repeat`, que repite la lista). Manda sobre stop-after; cede ante Siguiente; no toca lo marcado
 - `player_seek(positionS)` — salta dentro de la pista; el motor lo ignora si `can_seek` es falso (una locución son varios archivos encadenados)

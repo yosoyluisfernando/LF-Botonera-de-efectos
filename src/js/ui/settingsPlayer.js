@@ -17,7 +17,7 @@ import { t } from '../util/i18n.js';
 // el modo boost del master. Aquí el recorrido es 0-100%, la convención del resto.
 const MAX_PERCENT = 100;
 
-let _loaded = { mode: 'normal', percent: 100, device: '' };
+let _loaded = { mode: 'normal', percent: 100, device: '', largeFolder: 'ask' };
 
 export function initPlayerSettings() {
     document.getElementById('player-volume')
@@ -44,7 +44,9 @@ export function loadPlayerSettings(config, devices) {
     const percent = Math.min(
         Math.round((Number.isFinite(raw) ? raw : 1) * 100), MAX_PERCENT);
 
-    _loaded = { mode, percent, device };
+    const largeFolder = player.large_folder_action || 'ask';
+    _loaded = { mode, percent, device, largeFolder };
+    _value('player-large-folder', largeFolder);
     _value('player-mode', mode);
     _fillDevices(devices, device);
     _value('player-volume', percent);
@@ -66,7 +68,14 @@ export async function savePlayerSettings() {
     const device = document.getElementById('player-device').value;
     if (device !== _loaded.device) await invoke('player_set_device', { device });
 
-    _loaded = { mode, percent, device };
+    // Deja cambiar lo que se respondió en el aviso de carpeta grande, por si se
+    // marcó "recordar siempre" sin querer.
+    const largeFolder = document.getElementById('player-large-folder').value;
+    if (largeFolder !== _loaded.largeFolder) {
+        await invoke('player_set_large_folder_action', { action: largeFolder });
+    }
+
+    _loaded = { mode, percent, device, largeFolder };
 }
 
 /** La primera opción, vacía, es "el mismo de los efectos": lo que Rust entiende

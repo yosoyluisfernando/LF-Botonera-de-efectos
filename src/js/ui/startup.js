@@ -15,6 +15,7 @@ import { initGrid, drawGrid } from './grid.js';
 import { initGridDnd } from './gridDnd.js';
 import { initFileDrop } from './fileDrop.js';
 import { initPlayerDnd } from './playerDnd.js';
+import { initPlayerDrop } from './playerDrop.js';
 import { initTabDnd, updateTabDnd } from './tabDnd.js';
 import { initBottomBar, refreshBottomBar } from './bottomBar.js';
 import { initSettingsModal } from './settingsModal.js';
@@ -128,6 +129,7 @@ function _initModules(config, grid, fixedPanel) {
     initGridDnd(_refresh);
     initFileDrop(_refresh);
     initPlayerDnd();
+    initPlayerDrop();
     initBottomBar();
     drawGrid(grid, _refresh);
     initFixedPanel(fixedPanel, _refresh);
