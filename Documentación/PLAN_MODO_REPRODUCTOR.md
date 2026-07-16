@@ -626,5 +626,7 @@ o ajeno a esta función.
 - **`master_volume` es `f32`**: su representación en JSON crece sola al guardar
   (`0.45` → `0.4499999...`). Inocuo funcionalmente, pero ensucia el fichero. Afecta a
   `AudioConfig` y a `vol` de `ButtonData`.
-- **Política de colores de los botones nuevos**: diseñada y acordada, nunca implementada. Ver
-  [`PLAN_POLITICA_COLORES.md`](PLAN_POLITICA_COLORES.md).
+- ~~**Política de colores de los botones nuevos**~~ — **DESCARTADA** (2026-07-16): el autor la vio
+  complicada de explicar y de usar. En su lugar hay **selección múltiple** (Ctrl+clic y clic
+  derecho → pintar). No volver a proponerla; [`PLAN_POLITICA_COLORES.md`](PLAN_POLITICA_COLORES.md)
+  se conserva solo como registro.

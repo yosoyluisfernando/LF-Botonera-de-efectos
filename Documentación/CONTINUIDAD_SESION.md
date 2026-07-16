@@ -15,12 +15,38 @@ dónde está y guarda lo que solo vive en la conversación.
 
 ---
 
+## 0. Cómo arrancar una sesión nueva
+
+**No pegues un contexto largo al abrir la sesión.** Se hizo durante meses y se caducó: describía
+cuatro modos de avance cuando ya eran tres, daba por pendientes fases terminadas (B.2, C.7, D) y
+hablaba de 68 pruebas cuando iban 137. Un resumen que vive fuera del repo no se actualiza al
+trabajar; este archivo sí. Dos fuentes contando lo mismo acaban discrepando, y la que miente es
+siempre la de fuera.
+
+Pega solo esto, y añade debajo lo que quieras hacer:
+
+```
+Proyecto: LF Botonera de Efectos (C:\OVERLAY\BOTONERA), rama codex/panel-lateral-fijo.
+Lee, en este orden, antes de tocar nada:
+  1. Documentación/REGLAS_PROYECTO.md  — las 14 reglas, son ley.
+  2. Documentación/CONTINUIDAD_SESION.md — estado, acuerdos firmes y trampas.
+  3. Documentación/PLAN_MODO_REPRODUCTOR.md — avance fase a fase.
+No des nada por hecho: audita el código antes de tocarlo. Dime tu plan antes de codificar.
+
+Petición de esta sesión: <lo que toque>
+```
+
+Si el agente contradice a este archivo, gana el archivo; y si el archivo contradice al código,
+gana el código y **hay que corregir el archivo en el mismo cambio** (regla 13).
+
+---
+
 ## 1. Estado (2026-07-16)
 
-- **Rama:** `codex/panel-lateral-fijo`. Último commit: `6f6ed5d` "Permite pintar varios botones de
-  una vez con Ctrl+clic".
-- **Sin commitear:** los tres retoques de interfaz, el arreglo de la duración
-  (`probe_duration_secs` sin etiquetas) y la migración que la recupera. Todo verificado.
+- **Rama:** `codex/panel-lateral-fijo`. Último commit: `e41a7c8` "Recupera la duración de canciones
+  con etiquetas corruptas".
+- **Sin commitear:** nada de código. Solo hay dos ficheros sin seguimiento: `Prueba.LFPlay` (se
+  conserva, decisión del autor) y el temporal del panel lateral, ya rescatado (ver §5).
 - **Verificación:** 137 pruebas, `cargo build --lib` sin avisos, `npm run build` correcto,
   ningún archivo sobre 200 líneas.
 - **El modo reproductor está completo.** Lo que queda son mejoras, no deudas: ver §5.

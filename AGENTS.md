@@ -358,5 +358,7 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 **A — Prueba física en Linux**
 El código es multiplataforma (rutas via `config::get_data_dir()`, SQLite bundled, rodio/ALSA). Falta probar el build (`.deb`, `.AppImage`) en una máquina Linux real.
 
-**B — Política de colores de los botones nuevos**
-Diseño **acordado con el autor y no implementado**: elegir en Ajustes si los botones nuevos se colorean al azar (actual), con un color único, o siguiendo un patrón por filas o por columnas. Nunca recolorea lo existente y la edición manual siempre manda. Ver [`Documentación/PLAN_POLITICA_COLORES.md`](Documentación/PLAN_POLITICA_COLORES.md).
+**B — Deuda menor: `master_volume` es `f32`**
+Su representación en JSON crece sola al guardar (`0.45` → `0.4499999…`). Inocuo, pero ensucia el fichero. Afecta a `AudioConfig` y al `vol` de `ButtonData`.
+
+**Política de colores de los botones nuevos: DESCARTADA** (2026-07-16). El autor la vio complicada de explicar y de usar. En su lugar existe la **selección múltiple** (Ctrl+clic y clic derecho → pintar: `buttonSelection.js` + `set_buttons_color`). **No volver a proponerla.** [`Documentación/PLAN_POLITICA_COLORES.md`](Documentación/PLAN_POLITICA_COLORES.md) se conserva solo como registro de lo que se decidió.

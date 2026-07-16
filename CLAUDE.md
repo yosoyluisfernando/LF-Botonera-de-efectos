@@ -76,8 +76,16 @@ AppConfig {
   last_update_check: i64,        // epoch de la última comprobación de actualizaciones
   locutions: LocutionConfig,
   preload: PreloadConfig,
-  profiles: Vec<ProfileData>,
+  norm: NormConfig,              // normalizador automático (engranaje del editor de pistas)
+  cue_detect: CueDetectConfig,   // detección automática de puntos de inicio/fin
+  norm_prompted: bool,
+  fade: FadeConfig,              // fundidos globales
+  playback_progress: PlaybackProgressConfig, // paso del salto (1|2|5|10|20|30 s)
+  waveform_cache: WaveformCacheConfig,       // caché persistente de onda del editor
+  startup: StartupPromptState,
   fixed_panel: FixedPanelConfig, // alcance, vista, lado, dimensiones, capacidad y botones
+  player: PlayerConfig,          // reproductor auxiliar: uno solo y GLOBAL (no por perfil)
+  profiles: Vec<ProfileData>,
 }
 ```
 
@@ -177,6 +185,19 @@ TrackMeta {
 **Normalización de clave en disco:**
 - Windows: `path.to_lowercase()` (sistema de archivos case-insensitive)
 - Linux: `path.to_string()` (case-sensitive)
+
+### PlayerConfig (dentro de AppConfig) — reproductor auxiliar
+```
+PlayerConfig {
+  tracks: Vec<ButtonData>,     // cola ordenada; reutiliza ButtonData → soporta los 5 tipos
+  playback_mode: String,       // "normal" | "repeat" | "random" (NO existe "manual": se quitó)
+  volume: f32,                 // propio, independiente del master (0.0–1.5; la UI expone 0–100 %)
+  output_device: String,       // "" = el mismo de los efectos; "default" = del sistema
+  time_display: String,        // "elapsed" | "remaining"
+  large_folder_action: String, // "ask" | "always" | "never" (carpeta > 250 canciones)
+}
+```
+**No se persisten** (son de transporte, arrancan apagados): el botón Loop y "detener al finalizar".
 
 ### PreloadConfig (dentro de AppConfig)
 ```
@@ -313,7 +334,8 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 | Evento | Payload | Quién escucha |
 |---|---|---|
 | `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r}` | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
-| `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
+| `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, loop_current, can_seek, volume, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
+| `"player-drop-progress"` | progreso al añadir una carpeta grande a la cola (lotes de 20) | playerDrop.js |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | (vacío) | startup.js → `_refresh()` |
@@ -361,7 +383,8 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 ### Grid / botones
 - `get_grid_state` → grid de la paleta activa
 - `suggest_button_style(path)` → colores sugeridos basados en el archivo
-- `get_color_palette` → paleta de 32 colores
+- `get_color_palette` → paleta de 24 colores (`SAFE_COLORS`, `domain/palette.rs`)
+- `set_buttons_color(indexes, colorBg, group)` — pinta de una vez los seleccionados con Ctrl+clic. `group` = "grid" (paleta activa) o "fixed" (panel). El color del TEXTO no se pide: lo calcula Rust (regla 8)
 - `assign_file_to_button(paleta_id, index, path)`
 - `clear_button(paleta_id, index)`
 - `undo_config`
@@ -427,6 +450,9 @@ en la cola. Ver `Documentación/PLAN_MODO_REPRODUCTOR.md`.
 - `player_add_track(path, index?)` / `player_add_button(buttonId, index?)`
 - `player_remove_track(index)` / `player_reorder_tracks(fromIndex, toIndex)` / `player_clear_queue`
 - `player_save_playlist` / `player_open_playlist` — formato `.LFPlay` (compatible con LFA)
+- `player_scan_drop(paths)` → `DropScan` — cuenta lo soltado (carpetas incluidas, recursivo) y **Rust decide** si hay que preguntar (umbral `LARGE_FOLDER_THRESHOLD` = 250)
+- `player_add_drop(paths)` — añade en `spawn_blocking` por lotes de 20 emitiendo `player-drop-progress`; una sola escritura a disco al final
+- `player_set_large_folder_action(action)` — `ask` | `always` | `never`: qué hacer ante una carpeta grande. Se puede rectificar en Ajustes → Panel fijo si se marcó "recordar siempre" sin querer
 
 ### Editor de pistas
 - `analyze_track(path)` → análisis del editor con `track-analysis-progress`, caché en memoria/disco y `AnalysisResult {waveform, peak_db, lufs, suggested_gain_db, duration_s, cue_start_s, cue_end_s, gain_db, norm_enabled, norm_gain_db}`
@@ -552,13 +578,14 @@ No lanzar la app por computer-use. El usuario prueba en su PC.
 - El código es agnóstico del SO (rutas vía `config::get_data_dir()`, SQLite bundled, rodio/ALSA).
 - Falta compilar y probar en una máquina Linux real (`.deb`, `.AppImage`).
 
-### B) Política de colores de los botones nuevos
-- Diseño **acordado con el autor y no implementado**: en Ajustes, elegir si los botones nuevos se
-  colorean al azar (actual), con un color único, o por patrón de filas/columnas.
-- Nunca recolorea lo existente; la edición manual siempre manda; la paleta es la de 32 colores
-  que ya existe. Hoy `random_color()` se llama desde 7 sitios: la política debe centralizarse en
-  `domain/colors`, no repetirse en cada uno (regla 2).
-- Ver `Documentación/PLAN_POLITICA_COLORES.md`.
+### B) Deuda menor: `master_volume` es `f32`
+- Su representación en JSON crece sola al guardar (`0.45` → `0.4499999…`). Inocuo, pero ensucia el
+  fichero. Afecta a `AudioConfig` y al `vol` de `ButtonData`.
+
+> **Política de colores de los botones nuevos: DESCARTADA** (2026-07-16). El autor la vio
+> complicada de explicar y de usar. En su lugar existe la **selección múltiple** (Ctrl+clic y clic
+> derecho → pintar: `buttonSelection.js` + `set_buttons_color`). **No volver a proponerla.**
+> `Documentación/PLAN_POLITICA_COLORES.md` se conserva solo como registro de lo que se decidió.
 
 ---
 
