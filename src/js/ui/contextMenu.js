@@ -8,6 +8,7 @@
 import { openEditModal } from './editModal.js';
 import { invoke } from '../bridge/api.js';
 import { placeMenu } from '../util/menuPosition.js';
+import { hasSelection, paintSelection } from './buttonSelection.js';
 
 let _cleanupFn = null;
 
@@ -22,6 +23,15 @@ let _cleanupFn = null;
  */
 export function showContextMenu(x, y, index, btnData, onUpdate, group = 'grid') {
     const menu = document.getElementById('context-menu');
+
+    // Con botones seleccionados (Ctrl+clic) el menú se reduce a una sola opción:
+    // pintarlos. Lo demás no aplica a varios a la vez, y dejarlo visible haría
+    // creer que "Editar" o "Limpiar" actúan sobre toda la selección.
+    if (_showColorOnly(menu, onUpdate)) {
+        placeMenu(menu, x, y);
+        setTimeout(() => document.addEventListener('click', _hideOnClickOutside), 10);
+        return;
+    }
 
     // Actualizar estado de checkboxes desde los datos del botón
     document.getElementById('check-bucle').textContent   = btnData?.loop_mode  ? '✓' : '';
@@ -44,6 +54,25 @@ export function showContextMenu(x, y, index, btnData, onUpdate, group = 'grid') 
     setTimeout(() => {
         document.addEventListener('click', _hideOnClickOutside);
     }, 10);
+}
+
+/** Devuelve true si el menú quedó en modo "solo color" (hay selección). */
+function _showColorOnly(menu, onUpdate) {
+    const multi = hasSelection();
+    menu.querySelectorAll('li, hr').forEach(el => {
+        el.classList.toggle('hidden', multi && el.id !== 'menu-color-selected');
+    });
+    document.getElementById('menu-color-selected')?.classList.toggle('hidden', !multi);
+    if (!multi) return false;
+    if (_cleanupFn) _cleanupFn();
+    const item = document.getElementById('menu-color-selected');
+    const onClick = () => {
+        _hide();
+        paintSelection(onUpdate);
+    };
+    item.addEventListener('click', onClick);
+    _cleanupFn = () => item.removeEventListener('click', onClick);
+    return true;
 }
 
 function _wireMenuActions(menu, index, btnData, onUpdate, group) {

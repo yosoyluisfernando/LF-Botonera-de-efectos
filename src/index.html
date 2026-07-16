@@ -168,6 +168,8 @@
     <!-- Menú contextual de botón: mismo orden e iconos que la botonera del LFA -->
     <div id="context-menu" class="hidden context-style">
       <ul>
+        <!-- Solo con selección múltiple (Ctrl+clic); entonces oculta al resto. -->
+        <li id="menu-color-selected" class="hidden"><span class="menu-icon">🎨</span><span data-i18n="context_menu.color_selected">Cambiar el color de los botones seleccionados…</span></li>
         <li id="menu-editar"><span class="menu-icon">✏️</span><span data-i18n="context_menu.edit">Editar...</span></li>
         <li id="menu-limpiar"><span class="menu-icon">🗑️</span><span data-i18n="context_menu.clear">Limpiar</span></li>
         <hr>

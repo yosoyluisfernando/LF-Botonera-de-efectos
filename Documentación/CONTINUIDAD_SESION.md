@@ -86,8 +86,9 @@ Del reproductor (el detalle y el porqué, en `PLAN_MODO_REPRODUCTOR.md` §2):
 ## 5. Qué queda (nada es obligatorio)
 
 1. **En curso** (lo pedido el 2026-07-16, ver §6).
-2. **Política de colores** de los botones nuevos: diseñada, acordada y **nunca implementada**.
-   Ver [`PLAN_POLITICA_COLORES.md`](PLAN_POLITICA_COLORES.md).
+2. ~~Política de colores~~ — **DESCARTADA** (2026-07-16): el autor la vio complicada de explicar
+   y de usar. En su lugar hay **selección múltiple** (Ctrl+clic + clic derecho → pintar). No
+   volver a proponerla; `PLAN_POLITICA_COLORES.md` se conserva solo como registro.
 3. Mejoras futuras del reproductor: fundidos/crossfade entre pistas; un segundo reproductor.
 4. Deuda menor: `master_volume` es `f32` y su JSON crece solo (`0.45` → `0.4499999…`).
 5. Prueba física en Linux (`.deb`, `.AppImage`).

@@ -22,6 +22,7 @@ import { initSettingsModal } from './settingsModal.js';
 import { initMapping } from './mapping.js';
 import { initUpdateNotifier, startUpdateChecks } from './updateNotifier.js';
 import { initColorPicker } from './colorPalette.js';
+import { initButtonSelection } from './buttonSelection.js';
 import { initNumberInputs } from '../util/numberInputs.js';
 import { maybeShowPreloadDialog } from './preloadDialog.js';
 import { checkAudioDevicesOnStartup } from './audioDeviceRecovery.js';
@@ -38,6 +39,7 @@ export async function startApp() {
         const editorPath = new URLSearchParams(location.search).get('editor');
         if (editorPath) { await _startEditorWindow(editorPath); return; }
         initColorPicker();
+        initButtonSelection();
         initNumberInputs();
         _blockNativeContextMenu();
 

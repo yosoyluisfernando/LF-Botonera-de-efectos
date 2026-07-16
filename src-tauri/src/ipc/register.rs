@@ -45,6 +45,7 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_fixed_move::move_fixed_to_button,
             ipc::cmd_history::undo_config,
             ipc::cmd_history::redo_config,
+            ipc::cmd_button_color::set_buttons_color,
             ipc::cmd_button_flags::toggle_button_flag,
             ipc::cmd_button_types::get_edit_button_types,
             ipc::cmd_button_update::update_button_data,

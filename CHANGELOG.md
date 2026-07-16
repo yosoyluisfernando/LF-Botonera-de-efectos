@@ -41,6 +41,7 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - Con **Detener al finalizar** activo, la canción marcada como siguiente se ve en gris en vez de naranja: sigue marcada y se respeta, pero avisa de que no sonará sola.
 - Arrastrar y soltar en la lista del reproductor: añadir canciones desde el explorador, arrastrar botones de la botonera a la lista, y reordenar las canciones arrastrándolas. Soltar sobre una fila inserta en esa posición; soltar en el espacio vacío añade al final.
 - El reproductor admite los mismos tipos que los botones: audio, carpeta aleatoria, locución horaria, temperatura y humedad. La hora y el clima se resuelven en el momento de sonar, y respeta los cortes de inicio y fin marcados en el editor de pistas. Los tipos que no tienen una duración conocida de antemano se muestran como `--:--` y no cuentan para el total, igual que en LF Automatizador. Si alguno no se puede resolver (una carpeta vacía, o el clima sin conexión), se salta y la música continúa.
+- **Cambiar el color de varios botones a la vez:** con **Ctrl + clic** se seleccionan los botones que se quieran (en la botonera o en el panel fijo) y, al hacer clic derecho, se ofrece pintarlos todos del mismo color. Ctrl+clic no dispara el sonido, y la selección se suelta con Escape o con un clic normal. Los botones nuevos se siguen creando con un color al azar.
 - Caché persistente de waveforms del editor de pistas en disco, con límites configurables de tamaño y antigüedad y opción para limpiarla desde los ajustes del normalizador.
 - Progreso de análisis del editor de pistas con etapas visibles mientras Rust revisa caché, reconstruye waveform, decodifica, guarda y limpia.
 
@@ -49,8 +50,6 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - El recordatorio de donación deja de mostrarse seguido, ahora solo se muestra cada 100 aperturas de la botonera.
 - El editor solo inserta PCM en la caché RAM si la precarga está activa y la duración del archivo entra en el límite configurado.
 - Reorganización interna del código fuente alrededor de un núcleo central y motores especializados. Al ser un proyecto de código abierto, este cambio deja una base más clara y ordenada para programadores que en el futuro quieran apoyar con mejoras o nuevas funciones. No está pensado como una mejora directa de rendimiento; la app debería sentirse igual, pero será más fácil mantenerla y ampliarla con seguridad.
-
-### Cambiado
 - **La paleta de colores de los botones tiene ahora variedad real.** Antes eran 32 colores, pero en la práctica se veían 16: la mitad eran el mismo tono en otra intensidad, y la app iguala las intensidades para que el texto se lea en tema claro y oscuro. Además había seis azules y seis rojos, pero un solo verde. Ahora son 24 colores repartidos por todo el círculo de color, y ninguno se repite. Los botones que ya tienes conservan su color.
 
 ### Corregido

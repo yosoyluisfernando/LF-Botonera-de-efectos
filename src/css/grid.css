@@ -197,3 +197,10 @@ body[data-button-text-size="xlarge"] .grid-item { font-size: 20px; }
   border: 2px dashed var(--accent-color) !important;
   filter: brightness(1.4);
 }
+
+/* Seleccionado con Ctrl+clic para pintarlo (ver buttonSelection.js). El aro va
+   por dentro para no descolocar la rejilla, y no depende del color del boton. */
+.grid-item.color-selected, .fixed-panel-item.color-selected {
+  outline: 3px solid var(--accent-color);
+  outline-offset: -3px;
+}

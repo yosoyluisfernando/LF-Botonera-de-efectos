@@ -133,6 +133,7 @@
         "default_name": "AUDIO"
     },
     "context_menu": {
+        "color_selected": "Change the colour of the selected buttons…",
         "edit": "Edit...",
         "clear": "Clear",
         "loop": "Loop",
@@ -445,6 +446,7 @@
         "device_same": "Same as the effects"
     },
     "errors": {
+        "no_buttons_selected": "No buttons are selected.",
         "player_no_audio_found": "No audio was found in what you dropped.",
         "fatal_ipc": "Fatal communication error with the native engine.",
         "only_profile": "The only profile cannot be deleted.",

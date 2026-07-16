@@ -4,7 +4,17 @@ Diseño **acordado con el autor y no implementado**. Se rescató de la conversac
 panel lateral (julio 2026) antes de borrar aquella exportación temporal, para no perder las
 decisiones ya tomadas.
 
-- **Estado:** diseño aprobado; implementación **no iniciada**.
+- **Estado: DESCARTADO** (2026-07-16, decisión del autor). No implementar.
+  > *"eso complica un poco las cosas… yo mismo lo siento complicado en texto, entonces no quiero
+  > agregar algo que vaya a ser complicado también en usabilidad."*
+  >
+  > **En su lugar** se hizo la **selección múltiple**: Ctrl+clic marca varios botones y el clic
+  > derecho ofrece pintarlos de un color. Los botones nuevos siguen saliendo en aleatorio, no hay
+  > nada que configurar por adelantado, y el resultado se ve al momento. Cubre el mismo objetivo
+  > —ordenar la botonera por color— sin una pantalla de ajustes que explicar.
+  >
+  > Se conserva este documento por si algún día se retoma: el diseño estaba cerrado y las
+  > decisiones, tomadas. Lo de abajo describe lo que **se descartó**, no lo que hay.
 - **Verificado en el código (2026-07-16):** no existe `new_button_style` ni equivalente. Hoy el
   color de todo botón nuevo sale de `domain::colors::random_color()`.
 

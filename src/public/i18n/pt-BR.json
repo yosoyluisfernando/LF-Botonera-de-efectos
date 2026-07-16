@@ -133,6 +133,7 @@
         "default_name": "AUDIO"
     },
     "context_menu": {
+        "color_selected": "Mudar a cor dos botões selecionados…",
         "edit": "Editar...",
         "clear": "Limpar",
         "loop": "Loop",
@@ -445,6 +446,7 @@
         "device_same": "A mesma dos efeitos"
     },
     "errors": {
+        "no_buttons_selected": "Nenhum botão selecionado.",
         "player_no_audio_found": "Nenhum áudio foi encontrado no que você soltou.",
         "fatal_ipc": "Erro fatal de comunicação com o motor nativo.",
         "only_profile": "Não é possível excluir o único perfil.",
