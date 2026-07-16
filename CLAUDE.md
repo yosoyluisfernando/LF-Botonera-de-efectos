@@ -312,18 +312,28 @@ solo atiende ruteo, porque `OutputStream` no es `Send` y alguien debe ser su due
 Varios buses en la **misma tarjeta** se suman en el `OutputEndpoint`, no entre ellos: un bus es
 una *señal*, un endpoint es un *conector*. Esa es toda la idea.
 
-**Modelo de ganancia (3 capas):**
+**Modelo de ganancia — cada factor en su etapa:**
 ```
-señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × master(lineal)
+ButtonSource (el canal):  muestra × file_gain(dB→lineal) × vol_botón(lineal) × fade
+Bus (el fader):           × master(lineal)
 ```
 - `file_gain`: de `TrackMeta.effective_gain_linear()` = norm_gain_db + gain_db → lineal
 - `vol_botón`: `ButtonData.vol` (lineal 0–1; se preserva para compat `.bdelf`)
-- `master`: `AudioConfig.master_volume` (0–1.5 en modo boost)
+- `master`: `AudioConfig.master_volume` (0–1.5 en modo boost). Es el **fader del bus `Main`**
+  (`FaderSource`), una sola etapa sobre la suma
 
-**Trampa del master:** no es un fader ni una etapa. Es un atómico que **cada `ButtonSource` lee
-y se aplica a sí mismo**, así que el "programa" no existe en ningún punto del código: es solo el
-resultado de que varias fuentes obedezcan el mismo número. Por eso el reproductor no lo obedece
-(motor aparte). La Fase 2 de la consola lo convierte en un fader real del bus.
+Desde la Fase 2 el master **es una etapa real**. Antes era un atómico que cada `ButtonSource`
+leía y se aplicaba a sí mismo: no una etapa, sino un acuerdo entre fuentes. El resultado audible
+es el mismo (`Σ(sᵢ × m)` = `Σ(sᵢ) × m`), pero ahora sale una multiplicación y una lectura atómica
+por muestra en vez de una por cada fuente sonando.
+
+**El medidor va DESPUÉS del fader** (`mixer → FaderSource → LevelSource → play_raw`): el vúmetro
+enseña lo que de verdad sale, igual que el medidor de programa de una consola. Al revés no se
+enteraría de los movimientos del fader.
+
+**El reproductor no obedece al master** porque es un motor aparte con su propio `OutputStream`.
+La Fase 4 lo une a la consola y pasa a obedecerlo (decisión del autor, 2026-07-16) — en volumen,
+no en transporte: el Stop general y el Solo siguen sin tocarlo.
 
 **Pre-escucha:**
 - ID especial `__prelisten__` para la barra de pre-escucha

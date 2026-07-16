@@ -10,6 +10,19 @@
 /// El bus tampoco sabe ya que es un boton: solo acepta fuentes. Quien construye
 /// un ButtonSource con sus fades y su estado es el motor de efectos
 /// (`engine/audio/attach.rs`), que es quien sabe de botones.
+///
+/// La cadena del bus, en orden:
+///
+/// ```text
+///   fuentes → DynamicMixer → FaderSource → LevelSource → play_raw(endpoint)
+/// ```
+///
+/// **El medidor va DESPUES del fader**, y no es un detalle: asi el vumetro
+/// enseña lo que de verdad sale (baja el fader, baja la aguja), que es como se
+/// comportaba cuando cada fuente aplicaba el master antes de entrar al mixer, y
+/// es lo que hace una consola con el medidor de programa. Puesto al reves
+/// mediria la señal antes del fader y la aguja no se enteraria de nada.
+use super::fader::FaderSource;
 use super::level::LevelSource;
 use rodio::dynamic_mixer::{self, DynamicMixerController};
 use rodio::source::Zero;
@@ -29,32 +42,28 @@ pub struct Bus {
     controller: Arc<DynamicMixerController<f32>>,
     level_l: Arc<AtomicU32>,
     level_r: Arc<AtomicU32>,
-    /// Volumen master compartido con las fuentes. Sigue aqui porque hoy lo aplica
-    /// cada ButtonSource por su cuenta; en la Fase 2 pasa a ser el fader del bus
-    /// y desaparece de las fuentes.
-    master_volume: Arc<AtomicU32>,
 }
 
 impl Bus {
     /// Crea el bus y lo enchufa al endpoint. None si `play_raw` falla (la tarjeta
-    /// se perdio entre medias).
+    /// se perdio entre medias). `gain` es el fader: se mueve mientras suena.
     pub fn open(
         handle: &OutputStreamHandle,
         level_l: Arc<AtomicU32>,
         level_r: Arc<AtomicU32>,
-        master_volume: Arc<AtomicU32>,
+        gain: Arc<AtomicU32>,
     ) -> Option<Self> {
         let (controller, mixer) = dynamic_mixer::mixer::<f32>(BUS_CHANNELS, BUS_SAMPLE_RATE);
         // SIN esto el DynamicMixer devuelve None en cuanto se queda vacio, la
         // salida lo da por terminado y las fuentes anadidas despues no suenan.
         controller.add(Zero::<f32>::new(BUS_CHANNELS, BUS_SAMPLE_RATE));
-        let measured = LevelSource::new(mixer, Arc::clone(&level_l), Arc::clone(&level_r));
+        let faded = FaderSource::new(mixer, gain);
+        let measured = LevelSource::new(faded, Arc::clone(&level_l), Arc::clone(&level_r));
         handle.play_raw(measured).ok()?;
         Some(Self {
             controller,
             level_l,
             level_r,
-            master_volume,
         })
     }
 
@@ -65,11 +74,6 @@ impl Bus {
         S: Source<Item = f32> + Send + 'static,
     {
         self.controller.add(source);
-    }
-
-    /// El atomico del volumen master, para las fuentes que aun se lo aplican solas.
-    pub fn master_volume(&self) -> Arc<AtomicU32> {
-        Arc::clone(&self.master_volume)
     }
 
     /// Nivel medido del bus: (L, R). Pico de la ventana mas reciente.

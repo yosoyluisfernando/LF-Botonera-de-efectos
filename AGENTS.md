@@ -164,21 +164,23 @@ invoke('play_button', {id}) ─► cmd_button_playback::play_button_id()
                                                                          │
                                                     attach_button() → bus de la consola
                                                                          │
-                                                   ButtonSource: s × file_gain × vol_btn × master
+                                                   ButtonSource: s × file_gain × vol_btn × fade
                                                                          │
-                                              engine/console: DynamicMixer → LevelSource
+                                    engine/console: DynamicMixer → FaderSource → LevelSource
                                                                          │
                                                           OutputEndpoint (play_raw)
                                                                                               │
                                                                                          Altavoces
 ```
 
-**Modelo de ganancia (3 capas):**
+**Modelo de ganancia — cada factor en su etapa:**
 ```
-señal = muestra × file_gain(dB→lineal) × vol_botón(lineal 0-1) × master(lineal 0-1.5)
+ButtonSource (canal):  muestra × file_gain(dB→lineal) × vol_botón(lineal 0-1) × fade
+Bus (fader):           × master(lineal 0-1.5)
 ```
-El `master` lo aplica **cada fuente por su cuenta**, no un fader del bus: no es una etapa,
-es un acuerdo entre fuentes. La Fase 2 de la consola lo convierte en un fader real.
+El `master` es el **fader del bus `Main`**: una etapa real sobre la suma, no un número que cada
+fuente se aplica a sí misma. **El medidor va después del fader**, así que el vúmetro enseña lo
+que de verdad sale.
 
 **La consola (`engine/console/`)** es dueña de las salidas físicas y de los buses; el motor
 de efectos le pide un bus (`BusId::Main`, `BusId::Pre`) y le entrega fuentes. Reproducir NO

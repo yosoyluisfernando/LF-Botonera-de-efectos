@@ -15,6 +15,7 @@
 pub mod bus;
 pub mod device;
 mod endpoint;
+mod fader;
 mod level;
 mod thread;
 
@@ -48,8 +49,8 @@ pub struct BusSlot {
     pub device_name: String,
     pub level_l: Arc<AtomicU32>,
     pub level_r: Arc<AtomicU32>,
-    /// Volumen del bus. Hoy lo aplica cada fuente por su cuenta; la Fase 2 lo
-    /// convierte en el fader real del bus.
+    /// El fader del bus: una etapa por la que pasa toda su señal una vez. Se
+    /// mueve mientras suena y afecta a lo que ya esta sonando.
     pub volume: Arc<AtomicU32>,
 }
 

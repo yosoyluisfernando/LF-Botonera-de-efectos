@@ -72,7 +72,9 @@ Lo que un bus conserva **aunque su tarjeta no exista**: los atómicos de nivel y
 Struct Rust (`model/content.rs`) que representa un botón. Campo `type_field` se serializa como `"type"` en JSON. El campo `vol` es un multiplicador lineal 0–1, no en dB (ver [trim](#trim)). Es el ladrillo común: lo usan la rejilla, el panel fijo y la cola del reproductor, por eso vive en el contenido y no cuelga de ningún módulo concreto.
 
 **`ButtonSource`**
-Struct Rust (`engine/audio/button.rs`) que implementa `Iterator<Item=f32>`. Envuelve cualquier fuente de audio y aplica la cadena de ganancia: `muestra × file_gain × vol_botón × master`. Puede pararse por `stop_flag` o marcarse como terminado por `done_flag`.
+Struct Rust (`engine/audio/button.rs`) que implementa `Iterator<Item=f32>`. Es el **canal** de la consola: envuelve una fuente y aplica lo que es suyo — `muestra × file_gain × vol_botón × fade` — y nada más. Puede pararse por `stop_flag` o marcarse como terminado por `done_flag`.
+
+**El master ya no está aquí** (desde la Fase 2): lo pone el [fader](#f) del [bus](#b), una sola vez sobre la suma. Antes cada fuente lo leía y se lo aplicaba a sí misma, lo que hacía que el "programa" no existiera en ningún punto del código.
 
 **`ButtonState`**
 Struct Rust (`engine/audio/button.rs`) que rastrea el estado de reproducción de una instancia de un botón: `start_time`, `duration`, `done_flag`, `stop_flag`, `volume`. Permite calcular `position()` y `remaining()` sin consultar el hilo de audio.
@@ -174,8 +176,13 @@ Módulo actual `domain/export/tracks.rs`. Inyecta el campo `bdelf_tracks` al exp
 
 ## F
 
+**`FaderSource`**
+Struct Rust (`engine/console/fader.rs`). El **fader de un bus**: multiplica su señal por un atómico que se puede mover mientras suena. Parece trivial y es el punto entero de la Fase 2 de la [consola](#c): convierte el master en **una etapa real**, por la que pasa toda la señal del bus una sola vez, en lugar de un número que cada fuente leía y se aplicaba a sí misma.
+
+Va **antes** del [`LevelSource`](#v), para que el vúmetro enseñe lo que de verdad sale. **No tiene rampa**, a propósito: el master ya saltaba de golpe antes, y suavizarlo en la misma fase que mueve la aritmética de sitio impediría saber qué causó qué.
+
 **`file_gain`**
-Ganancia por archivo en multiplicador lineal. Representa la ganancia total calculada por el editor de pistas: `10^((norm_gain_db + gain_db) / 20)`. Es la primera capa del modelo de ganancia de 3 capas. Ver `TrackMeta::effective_gain_linear()`.
+Ganancia por archivo en multiplicador lineal. Representa la ganancia total calculada por el editor de pistas: `10^((norm_gain_db + gain_db) / 20)`. Es lo primero que se aplica en el canal. Ver `TrackMeta::effective_gain_linear()`.
 
 **`flush`**
 Volcar el buffer en memoria de `last_played` a `tracks.db`. Ocurre cada 30 s (debounce del flusher) y al cerrar la ventana. Así se evita escribir en SQLite en cada reproducción individual.

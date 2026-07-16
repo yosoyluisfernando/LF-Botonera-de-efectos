@@ -201,12 +201,13 @@ Este es el flujo más importante del sistema. Entenderlo explica por qué existe
    │    └─ Cache MISS → engine/audio/decode.rs + CuedSource (skip O(n))
    │
    └─ engine/audio/attach.rs::attach_button(bus, source, args)
-        │  (envuelve en ButtonSource que aplica: muestra × file_gain × vol_btn × master)
+        │  (envuelve en ButtonSource, el CANAL: muestra × file_gain × vol_btn × fade)
         ▼
 5. engine/console/ — Bus: DynamicMixer<f32>
-   └─► LevelSource (mide PICO en tiempo real)
-        └─► play_raw → OutputEndpoint → dispositivo CPAL → altavoces
-            (la tarjeta se abre UNA vez; varios buses en ella se suman en el conector)
+   └─► FaderSource (el master: UNA etapa sobre la suma, no una por fuente)
+        └─► LevelSource (mide PICO en tiempo real, DESPUÉS del fader)
+             └─► play_raw → OutputEndpoint → dispositivo CPAL → altavoces
+                 (la tarjeta se abre UNA vez; varios buses en ella se suman en el conector)
 
 6. MIENTRAS SUENA — engine/audio/monitor.rs (hilo 100 ms)
    └─► emite "audio-tick" → Frontend:

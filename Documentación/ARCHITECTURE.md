@@ -173,8 +173,18 @@ Las piezas:
   el mixer de salida dentro de `OutputStream` (`play_raw` añade a él), así que un endpoint
   no construye nada: mantiene el stream vivo y reparte su handle. Un registro por nombre
   garantiza que pedir la misma tarjeta dos veces devuelva la misma.
-- **`Bus`** — un punto de suma con su medidor: mixer + `LevelSource`, enchufado al endpoint
-  con `play_raw`. **No lleva `Sink`**: un bus nunca se pausa, así que esa capa sobra.
+- **`Bus`** — un punto de suma con su fader y su medidor. **No lleva `Sink`**: un bus nunca se
+  pausa, así que esa capa sobra. Su cadena es:
+  ```
+  fuentes → DynamicMixer → FaderSource → LevelSource → play_raw(endpoint)
+  ```
+  **El medidor va después del fader**, y no es un detalle: así el vúmetro enseña lo que de
+  verdad sale, como el medidor de programa de una consola. Al revés no se enteraría de los
+  movimientos del fader.
+- **`FaderSource`** — el fader del bus: multiplica por un atómico que se mueve mientras suena.
+  Es lo que convirtió el master en **una etapa real**. Antes era un número que cada fuente leía
+  y se aplicaba a sí misma, así que el "programa" no existía en ningún punto del código: solo
+  era el resultado de que varias fuentes obedecieran el mismo valor.
 - **`BusSlot`** — lo que un bus conserva aunque su tarjeta no exista: los atómicos de nivel
   y volumen. Se crean una vez y viven siempre, porque el monitor y las fuentes que ya suenan
   los tienen cogidos; un cambio de tarjeta no debe dejarlos apuntando a la nada.

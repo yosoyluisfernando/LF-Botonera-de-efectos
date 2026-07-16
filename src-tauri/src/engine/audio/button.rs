@@ -77,14 +77,15 @@ impl ButtonState {
 }
 
 /// Envuelve Source<Item=f32> con control atomico de volumen, stop y fade.
-/// Ganancia en 3 capas: `file_gain` × `volume` (trim) × `master_volume`.
+/// Es el CANAL de la consola: aplica lo que es suyo — `file_gain` × `volume`
+/// (trim) × fade — y nada mas. El volumen del bus lo pone el bus con su fader,
+/// una sola vez sobre la suma, no cada fuente por su cuenta.
 pub struct ButtonSource {
     pub inner: Box<dyn Source<Item = f32> + Send + 'static>,
     pub stop_flag: Arc<AtomicBool>,
     pub done_flag: Arc<AtomicBool>,
     pub file_gain: f32,
     pub volume: Arc<AtomicU32>,
-    pub master_volume: Arc<AtomicU32>,
     pub fade: FadeRamp,
 }
 
@@ -106,8 +107,7 @@ impl Iterator for ButtonSource {
         match self.inner.next() {
             Some(s) => {
                 let local = f32::from_bits(self.volume.load(Ordering::Relaxed));
-                let master = f32::from_bits(self.master_volume.load(Ordering::Relaxed));
-                Some(s * self.file_gain * local * master * fade_gain)
+                Some(s * self.file_gain * local * fade_gain)
             }
             None => {
                 self.done_flag.store(true, Ordering::Relaxed);

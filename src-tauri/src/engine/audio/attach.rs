@@ -63,7 +63,6 @@ pub fn attach_button(
         done_flag: Arc::clone(&done_flag),
         file_gain: args.file_gain,
         volume: Arc::clone(&vol_atomic),
-        master_volume: bus.master_volume(),
         fade,
     });
     ButtonState {

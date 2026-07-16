@@ -421,6 +421,42 @@ sigue haciendo falta. Abrir tarjetas de verdad necesita hardware, así que `Endp
 `Bus` **no tienen prueba unitaria**: son envoltorios finos sobre rodio y cpal. Que la misma
 tarjeta se abra una sola vez se comprueba en el equipo del autor, no aquí.
 
+### Fase 2 — completada (2026-07-16)
+
+**El master pasa a ser una etapa.** Nace `engine/console/fader.rs` con `FaderSource`, y
+`master_volume` sale de `ButtonSource`. Sin cambio audible.
+
+**Por qué el resultado es idéntico:** por distributividad. Antes cada fuente se multiplicaba por
+el master antes de entrar al mixer, `Σ(sᵢ × m)`; ahora se suman y el fader multiplica una vez,
+`Σ(sᵢ) × m`. El mismo número. De hecho ahora sale **una** multiplicación y **una** lectura
+atómica por muestra, en lugar de una por cada fuente sonando.
+
+**La decisión que hace la fase neutra: dónde va el medidor.** La cadena del bus queda
+`mixer → FaderSource → LevelSource → play_raw`, con el medidor **después** del fader. Así el
+vúmetro sigue enseñando lo que de verdad sale — que es como se comportaba cuando cada fuente
+aplicaba el master antes de entrar al mixer, y es lo que hace el medidor de programa de una
+consola. Puesto al revés habría medido antes del fader y la aguja no se habría enterado de nada:
+eso sí habría sido un cambio de comportamiento, y de los que no se ven venir.
+
+**El fallback de la pre-escucha sigue comportándose igual**, que era el riesgo de esta fase:
+cuando cae al bus `Main` pasa por el fader de `Main` y le sigue pegando el master, exactamente
+como antes. Con tarjeta dedicada va al bus `Pre`, cuyo fader está a 1.0 y no hace nada. La Fase 3
+es la que lo cambia.
+
+**Sin rampa, a propósito.** El master ya saltaba de golpe (cada fuente leía el atómico y
+multiplicaba), así que suavizarlo aquí habría cambiado el sonido en la misma fase que mueve la
+aritmética de sitio, y no se sabría qué causó qué si algo suena raro. Cuando el fader sea visible
+y se arrastre de verdad (Fase 6) se decide si hace falta.
+
+**Lo que NO se movió, y toca en la Fase 3:** `AudioEngine::master_volume` / `set_master_volume`
+siguen donde estaban, como paso al atómico del slot `Main`. En la Fase 3 nace el bus PGM y el
+master pasa a ser *su* fader, así que esa API se muda entonces — moverla ahora sería tocarla dos
+veces.
+
+**Verificación:** `cargo build --lib` sin avisos, `cargo test --lib` con 143 pruebas (3 nuevas
+sobre el fader: que escala, que se mueve mientras suena y que a cero calla sin detener la
+fuente), `npm run build` correcto, ningún archivo sobre 200 líneas.
+
 ---
 
 ## 10. Resumen en tres frases
