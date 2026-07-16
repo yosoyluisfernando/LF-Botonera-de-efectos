@@ -11,42 +11,47 @@
 //! hilo guardian y reparte lo que si viaja: `OutputStreamHandle` (Clone + Send +
 //! Sync) y el controller de cada bus (Arc, Send + Sync).
 //!
+//! La topologia:
+//!
+//! ```text
+//!   Efectos ─┐
+//!            ├─► Programa ─► fader (master) ─► medidor ─► tarjeta
+//!   Panel ───┘
+//!
+//!   Cue ───────────────────► fader ─────────► medidor ─► tarjeta (la del
+//!                                                        programa si no tiene
+//!                                                        una propia, PERO sin
+//!                                                        sumar en el)
+//! ```
+//!
+//! Las reglas de que va donde viven en `domain/console/`; aqui solo se obedecen.
 //! Guia: Documentacion/PLAN_CONSOLA_VIRTUAL.md.
 pub mod bus;
 pub mod device;
 mod endpoint;
 mod fader;
+mod graph;
 mod level;
 mod thread;
 
 pub use bus::Bus;
+pub use crate::domain::console::{BusId, Routing};
 
+use crate::domain::console::sanitize;
 use std::collections::HashMap;
-use std::sync::atomic::AtomicU32;
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
 
-/// Los buses de la consola. Hoy son los dos que ya existian de hecho; la Fase 3
-/// los abre a Efectos / Panel / Reproductor / Cue.
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub enum BusId {
-    /// Salida principal: efectos de la botonera y del panel fijo.
-    Main,
-    /// Pre-escucha. Si no tiene tarjeta propia, hoy no existe y quien quiera
-    /// sonar cae al bus Main — el fallback que la Fase 3 elimina.
-    Pre,
-}
-
 pub enum ConsoleCommand {
-    SetBusDevice { bus: BusId, device_name: String },
-    CloseBus { bus: BusId },
+    SetBusRouting { bus: BusId, routing: Routing },
 }
 
 /// Lo que un bus conserva aunque su tarjeta no exista. Los atomicos se crean una
-/// vez y viven para siempre: el monitor y las fuentes que ya suenan los tienen
-/// cogidos, y un cambio de tarjeta no debe dejarlos apuntando a la nada.
+/// vez y viven para siempre: el monitor, el fader y las fuentes que ya suenan los
+/// tienen cogidos, y reconstruir el grafo no debe dejarlos apuntando a la nada.
 pub struct BusSlot {
-    pub device_name: String,
+    pub routing: Routing,
     pub level_l: Arc<AtomicU32>,
     pub level_r: Arc<AtomicU32>,
     /// El fader del bus: una etapa por la que pasa toda su señal una vez. Se
@@ -55,12 +60,12 @@ pub struct BusSlot {
 }
 
 impl BusSlot {
-    fn new(volume: f32) -> Self {
+    fn new(routing: Routing) -> Self {
         Self {
-            device_name: String::new(),
+            routing,
             level_l: Arc::new(AtomicU32::new(0)),
             level_r: Arc::new(AtomicU32::new(0)),
-            volume: Arc::new(AtomicU32::new(volume.to_bits())),
+            volume: Arc::new(AtomicU32::new(1.0f32.to_bits())),
         }
     }
 }
@@ -68,7 +73,7 @@ impl BusSlot {
 #[derive(Default)]
 pub struct ConsoleState {
     pub slots: HashMap<BusId, BusSlot>,
-    /// Solo estan los buses con tarjeta viva. Que un bus falte aqui significa
+    /// Solo estan los buses con salida viva. Que un bus falte aqui significa
     /// exactamente "ese bus no existe ahora mismo".
     pub live: HashMap<BusId, Bus>,
 }
@@ -84,10 +89,10 @@ pub struct ConsoleEngine {
 impl ConsoleEngine {
     pub fn new() -> Self {
         let (tx, rx) = channel::<ConsoleCommand>();
-        let mut slots = HashMap::new();
-        slots.insert(BusId::Main, BusSlot::new(1.0));
-        // La pre-escucha no obedece al master: suena a lo que pida el operador.
-        slots.insert(BusId::Pre, BusSlot::new(1.0));
+        let slots = BusId::ALL
+            .iter()
+            .map(|bus| (*bus, BusSlot::new(bus.default_routing())))
+            .collect();
         let state = Arc::new(Mutex::new(ConsoleState {
             slots,
             live: HashMap::new(),
@@ -97,18 +102,14 @@ impl ConsoleEngine {
         Self { tx, state }
     }
 
-    /// Enchufa el bus a esa tarjeta, abriendola si hacia falta. Asincrono, como
-    /// lo era el cambio de dispositivo del motor de efectos.
-    pub fn set_bus_device(&self, bus: BusId, device_name: &str) {
-        let _ = self.tx.send(ConsoleCommand::SetBusDevice {
+    /// Cambia a donde entrega un bus. Asincrono, como lo era el cambio de
+    /// dispositivo del motor de efectos. Reconstruye el grafo, asi que corta lo
+    /// que este sonando: cambiar de ruteo no es gratis, ni deberia parecerlo.
+    pub fn set_bus_routing(&self, bus: BusId, routing: Routing) {
+        let _ = self.tx.send(ConsoleCommand::SetBusRouting {
             bus,
-            device_name: device_name.to_string(),
+            routing: sanitize(bus, routing),
         });
-    }
-
-    /// Desconecta el bus. La tarjeta se cierra si no la usa ningun otro.
-    pub fn close_bus(&self, bus: BusId) {
-        let _ = self.tx.send(ConsoleCommand::CloseBus { bus });
     }
 
     /// El bus, si existe ahora mismo. Clonar es barato (solo Arcs) y suelta el
@@ -117,16 +118,28 @@ impl ConsoleEngine {
         self.state.lock().unwrap().live.get(&bus).cloned()
     }
 
-    /// Los niveles del bus. Existen aunque el bus no tenga tarjeta.
+    /// Los niveles medidos del bus: (L, R). Existen aunque el bus no tenga
+    /// salida, porque el monitor los tiene cogidos desde el arranque.
     pub fn levels(&self, bus: BusId) -> (Arc<AtomicU32>, Arc<AtomicU32>) {
         let state = self.state.lock().unwrap();
         let slot = &state.slots[&bus];
         (Arc::clone(&slot.level_l), Arc::clone(&slot.level_r))
     }
 
-    /// El volumen del bus. Existe aunque el bus no tenga tarjeta.
-    pub fn volume(&self, bus: BusId) -> Arc<AtomicU32> {
-        Arc::clone(&self.state.lock().unwrap().slots[&bus].volume)
+    /// A cuanto esta el fader del bus.
+    pub fn fader(&self, bus: BusId) -> f32 {
+        f32::from_bits(self.state.lock().unwrap().slots[&bus].volume.load(Ordering::Relaxed))
+    }
+
+    /// Mueve el fader del bus. Afecta a lo que YA esta sonando por el.
+    ///
+    /// No pone techo: el maximo es una regla de producto (el modo boost llega a
+    /// 1.5) y la decide quien llama. Aqui solo se impide el negativo, que no es
+    /// "mas bajo" sino invertir la fase.
+    pub fn set_fader(&self, bus: BusId, value: f32) {
+        self.state.lock().unwrap().slots[&bus]
+            .volume
+            .store(value.max(0.0).to_bits(), Ordering::Relaxed);
     }
 }
 

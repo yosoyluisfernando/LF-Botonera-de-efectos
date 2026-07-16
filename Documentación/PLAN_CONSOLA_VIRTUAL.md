@@ -457,6 +457,67 @@ veces.
 sobre el fader: que escala, que se mueve mientras suena y que a cero calla sin detener la
 fuente), `npm run build` correcto, ningún archivo sobre 200 líneas.
 
+### Fase 3 — completada (2026-07-16)
+
+**Nacen los buses con nombre y muere el fallback.** Es la primera fase que **cambia
+comportamiento a propósito**, y por eso es la primera que va al `CHANGELOG`.
+
+**El arreglo, que era el hallazgo segundo de la auditoría:** el bus `Cue` existe **siempre**. Si
+no tiene tarjeta propia usa `Routing::ProgramDevice` — sale por la tarjeta del programa, pero con
+su propio `play_raw`, su fader y su medidor. Se suma con el programa **en el conector, no en el
+bus**. Resultado: la pre-escucha ya no recibe el máster ni mueve el vúmetro aunque solo haya una
+tarjeta. Deja de comportarse distinto según el equipo.
+
+`Routing::ProgramDevice` es la variante que carga con toda la idea de la consola: que dos cosas
+salgan por el mismo altavoz no las convierte en la misma señal.
+
+**La topología:**
+```
+  Efectos ─┐
+           ├─► Programa ─► fader (master) ─► medidor (vúmetro) ─► tarjeta
+  Panel ───┘
+  Cue ──────────────────► fader ──────────► medidor ──────────► tarjeta
+```
+
+**El máster se mudó a la consola.** Es el fader del bus `Programa` y el vúmetro es su medidor: los
+dos miran el mismo bus, que es la única forma de que la aguja no mienta sobre lo que el fader
+controla. `cmd_master_volume` y `cmd_profiles` se lo piden ahora a `console.fader(BusId::Programa)`
+en vez de a `AudioEngine`, que solo aporta uno de los buses que suman en el programa. Esto estaba
+anunciado en el registro de la Fase 2.
+
+**El vúmetro principal mide Efectos + Panel**, igual que antes (el bus `Main` recibía los dos
+grupos). Los botones del panel fijo siempre se han reflejado en él; lo que no aparece todavía es
+el reproductor, que sigue siendo un motor aparte — Fase 4.
+
+**`domain/console/` nace con las reglas puras:** `BusId`, `Routing`, `sanitize`, `device_of`,
+`devices_in_use`. Trece pruebas sin tocar una tarjeta de sonido. `sanitize` **no es programación
+defensiva**: pedir que la pre-escucha suene "en el programa" no es un error de un llamante que
+haya que silenciar, es una petición que la consola traduce a lo único que puede significar.
+
+**El grafo se reconstruye entero ante cualquier cambio de ruteo.** rodio no sabe sacar una fuente
+de un mixer, así que remendar dejaría el mixer de un bus viejo colgado dentro del programa para
+siempre, sonando a silencio y sin que nadie pueda quitarlo. Reconstruir corta lo que suene —igual
+que ya hacía cambiar de tarjeta— pero no acumula basura.
+
+**Muere el booleano `to_pre`** como decisión: `routing::bus_for(to_pre, group)` devuelve un
+`BusId`, y `AudioCommand::Play` lleva el bus, no un booleano. El hilo ya no elige entre dos
+salidas fijas con un `if`.
+
+**Se corrigió una incoherencia de paso:** las locuciones (`PlaySequence`) iban siempre al bus
+principal aunque las disparara un botón del panel fijo. Ahora van al bus de su grupo, como
+cualquier otro botón.
+
+**Dos archivos pasaron de 200 líneas y se partieron sin recortar nada:** las pruebas de ruteo
+salieron a `routing_tests.rs` (patrón que el proyecto ya usa), y `engine.rs` adelgazó al mudar el
+máster a la consola, que era su sitio.
+
+**Verificación:** `cargo build --lib` sin avisos, `cargo test --lib` con 152 pruebas (12 nuevas),
+`npm run build` correcto, ningún archivo sobre 200 líneas.
+
+**Lo que sigue pendiente:** el reproductor conserva su `OutputStream` propio, así que la doble
+apertura de tarjeta y su ausencia del vúmetro siguen. Los faders de `Efectos`, `Panel` y `Cue`
+existen y están a 1.0, pero no se ven ni se pueden mover: eso es la Fase 6.
+
 ---
 
 ## 10. Resumen en tres frases

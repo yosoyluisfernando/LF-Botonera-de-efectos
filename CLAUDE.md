@@ -273,10 +273,15 @@ cmd_button_playback::play_button_id()
                                   │
                           AudioCommand::Play{to_pre}
                                   │
-                    ┌─────────────┴────────────────┐
-                    │ to_pre=false                  │ to_pre=true
-                    ▼                               ▼
-        console.bus(BusId::Main)     console.bus(BusId::Pre) ──fallback──► bus(Main)
+                    │
+                    ▼
+            routing::bus_for(to_pre, group) → BusId
+              ├── to_pre       → BusId::Cue
+              ├── group=Main   → BusId::Efectos
+              └── group=Fixed  → BusId::Panel
+                    │
+                    ▼
+            console.bus(bus)   ← sin fallback: cada bus existe por su cuenta
                     │
                     ▼
             engine/cache/preload.rs::build_play_source(path, loop, cue)
@@ -292,16 +297,26 @@ cmd_button_playback::play_button_id()
                                           │
                                           ▼
                     ══ engine/console/ ═══════════════════════════════
-                               Bus: DynamicMixer<f32>
+                               Bus: DynamicMixer → FaderSource → LevelSource
                                           │
-                                          ▼
-                               LevelSource (mide PICO del PCM sumado → atomic)
-                                          │
-                                          ▼
-                               play_raw → OutputEndpoint (una tarjeta, abierta 1 vez)
-                                          │
-                                          ▼
-                               mixer interno de OutputStream → dispositivo CPAL
+                    ┌─────────────────────┴──────────────────┐
+                    │ Efectos, Panel: Routing::Program        │ Cue: ProgramDevice
+                    ▼                                         ▼
+        Programa: mixer → fader(MASTER) → level      play_raw (su propio
+                    │                                 enchufe en la tarjeta)
+                    ▼                                         │
+        play_raw → OutputEndpoint (una tarjeta, abierta 1 vez) ◄──┘
+                    │
+                    ▼
+        mixer interno de OutputStream → dispositivo CPAL
+```
+
+**La topología:**
+```
+  Efectos ─┐
+           ├─► Programa ─► fader (master) ─► medidor (vúmetro) ─► tarjeta
+  Panel ───┘
+  Cue ──────────────────► fader ──────────► medidor ──────────► tarjeta
 ```
 
 **La consola (`engine/console/`)** es dueña de las salidas y de los buses. El motor de efectos
@@ -309,18 +324,29 @@ le pide un bus y le entrega fuentes. **Reproducir NO pasa por su hilo:** el cont
 es `Arc<DynamicMixerController<f32>>` (Send + Sync) y `add()` toma `&self`. El hilo guardián
 solo atiende ruteo, porque `OutputStream` no es `Send` y alguien debe ser su dueño.
 
-Varios buses en la **misma tarjeta** se suman en el `OutputEndpoint`, no entre ellos: un bus es
-una *señal*, un endpoint es un *conector*. Esa es toda la idea.
+**El `Routing` de cada bus** (`domain/console/routing.rs`) dice a dónde entrega:
+- `Program` — suma en el programa: le pega el master y lo cuenta su vúmetro.
+- `ProgramDevice` — sale por la **misma tarjeta** que el programa, pero **sin sumar en él**.
+  Esta variante es la idea entera de la consola: que dos cosas salgan por el mismo altavoz no
+  las convierte en la misma señal. Se suman en el *conector*, no en el *bus*.
+- `Device(x)` — su propia tarjeta, ajeno al programa y al master.
+
+**El grafo se reconstruye entero ante cualquier cambio de ruteo** (`engine/console/graph.rs`), y
+no es pereza: rodio no sabe sacar una fuente de un mixer. Remendar dejaría el mixer de un bus
+viejo colgado dentro del programa para siempre, sonando a silencio y sin que nadie pueda
+quitarlo. Reconstruir corta lo que suene — igual que ya hacía cambiar de tarjeta.
 
 **Modelo de ganancia — cada factor en su etapa:**
 ```
-ButtonSource (el canal):  muestra × file_gain(dB→lineal) × vol_botón(lineal) × fade
-Bus (el fader):           × master(lineal)
+ButtonSource (el canal):     muestra × file_gain(dB→lineal) × vol_botón(lineal) × fade
+Bus del grupo (su fader):    × fader_del_bus  (Efectos / Panel / Cue; hoy a 1.0)
+Bus Programa (el master):    × master(lineal) — solo para los que suman en él
 ```
 - `file_gain`: de `TrackMeta.effective_gain_linear()` = norm_gain_db + gain_db → lineal
 - `vol_botón`: `ButtonData.vol` (lineal 0–1; se preserva para compat `.bdelf`)
-- `master`: `AudioConfig.master_volume` (0–1.5 en modo boost). Es el **fader del bus `Main`**
-  (`FaderSource`), una sola etapa sobre la suma
+- `master`: `AudioConfig.master_volume` (0–1.5 en modo boost). Es el **fader del bus `Programa`**,
+  y se pide a la consola (`console.fader(BusId::Programa)`), no al motor de efectos: el programa
+  es la suma de varios buses, no de uno. **La pre-escucha no lo cruza nunca**
 
 Desde la Fase 2 el master **es una etapa real**. Antes era un atómico que cada `ButtonSource`
 leía y se aplicaba a sí mismo: no una etapa, sino un acuerdo entre fuentes. El resultado audible
@@ -338,12 +364,18 @@ no en transporte: el Stop general y el Solo siguen sin tocarlo.
 **Pre-escucha:**
 - ID especial `__prelisten__` para la barra de pre-escucha
 - ID especial `__track_preview__` para la previa dentro del editor de pistas
-- Ambos van con `to_pre=true` → al bus `BusId::Pre` si existe; si no, **caen al `Main`**
+- Ambos van con `to_pre=true` → **siempre** al bus `BusId::Cue`. Sin fallback.
 
-**Trampa del fallback:** `out_pre` viene vacío por defecto, y entonces el bus `Pre` no existe. La
-pre-escucha cae al `Main`, donde **le pega el master y suma al vúmetro de programa**. Con tarjeta
-de pre-escucha dedicada no ocurre. O sea: el mismo botón se comporta distinto según el equipo. Es
-conocido y la Fase 3 lo elimina — ver `Documentación/PLAN_CONSOLA_VIRTUAL.md`.
+**El fallback que había (arreglado en la Fase 3):** `out_pre` viene vacío por defecto, y entonces
+el bus de pre-escucha no existía y la pre-escucha caía al principal, donde le pegaba el master y
+sumaba al vúmetro de programa. Con tarjeta dedicada no pasaba: el mismo botón se comportaba
+distinto según el equipo.
+
+Ahora el bus `Cue` **existe siempre**. Sin tarjeta propia usa `Routing::ProgramDevice`: sale por
+la tarjeta del programa, pero con su propio `play_raw`, su propio fader y su propio medidor. Se
+suma con el programa **en el conector**, no en el bus. `domain/console/routing.rs::sanitize`
+garantiza que el CUE no pueda rutearse a `Program` ni pidiéndolo — no es programación defensiva,
+es la regla: una escucha privada que se cuela en el aire no es una escucha privada.
 
 ---
 
@@ -519,10 +551,15 @@ A partir de la v1.1.3, el backend sigue una arquitectura de "Núcleo + Motores" 
 | `domain/export/lfa_format/` | Adaptadores de compatibilidad bidireccional con LF Automatizador (.bdelf/.LFPlay). |
 
 **`engine/console/` (la consola de audio), por responsabilidad:**
-`mod.rs` (handle `ConsoleEngine` + `BusId` + `BusSlot`), `thread.rs` (hilo guardián: único dueño
-de las tarjetas), `endpoint.rs` (`OutputEndpoint`: una tarjeta abierta **una vez** + registro por
-nombre), `bus.rs` (`Bus`: mixer + medidor, enchufado con `play_raw`; **sin `Sink`**),
-`level.rs` (`LevelSource`), `device.rs` (`find_device` / `available_devices`).
+`mod.rs` (handle `ConsoleEngine` + `BusSlot` + `ConsoleState`), `thread.rs` (hilo guardián: único
+dueño de las tarjetas), `graph.rs` (monta el grafo de buses según el ruteo), `endpoint.rs`
+(`OutputEndpoint`: una tarjeta abierta **una vez** + registro por nombre), `bus.rs` (`Bus`: mixer
++ fader + medidor; **sin `Sink`**), `fader.rs` (`FaderSource`), `level.rs` (`LevelSource`),
+`device.rs` (`find_device` / `available_devices`).
+
+**`domain/console/`** — las reglas: `BusId`, `Routing`, `sanitize`, `device_of`,
+`devices_in_use`. Puras y probadas sin tarjeta de sonido. Aquí se decide qué va dónde; el motor
+solo obedece.
 
 Es un motor **debajo** de `audio/` y `player/`, no al lado: no produce audio, lo encamina, y los
 dos son sus clientes. `MasterBus` y `AudioDeviceRuntime` desaparecieron absorbidos por él.

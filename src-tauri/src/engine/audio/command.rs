@@ -1,6 +1,7 @@
 /// Modulo: audio_command.rs
 /// Proposito: mensajes internos que la fachada de audio envia al hilo dedicado.
 use crate::engine::audio::button::PlaybackGroup;
+use crate::engine::console::{BusId, Routing};
 
 pub enum AudioCommand {
     Play {
@@ -18,8 +19,8 @@ pub enum AudioCommand {
         cue_end_s: Option<f64>,
         /// Ganancia del archivo (capa 1): normalización/dB del editor, lineal.
         file_gain: f32,
-        /// true = a la salida de pre-escucha (si existe); false = principal.
-        to_pre: bool,
+        /// El bus de la consola por el que suena. Lo decide `routing::bus_for`.
+        bus: BusId,
         /// Tiempo de fade-in al inicio de la reproducción (0.0 = sin fade).
         fade_in_s: f64,
         /// Tiempo de fade-out al pulsar Detener (0.0 = corte inmediato).
@@ -41,12 +42,12 @@ pub enum AudioCommand {
     },
     /// Igual que StopAll pero con fundido en todos los ButtonSource que lo soporten.
     StopAllFade,
-    SetDevice {
-        device_name: String,
-    },
-    /// Fija/limpia el dispositivo de pre-escucha. Vacío = usar el principal.
-    SetPreDevice {
-        device_name: String,
+    /// Cambia el ruteo de un bus de la consola. Pasa por el hilo de audio, y no
+    /// directo a la consola, para respetar el orden con los Play que ya viajan
+    /// por este canal.
+    SetBusRouting {
+        bus: BusId,
+        routing: Routing,
     },
     SetVolume {
         id: String,
@@ -61,6 +62,7 @@ pub enum AudioCommand {
         paths: Vec<String>,
         volume: f32,
         duration: f64,
+        bus: BusId,
         group: PlaybackGroup,
     },
 }

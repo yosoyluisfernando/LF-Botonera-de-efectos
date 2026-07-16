@@ -193,6 +193,34 @@ Las piezas:
 Varios buses enchufados a la misma tarjeta se suman **en el conector**, sin tocarse entre
 ellos. Que dos cosas salgan por el mismo altavoz no las convierte en el mismo bus.
 
+### La topología
+
+```
+  Efectos ─┐
+           ├─► Programa ─► fader (master) ─► medidor (vúmetro) ─► tarjeta
+  Panel ───┘
+  Cue ──────────────────► fader ──────────► medidor ──────────► tarjeta
+```
+
+El bus `Programa` es especial: su fader **es** el volumen máster y su medidor **es** el
+vúmetro de la barra inferior. Que sean el mismo bus no es casualidad — es la única forma
+de que la aguja no mienta sobre lo que el fader controla.
+
+El **CUE nunca entra en `Programa`**, ni compartiendo tarjeta. Si no tiene una propia usa
+`Routing::ProgramDevice`: sale por el mismo conector que el programa, pero con su propio
+`play_raw`, su fader y su medidor. `domain/console/routing.rs::sanitize` impide rutearlo a
+`Program` aunque se pida — una escucha privada que se cuela en el aire no es una escucha
+privada.
+
+Las reglas de qué va dónde viven en **`domain/console/`**, puras y probadas sin hardware.
+`engine/console/` solo las obedece.
+
+**El grafo se reconstruye entero ante cualquier cambio de ruteo** (`graph.rs`), y no es
+pereza: rodio no sabe sacar una fuente de un mixer. Remendarlo dejaría el mixer de un bus
+viejo colgado dentro del programa para siempre, produciendo silencio y sin que nadie pueda
+quitarlo. Reconstruir corta lo que suene — igual que ya hacía cambiar de tarjeta — pero no
+acumula basura.
+
 **Reproducir no pasa por el hilo de la consola.** `DynamicMixerController::add` toma `&self`
 y su `Arc` es `Send + Sync`, así que cada motor añade fuentes a su bus desde su propio hilo.
 El hilo guardián solo atiende cambios de ruteo.

@@ -2,6 +2,7 @@
 /// Proposito: comandos IPC de perfiles. Las paletas viven en cmd_paletas.rs y
 /// la configuracion general en cmd_config.rs.
 use super::AppState;
+use crate::engine::console::BusId;
 use crate::engine::persist::config_io as config;
 use crate::ipc::cmd_master_volume;
 use crate::model::{AppConfig, AudioConfig, PaletaData, ProfileData};
@@ -29,7 +30,7 @@ pub fn set_active_profile(id: String, state: tauri::State<AppState>) -> Result<A
     config::save_config(&cfg)?;
     let next = cfg.clone();
     drop(cfg);
-    state.audio.lock().unwrap().set_master_volume(volume);
+    state.console.set_fader(BusId::Programa, volume);
     crate::engine::cache::warm::warm_for_strategy(&state);
     Ok(next)
 }

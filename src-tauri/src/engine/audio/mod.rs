@@ -7,6 +7,7 @@ pub mod formats;
 pub mod last_pressed;
 pub mod monitor;
 pub mod ops;
+pub mod routing;
 pub mod seek_source;
 pub mod sequence;
 pub mod thread;

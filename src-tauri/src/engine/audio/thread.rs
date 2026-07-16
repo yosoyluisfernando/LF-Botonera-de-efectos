@@ -5,7 +5,7 @@ use crate::engine::audio::last_pressed::LastPressedInfo;
 use crate::engine::audio::ops as audio_ops;
 use crate::engine::audio::thread_play::{play_file, play_sequence, PlayArgs};
 use crate::engine::cache::preload::PreloadCache;
-use crate::engine::console::{BusId, ConsoleEngine};
+use crate::engine::console::{BusId, ConsoleEngine, Routing};
 use std::collections::HashMap;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
@@ -29,36 +29,31 @@ fn run(
     console: Arc<ConsoleEngine>,
 ) {
     let mut replays: HashMap<String, ReplayInfo> = HashMap::new();
-    // La ultima tarjeta pedida para el bus principal, para saber si de verdad
-    // cambia. Reaplicar la misma salida (al arrancar, al reconectar) no debe
-    // callar lo que este sonando.
-    let mut current_main = String::new();
+    // El ultimo ruteo pedido para el programa, para saber si de verdad cambia.
+    // Reaplicar la misma salida (al arrancar, al reconectar) no debe callar lo
+    // que este sonando.
+    let mut current_program: Option<Routing> = None;
 
     for cmd in rx {
         audio_ops::purge_done(&states);
         match cmd {
-            AudioCommand::SetDevice { device_name } => {
-                // Cambiar de tarjeta se lleva por delante lo que sonaba: esas
-                // fuentes viven en un bus que esta a punto de desaparecer, y sin
-                // limpiar quedarian colgadas en el mapa sin llegar a terminar
-                // nunca (nadie las itera ya, asi que jamas marcan done).
-                // Que el bus no exista cuenta como cambio: hay que reabrirlo.
-                if device_name != current_main || console.bus(BusId::Main).is_none() {
-                    states.lock().unwrap().clear();
-                    replays.clear();
+            AudioCommand::SetBusRouting { bus, routing } => {
+                // Cambiar el ruteo reconstruye el grafo, asi que se lleva por
+                // delante lo que sonaba: esas fuentes viven en buses que estan a
+                // punto de desaparecer, y sin limpiar quedarian colgadas en el
+                // mapa sin terminar nunca (nadie las itera ya, asi que jamas
+                // marcan done). Solo hace falta cuando el programa se mueve: es
+                // el que arrastra a todos los buses que suman en el.
+                if bus == BusId::Programa {
+                    let changed = current_program.as_ref() != Some(&routing)
+                        || console.bus(BusId::Programa).is_none();
+                    if changed {
+                        states.lock().unwrap().clear();
+                        replays.clear();
+                    }
+                    current_program = Some(routing.clone());
                 }
-                current_main = device_name.clone();
-                console.set_bus_device(BusId::Main, &device_name);
-            }
-            AudioCommand::SetPreDevice { device_name } => {
-                // Sin tarjeta propia el bus de pre-escucha no existe, y quien
-                // quiera sonar en el cae al principal. Ese fallback es el que la
-                // Fase 3 elimina; aqui se conserva tal cual estaba.
-                if device_name.is_empty() {
-                    console.close_bus(BusId::Pre);
-                } else {
-                    console.set_bus_device(BusId::Pre, &device_name);
-                }
+                console.set_bus_routing(bus, routing);
             }
             AudioCommand::Play {
                 id,
@@ -72,13 +67,13 @@ fn run(
                 cue_start_s,
                 cue_end_s,
                 file_gain,
-                to_pre,
+                bus,
                 fade_in_s,
                 fade_out_stop_s,
                 fade_out_end_s,
                 group,
             } => {
-                let main_button = !to_pre
+                let main_button = bus != BusId::Cue
                     && !id.starts_with("__")
                     && group == crate::engine::audio::button::PlaybackGroup::Main;
                 let replay = main_button.then(|| ReplayInfo {
@@ -97,14 +92,12 @@ fn run(
                 if main_button && stop_other {
                     replays.retain(|key, _| key == &id);
                 }
-                let bus = if to_pre {
-                    console.bus(BusId::Pre).or_else(|| console.bus(BusId::Main))
-                } else {
-                    console.bus(BusId::Main)
-                };
+                // Sin fallback: cada bus existe por su cuenta. La pre-escucha ya
+                // no puede acabar en el programa por no tener tarjeta propia —
+                // comparte el conector, no el bus.
                 let played = play_file(
                     &states,
-                    bus.as_ref(),
+                    console.bus(bus).as_ref(),
                     &cache,
                     PlayArgs {
                         id,
@@ -153,9 +146,11 @@ fn run(
                 delta_s,
                 position_s,
             } => {
+                // El salto solo alcanza a los botones de la botonera principal
+                // (`last_pressed`), asi que reconstruye en el bus de efectos.
                 playback_seek::seek_active(
                     &states,
-                    console.bus(BusId::Main).as_ref(),
+                    console.bus(BusId::Efectos).as_ref(),
                     &cache,
                     &last_pressed,
                     &replays,
@@ -168,11 +163,12 @@ fn run(
                 paths,
                 volume,
                 duration,
+                bus,
                 group,
             } => {
                 play_sequence(
                     &states,
-                    console.bus(BusId::Main).as_ref(),
+                    console.bus(bus).as_ref(),
                     id,
                     paths,
                     volume,

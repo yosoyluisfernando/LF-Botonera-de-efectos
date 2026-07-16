@@ -162,12 +162,17 @@ invoke('play_button', {id}) ─► cmd_button_playback::play_button_id()
                                                          ├── Hit → CachedSource::new_at() O(1)
                                                          └── Miss → decode + CuedSource O(n)
                                                                          │
+                                          routing::bus_for(to_pre, group) → BusId
+                                                                         │
                                                     attach_button() → bus de la consola
                                                                          │
                                                    ButtonSource: s × file_gain × vol_btn × fade
                                                                          │
                                     engine/console: DynamicMixer → FaderSource → LevelSource
                                                                          │
+                                              Efectos, Panel ─► Programa (fader = MASTER)
+                                              Cue ─────────────────────┐  │
+                                                                       ▼  ▼
                                                           OutputEndpoint (play_raw)
                                                                                               │
                                                                                          Altavoces
@@ -175,23 +180,25 @@ invoke('play_button', {id}) ─► cmd_button_playback::play_button_id()
 
 **Modelo de ganancia — cada factor en su etapa:**
 ```
-ButtonSource (canal):  muestra × file_gain(dB→lineal) × vol_botón(lineal 0-1) × fade
-Bus (fader):           × master(lineal 0-1.5)
+ButtonSource (canal):     muestra × file_gain(dB→lineal) × vol_botón(lineal 0-1) × fade
+Bus del grupo (fader):    × fader_del_bus (Efectos / Panel / Cue; hoy a 1.0)
+Bus Programa (master):    × master(lineal 0-1.5) — solo lo que suma en él
 ```
-El `master` es el **fader del bus `Main`**: una etapa real sobre la suma, no un número que cada
-fuente se aplica a sí misma. **El medidor va después del fader**, así que el vúmetro enseña lo
-que de verdad sale.
+El `master` es el **fader del bus `Programa`**: una etapa real sobre la suma, no un número que
+cada fuente se aplica a sí misma. Se le pide a la consola (`console.fader(BusId::Programa)`), no
+al motor de efectos. **El medidor va después del fader**, así que el vúmetro enseña lo que de
+verdad sale.
 
 **La consola (`engine/console/`)** es dueña de las salidas físicas y de los buses; el motor
-de efectos le pide un bus (`BusId::Main`, `BusId::Pre`) y le entrega fuentes. Reproducir NO
-pasa por su hilo: el controller del bus es `Arc<...>` y `add()` toma `&self`, así que cada
-motor añade desde el suyo. El hilo guardián solo atiende ruteo, porque `OutputStream` no es
-`Send` y alguien tiene que ser su dueño.
+de efectos le pide un bus y le entrega fuentes. Reproducir NO pasa por su hilo: el controller del
+bus es `Arc<...>` y `add()` toma `&self`, así que cada motor añade desde el suyo. El hilo guardián
+solo atiende ruteo, porque `OutputStream` no es `Send` y alguien tiene que ser su dueño.
 
-**Pre-escucha:** los comandos con `to_pre=true` van al bus `BusId::Pre`. Si no tiene tarjeta
-propia ese bus no existe y **caen al bus principal** — donde les pega el master y suman al
-vúmetro de programa. Es un fallback conocido: la Fase 3 de la consola lo elimina. Ver
-[`PLAN_CONSOLA_VIRTUAL.md`](Documentación/PLAN_CONSOLA_VIRTUAL.md).
+**Pre-escucha:** `to_pre=true` va **siempre** al bus `BusId::Cue`, sin fallback. Si no tiene
+tarjeta propia usa `Routing::ProgramDevice`: sale por la tarjeta del programa pero con su propio
+enchufe, su fader y su medidor — se suma con el programa **en el conector, no en el bus**. Así no
+le pega el master ni cuenta en el vúmetro aunque solo haya una tarjeta. `sanitize` impide rutear
+el CUE a `Program` aunque se pida.
 
 ---
 

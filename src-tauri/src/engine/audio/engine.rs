@@ -1,24 +1,25 @@
 use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup};
 use crate::engine::audio::command::AudioCommand;
 use crate::engine::audio::last_pressed::LastPressedInfo;
+use crate::engine::audio::routing::bus_for;
 use crate::engine::audio::thread as audio_thread;
 use crate::engine::cache::preload::PreloadCache;
 use crate::engine::cache::preloader::Preloader;
-use crate::engine::console::{BusId, ConsoleEngine};
+use crate::engine::console::{BusId, ConsoleEngine, Routing};
 use crate::model::fade::FadeConfig;
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
 
-/// Motor de efectos: botones de la botonera y del panel fijo. Ya no posee
-/// tarjetas — pide sus buses a la consola, que es su dueña.
+/// Motor de efectos: botones de la botonera y del panel fijo.
+///
+/// Ya no posee tarjetas ni faders: le pide sus buses a la consola, que es su
+/// dueña. El master y el vumetro de la barra inferior son el fader y el medidor
+/// del bus `Programa`, y se le piden a ella (`console.fader` / `console.levels`).
 pub struct AudioEngine {
     tx: Sender<AudioCommand>,
     button_states: Arc<Mutex<ButtonStateMap>>,
-    master_level_l: Arc<AtomicU32>,
-    master_level_r: Arc<AtomicU32>,
-    master_volume: Arc<AtomicU32>,
     last_pressed: Arc<Mutex<Option<LastPressedInfo>>>,
     preload_cache: Arc<Mutex<PreloadCache>>,
     preloader: Preloader,
@@ -29,10 +30,6 @@ impl AudioEngine {
     pub fn new(console: Arc<ConsoleEngine>) -> Self {
         let (tx, rx) = channel::<AudioCommand>();
         let button_states: Arc<Mutex<ButtonStateMap>> = Arc::new(Mutex::new(HashMap::new()));
-        // Los niveles y el volumen del bus los crea la consola, no este motor:
-        // son del BUS, y sobreviven a que la tarjeta se caiga o se cambie.
-        let (master_level_l, master_level_r) = console.levels(BusId::Main);
-        let master_volume = console.volume(BusId::Main);
         let last_pressed = Arc::new(Mutex::new(None));
         let preload_cache = Arc::new(Mutex::new(PreloadCache::new(128)));
         let preload_enabled = Arc::new(AtomicBool::new(false));
@@ -47,9 +44,6 @@ impl AudioEngine {
         Self {
             tx,
             button_states,
-            master_level_l,
-            master_level_r,
-            master_volume,
             last_pressed,
             preload_cache,
             preloader,
@@ -69,27 +63,29 @@ impl AudioEngine {
     pub fn button_states_handle(&self) -> Arc<Mutex<ButtonStateMap>> {
         Arc::clone(&self.button_states)
     }
-    pub fn master_levels_handles(&self) -> (Arc<AtomicU32>, Arc<AtomicU32>) {
-        (
-            Arc::clone(&self.master_level_l),
-            Arc::clone(&self.master_level_r),
-        )
-    }
     pub fn last_pressed_handle(&self) -> Arc<Mutex<Option<LastPressedInfo>>> {
         Arc::clone(&self.last_pressed)
     }
-    pub fn master_volume(&self) -> f32 {
-        f32::from_bits(self.master_volume.load(Ordering::Relaxed))
-    }
 
-    pub fn set_master_volume(&self, volume: f32) {
-        self.master_volume
-            .store(volume.clamp(0.0, 1.5).to_bits(), Ordering::Relaxed);
-    }
-
+    /// La salida principal: la tarjeta por la que sale el programa.
     pub fn set_device(&self, device_name: &str) -> Result<(), String> {
-        self.send(AudioCommand::SetDevice {
-            device_name: device_name.to_string(),
+        self.send(AudioCommand::SetBusRouting {
+            bus: BusId::Programa,
+            routing: Routing::Device(device_name.to_string()),
+        })
+    }
+
+    /// La salida de pre-escucha. Vacio = comparte tarjeta con el programa, pero
+    /// **sigue siendo un bus aparte**: sin master y sin sumar a su vumetro.
+    pub fn set_pre_device(&self, device_name: &str) -> Result<(), String> {
+        let routing = if device_name.is_empty() {
+            Routing::ProgramDevice
+        } else {
+            Routing::Device(device_name.to_string())
+        };
+        self.send(AudioCommand::SetBusRouting {
+            bus: BusId::Cue,
+            routing,
         })
     }
 
@@ -126,17 +122,11 @@ impl AudioEngine {
             cue_start_s,
             cue_end_s,
             file_gain,
-            to_pre,
+            bus: bus_for(to_pre, group),
             fade_in_s: fade.fade_in_s,
             fade_out_stop_s: fade.fade_out_stop_s,
             fade_out_end_s: fade.fade_out_end_s,
             group,
-        })
-    }
-
-    pub fn set_pre_device(&self, device_name: &str) -> Result<(), String> {
-        self.send(AudioCommand::SetPreDevice {
-            device_name: device_name.to_string(),
         })
     }
 
@@ -185,6 +175,8 @@ impl AudioEngine {
             paths,
             volume,
             duration,
+            // Una locucion suena por el bus de su grupo, como cualquier boton.
+            bus: bus_for(false, group),
             group,
         })
     }

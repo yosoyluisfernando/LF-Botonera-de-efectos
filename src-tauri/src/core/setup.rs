@@ -5,6 +5,7 @@
 /// (modulos, AppState y registro de comandos), sin logica.
 use crate::engine::audio::monitor as audio_monitor;
 use crate::engine::cache::warm as preload_warm;
+use crate::engine::console::BusId;
 use crate::engine::input::keyboard as global_shortcuts;
 use crate::engine::player::monitor as player_monitor;
 use crate::engine::persist::last_played;
@@ -33,9 +34,14 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
 
     let engine = state.audio.lock().unwrap();
     let _ = engine.set_device(&device);
-    engine.set_master_volume(master_volume);
+    // El master es el fader del bus Programa. Se pone antes de que el bus exista
+    // a proposito: el atomico vive en el slot desde que nace la consola, y el bus
+    // lo toma al abrirse. Asi no hay carrera con el `set_device` de arriba, que
+    // es asincrono.
+    state.console.set_fader(BusId::Programa, master_volume);
     engine.set_preload_enabled(preload_enabled);
-    // Pre-escucha: solo si es una tarjeta distinta de la principal (fallback).
+    // Pre-escucha: vacio = comparte la tarjeta del programa. No es un fallback —
+    // sigue siendo un bus aparte, sin master y fuera del vumetro de programa.
     let pre = if out_pre.is_empty() || out_pre == device { "" } else { &out_pre };
     let _ = engine.set_pre_device(pre);
     engine
@@ -44,8 +50,10 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
         .unwrap()
         .set_budget(preload_budget);
 
-    // Hilo monitor: emite "audio-tick" con progreso, tiempo restante y niveles VU
-    let (ll, lr) = engine.master_levels_handles();
+    // Hilo monitor: emite "audio-tick" con progreso, tiempo restante y niveles VU.
+    // El vumetro mide el bus Programa: el mismo que gobierna el master, que es la
+    // unica forma de que la aguja no mienta sobre lo que el fader controla.
+    let (ll, lr) = state.console.levels(BusId::Programa);
     audio_monitor::start(
         app.handle().clone(),
         engine.button_states_handle(),

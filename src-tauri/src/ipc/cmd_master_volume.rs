@@ -1,6 +1,12 @@
 /// Modulo: cmd_master_volume.rs
 /// Proposito: comandos IPC y reglas de configuracion del volumen master.
+///
+/// El master **es el fader del bus Programa** de la consola: subirlo o bajarlo
+/// es mover ese fader, y el vumetro de la barra inferior es su medidor. Por eso
+/// se le pide a la consola y no al motor de efectos, que solo es uno de los
+/// buses que suman en el programa.
 use super::AppState;
+use crate::engine::console::BusId;
 use crate::engine::persist::config_io as config;
 use crate::model::{AppConfig, AudioConfig};
 use serde::Serialize;
@@ -17,7 +23,7 @@ pub struct MasterVolumeState {
 pub fn get_master_volume_state(state: tauri::State<AppState>) -> Result<MasterVolumeState, String> {
     let cfg = state.config.lock().unwrap();
     let audio = active_audio(&cfg)?;
-    let volume = state.audio.lock().unwrap().master_volume();
+    let volume = state.console.fader(BusId::Programa);
     Ok(MasterVolumeState {
         volume,
         remember: audio.master_volume_remember,
@@ -41,7 +47,7 @@ pub fn set_master_volume(
         config::save_config(&cfg)?;
     }
     drop(cfg);
-    state.audio.lock().unwrap().set_master_volume(volume);
+    state.console.set_fader(BusId::Programa, volume);
     Ok(MasterVolumeState {
         volume,
         remember,
@@ -64,13 +70,13 @@ pub fn set_master_volume_options(
     let volume = if remember {
         audio.master_volume
     } else {
-        state.audio.lock().unwrap().master_volume()
+        state.console.fader(BusId::Programa)
     };
     let volume = clamp_volume(volume, boost);
     audio.master_volume = volume;
     config::save_config(&cfg)?;
     drop(cfg);
-    state.audio.lock().unwrap().set_master_volume(volume);
+    state.console.set_fader(BusId::Programa, volume);
     Ok(MasterVolumeState {
         volume,
         remember,

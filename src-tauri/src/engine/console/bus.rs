@@ -44,11 +44,21 @@ pub struct Bus {
     level_r: Arc<AtomicU32>,
 }
 
+/// Donde entrega un bus lo que sale de su cadena.
+pub enum BusOutput<'a> {
+    /// A una tarjeta. Es el final del camino.
+    Endpoint(&'a OutputStreamHandle),
+    /// A otro bus, que lo suma con los demas. Asi entran los buses en el
+    /// programa: el mixer de un bus es una fuente mas del mixer del PGM.
+    Bus(&'a Arc<DynamicMixerController<f32>>),
+}
+
 impl Bus {
-    /// Crea el bus y lo enchufa al endpoint. None si `play_raw` falla (la tarjeta
-    /// se perdio entre medias). `gain` es el fader: se mueve mientras suena.
+    /// Crea el bus y lo enchufa a su destino. None si `play_raw` falla (la
+    /// tarjeta se perdio entre medias). `gain` es el fader: se mueve mientras
+    /// suena.
     pub fn open(
-        handle: &OutputStreamHandle,
+        out: BusOutput,
         level_l: Arc<AtomicU32>,
         level_r: Arc<AtomicU32>,
         gain: Arc<AtomicU32>,
@@ -59,12 +69,20 @@ impl Bus {
         controller.add(Zero::<f32>::new(BUS_CHANNELS, BUS_SAMPLE_RATE));
         let faded = FaderSource::new(mixer, gain);
         let measured = LevelSource::new(faded, Arc::clone(&level_l), Arc::clone(&level_r));
-        handle.play_raw(measured).ok()?;
+        match out {
+            BusOutput::Endpoint(handle) => handle.play_raw(measured).ok()?,
+            BusOutput::Bus(parent) => parent.add(measured),
+        }
         Some(Self {
             controller,
             level_l,
             level_r,
         })
+    }
+
+    /// El controller, para que otro bus pueda enchufarse a este.
+    pub fn controller(&self) -> &Arc<DynamicMixerController<f32>> {
+        &self.controller
     }
 
     /// Anade una fuente al bus. La consola no sabe que es: puede ser un boton,

@@ -30,9 +30,6 @@ impl OutputEndpoint {
         })
     }
 
-    pub fn handle(&self) -> &OutputStreamHandle {
-        &self.handle
-    }
 }
 
 /// Las tarjetas abiertas, por nombre.
@@ -42,14 +39,18 @@ pub struct EndpointRegistry {
 }
 
 impl EndpointRegistry {
-    /// Devuelve el endpoint de esa tarjeta, abriendola si aun no lo estaba.
-    /// Pedir dos veces la misma tarjeta devuelve LA MISMA: ese es el registro.
-    pub fn ensure(&mut self, device_name: &str) -> Option<&OutputEndpoint> {
+    /// El handle de esa tarjeta, abriendola si aun no lo estaba. Pedir dos veces
+    /// la misma tarjeta devuelve LA MISMA: ese es el registro.
+    ///
+    /// Devuelve el handle **clonado** y no una referencia a proposito: el que
+    /// construye el grafo necesita enchufar varios buses seguidos, y una
+    /// referencia dejaria el registro prestado durante todo el montaje.
+    pub fn ensure(&mut self, device_name: &str) -> Option<OutputStreamHandle> {
         if !self.open.contains_key(device_name) {
             self.open
                 .insert(device_name.to_string(), OutputEndpoint::open(device_name)?);
         }
-        self.open.get(device_name)
+        Some(self.open.get(device_name)?.handle.clone())
     }
 
     /// Cierra las tarjetas que ya no usa ningun bus. Se llama tras cada cambio de

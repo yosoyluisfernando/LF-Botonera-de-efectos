@@ -63,7 +63,9 @@ Struct Rust (`engine/console/bus.rs`). Un punto de suma **con nombre**: un `Dyna
 Un bus es una **señal**, no una tarjeta. Esa distinción es la razón de ser de la [consola](#c): dos buses pueden salir por el mismo altavoz sin ser el mismo bus, porque se suman en el conector y no entre ellos. Se clona barato (solo son `Arc`) y se le añaden fuentes desde cualquier hilo.
 
 **`BusId`**
-Enum de los buses que la consola conoce: `Main` (efectos de la botonera y del panel fijo) y `Pre` ([pre-escucha](#p)). La Fase 3 los abre a Efectos / Panel / Reproductor / Cue.
+Enum de los buses de la consola (`domain/console/routing.rs`): `Efectos` (botones de la botonera), `Panel` (botones del panel fijo), `Cue` ([pre-escucha](#p)) y `Programa` (la suma de lo que va al aire). El bus `Reproductor` llega en la Fase 4.
+
+`Programa` es especial: su fader **es** el volumen máster y su medidor **es** el vúmetro de la barra inferior. Que sean el mismo bus no es casualidad — es la única forma de que la aguja no mienta sobre lo que el fader controla.
 
 **`BusSlot`**
 Lo que un bus conserva **aunque su tarjeta no exista**: los atómicos de nivel y volumen. Se crean una vez en `ConsoleEngine::new()` y viven siempre, porque el monitor y las fuentes que ya suenan los tienen cogidos; un cambio de tarjeta no debe dejarlos apuntando a la nada. Que un `BusId` falte en `ConsoleState::live` significa exactamente "ese bus no existe ahora mismo".
@@ -389,9 +391,11 @@ Struct en `engine/cache/preload.rs`. `HashMap<String, Arc<CachedPcm>>` con lista
 Enum Rust: `FullProfile`, `VisibleTabs`, `OnPlay`. Controla qué archivos se precalientan automáticamente. Ver [`preload.rs`](../src-tauri/src/model/preload.rs).
 
 **`prelisten`**
-Pre-escucha: reproducir un audio en un dispositivo de salida separado (auriculares del locutor) sin que salga al aire. Se usa el ID especial `__prelisten__` para el panel de pre-escucha, y `__track_preview__` para la previa dentro del editor. Los comandos con `to_pre=true` se enrutan al bus `BusId::Pre` de la [consola](#c).
+Pre-escucha: reproducir un audio sin que salga al aire (los auriculares del locutor). Se usa el ID especial `__prelisten__` para el panel de pre-escucha, y `__track_preview__` para la previa dentro del editor. Los comandos con `to_pre=true` se enrutan **siempre** al bus `BusId::Cue` de la [consola](#c), sin fallback.
 
-**Trampa:** si no hay tarjeta de pre-escucha configurada, ese bus **no existe** y la pre-escucha **cae al bus principal**, donde le pega el volumen master y suma al vúmetro de programa. Con tarjeta dedicada no ocurre: el mismo botón se comporta distinto según el equipo. La Fase 3 de la [consola](#c) lo elimina.
+**Sin tarjeta dedicada sigue siendo privada.** El bus `Cue` existe siempre; si no tiene tarjeta propia usa [`Routing::ProgramDevice`](#r): sale por la tarjeta del programa pero con su propio enchufe, su fader y su medidor. Se suma con el programa **en el conector, no en el bus**, así que no le pega el máster ni cuenta en el vúmetro. `sanitize` impide rutear el CUE a `Program` aunque se pida.
+
+**Cómo era antes (corregido en la Fase 3):** si `out_pre` estaba vacío —el caso por defecto— ese bus no existía y la pre-escucha **caía al principal**, donde le pegaba el máster y movía el vúmetro. Con tarjeta dedicada no pasaba, así que el mismo botón se comportaba distinto según el equipo.
 
 **`PlayerConfig`**
 Configuración persistida del reproductor auxiliar, colgada de `AppConfig.player`. Es **global**: hay un solo reproductor compartido entre perfiles. Contiene `tracks` (la cola, que reutiliza `ButtonData`), `playback_mode`, `volume` (0.0–1.5, independiente del master) y `output_device` (`""` = el mismo de los efectos).
@@ -414,6 +418,15 @@ Estado de la cola del reproductor: entradas, modo, `stop_after`, pista actual, c
 ---
 
 ## R
+
+**`Routing`**
+Enum de `domain/console/routing.rs`. Dice a dónde entrega un [bus](#b) su señal:
+
+- **`Program`** — suma en el bus [`Programa`](#b): le pega el máster y lo cuenta su vúmetro. Es lo que va al aire.
+- **`ProgramDevice`** — sale por la **misma tarjeta** que el programa, pero **sin sumar en él**. Esta variante es la idea entera de la consola: que dos cosas salgan por el mismo altavoz no las convierte en la misma señal — se suman en el *conector*, no en el *bus*. Es lo que mantiene privada la [pre-escucha](#p) cuando solo hay una tarjeta de sonido.
+- **`Device(x)`** — su propia tarjeta, ajeno al programa y al máster. Sacar un bus aquí es lo que "rompe" la regla de que todo pase por el máster.
+
+`sanitize(bus, routing)` corrige los ruteos imposibles antes de que lleguen al motor: el CUE no puede ser `Program`, y el `Programa` no puede sumarse a sí mismo. No es programación defensiva — es la regla de negocio: pedir que la pre-escucha suene "en el programa" no es un error que haya que silenciar, es una petición que la consola traduce a lo único que puede significar.
 
 **`random_folder`**
 Tipo de botón que reproduce archivos de una carpeta de forma secuencial. `random_folder.rs` mantiene el estado de qué archivo toca a continuación por cada botón. El nombre histórico es `random_folder` pero el comportamiento es secuencial (avanza uno a uno).
