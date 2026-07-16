@@ -419,7 +419,7 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 
 | Evento | Payload | Quién escucha |
 |---|---|---|
-| `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r, idle}` | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
+| `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r, buses{efectos,panel,reproductor,cue}, idle}` (en `engine/audio/tick.rs`) | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
 | `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, loop_current, can_seek, volume, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"player-drop-progress"` | progreso al añadir una carpeta grande a la cola (lotes de 20) | playerDrop.js |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
@@ -664,11 +664,11 @@ cargo test --lib
 
 # Consola contra las TARJETAS REALES del equipo (no entran en la suite normal:
 # necesitan hardware, y una prueba que falla por el entorno no dice nada).
-# Comprueban lo que los mixers de mentira no pueden: que el grafo se monta sobre
-# tarjetas de verdad, que el medidor mide lo que sale, y que cambiar de salida no
-# deja el vúmetro mudo ni pisado por buses fantasma.
-# CIERRA LA APLICACIÓN antes: abren las mismas tarjetas.
-cargo test --test consola_tarjetas_reales -- --ignored --nocapture --test-threads=1
+# Comprueban lo que los mixers de mentira no pueden. CIERRA LA APLICACIÓN antes:
+# abren las mismas tarjetas. El rig común está en tests/common/mod.rs.
+#   ruteo:    por dónde sale cada bus y qué pasa al cambiarlo
+#   vúmetros: que cada medidor cuente LO SUYO y el del programa la suma
+cargo test --test consola_ruteo_real --test consola_vumetros_real -- --ignored --nocapture --test-threads=1
 
 # OJO: `cargo test` compila CON los tests, y un `use super::*` de un fichero de
 # pruebas puede tapar un import que ya nadie usa en el módulo. El usuario compila

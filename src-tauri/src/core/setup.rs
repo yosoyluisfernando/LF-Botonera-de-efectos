@@ -62,17 +62,16 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
         player.snapshot_handle()
     };
 
-    // Hilo monitor: emite "audio-tick" con progreso, tiempo restante y niveles VU.
-    // El vumetro mide el bus Programa: el mismo que gobierna el master, que es la
-    // unica forma de que la aguja no mienta sobre lo que el fader controla.
-    let (ll, lr) = state.console.levels(BusId::Programa);
+    // Hilo monitor: emite "audio-tick" con progreso, tiempo restante y el nivel de
+    // cada bus. El vumetro de la barra inferior mide el bus Programa: el mismo que
+    // gobierna el master, que es la unica forma de que la aguja no mienta sobre lo
+    // que el fader controla. Los niveles se los pide a la consola.
     audio_monitor::start(
         app.handle().clone(),
         engine.button_states_handle(),
-        ll,
-        lr,
         engine.last_pressed_handle(),
         Arc::clone(&player_snapshot),
+        Arc::clone(&state.console),
     );
     drop(engine);
     // Sincroniza el modo y la cola guardados con el motor del reproductor.

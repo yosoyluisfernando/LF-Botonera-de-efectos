@@ -5,48 +5,19 @@
 //! Se piden a mano:
 //!
 //! ```text
-//! cargo test --test consola_tarjetas_reales -- --ignored --nocapture
+//! cargo test --test consola_ruteo_real -- --ignored --nocapture --test-threads=1
 //! ```
 //!
-//! Lo que comprueban es justo lo que no se puede ver con mixers de mentira: que
-//! el grafo se monta sobre tarjetas de verdad, que el medidor mide lo que sale, y
-//! que cambiar de salida no deja al vumetro mudo ni pisado por buses fantasma.
+//! **Cierra la aplicacion antes**: abren las mismas tarjetas.
 //!
-//! **Cierra la aplicacion antes de ejecutarlas**: abren las mismas tarjetas.
-use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::Arc;
+//! Aqui va el RUTEO: por donde sale cada bus y que pasa al cambiarlo. Los
+//! medidores estan en `consola_vumetros_real.rs`.
+mod common;
+use common::{dos_tarjetas, nivel, respirar, tono};
 use std::thread::sleep;
 use std::time::Duration;
 use tauri_app_lib::domain::console::{BusId, Routing};
-use tauri_app_lib::engine::console::device::available_devices;
 use tauri_app_lib::engine::console::ConsoleEngine;
-
-use rodio::buffer::SamplesBuffer;
-
-/// Un momento para que el medidor tenga muestras que medir: mide por ventanas de
-/// ~21 ms y la tarjeta pide el audio a su ritmo, no al nuestro.
-fn respirar() {
-    sleep(Duration::from_millis(250));
-}
-
-fn nivel(atomico: &Arc<AtomicU32>) -> f32 {
-    f32::from_bits(atomico.load(Ordering::Relaxed))
-}
-
-/// Un tono continuo de un minuto: no se acaba a mitad de la prueba.
-fn tono(nivel: f32) -> SamplesBuffer<f32> {
-    SamplesBuffer::new(2, 48_000, vec![nivel; 48_000 * 2 * 60])
-}
-
-/// Las dos primeras tarjetas de verdad (saltando "default", que no es una
-/// tarjeta sino "la que diga el sistema").
-fn dos_tarjetas() -> Option<(String, String)> {
-    let devs: Vec<String> = available_devices().into_iter().skip(1).collect();
-    match devs.as_slice() {
-        [a, b, ..] => Some((a.clone(), b.clone())),
-        _ => None,
-    }
-}
 
 /// El caso que el autor reporto: el reproductor en LA MISMA tarjeta que la
 /// botonera debe verse en el vumetro. Elegir esa tarjeta por su nombre es pedir

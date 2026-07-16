@@ -706,6 +706,47 @@ Device)* y *AUDIO PCI (C-Media PCI Audio Device)*):
 palabra por palabra: `[0.8, 0.0, 0.0, 0.0, 0.8, 0.0, 0.0, 0.8, 0.8, 0.0]`. Esos ceros intercalados
 son "los espacios vacíos cuando la música está sonando normalmente".
 
+### Fase 5 — completada (2026-07-16)
+
+**Cada bus expone su nivel.** El `audio-tick` lleva ahora `buses {efectos, panel, reproductor,
+cue}`, que es lo que necesita una tira de canal por bus.
+
+`master_level_l/r` **se conserva** y sigue siendo el bus `Programa`: el vúmetro de la barra
+inferior lo lee desde siempre y no había motivo para moverlo.
+
+**Nace `engine/audio/tick.rs`** con lo que viaja en el tick y `LevelTaps`, que pide los atómicos de
+los cinco buses **una vez** al arrancar el monitor. No se vuelven a pedir: son del `BusSlot` y
+sobreviven a que el grafo se rehaga, así que valen para toda la vida del monitor — pedirlos en cada
+tick sería tomar el candado de la consola diez veces por segundo para nada. `monitor.rs` adelgazó
+de 163 a 130 líneas y el monitor dejó de recibir atómicos sueltos: pide lo que necesita a la
+consola.
+
+**En reposo van todos a cero**, por lo mismo que el programa: los atómicos aún pueden retener el
+último pico. También el CUE, y no es un descuido — la pre-escucha suena por el motor de efectos y
+cuenta como botón, así que si estuviera sonando no habría reposo.
+
+**Verificación contra las tarjetas reales**, a petición del autor y antes de tocar la interfaz. Las
+pruebas se repartieron por tema, con el rig común en `tests/common/mod.rs`:
+
+```bash
+cargo test --test consola_ruteo_real --test consola_vumetros_real -- --ignored --nocapture --test-threads=1
+```
+
+Lo que dieron sobre las dos tarjetas del autor:
+
+- **Cada bus mide lo suyo** → efectos `0.5` · panel `0.25` · reproductor `0` · programa `0.75`.
+  La suma exacta, y el reproductor callado con su aguja quieta.
+- **Bajar la música a la mitad** → efectos `0.5` (intacto) · reproductor `0.125` · programa
+  `0.625`. Es el gesto del locutor: baja la música sin tocar los efectos.
+- **Máster a la mitad** → efectos `0.8` (intacto) · programa `0.4`. Cada tira enseña lo que
+  *aporta*, no lo que sale al aire.
+
+Esa aritmética es la de una consola funcionando, y es justo lo que no se podía ver con mixers de
+mentira.
+
+**Lo que la Fase 5 NO hace:** nadie lee `buses` todavía. Los datos existen y están probados; la
+tira de canal que los pinta es la Fase 6.
+
 ---
 
 ## 10. Resumen en tres frases

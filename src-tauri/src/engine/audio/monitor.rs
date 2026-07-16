@@ -1,56 +1,29 @@
 /// Módulo: audio_monitor.rs
 /// Propósito: Hilo de monitoreo que emite "audio-tick" cada ~100ms con el estado
-/// de reproducción, tiempo restante para el reloj y niveles del vúmetro master.
+/// de reproducción, tiempo restante para el reloj y el nivel de cada bus.
 /// Toda la lógica de cálculo vive en Rust (Regla 4).
+/// Lo que viaja en el tick está en `tick.rs`.
 use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup};
 use crate::engine::audio::last_pressed::LastPressedInfo;
+use crate::engine::audio::tick::{AudioTickPayload, LevelTaps, TickInfo};
+use crate::engine::console::ConsoleEngine;
 use crate::engine::player::PlayerSnapshot;
-use serde::Serialize;
-use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 use tauri::Emitter;
 
-#[derive(Serialize, Clone)]
-pub struct TickInfo {
-    pub id: String,
-    pub pos: f64,
-    pub remaining: f64,
-    pub duration: f64,
-    pub group: &'static str,
-    pub progress_percent: f64,
-}
-
-#[derive(Serialize, Clone)]
-pub struct AudioTickPayload {
-    pub buttons: Vec<TickInfo>,
-    /// Tiempo restante en segundos para el reloj de la barra inferior.
-    pub display_remaining: f64,
-    /// Duración original del audio que gobierna el contador de la barra inferior.
-    pub display_duration: f64,
-    pub master_level_l: f32,
-    pub master_level_r: f32,
-    /// Ya no suena nada en el programa: ni efectos, ni panel, ni reproductor.
-    /// Este es el ÚLTIMO tick antes del silencio, y va con nivel cero.
-    ///
-    /// Lo decide Rust porque solo Rust lo sabe (regla 4): el frontend lo deducía
-    /// de que la lista de botones viniera vacía, y con música de fondo sin
-    /// efectos eso es falso — hay señal de sobra. El vúmetro daba entonces cada
-    /// tick por final y le ponía el decaimiento largo, así que la aguja nunca
-    /// alcanzaba el nivel real.
-    pub idle: bool,
-}
-
 pub fn start(
     app: tauri::AppHandle,
     button_states: Arc<Mutex<ButtonStateMap>>,
-    master_level_l: Arc<AtomicU32>,
-    master_level_r: Arc<AtomicU32>,
     last_pressed: Arc<Mutex<Option<LastPressedInfo>>>,
     player: Arc<Mutex<PlayerSnapshot>>,
+    console: Arc<ConsoleEngine>,
 ) {
     thread::spawn(move || {
+        // Una vez y para siempre: los atómicos son del BusSlot y sobreviven a que
+        // el grafo se rehaga.
+        let taps = LevelTaps::new(&console);
         let mut was_idle = false;
         loop {
             let (buttons, display_remaining, display_duration) = {
@@ -97,14 +70,7 @@ pub fn start(
             // LevelSource necesita ~21ms más para medir el silencio). Forzar 0.0
             // garantiza que el tick final lleve nivel cero y el vúmetro baje hasta
             // la base en lugar de quedarse colgado.
-            let (ml, mr) = if idle {
-                (0.0f32, 0.0f32)
-            } else {
-                (
-                    f32::from_bits(master_level_l.load(Ordering::Relaxed)),
-                    f32::from_bits(master_level_r.load(Ordering::Relaxed)),
-                )
-            };
+            let (ml, mr) = if idle { (0.0, 0.0) } else { taps.program() };
             if !idle || !was_idle {
                 let _ = app.emit(
                     "audio-tick",
@@ -114,6 +80,7 @@ pub fn start(
                         display_duration,
                         master_level_l: ml,
                         master_level_r: mr,
+                        buses: taps.buses(idle),
                         idle,
                     },
                 );
