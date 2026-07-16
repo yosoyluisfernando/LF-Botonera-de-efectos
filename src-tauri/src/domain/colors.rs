@@ -2,12 +2,7 @@
 /// Proposito: paleta segura, contraste y colores para botones nuevos.
 use serde::Serialize;
 
-const SAFE_COLORS: [&str; 32] = [
-    "#E53935", "#D81B60", "#8E24AA", "#5E35B1", "#3949AB", "#1E88E5", "#039BE5", "#00ACC1",
-    "#00897B", "#43A047", "#7CB342", "#C0CA33", "#FDD835", "#FFB300", "#FB8C00", "#F4511E",
-    "#6D4C41", "#546E7A", "#C62828", "#AD1457", "#6A1B9A", "#4527A0", "#283593", "#1565C0",
-    "#0277BD", "#00838F", "#00695C", "#2E7D32", "#558B2F", "#9E9D24", "#EF6C00", "#D84315",
-];
+use crate::domain::palette::SAFE_COLORS;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -124,17 +119,33 @@ fn hex_to_hsl(hex: &str) -> Option<(f32, f32, f32)> {
     Some((h * 360.0, s, l))
 }
 
+/// Texto que mejor se lee sobre `bg_hex`: el de MAS contraste, no el que dicte
+/// un umbral de luminancia. Con el umbral fijo anterior (0.45) algunos fondos se
+/// llevaban texto blanco cuando el oscuro contrastaba mas: medido, 9 de los 48
+/// casos de la paleta bajaban del 4.5 que pide el estandar, con el peor en 2.71.
+/// Comparando de verdad, solo queda uno rozando el limite (4.43).
 fn readable_text(bg_hex: &str) -> String {
-    let Some((r, g, b)) = hex_to_rgb(bg_hex) else {
-        return "#FFFFFF".to_string();
-    };
-    let luminance = 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
-    if luminance > 0.45 {
-        "#111111"
+    let dark = "#111111";
+    let light = "#FFFFFF";
+    if contrast_ratio(bg_hex, dark) > contrast_ratio(bg_hex, light) {
+        dark
     } else {
-        "#FFFFFF"
+        light
     }
     .to_string()
+}
+
+fn relative_luminance(hex: &str) -> f32 {
+    let Some((r, g, b)) = hex_to_rgb(hex) else {
+        return 0.0;
+    };
+    0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+}
+
+/// Contraste WCAG entre dos colores: `(L_claro + 0.05) / (L_oscuro + 0.05)`.
+fn contrast_ratio(a: &str, b: &str) -> f32 {
+    let (x, y) = (relative_luminance(a), relative_luminance(b));
+    (x.max(y) + 0.05) / (x.min(y) + 0.05)
 }
 
 fn hex_to_rgb(hex: &str) -> Option<(f32, f32, f32)> {
@@ -156,3 +167,7 @@ fn channel(v: f32) -> f32 {
         ((v + 0.055) / 1.055).powf(2.4)
     }
 }
+
+#[cfg(test)]
+#[path = "colors_tests.rs"]
+mod colors_tests;

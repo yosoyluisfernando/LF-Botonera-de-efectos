@@ -50,7 +50,11 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - El editor solo inserta PCM en la caché RAM si la precarga está activa y la duración del archivo entra en el límite configurado.
 - Reorganización interna del código fuente alrededor de un núcleo central y motores especializados. Al ser un proyecto de código abierto, este cambio deja una base más clara y ordenada para programadores que en el futuro quieran apoyar con mejoras o nuevas funciones. No está pensado como una mejora directa de rendimiento; la app debería sentirse igual, pero será más fácil mantenerla y ampliarla con seguridad.
 
+### Cambiado
+- **La paleta de colores de los botones tiene ahora variedad real.** Antes eran 32 colores, pero en la práctica se veían 16: la mitad eran el mismo tono en otra intensidad, y la app iguala las intensidades para que el texto se lea en tema claro y oscuro. Además había seis azules y seis rojos, pero un solo verde. Ahora son 24 colores repartidos por todo el círculo de color, y ninguno se repite. Los botones que ya tienes conservan su color.
+
 ### Corregido
+- El texto de los botones se lee mejor sobre los colores más vivos: antes se elegía blanco o negro con una regla fija que en algunos fondos acertaba mal; ahora se elige el que de verdad contrasta más.
 - Las pestañas nuevas se llaman ahora **Pestaña 2**, **Pestaña 3**… en vez de nombres extraños como "BOTONERA 1 4". El número sigue la posición, así que renombrar una pestaña no descoloca a las siguientes.
 - **Adelantar o atrasar un audio ya no deja silencios.** Saltar a un punto lejano de una canción podía tardar varios segundos (más de seis al ir al minuto dos de un tema largo), porque el salto no era real y había que recorrer el audio por dentro hasta llegar. Ahora es inmediato sin importar la distancia, y afecta tanto al reproductor como a la barra de progreso de la botonera principal. Los efectos cortos no estaban afectados porque ya se cargan en memoria.
 - El editor de pistas evita congelamientos al analizar audios largos y reabre más rápido archivos ya analizados.

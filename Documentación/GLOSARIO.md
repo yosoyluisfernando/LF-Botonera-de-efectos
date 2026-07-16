@@ -79,6 +79,13 @@ Struct en `engine/cache/cached_source.rs` que almacena el PCM decodificado como 
 **`CachedSource`**
 Struct en `engine/cache/cached_source.rs` que implementa `Source<Item=f32>`. Lee desde un `Arc<CachedPcm>` y permite crear instancias en cualquier posición con `new_at(pcm, offset)` en tiempo O(1). Solución al problema de seek con latencia creciente.
 
+**`paleta de colores`**
+Los 24 colores que la Botonera ofrece para los botones (`domain/palette.rs`). **Varían solo en MATIZ, y es a propósito.**
+
+**La trampa:** `adapt_color` recorta para garantizar contraste en los dos temas (regla 8) — en oscuro la luminosidad no pasa de `0.30`, y en claro la saturación no baja de `0.90`. Eso deja el **matiz como lo único que sobrevive**: dos colores con el mismo matiz se ven **iguales**, por distinta que sea su base. La paleta anterior eran 16 matices de Material en dos intensidades (600 y 800): aparentaba 32 colores, pero el recorte igualaba cada pareja. Medido: 26 parejas por debajo de 12° de matiz (donde el ojo deja de separarlas), 6 azules, 6 rojos y **un solo verde**. Si algún día se añaden colores, deben separarse en **matiz**; variar la intensidad no sirve de nada.
+
+El reparto no es a intervalos iguales: el ojo distingue mal entre verdes y entre azules (pasos de hasta 25°) y muy bien entre naranjas y amarillos (pasos de 12°). `colors_tests.rs` lo blinda: matices distintos, sin amontonar, distintos **tras adaptar a cada tema**, y con contraste suficiente.
+
 **`cmd_*.rs`**
 Convención de nombres para módulos en `src-tauri/src/ipc/` que contienen comandos IPC de Tauri. Cada `#[tauri::command]` se registra en `ipc/register.rs`. Estos módulos coordinan, no tienen lógica de negocio pesada.
 

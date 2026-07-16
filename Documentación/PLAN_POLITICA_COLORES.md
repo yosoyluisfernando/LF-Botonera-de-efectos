@@ -5,10 +5,16 @@ panel lateral (julio 2026) antes de borrar aquella exportación temporal, para n
 decisiones ya tomadas.
 
 - **Estado:** diseño aprobado; implementación **no iniciada**.
-- **Verificado en el código (2026-07-15):** no existe `new_button_style` ni equivalente. Hoy el
+- **Verificado en el código (2026-07-16):** no existe `new_button_style` ni equivalente. Hoy el
   color de todo botón nuevo sale de `domain::colors::random_color()`.
 
 ---
+
+> **Nota (2026-07-16):** la paleta se rehízo antes de abordar esto. Eran 32 colores que en
+> realidad se veían 16 (16 matices repetidos en dos intensidades, y el recorte de tema igualaba
+> cada pareja); ahora son **24 matices** de verdad distintos, repartidos por el círculo de color.
+> Eso importa aquí: los modos "por filas" y "por columnas" solo lucen si los colores **se
+> distinguen**. Ver `paleta de colores` en el `GLOSARIO.md`.
 
 ## 1. Qué queremos
 
@@ -37,7 +43,8 @@ Rojo  Azul  Verde            Verde Verde Verde
    botón. Cambiar la preferencia no repinta la botonera.
 2. **La edición manual siempre manda.** Cualquier botón puede cambiar su color desde su editor
    (clic derecho → editar), sin importar la política vigente.
-3. **Se reutiliza la paleta de 32 colores que ya existe** (`get_color_palette`). No se crea otro
+3. **Se reutiliza la paleta que ya existe** (`get_color_palette`, hoy 24 colores en
+   `domain/palette.rs`). No se crea otro
    selector.
 4. **El color del texto se calcula solo** para que se lea sobre el fondo, y se puede cambiar a
    mano después. Ya existe: `domain::colors::text_for_theme`.
