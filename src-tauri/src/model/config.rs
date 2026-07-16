@@ -3,6 +3,7 @@
 //! `botonera_config.json`. Son las PREFERENCIAS de la aplicacion; el contenido
 //! que crea el usuario (perfil → paleta → boton) vive en `model/content.rs`.
 //! Cada bloque de ajustes tiene su propio modulo y aqui solo se compone.
+use crate::model::console::ConsoleConfig;
 use crate::model::content::{PaletaData, ProfileData};
 use crate::model::fade::FadeConfig;
 use crate::model::fixed_panel::FixedPanelConfig;
@@ -36,6 +37,9 @@ pub struct AppConfig {
     pub button_text_size: String,
     #[serde(default = "default_editor_mode")]
     pub editor_mode: String,
+    /// Cómo abre la consola de audio: "window" (flotante) | "modal".
+    #[serde(default = "default_console_mode")]
+    pub console_mode: String,
     #[serde(default)]
     pub active_profile_id: String,
     #[serde(default = "default_true")]
@@ -65,6 +69,10 @@ pub struct AppConfig {
     /// Reproductor auxiliar: uno solo y global (no por perfil).
     #[serde(default)]
     pub player: PlayerConfig,
+    /// Los faders de la consola que no viven en otro sitio. El máster está en
+    /// `AudioConfig` y el del reproductor en `PlayerConfig`.
+    #[serde(default)]
+    pub console: ConsoleConfig,
     #[serde(default)]
     pub profiles: Vec<ProfileData>,
 }
@@ -80,6 +88,12 @@ fn default_lang() -> String {
 fn default_button_text_size() -> String {
     "normal".to_string()
 }
+/// La consola nace en ventana flotante: es lo que se recomienda mientras esté
+/// en pruebas, porque deja ver la botonera y la consola a la vez.
+fn default_console_mode() -> String {
+    "window".to_string()
+}
+
 fn default_editor_mode() -> String {
     "modal".to_string()
 }
@@ -116,6 +130,7 @@ impl Default for AppConfig {
             language: default_lang(),
             button_text_size: default_button_text_size(),
             editor_mode: default_editor_mode(),
+            console_mode: default_console_mode(),
             active_profile_id: "perfil_1".to_string(),
             clock_24h: true,
             last_update_check: 0,
@@ -130,6 +145,7 @@ impl Default for AppConfig {
             startup: StartupPromptState::default(),
             fixed_panel: FixedPanelConfig::default(),
             player: PlayerConfig::default(),
+            console: ConsoleConfig::default(),
             profiles: vec![profile],
         }
     }

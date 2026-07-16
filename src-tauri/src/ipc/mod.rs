@@ -5,6 +5,7 @@ pub mod cmd_button_playback;
 pub mod cmd_button_types;
 pub mod cmd_button_update;
 pub mod cmd_config;
+pub mod cmd_console;
 pub mod cmd_export;
 pub mod cmd_fixed_panel;
 pub mod cmd_fixed_buttons;

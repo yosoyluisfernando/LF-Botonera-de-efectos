@@ -19,8 +19,23 @@ pub struct TickInfo {
 /// El pico L/R de un bus en la ventana mas reciente.
 #[derive(Serialize, Clone, Copy, Default)]
 pub struct BusLevel {
+    /// Lineal 0..1, que es lo que necesita la altura de la barra.
     pub l: f32,
     pub r: f32,
+    /// El pico de los dos canales en dB, para el numerito de la tira.
+    ///
+    /// `None` es el silencio: en decibelios el cero no existe —es menos
+    /// infinito—, y un numero centinela acabaria pintado en pantalla algun dia.
+    /// Lo calcula Rust porque es una escala, no un formato (regla 4).
+    pub db: Option<f32>,
+}
+
+impl BusLevel {
+    fn new(l: f32, r: f32) -> Self {
+        let peak = l.max(r);
+        let db = (peak > 0.0).then(|| 20.0 * peak.log10());
+        Self { l, r, db }
+    }
 }
 
 /// El nivel de cada bus de la consola. Lo que la UI necesita para pintar una tira
@@ -99,7 +114,7 @@ impl LevelTaps {
         }
         let de = |tap: &(Arc<AtomicU32>, Arc<AtomicU32>)| {
             let (l, r) = read(tap);
-            BusLevel { l, r }
+            BusLevel::new(l, r)
         };
         BusLevels {
             efectos: de(&self.efectos),

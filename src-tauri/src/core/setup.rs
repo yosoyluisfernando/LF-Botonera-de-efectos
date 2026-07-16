@@ -30,15 +30,19 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
     // Reproductor auxiliar: "" = mismo dispositivo que los efectos.
     let player_device_cfg = cfg.player.output_device.clone();
     let player_volume = cfg.player.volume;
+    let console_faders = cfg.console.clone();
     drop(cfg);
 
     let engine = state.audio.lock().unwrap();
     let _ = engine.set_device(&device);
-    // El master es el fader del bus Programa. Se pone antes de que el bus exista
-    // a proposito: el atomico vive en el slot desde que nace la consola, y el bus
-    // lo toma al abrirse. Asi no hay carrera con el `set_device` de arriba, que
-    // es asincrono.
+    // Los faders se ponen antes de que los buses existan a proposito: los
+    // atomicos viven en el slot desde que nace la consola, y cada bus toma el
+    // suyo al abrirse. Asi no hay carrera con el `set_device` de arriba, que es
+    // asincrono.
     state.console.set_fader(BusId::Programa, master_volume);
+    state.console.set_fader(BusId::Efectos, console_faders.efectos);
+    state.console.set_fader(BusId::Panel, console_faders.panel);
+    state.console.set_fader(BusId::Cue, console_faders.cue);
     engine.set_preload_enabled(preload_enabled);
     // Pre-escucha: vacio = comparte la tarjeta del programa. No es un fallback —
     // sigue siendo un bus aparte, sin master y fuera del vumetro de programa.

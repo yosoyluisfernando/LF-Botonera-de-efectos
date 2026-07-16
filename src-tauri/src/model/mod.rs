@@ -1,5 +1,6 @@
 pub mod audio;
 pub mod config;
+pub mod console;
 pub mod content;
 pub mod fade;
 pub mod fixed_panel;
