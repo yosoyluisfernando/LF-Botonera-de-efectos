@@ -39,8 +39,9 @@
       <div class="tabs-container">
         <div id="tabs-list" class="tabs-scroll"></div>
         <button id="btn-add-tab" class="btn-add-tab" data-i18n-title="tabs.add_tooltip">+</button>
-        <button id="btn-profiles" class="btn-profile" data-i18n-title="profiles.tooltip">👤</button>
+        <button id="btn-console" class="btn-settings" data-i18n-title="console.tooltip">🎛️</button>
         <button id="btn-fixed-panel" class="btn-settings btn-fixed-panel" data-i18n-title="fixed_panel.toggle">▤</button>
+        <button id="btn-profiles" class="btn-profile" data-i18n-title="profiles.tooltip">👤</button>
         <button id="btn-settings" class="btn-settings">⚙️</button>
       </div>
 
@@ -687,6 +688,30 @@
           <button id="btn-delete-save" class="btn-dark" data-i18n="delete_confirm.save_delete">Guardar y eliminar</button>
           <button id="btn-delete-only" class="btn-blue danger-action" data-i18n="delete_confirm.delete">Eliminar</button>
           <button id="btn-delete-cancel" class="btn-dark" data-i18n="delete_confirm.cancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consola de audio. En modo ventana este contenedor es la página entera
+         (ver body.console-window-mode); en modo modal, el overlay oscurecido. -->
+    <div id="console-modal" class="modal-overlay hidden">
+      <div class="modal-content console-content">
+        <div class="modal-header">
+          <h3 data-i18n="console.title">Consola de audio</h3>
+          <div class="console-header-actions">
+            <button id="console-popout" class="btn-dark console-popout"></button>
+            <button id="close-console" class="close-btn">✕</button>
+          </div>
+        </div>
+        <p class="console-notice" data-i18n="console.notice">
+          La consola de audio está en fase de prueba y se irá adaptando a un sitio mejor.
+          Se recomienda usarla en modo ventana.
+        </p>
+        <div class="console-body">
+          <div id="console-strips" class="console-strips"></div>
+          <div class="console-split" aria-hidden="true"></div>
+          <div id="console-program" class="console-program"></div>
+          <div id="console-cue" class="console-cue"></div>
         </div>
       </div>
     </div>

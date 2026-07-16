@@ -1,0 +1,131 @@
+/**
+ * Archivo: consoleFader.css
+ * Propósito: el fader de una tira de canal, con capuchón.
+ *
+ * Va aparte de console.css por el límite de 200 líneas (regla 3): un fader
+ * decente pide dos juegos de reglas casi idénticos, uno por motor (`-webkit-` y
+ * `-moz-`), porque las pseudoclases del `range` no se pueden agrupar — si un
+ * navegador no entiende un selector de la lista, descarta la regla entera.
+ *
+ * El capuchón imita el de una mesa física: cuerpo claro con relieve y una línea
+ * de guía en el centro, que es la que marca de verdad la posición.
+ */
+
+.fader-track {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 34px;
+}
+
+/* Vertical con el cero abajo. `writing-mode` + `direction` es la forma estándar;
+   `slider-vertical` es el fallback para motores que aún no la implementan. */
+.fader {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  width: 34px;
+  height: clamp(120px, 34vh, 300px);
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.fader:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── La ranura ─────────────────────────────────────────────────────────── */
+
+.fader::-webkit-slider-runnable-track {
+  width: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #0b0d10 0%, #1c2128 50%, #0b0d10 100%);
+  border: 1px solid var(--border-color);
+}
+
+.fader::-moz-range-track {
+  width: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #0b0d10 0%, #1c2128 50%, #0b0d10 100%);
+  border: 1px solid var(--border-color);
+}
+
+/* ── El capuchón ───────────────────────────────────────────────────────── */
+
+.fader::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 15px;
+  border: 1px solid #454f59;
+  border-radius: 3px;
+  box-shadow:
+    0 2px 4px rgb(0 0 0 / 55%),
+    inset 0 1px 0 rgb(255 255 255 / 45%);
+  /* Relieve: claro arriba, la línea de guía en el centro, sombra abajo. */
+  background: linear-gradient(
+    180deg,
+    #e2e7ec 0%,
+    #b6bfc9 42%,
+    #6d7883 47%,
+    #f2f5f8 50%,
+    #6d7883 53%,
+    #aab3bd 58%,
+    #78828d 100%
+  );
+}
+
+.fader::-moz-range-thumb {
+  width: 30px;
+  height: 15px;
+  border: 1px solid #454f59;
+  border-radius: 3px;
+  box-shadow:
+    0 2px 4px rgb(0 0 0 / 55%),
+    inset 0 1px 0 rgb(255 255 255 / 45%);
+  background: linear-gradient(
+    180deg,
+    #e2e7ec 0%,
+    #b6bfc9 42%,
+    #6d7883 47%,
+    #f2f5f8 50%,
+    #6d7883 53%,
+    #aab3bd 58%,
+    #78828d 100%
+  );
+}
+
+/* ── El máster ─────────────────────────────────────────────────────────── */
+/* Rojo, como el MAIN de una mesa: es el que no te puedes equivocar de agarrar. */
+
+.fader.is-master::-webkit-slider-thumb {
+  border-color: #7d1f1f;
+  background: linear-gradient(
+    180deg,
+    #ff8080 0%,
+    #d63838 42%,
+    #7d1f1f 47%,
+    #ffdede 50%,
+    #7d1f1f 53%,
+    #c93030 58%,
+    #8f2222 100%
+  );
+}
+
+.fader.is-master::-moz-range-thumb {
+  border-color: #7d1f1f;
+  background: linear-gradient(
+    180deg,
+    #ff8080 0%,
+    #d63838 42%,
+    #7d1f1f 47%,
+    #ffdede 50%,
+    #7d1f1f 53%,
+    #c93030 58%,
+    #8f2222 100%
+  );
+}

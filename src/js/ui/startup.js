@@ -28,6 +28,8 @@ import { maybeShowPreloadDialog } from './preloadDialog.js';
 import { checkAudioDevicesOnStartup } from './audioDeviceRecovery.js';
 import { initStartupPrompts, runStartupPrompts } from './startupPrompts.js';
 import { initFixedPanel, drawFixedPanel, initialFixedPanel } from './fixedPanel.js';
+import { wire as wireConsole, initWindowMode as initConsoleWindow } from './consoleWindow.js';
+import { updateConsoleTick } from './consoleView.js';
 import { wireRuntimeEvents } from './runtimeEvents.js';
 
 let _closeWired = false;
@@ -35,9 +37,11 @@ let _closeWired = false;
 export async function startApp() {
     try {
         await waitForTauri();
-        // Ventana "pop-out": si la URL trae ?editor=<ruta>, arranca SOLO el editor.
-        const editorPath = new URLSearchParams(location.search).get('editor');
+        // Ventanas "pop-out": si la URL lo pide, arranca SOLO esa herramienta.
+        const params = new URLSearchParams(location.search);
+        const editorPath = params.get('editor');
         if (editorPath) { await _startEditorWindow(editorPath); return; }
+        if (params.get('console')) { await _startConsoleWindow(); return; }
         initColorPicker();
         initButtonSelection();
         initNumberInputs();
@@ -71,6 +75,20 @@ export async function startApp() {
         await loadLanguage('es').catch(() => {});
         _showError(e.message);
     }
+}
+
+/** Arranque en modo ventana de la consola: solo tema, i18n y las tiras. El
+ *  audio-tick llega igual — es un evento de Tauri y lo reciben todas las
+ *  ventanas, así que los vúmetros se mueven sin nada más. */
+async function _startConsoleWindow() {
+    const config = await invoke('get_config').catch(() => ({}));
+    applyTheme(config.theme || 'dark');
+    await loadLanguage(config.language || 'es');
+    listen('theme-changed', e => applyTheme(e.payload?.theme || 'dark')).catch(console.error);
+    _blockNativeContextMenu();
+    document.getElementById('loading-screen')?.classList.add('hidden');
+    initConsoleWindow();
+    listen('audio-tick', e => updateConsoleTick(e.payload ?? {})).catch(console.error);
 }
 
 /** Arranque en modo ventana del editor (pop-out): solo tema, i18n y el editor a
@@ -135,6 +153,7 @@ function _initModules(config, grid, fixedPanel) {
     initBottomBar();
     drawGrid(grid, _refresh);
     initFixedPanel(fixedPanel, _refresh);
+    wireConsole();
     initSettingsModal(_refresh);
     initMapping(_refresh);
     initUpdateNotifier();

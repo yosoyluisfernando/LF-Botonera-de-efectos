@@ -1,0 +1,187 @@
+/**
+ * Archivo: console.css
+ * Propósito: la consola de audio — tiras de canal con su vúmetro y su fader.
+ *
+ * Adaptada de la consola virtual del LF Automatizador. Los colores del vúmetro
+ * (verde / ámbar / rojo) NO son de tema: son la escala de una señal y significan
+ * lo mismo en claro y en oscuro, igual que en una consola de verdad. El resto sí
+ * usa las variables del tema (regla 8).
+ *
+ * El truco del vúmetro viene del LFA: el fondo ES el degradado de la escala, y
+ * una máscara lo tapa desde arriba. El nivel no "pinta" color — lo revela.
+ */
+
+:root {
+  --console-meter-low: #27ae60;
+  --console-meter-mid: #f39c12;
+  --console-meter-hot: #e74c3c;
+  --console-strip-w: 104px;
+}
+
+.console-content {
+  width: min(96vw, 1080px);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.console-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.console-popout {
+  padding: 3px 9px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* El aviso de que esto está en pruebas. Semitransparente para que se lea como
+   una nota al margen y no como una alarma. */
+.console-notice {
+  margin: 0 0 14px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--accent-color);
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.console-body {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.console-strips,
+.console-program,
+.console-cue {
+  display: flex;
+  gap: 10px;
+}
+
+/* La pre-escucha NO suma en el programa, y la consola lo dice separándola: es la
+   idea entera de esta arquitectura, no un adorno. */
+.console-split {
+  flex: 0 0 1px;
+  align-self: stretch;
+  background: var(--border-color);
+  margin: 0 6px;
+}
+
+.console-strip {
+  flex: 0 0 var(--console-strip-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
+}
+
+/* Un bus con tarjeta propia no obedece al máster. La tira lo dice: si no, se
+   movería el máster esperando que baje y no bajaría. */
+.console-strip.is-direct {
+  border-color: var(--console-meter-mid);
+}
+
+.strip-stage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  margin: 6px 0 10px;
+}
+
+.strip-meters {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.meter-ch {
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.meter-bg {
+  position: relative;
+  width: 14px;
+  height: clamp(120px, 34vh, 300px);
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+  overflow: hidden;
+  background: linear-gradient(
+    to top,
+    var(--console-meter-low) 0%,
+    var(--console-meter-low) 79.5%,
+    var(--console-meter-mid) 79.5%,
+    var(--console-meter-mid) 89.7%,
+    var(--console-meter-hot) 89.7%,
+    var(--console-meter-hot) 100%
+  );
+}
+
+/* Tapa el degradado desde arriba. Bajarla revela el color. */
+.meter-mask {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 100%;
+  background: var(--bg-primary);
+  transition: height 0.07s linear;
+}
+
+.strip-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.strip-dest {
+  margin-top: 3px;
+  min-height: 24px;
+  font-size: 9px;
+  line-height: 1.3;
+  color: var(--text-secondary);
+}
+
+.strip-db {
+  margin-top: 6px;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-color);
+}
+
+/* ── Modo ventana ──────────────────────────────────────────────────────── */
+/* La consola vive sola: no hay botonera detrás que oscurecer, así que el overlay
+   deja de serlo y el contenido ocupa la ventana. Mismo patrón que el editor. */
+
+body.console-window-mode { overflow: hidden; }
+body.console-window-mode .titlebar { display: none; }
+body.console-window-mode #console-modal { background: none; }
+body.console-window-mode .console-content {
+  width: 100vw !important;
+  max-width: none;
+  height: 100vh;
+  max-height: none;
+  border: none;
+  border-radius: 0;
+}

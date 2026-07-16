@@ -14,6 +14,8 @@ import { updateVuMeter } from './vuMeter.js';
 import { updateWeatherPanel } from './settingsLocutions.js';
 import { paintFixedAudioTick } from './fixedPanel.js';
 import { paintPlayerTick } from './playerView.js';
+import { updateConsoleTick } from './consoleView.js';
+import { openModal as openConsoleModal } from './consoleWindow.js';
 
 let _wired = false;
 
@@ -29,6 +31,7 @@ export async function wireRuntimeEvents({ onRefresh, onDockEditor }) {
         listen('weather-updated', e => updateWeatherPanel(e.payload)),
         listen('global-shortcut-refresh', () => onRefresh()),
         listen('track-editor-dock', e => onDockEditor(e.payload ?? {})),
+        listen('console-dock', () => openConsoleModal()),
     ]);
     _wired = true;
 }
@@ -39,6 +42,7 @@ function _paintAudio(payload) {
     updatePlaybackProgress(payload);
     updateAudioTick(payload);
     updateVuMeter(payload);
+    updateConsoleTick(payload);
     updateTabPlayback(payload);
     window.dispatchEvent(new CustomEvent('lf-audio-tick', { detail: payload }));
 }
