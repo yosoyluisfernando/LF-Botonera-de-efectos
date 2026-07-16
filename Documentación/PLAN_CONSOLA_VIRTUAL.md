@@ -132,25 +132,70 @@ la regla se "rompe" como dijiste: si un bus se asigna a una salida física disti
 **deja de sumar en PGM** y se va por su cuenta, con su fader, sin pasar por el máster. Un bus
 sabe a qué salida va; PGM solo suma a los que están asignados a él.
 
-### Piezas nuevas en Rust
+### La consola es un motor propio (decidido 2026-07-16)
 
-**`OutputEndpoint`** — una tarjeta física abierta **exactamente una vez**. Dueño del
-`OutputStream`, el `OutputStreamHandle`, un mixer de salida y un `Sink`. Los buses se enchufan a
-su mixer. Un registro por nombre de dispositivo garantiza que pedir la misma tarjeta dos veces
-devuelva el mismo endpoint. Esto arregla el hallazgo tercero.
+La consola nace como **`engine/console/`**, motor propio dentro de la arquitectura "Núcleo +
+Motores". No es una pieza suelta dentro de `engine/audio/`, y la razón no es de gusto: es que
+**`engine/player/` también la necesita**, y el reproductor no debe depender del motor de efectos.
 
-**`FaderSource`** — un `Source` que multiplica por un atómico. Una etapa real, en un sitio real.
-Sustituye al `master_volume` que hoy vive dentro de `ButtonSource`.
+Con un matiz que conviene fijar, porque cambia el orden de dependencias del proyecto y hay que
+reflejarlo en `ARCHITECTURE.md`: los demás motores de audio **producen** señal; la consola **no
+produce nada**, la recibe y la encamina. No es un motor *al lado* de `audio/` y `player/`, es un
+motor *debajo*: ambos pasan a ser sus clientes. Hay precedente exacto — `engine/cache/` tampoco
+produce audio y ya lo comparten los dos motores.
 
-**`Bus`** — mixer + `FaderSource` + `LevelSource`, y una referencia al endpoint donde entrega.
-Es casi exactamente el `MasterBus` de hoy, **menos el `Sink`**. Esa amputación es el corazón del
-cambio: separar "soy una señal" de "soy un conector".
+**Efecto colateral bueno:** hoy `engine/player/` importa de `engine/audio/` (`device::find_device`
+y `decode::BoxSource`). El reproductor depende del motor de efectos, que no es su par. Al mudar la
+propiedad de las tarjetas a `engine/console/`, ese acoplamiento **se rompe**: ambos dependerán de
+la consola, no uno del otro.
 
-**`Console` (la matriz)** — el mapa de qué bus va a qué salida, y quién decide el bus de cada
-fuente. Sustituye al booleano `to_pre` por una decisión con nombres. Vive en el hilo de audio.
+### Por qué esto encaja con rodio (verificado en la fuente de rodio 0.19)
 
-**`domain/console/`** — las reglas puras, testeables sin tarjeta de sonido: qué bus le toca a cada
-grupo, si un bus suma en PGM o sale suelto, cómo se resuelve una salida no disponible.
+Tres comprobaciones hechas sobre `~/.cargo/registry/.../rodio-0.19.0`, porque el diseño entero
+depende de ellas:
+
+**`Arc<DynamicMixerController<f32>>` es `Send + Sync`, y `add()` toma `&self`.** El controller solo
+contiene un `AtomicBool`, un `Mutex` y dos primitivos. Esto es lo que hace viable todo: los motores
+`audio/` y `player/` pueden **entregar fuentes a un bus que no es suyo, desde sus propios hilos**,
+sin canales nuevos ni cirugía. La consola reparte controllers y cada motor añade cuando quiera.
+
+**`OutputStream` ya es un endpoint.** Por dentro es literalmente `{ mixer:
+Arc<DynamicMixerController<f32>>, _stream: cpal::Stream }`, y `play_raw()` añade al mixer. **No hay
+que construir el mixer de salida: rodio ya lo trae.** Un bus se enchufa a una tarjeta con
+`handle.play_raw(bus)` y varios buses en la misma tarjeta se suman solos, en el conector, sin
+tocarse entre ellos. Esto es exactamente la separación señal/conector, y sale casi gratis.
+
+**`OutputStream` no es `Send`** (lleva un `cpal::Stream` dentro). Alguien tiene que ser su dueño y
+quedarse quieto en un hilo. **Ese es el argumento de fondo para el motor:** hoy hay *dos* hilos
+dueños de tarjetas — `audio/thread.rs` (con `device` y `device_pre`) y `player/thread.rs` (con el
+suyo) — y por eso no puede existir un punto de suma común. La consola centraliza esa propiedad en
+un hilo guardián y reparte `OutputStreamHandle`, que sí es `Clone + Send + Sync`.
+
+### Los módulos
+
+```
+engine/console/
+  mod.rs       — ConsoleEngine: el handle Send+Sync que ven los motores
+  thread.rs    — hilo guardián: único dueño de los OutputStream
+  endpoint.rs  — OutputEndpoint + registro por nombre (una tarjeta se abre UNA vez)
+  bus.rs       — Bus: mixer + fader + medidor, y a qué endpoint entrega
+  fader.rs     — FaderSource: multiplica por un atómico. Una etapa real.
+  device.rs    — find_device / available_devices (se mudan de engine/audio/)
+
+domain/console/
+  topology.rs  — qué buses existen y cuáles suman en PGM
+  routing.rs   — qué bus le toca a cada fuente. Reglas puras, sin tarjeta de sonido.
+```
+
+**`engine/audio/bus.rs` (`MasterBus`) y `engine/audio/device.rs` (`AudioDeviceRuntime`)
+desaparecen**, absorbidos por la consola. El `Bus` nuevo es casi el `MasterBus` de hoy **menos el
+`Sink`**: esa amputación es el corazón del cambio — separar "soy una señal" de "soy un conector".
+Y el `Sink` no se sustituye por otro, se cambia por `play_raw`: un bus nunca se pausa, así que la
+capa de control de `Sink` sobra.
+
+Nota que se cae sola: el *"habría hecho falta un tercer `AudioDeviceRuntime`"* que aparece en las
+decisiones anteriores **deja de existir como concepto**. No hay N runtimes; hay una consola con N
+buses.
 
 ### Cómo queda la ganancia
 
@@ -203,9 +248,11 @@ eso va en su propia fase, sola, sin mezclar con nada.
 
 Cada fase compila, pasa las 118 pruebas y **se puede parar ahí sin dejar el motor a medias**.
 
-**Fase 1 — Separar la salida del bus.** Nace `OutputEndpoint` con su registro por nombre. El
-`MasterBus` pierde su `Sink` y se enchufa a un endpoint. Los tres motores siguen sonando igual.
-Beneficio inmediato y aislado: **la misma tarjeta deja de abrirse dos veces**.
+**Fase 1 — Nace `engine/console/` y separa la salida del bus.** El hilo guardián toma la propiedad
+de los `OutputStream`; nace `OutputEndpoint` con su registro por nombre. El `MasterBus` pierde su
+`Sink`, se convierte en `Bus` y se enchufa al endpoint con `play_raw`. `engine/audio/thread.rs`
+deja de ser dueño de tarjetas y pasa a pedir buses a la consola. Los tres motores siguen sonando
+igual. Beneficio inmediato y aislado: **la misma tarjeta deja de abrirse dos veces**.
 
 **Fase 2 — El fader existe.** Nace `FaderSource`. `master_volume` sale de `ButtonSource` y pasa a
 ser el fader del bus. Cero cambio audible. `ButtonSource` adelgaza. La aritmética de ganancia
