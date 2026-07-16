@@ -1,5 +1,7 @@
 /// Modulo: audio_command.rs
 /// Proposito: mensajes internos que la fachada de audio envia al hilo dedicado.
+use crate::engine::audio::button::PlaybackGroup;
+
 pub enum AudioCommand {
     Play {
         id: String,
@@ -24,6 +26,7 @@ pub enum AudioCommand {
         fade_out_stop_s: f64,
         /// Tiempo de fade-out al terminar naturalmente (0.0 = sin fade).
         fade_out_end_s: f64,
+        group: PlaybackGroup,
     },
     Stop {
         id: String,
@@ -33,6 +36,9 @@ pub enum AudioCommand {
         id: String,
     },
     StopAll,
+    StopGroupFade {
+        group: PlaybackGroup,
+    },
     /// Igual que StopAll pero con fundido en todos los ButtonSource que lo soporten.
     StopAllFade,
     SetDevice {
@@ -55,5 +61,6 @@ pub enum AudioCommand {
         paths: Vec<String>,
         volume: f32,
         duration: f64,
+        group: PlaybackGroup,
     },
 }

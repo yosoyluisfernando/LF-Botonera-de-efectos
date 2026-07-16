@@ -1,10 +1,11 @@
+use crate::engine::audio::bus::ButtonStateMap;
+use crate::engine::audio::button::PlaybackGroup;
 use crate::engine::audio::command::AudioCommand;
 use crate::engine::audio::thread as audio_thread;
-use crate::engine::audio::bus::ButtonStateMap;
+use crate::engine::audio::vu::LastPressedInfo;
 use crate::engine::cache::preload::PreloadCache;
 use crate::engine::cache::preloader::Preloader;
 use crate::model::fade::FadeConfig;
-use crate::engine::audio::vu::LastPressedInfo;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::mpsc::{channel, Sender};
@@ -54,35 +55,28 @@ impl AudioEngine {
             preload_enabled,
         }
     }
-
     pub fn preload_cache_handle(&self) -> Arc<Mutex<PreloadCache>> {
         Arc::clone(&self.preload_cache)
     }
-
     pub fn enqueue_preload(&self, path: String) {
         self.preloader.enqueue(path);
     }
-
     pub fn set_preload_enabled(&self, enabled: bool) {
         self.preload_enabled.store(enabled, Ordering::Relaxed);
         self.preloader.set_enabled(enabled);
     }
-
     pub fn button_states_handle(&self) -> Arc<Mutex<ButtonStateMap>> {
         Arc::clone(&self.button_states)
     }
-
     pub fn master_levels_handles(&self) -> (Arc<AtomicU32>, Arc<AtomicU32>) {
         (
             Arc::clone(&self.master_level_l),
             Arc::clone(&self.master_level_r),
         )
     }
-
     pub fn last_pressed_handle(&self) -> Arc<Mutex<Option<LastPressedInfo>>> {
         Arc::clone(&self.last_pressed)
     }
-
     pub fn get_available_devices(&self) -> Vec<String> {
         crate::engine::audio::device_list::available_devices()
     }
@@ -118,8 +112,9 @@ impl AudioEngine {
         file_gain: f32,
         to_pre: bool,
         fade: &FadeConfig,
+        group: PlaybackGroup,
     ) -> Result<(), String> {
-        if !to_pre && !id.starts_with("__") {
+        if !to_pre && !id.starts_with("__") && group == PlaybackGroup::Main {
             *self.last_pressed.lock().unwrap() = Some(LastPressedInfo { id: id.clone() });
         }
         self.send(AudioCommand::Play {
@@ -138,6 +133,7 @@ impl AudioEngine {
             fade_in_s: fade.fade_in_s,
             fade_out_stop_s: fade.fade_out_stop_s,
             fade_out_end_s: fade.fade_out_end_s,
+            group,
         })
     }
 
@@ -156,6 +152,9 @@ impl AudioEngine {
     pub fn stop_all(&self) {
         *self.last_pressed.lock().unwrap() = None;
         let _ = self.tx.send(AudioCommand::StopAll);
+    }
+    pub fn stop_group_fade(&self, group: PlaybackGroup) {
+        let _ = self.tx.send(AudioCommand::StopGroupFade { group });
     }
     pub fn stop_all_fade(&self) {
         *self.last_pressed.lock().unwrap() = None;
@@ -182,12 +181,14 @@ impl AudioEngine {
         paths: Vec<String>,
         volume: f32,
         duration: f64,
+        group: PlaybackGroup,
     ) -> Result<(), String> {
         self.send(AudioCommand::PlaySequence {
             id,
             paths,
             volume,
             duration,
+            group,
         })
     }
 

@@ -35,7 +35,9 @@ pub fn get_audio_device_status(state: tauri::State<AppState>) -> AudioDeviceStat
 }
 
 #[tauri::command]
-pub fn apply_configured_audio_devices(state: tauri::State<AppState>) -> Result<AudioDeviceStatus, String> {
+pub fn apply_configured_audio_devices(
+    state: tauri::State<AppState>,
+) -> Result<AudioDeviceStatus, String> {
     let status = get_audio_device_status(state.clone());
     if !status.main_available || !status.pre_available {
         return Ok(status);
@@ -84,7 +86,9 @@ pub fn play_audio(
     // Precarga el archivo en segundo plano: así adelantar/atrasar (seek) en la
     // pre-escucha o la previa del editor es instantáneo (O(1) en RAM).
     state.audio.lock().unwrap().enqueue_preload(path.clone());
-    let file_gain = gain_db.map(crate::model::track::db_to_linear).unwrap_or(1.0);
+    let file_gain = gain_db
+        .map(crate::model::track::db_to_linear)
+        .unwrap_or(1.0);
     // Pre-escucha y preview del editor no usan fade: el operador controla el monitor
     // manualmente y un fade involuntario sería confuso.
     state.audio.lock().unwrap().play_file(
@@ -101,6 +105,7 @@ pub fn play_audio(
         file_gain,
         true, // pre-escucha/previa → bus PRE (con fallback al principal)
         &FadeConfig::default(),
+        crate::engine::audio::button::PlaybackGroup::Main,
     )
 }
 
@@ -130,14 +135,22 @@ pub fn set_pre_device(device_name: String, state: tauri::State<AppState>) -> Res
 pub fn stop_audio(id: String, state: tauri::State<AppState>) {
     let fade_s = state.config.lock().unwrap().fade.fade_out_stop_s;
     let audio = state.audio.lock().unwrap();
-    if fade_s > 0.0 { audio.stop_fade(&id) } else { audio.stop(&id) }
+    if fade_s > 0.0 {
+        audio.stop_fade(&id)
+    } else {
+        audio.stop(&id)
+    }
 }
 
 #[tauri::command]
 pub fn stop_all_audio(state: tauri::State<AppState>) {
     let fade_s = state.config.lock().unwrap().fade.fade_out_stop_s;
     let audio = state.audio.lock().unwrap();
-    if fade_s > 0.0 { audio.stop_all_fade() } else { audio.stop_all() }
+    if fade_s > 0.0 {
+        audio.stop_all_fade()
+    } else {
+        audio.stop_all()
+    }
 }
 
 /// Ajusta en vivo el volumen de un sonido activo (usado por la pre-escucha).
@@ -150,13 +163,19 @@ fn configured_devices(state: &AppState) -> (String, String) {
     let cfg = state.config.lock().unwrap();
     let audio = cfg.active_audio();
     (
-        audio.map(|a| a.out_main.clone()).unwrap_or_else(|| "default".to_string()),
+        audio
+            .map(|a| a.out_main.clone())
+            .unwrap_or_else(|| "default".to_string()),
         audio.map(|a| a.out_pre.clone()).unwrap_or_default(),
     )
 }
 
 fn device_is_available(device_name: &str) -> bool {
-    let device = if device_name.trim().is_empty() { "default" } else { device_name };
+    let device = if device_name.trim().is_empty() {
+        "default"
+    } else {
+        device_name
+    };
     audio_device::device_available(device)
 }
 

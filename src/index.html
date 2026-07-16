@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="/css/updateNotice.css" />
     <link rel="stylesheet" href="/css/trackEditor.css" />
     <link rel="stylesheet" href="/css/fade.css" />
+    <link rel="stylesheet" href="/css/fixedPanel.css" />
+    <link rel="stylesheet" href="/css/player.css" />
   </head>
   <body>
 
@@ -38,14 +40,65 @@
         <div id="tabs-list" class="tabs-scroll"></div>
         <button id="btn-add-tab" class="btn-add-tab" data-i18n-title="tabs.add_tooltip">+</button>
         <button id="btn-profiles" class="btn-profile" data-i18n-title="profiles.tooltip">👤</button>
+        <button id="btn-fixed-panel" class="btn-settings btn-fixed-panel" data-i18n-title="fixed_panel.toggle">▤</button>
         <button id="btn-settings" class="btn-settings">⚙️</button>
       </div>
 
+      <div id="workspace-shell" class="workspace-shell">
+        <aside id="fixed-panel" class="fixed-panel">
+          <div id="fixed-panel-resize" class="fixed-panel-resize" aria-hidden="true"></div>
+          <div class="fixed-panel-header"><span data-i18n="fixed_panel.title">Botones fijos</span>
+            <button id="fixed-panel-add" class="fixed-panel-add" data-i18n-title="fixed_panel.add">+</button></div>
+          <div class="fixed-playback-modes">
+            <button data-fixed-mode="normal" data-i18n-title="playback.mode_normal">▶</button>
+            <button data-fixed-mode="loop" data-i18n-title="playback.mode_loop">↻</button>
+            <button data-fixed-mode="overlap" data-i18n-title="playback.mode_overlap">♫</button>
+            <button data-fixed-mode="restart" data-i18n-title="playback.mode_restart">↺</button>
+            <button data-fixed-solo data-i18n-title="playback.mode_stop_others">⊙</button>
+            <button data-fixed-stop data-i18n-title="fixed_panel.stop">■</button>
+          </div>
+          <div id="fixed-panel-items" class="fixed-panel-items"></div>
+          <!-- Modo reproductor: cola propia + transporte (motor independiente) -->
+          <div id="player-view" class="player-view">
+            <div class="player-header"><span data-i18n="player.title">Reproductor</span>
+              <span class="player-actions">
+                <button id="player-clear" data-i18n-title="player.clear">🧹</button>
+                <button id="player-open" data-i18n-title="player.open">📂</button>
+                <button id="player-save" data-i18n-title="player.save">💾</button>
+                <!-- El icono ES el modo activo; se pinta desde el tick. -->
+                <button id="player-modes">→</button>
+              </span>
+            </div>
+            <div class="player-cols"><span data-i18n="player.col_title">Título</span>
+              <span data-i18n="player.col_duration">Duración</span></div>
+            <div id="player-rows" class="player-rows"></div>
+            <!-- Progreso: el tiempo vive aquí (no en el transporte) porque con
+                 los controles nuevos no cabía todo en una fila de 243 px. -->
+            <div class="player-progress-row">
+              <span id="player-time" class="player-time" data-i18n-title="player.time_hint">00:00</span>
+              <input id="player-progress" class="player-progress" type="range"
+                     min="0" max="1000" step="1" value="0" disabled>
+              <button id="player-loop" data-i18n-title="player.loop">🔂</button>
+            </div>
+            <div class="player-transport">
+              <button id="player-play" data-i18n-title="player.play">▶</button>
+              <button id="player-pause" data-i18n-title="player.pause">⏸</button>
+              <button id="player-stop" data-i18n-title="player.stop">■</button>
+              <button id="player-next" data-i18n-title="player.next">⏭</button>
+              <button id="player-stop-after" data-i18n-title="player.stop_after">▶■</button>
+              <!-- Volumen propio: el panel se abre ENCIMA (el panel es estrecho). -->
+              <button id="player-volume-btn">🔊</button>
+            </div>
+          </div>
+        </aside>
+        <main class="workspace-main">
       <!-- Banner de Modo Mapeo -->
       <div id="mapping-banner" class="mapping-banner hidden" data-i18n="mapping.banner"></div>
 
       <!-- Cuadrícula de botones -->
       <div id="main-grid" class="grid-container"></div>
+        </main>
+      </div>
 
       <!-- Barra de estado inferior: reloj, vúmetro y modos de reproducción -->
       <div id="bottom-bar">
@@ -370,6 +423,7 @@
           <button class="s-tab"        data-target="s-atajos" data-i18n="settings.tab_keys">Atajos del Teclado</button>
           <button class="s-tab"        data-target="s-locuciones" data-i18n="settings.tab_locutions">Hora y Clima</button>
           <button class="s-tab"        data-target="s-precarga" data-i18n="settings.tab_preload">Precarga</button>
+          <button class="s-tab"        data-target="s-fixed-panel" data-i18n="fixed_panel.settings_tab">Panel fijo</button>
           <button class="s-tab"        data-target="s-about"  data-i18n="settings.tab_about">Acerca de</button>
         </div>
         <div class="modal-body settings-content">
@@ -408,7 +462,11 @@
             <label data-i18n="settings.out_main">Salida Principal:</label>
             <select id="config-out-main" class="audio-select" style="margin-bottom:15px"></select>
             <label data-i18n="settings.out_pre">Salida Prelisten:</label>
-            <select id="config-out-pre" class="audio-select"></select>
+            <select id="config-out-pre" class="audio-select" style="margin-bottom:15px"></select>
+            <!-- La salida del reproductor vive aquí, con las demás: todas las
+                 salidas de audio en un único sitio. -->
+            <label data-i18n="player.device">Salida del reproductor:</label>
+            <select id="player-device" class="audio-select"></select>
             <hr class="modal-divider">
             <div class="fade-settings-section">
               <p class="fade-section-title" data-i18n="fade.title">Fundidos (Fade)</p>
@@ -474,6 +532,43 @@
           <div id="s-locuciones" class="s-panel hidden"></div>
           <!-- El contenido lo inyecta settingsPreload.js (mismo patrón) -->
           <div id="s-precarga" class="s-panel hidden"></div>
+          <div id="s-fixed-panel" class="s-panel hidden">
+            <div class="row"><div class="col"><label data-i18n="fixed_panel.scope">Alcance:</label>
+              <select id="fixed-scope"><option value="global" data-i18n="fixed_panel.scope_global">Todos los perfiles</option><option value="profile" data-i18n="fixed_panel.scope_profile">Por perfil</option></select>
+            </div><div class="col"><label data-i18n="fixed_panel.side">Posición:</label>
+              <select id="fixed-side"><option value="left" data-i18n="fixed_panel.left">Izquierda</option><option value="right" data-i18n="fixed_panel.right">Derecha</option></select>
+            </div></div>
+            <div class="row"><div class="col"><label data-i18n="fixed_panel.view">Presentación:</label>
+              <select id="fixed-view"><option value="player" data-i18n="fixed_panel.player">Reproductor</option><option value="buttons" data-i18n="fixed_panel.buttons">Botones</option></select>
+            </div><div id="fixed-columns-row" class="col"><label data-i18n="fixed_panel.columns">Columnas:</label><input id="fixed-columns" type="number" min="1" max="5" value="1"></div></div>
+            <div class="row"><div id="fixed-row-mode-row" class="col"><label data-i18n="fixed_panel.row_mode">Filas:</label>
+              <select id="fixed-row-mode"><option value="unlimited" data-i18n="fixed_panel.unlimited">Ilimitadas</option><option value="limited" data-i18n="fixed_panel.limited">Limitadas</option></select>
+            </div><div id="fixed-rows-row" class="col"><label data-i18n="fixed_panel.rows">Máximo de filas:</label><input id="fixed-rows" type="number" min="1" max="20" value="10"></div></div>
+            <div class="row"><div class="col"><label data-i18n="fixed_panel.modes_position">Controles de reproducción:</label>
+              <select id="fixed-modes-position"><option value="top" data-i18n="fixed_panel.modes_top">Arriba</option><option value="bottom" data-i18n="fixed_panel.modes_bottom">Abajo</option></select>
+            </div></div>
+            <label class="checkbox-line"><input id="fixed-visible" type="checkbox"><span data-i18n="fixed_panel.visible">Mostrar panel ahora</span></label>
+            <label class="checkbox-line"><input id="fixed-show-start" type="checkbox"><span data-i18n="fixed_panel.show_start">Mostrar al iniciar</span></label>
+            <!-- Ajustes del reproductor: solo aplican con la presentación Reproductor -->
+            <div id="player-settings-section">
+              <hr class="modal-divider">
+              <p class="fade-section-title" data-i18n="player.settings_title">Reproductor</p>
+              <div class="row"><div class="col"><label data-i18n="player.mode">Modo de reproducción:</label>
+                <select id="player-mode">
+                  <option value="normal" data-i18n="player.mode_normal">Normal (recorre la lista y para al final)</option>
+                  <option value="repeat" data-i18n="player.mode_repeat">Repetir (al acabar vuelve al principio)</option>
+                  <option value="random" data-i18n="player.mode_random">Aleatorio (al azar, sin repetir la actual)</option>
+                  <option value="manual" data-i18n="player.mode_manual">Manual (no avanza solo)</option>
+                </select>
+              </div></div>
+              <div class="row"><div class="col">
+                <label for="player-volume"><span data-i18n="player.volume">Volumen del reproductor:</span>
+                  <span id="player-volume-readout" class="player-volume-readout">100%</span></label>
+                <input id="player-volume" type="range" min="0" max="100" step="1" value="100">
+              </div></div>
+              <p class="hint" data-i18n="player.settings_hint">El reproductor tiene su propio volumen y su propia salida: es independiente de los efectos.</p>
+            </div>
+          </div>
           <div id="s-about" class="s-panel hidden about-panel">
             <h2>LF Botonera de Efectos</h2>
             <p><span data-i18n="settings.about_version_label">Versión</span> <strong id="app-version-number">—</strong></p>

@@ -26,6 +26,16 @@ LF Botonera de Efectos sigue una arquitectura **frontend ligero / backend pesado
 
 La UI nunca contiene lógica de negocio: valida lo que Rust le da, lo pinta y reenvía las acciones del usuario hacia Rust.
 
+El panel lateral fijo sigue la misma separación: Rust decide qué colección está activa
+(global o específica del perfil), persiste sus ajustes y entrega una vista serializada;
+`fixedPanel.js` únicamente la representa y retransmite reproducción y edición por IPC.
+La capacidad limitada y las dimensiones se validan y persisten en Rust; el gesto de
+redimensionado solo refleja inmediatamente el ancho y envía el valor final al soltar.
+Cada fuente activa pertenece a `PlaybackGroup::Main` o `PlaybackGroup::Fixed`. El motor
+filtra Solo, Detener otros y Stop por grupo; el Stop general conserva alcance total.
+Rust también entrega `progress_percent` en `audio-tick`, y un pintor compartido representa
+el contador y la barra inferior tanto en la rejilla como en el panel fijo.
+
 ---
 
 ## Estructura de directorios
@@ -50,7 +60,7 @@ BOTONERA/
 │   └── src/                 Arquitectura Núcleo + Motores
 │       ├── core/            AppState, configuración global y setup
 │       ├── model/           Estructuras de datos (AppConfig, etc.)
-│       ├── engine/          Motores (audio, dsp, caché, input, weather)
+│       ├── engine/          Motores (audio, player, dsp, caché, input, weather)
 │       ├── domain/          Reglas de negocio puras
 │       └── ipc/             Comandos Tauri (endpoints)
 │
@@ -76,7 +86,7 @@ El backend está organizado para que cada cambio tenga un lugar natural:
 | Capa | Qué contiene | Regla práctica |
 |---|---|---|
 | `core/` | `AppState`, setup inicial, errores comunes y arranque de hilos | Coordina la aplicación, no implementa lógica de producto |
-| `model/` | Tipos serializables: configuración, botones, pistas, precarga, normalización | Datos puros con `serde`; todo campo nuevo compatible debe usar `#[serde(default)]` |
+| `model/` | Tipos serializables: `config.rs` son las **preferencias** (`AppConfig`); `content.rs` es el **contenido** del usuario (perfil → paleta → botón); y un módulo por bloque de ajustes | Datos puros con `serde`; todo campo nuevo compatible debe usar `#[serde(default)]` |
 | `engine/` | Motores técnicos: audio, DSP, caché, persistencia, clima, entrada | Trabajo pesado, I/O, hilos, base de datos, audio y procesamiento |
 | `domain/` | Reglas de negocio: botones, rejilla, reproducción, exportación LFA | Decisiones del producto sin depender de Tauri ni de la UI |
 | `ipc/` | Comandos Tauri expuestos al frontend | Puerta fina: recibe datos, llama a `domain/` o `engine/`, devuelve respuesta |
@@ -85,7 +95,8 @@ Los motores actuales son:
 
 | Motor | Responsabilidad |
 |---|---|
-| `engine/audio/` | Reproducción, mezcla, buses main/pre, dispositivos, VU, hilo de audio |
+| `engine/audio/` | Reproducción de efectos, mezcla, buses main/pre, dispositivos, VU, hilo de audio |
+| `engine/player/` | Reproductor auxiliar (música de fondo): motor **independiente** del de efectos, con su hilo, su salida, sus dos decks y su volumen |
 | `engine/dsp/` | Análisis de audio, LUFS, cue, fade, waveform y análisis del editor |
 | `engine/cache/` | Precarga RAM, caché de análisis, caché persistente de waveforms |
 | `engine/persist/` | `botonera_config.json`, `tracks.db`, historial y últimos reproducidos |
@@ -104,18 +115,19 @@ El frontend está organizado en 3 capas:
 
 - Renderizar la rejilla de botones, pestañas y perfiles con datos que vienen de Rust.
 - Capturar clics, drag & drop y teclado; llamar al IPC Rust correspondiente.
-- Suscribirse a eventos Rust (`audio-tick`, `clock-tick`, `weather-updated`, `track-analysis-progress`) y actualizar la pantalla.
+- Suscribirse a eventos Rust (`audio-tick`, `player-tick`, `clock-tick`, `weather-updated`, `track-analysis-progress`) y actualizar la pantalla.
 - Mostrar modales de edición, configuración y el editor de pistas.
 
 ### Lo que hace Rust
 
 - Todo el audio (reproducción, mezcla, enrutamiento, VU).
+- El reproductor auxiliar: cola, modos de avance, pre-carga y relevo entre decks.
 - DSP: análisis de loudness LUFS (ebur128), envolvente de onda (symphonia).
 - Precarga RAM (caché LRU).
 - Persistencia de configuración (JSON) y metadatos de pistas (SQLite).
 - Atajos de teclado globales del SO.
 - Locuciones dinámicas de hora y clima (open-meteo).
-- Export/import de formatos `.bdelf` / `.bdeplf`.
+- Export/import de formatos `.bdelf` / `.bdeplf` / `.LFPlay`.
 - Verificación de actualizaciones (GitHub Releases API).
 
 ---
@@ -137,6 +149,88 @@ El frontend está organizado en 3 capas:
    c. MasterBus::add_source → ButtonSource en el DynamicMixer
 5. engine/audio/monitor.rs detecta el nuevo ButtonState → emite "audio-tick" cada 100ms
 6. gridPlayback.js pinta el botón en verde + barra de progreso roja
+```
+
+---
+
+## El reproductor auxiliar (modo reproductor del panel fijo)
+
+El panel lateral tiene dos presentaciones: `buttons` (botones fijos) y `player` (una lista de
+reproducción). El reproductor existe para dejar **música de fondo** sonando mientras se
+disparan los efectos, así que es un **motor propio**, no un grupo dentro del motor de efectos:
+tiene su hilo, su `OutputStream`, su dispositivo y su volumen. Por eso el Stop general y el
+Solo de los efectos no lo cortan; el reproductor tiene su propio Stop.
+
+Mantiene **dos decks** (cada uno envuelve un `Sink` de rodio) que se alternan en *ping-pong*:
+mientras suena uno, la siguiente pista queda **pre-cargada** (decodificada y en pausa) en el
+otro. Al terminar, el relevo es instantáneo: no hay que esperar a decodificar. El patrón está
+tomado del motor Rust de LF Automatizador 2.0, adaptado (dos decks bastan aquí).
+
+| Módulo | Responsabilidad |
+|---|---|
+| `domain/player/advance.rs` | **Regla pura**: dado el modo y los índices, qué pista sigue. Sin audio ni I/O |
+| `engine/player/mod.rs` | Handle `PlayerEngine`, comandos y `PlayerSnapshot` |
+| `engine/player/thread.rs` | Hilo dedicado; único dueño del `OutputStream` y los dos decks |
+| `engine/player/deck.rs` | Un deck: envoltura de `Sink` con estados y load/play/pause/stop |
+| `engine/player/queue.rs` | Datos de la cola (`QueueEntry`, `DeckAction`, `QueueState`) |
+| `engine/player/queue_ops.rs` | Transporte: arrancar, detener, avanzar, marcar siguiente |
+| `engine/player/queue_select.rs` | Elegir la siguiente y pre-cargarla en el deck ocioso |
+| `engine/player/exec.rs` | Única pieza que traduce `DeckAction` a operaciones de rodio |
+| `engine/player/resolve.rs` | Resuelve los tipos especiales **en el momento de sonar** |
+| `engine/player/monitor.rs` | Emite `"player-tick"` cada 100 ms |
+
+**Los cuatro modos de avance** (a nivel de lista, no de botón): `normal` recorre y se detiene al
+final; `repeat` da la vuelta; `random` elige al azar sin repetir la actual; `manual` no avanza
+solo. Dos reglas por encima del modo:
+
+- **Lo marcado como siguiente es ley:** si hay una pista marcada, se respeta siempre. La marca
+  sigue a su canción por `id`, no a la posición: sobrevive a reordenar la lista.
+- **Detener al finalizar:** al acabar la pista actual no arranca la siguiente hasta pulsar
+  reproducir, y conserva marcada la que tocaba.
+
+**El naranja es la guía de qué viene**, así que no desaparece con el reproductor detenido: al
+parar, lo pre-cargado pasa a marcado, y si no hay nada se calcula lo que arrancaría
+(`ensure_upcoming_marked`). Invariante: *detenido y con cola ⇒ hay naranja*. De ahí sale que al
+llenar una lista vacía la primera quede marcada sola.
+
+**Editar la lista nunca corta la música.** Al limpiar o abrir otra, la pista que suena termina
+*huérfana* (`current = None`, sin verde: ya no está en la lista) y al acabar entra la lista nueva.
+`QueueState::set_entries` **no** emite `StopAll` cuando la actual desaparece. Criterio del LFA v1,
+cuyo `clearList` vacía las filas sin tocar la reproducción.
+
+**Clic simple no marca; el doble clic activa** y decide el MOTOR (regla 4): detenido reproduce,
+sonando marca como siguiente (`player_activate_index` → `QueueState::activate(index, is_playing)`).
+El `is_playing` lo aporta el hilo, que conoce los decks: una huérfana suena sin estar en la cola.
+
+**Si la resolución falla** (carpeta vacía, sin clima, archivo ilegible) el deck queda `Failed`,
+que `poll_finished` trata como terminado: el motor releva y la música sigue.
+
+**Duraciones desconocidas.** Los tipos especiales no tienen duración hasta resolverse: se muestran
+`--:--` y no cuentan para el total, como en el LFA. El total lo suma Rust (`PlayerView.total_s`).
+
+**Por qué un tick propio.** El `"audio-tick"` de los efectos no se emite en reposo, y la música
+de fondo suele sonar sin ningún efecto disparado. Colgar la lista de aquel tick la dejaba sin
+pintar. Por eso `engine/player/monitor.rs` emite `"player-tick"`, igual que el monitor de
+efectos pero independiente, como los dos motores.
+
+**Por qué los tipos especiales se resuelven tarde.** La hora avanza, el clima cambia y una
+carpeta aleatoria debe dar una canción distinta en cada pasada. Como la pre-carga ocurre
+*mientras suena la pista anterior*, precargar una locución horaria diría la hora de hace varios
+minutos. Por eso `resolve.rs` resuelve la hora y el clima **en el relevo**; la carpeta aleatoria
+sí se precarga, porque elegir la canción por adelantado no la estropea.
+
+```
+1. Usuario pulsa ▶ (o termina la pista actual)
+2. playerView.js → invoke('player_resume') | el hilo detecta el fin del deck activo
+3. queue_ops.rs::advance() pregunta a domain/player/advance.rs qué pista sigue
+   a. ¿Hay pista marcada como siguiente? → esa (es ley)
+   b. Si no, según el modo: normal / repeat / random / manual
+   c. ¿"Detener al finalizar" activo y fin natural? → parar y conservar la marcada
+4. exec.rs carga la pista en el deck ocioso (resolve.rs si es hora/clima/aleatorio)
+   y reutiliza build_play_source: cue y ganancia del editor + caché RAM
+5. Relevo: se reproduce el deck ya pre-cargado y se detiene el saliente (sin solapar)
+6. queue_select.rs pre-carga la siguiente en el deck que quedó libre
+7. monitor.rs emite "player-tick" → playerView.js pinta verde (sonando) y naranja (siguiente)
 ```
 
 ---
@@ -232,6 +326,21 @@ LFA .bdelf ──► from_lfa_paleta() ──► PaletaData (campos desconocidos
 
 El campo `bdelf_tracks` (cue/dB por archivo) es opcional y el LFA lo ignora. Al importar, `domain/export/tracks.rs::restore()` reescribe los metadatos en `tracks.db` adaptados al sistema de archivos local.
 
+### Listas de reproducción `.LFPlay`
+
+Las listas del reproductor auxiliar se guardan y abren en el formato del LFA: un array JSON de filas `{ruta, titulo, duracion, type, target}`. La conversión vive en `domain/export/lfa_format/playlist.rs`:
+
+```
+Botonera ──► to_lfa_row() ──► LfaPlaylistRow (JSON .LFPlay que abre en el LFA)
+LFA .LFPlay ──► from_lfa_row() ──► ButtonData (filas de comando del LFA ignoradas)
+```
+
+Detalles de compatibilidad aprendidos del LFA real:
+
+- `type` traduce entre ambos mundos: `normal` ↔ `audio`, `random` ↔ `random_folder`; `time`, `temperature` y `humidity` coinciden.
+- Las filas de automatización del LFA (notas, saltos, ejecutar evento) no aplican a la Botonera y **se ignoran al importar** en lugar de fallar.
+- La duración llega como `duracion` o `duration`, y unas veces como número y otras como cadena (el LFA la lee con `parseInt`). Se aceptan ambos nombres y ambos tipos; una duración ilegible vale 0 en vez de tumbar el archivo entero: vale más una canción sin duración que perder la lista.
+
 ---
 
 ## Cómo añadir una nueva función
@@ -270,7 +379,7 @@ El campo `bdelf_tracks` (cue/dB por archivo) es opcional y el LFA lo ignora. Al 
 ## Testing
 
 ```bash
-# Tests unitarios de Rust (suite actual: 61 passed, 1 ignored)
+# Tests unitarios de Rust (suite actual: 101 passed, 1 ignored)
 cd src-tauri
 cargo test --lib
 

@@ -50,7 +50,7 @@ Lee todo antes de tocar código.
 7. **i18n siempre.** Cero strings visibles hardcodeados en la UI; todo pasa por `t()` y archivos JSON.
 8. **Tema claro/oscuro dinámico.** Solo CSS custom properties; sin cambios de clase que causen parpadeo blanco.
 9. **Las IAs no son colaboradoras del proyecto.** Commits, PRs y cualquier contribución registrada en el repositorio van únicamente a nombre de usuarios humanos reales con cuenta de GitHub (ejemplo: "Yo Soy Luis Fernando"). Sin trailers `Co-Authored-By: Claude`, sin firmas de IA, sin menciones a asistentes en mensajes de commit, descripciones de PR ni comentarios de código. El historial de git debe reflejar solo a personas reales. El reconocimiento al uso de herramientas de IA durante el desarrollo está documentado en la sección "Créditos de desarrollo" de `README.md`.
-10. **No usar computer-use.** Controlar la pantalla del usuario cuesta tokens. Verificar solo con `cargo test --lib` y `npm run build`; el usuario prueba en su PC.
+10. **No usar computer-use.** Controlar la pantalla del usuario cuesta tokens. Verificar con `cargo test --lib`, `cargo build --lib` (sin tests: `cargo test` los compila y un `use super::*` puede tapar un import muerto) y `npm run build`; el usuario prueba en su PC.
 11. **Conversar antes de tocar código.** Ante dudas de arquitectura, preguntar.
 
 ---
@@ -73,6 +73,7 @@ AppConfig {
   locutions: LocutionConfig,
   preload: PreloadConfig,
   profiles: Vec<ProfileData>,
+  fixed_panel: FixedPanelConfig, // alcance, vista, lado, dimensiones, capacidad y botones
 }
 ```
 
@@ -86,6 +87,7 @@ ProfileData {
   audio: AudioConfig,
   active_paleta_id: String,
   paletas: Vec<PaletaData>,
+  fixed_buttons: Vec<ButtonData>, // botones del panel cuando el alcance es por perfil
 }
 ```
 
@@ -293,7 +295,8 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 | Hilo | Módulo | Descripción |
 |---|---|---|
 | Audio | `engine/audio/thread.rs` | Ejecuta el motor; único hilo que toca rodio/cpal |
-| Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con progreso + VU |
+| Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con progreso + VU. **Solo emite si hay efectos sonando** (en reposo calla) |
+| Monitor reproductor | `engine/player/monitor.rs` | Emite `"player-tick"` cada 100 ms. Propio, porque el reproductor es un motor independiente y suena sin efectos |
 | Reloj | `cmd_meta` | Emite `"clock-tick"` cada 1 s con hora y fecha localizadas |
 | Historial | `last_played` | Vuelca buffer en memoria a tracks.db cada 30 s (debounce) |
 | Preloader | `preloader` | Decodifica archivos cortos en segundo plano para la caché RAM |
@@ -305,7 +308,8 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 
 | Evento | Payload | Quién escucha |
 |---|---|---|
-| `"audio-tick"` | `AudioTickPayload {buttons, display_remaining, display_duration, master_level_l, master_level_r}` | gridPlayback.js, clockWidget.js, vuMeter.js, tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
+| `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r}` | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
+| `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | (vacío) | startup.js → `_refresh()` |
@@ -398,6 +402,28 @@ señal_salida = muestra × file_gain(dB→lineal) × vol_botón(lineal) × maste
 - `set_playback_mode(mode)` — "normal" | "loop" | "overlap" | "restart"
 - `set_solo_mode(enabled)`
 
+### Reproductor auxiliar (modo reproductor del panel fijo)
+Motor **independiente** del de efectos: su propio hilo, `OutputStream`, dispositivo y volumen.
+El Stop general y el Solo de los efectos **no** lo detienen. Los índices son POSICIONES 0-based
+en la cola. Ver `Documentación/PLAN_MODO_REPRODUCTOR.md`.
+
+- `get_player` → `PlayerView {tracks, mode, volume, output_device, total_s, snapshot}`
+- `get_player_snapshot` → `PlayerSnapshot` (ligero)
+- `player_play_index(index)` — reproduce esa posición
+- `player_activate_index(index)` — doble clic: **el motor decide** (detenido reproduce; sonando marca siguiente)
+- `player_next` / `player_prev` / `player_stop` / `player_pause` / `player_resume`
+- `player_mark_next(index?)` — marcar siguiente (naranja). **Es ley**: se respeta en todos los modos
+- `player_set_mode(mode)` — "normal" | "repeat" | "random" | "manual"
+- `player_set_stop_after(enabled)` — al acabar la actual no arranca sola
+- `player_set_loop(enabled)` — **Loop**: repite la canción ACTUAL (≠ modo `repeat`, que repite la lista). Manda sobre stop-after; cede ante Siguiente; no toca lo marcado
+- `player_seek(positionS)` — salta dentro de la pista; el motor lo ignora si `can_seek` es falso (una locución son varios archivos encadenados)
+- `player_toggle_time_display` → "elapsed" | "remaining"; se persiste
+- `player_set_volume(volume, persist?)` — 0.0–1.5 (la UI expone 0–100 %). `persist: false` mientras se arrastra: aplicar es un atómico, guardar en cada píxel sería una tormenta de escrituras
+- `player_set_device(device)` — "" = el mismo de los efectos. **Reaplicarlo reabre la salida y corta la música**
+- `player_add_track(path, index?)` / `player_add_button(buttonId, index?)`
+- `player_remove_track(index)` / `player_reorder_tracks(fromIndex, toIndex)` / `player_clear_queue`
+- `player_save_playlist` / `player_open_playlist` — formato `.LFPlay` (compatible con LFA)
+
 ### Editor de pistas
 - `analyze_track(path)` → análisis del editor con `track-analysis-progress`, caché en memoria/disco y `AnalysisResult {waveform, peak_db, lufs, suggested_gain_db, duration_s, cue_start_s, cue_end_s, gain_db, norm_enabled, norm_gain_db}`
 - `waveform_view(path, start_s, end_s, buckets)` → `Vec<[f32;2]>` (min/max por columna)
@@ -424,10 +450,17 @@ A partir de la v1.1.3, el backend sigue una arquitectura de "Núcleo + Motores" 
 |---|---|
 | `core/` | `AppState`, setup inicial, configuración global y mapeo de errores |
 | `model/` | Tipos puros (AppConfig, TrackMeta, etc.) y serialización serde. Sin lógica de I/O. |
-| `engine/` | Motores autónomos: `audio/` (rodio, hilos), `dsp/` (ebur128, symphonia, waveform), `cache/` (LRU), `persist/` (SQLite, JSON), `weather/` (open-meteo), `input/` (atajos). |
+| `engine/` | Motores autónomos: `audio/` (rodio, hilos), `player/` (reproductor auxiliar), `dsp/` (ebur128, symphonia, waveform), `cache/` (LRU), `persist/` (SQLite, JSON), `weather/` (open-meteo), `input/` (atajos). |
 | `domain/` | Reglas de negocio puras (relativas a grids, botones, y modos de reproducción). |
 | `ipc/` | Endpoints Tauri. Funciones finas que extraen parámetros y delegan en el dominio/motores. |
-| `domain/export/lfa_format/` | Adaptadores de compatibilidad bidireccional con LF Automatizador (.bdelf). |
+| `domain/export/lfa_format/` | Adaptadores de compatibilidad bidireccional con LF Automatizador (.bdelf/.LFPlay). |
+
+**`engine/player/` (reproductor auxiliar), por responsabilidad:**
+`mod.rs` (handle `PlayerEngine`), `thread.rs` (hilo; único dueño del `OutputStream` y los 2 decks),
+`deck.rs` (un `Sink` de rodio + estados), `queue.rs` (datos de la cola), `queue_ops.rs` (transporte),
+`queue_select.rs` (elegir siguiente + pre-carga ping-pong), `resolve.rs` (resuelve los tipos
+especiales **al sonar**), `exec.rs` (traduce acciones a rodio), `monitor.rs` (emite `"player-tick"`).
+La regla pura de avance vive en `domain/player/advance.rs`; el cue/ganancia en `domain/playback/edit.rs`.
 
 ## 11. Mapa de módulos Frontend (`src/`)
 
@@ -482,9 +515,14 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 61 passed, 1 ignored)
+# Backend Rust (suite actual: 113 passed, 1 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
+
+# OJO: `cargo test` compila CON los tests, y un `use super::*` de un fichero de
+# pruebas puede tapar un import que ya nadie usa en el módulo. El usuario compila
+# SIN tests (`tauri dev`) y ahí sí sale el warning. Comprobar siempre las dos:
+cargo build --lib
 
 # Frontend + build completo
 cd C:\OVERLAY\BOTONERA
@@ -509,6 +547,14 @@ No lanzar la app por computer-use. El usuario prueba en su PC.
 ### A) Prueba física en Linux
 - El código es agnóstico del SO (rutas vía `config::get_data_dir()`, SQLite bundled, rodio/ALSA).
 - Falta compilar y probar en una máquina Linux real (`.deb`, `.AppImage`).
+
+### B) Política de colores de los botones nuevos
+- Diseño **acordado con el autor y no implementado**: en Ajustes, elegir si los botones nuevos se
+  colorean al azar (actual), con un color único, o por patrón de filas/columnas.
+- Nunca recolorea lo existente; la edición manual siempre manda; la paleta es la de 32 colores
+  que ya existe. Hoy `random_color()` se llama desde 7 sitios: la política debe centralizarse en
+  `domain/colors`, no repetirse en cada uno (regla 2).
+- Ver `Documentación/PLAN_POLITICA_COLORES.md`.
 
 ---
 

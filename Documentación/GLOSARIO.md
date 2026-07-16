@@ -15,13 +15,16 @@ Definiciones de todos los términos técnicos y conceptos propios del proyecto.
 Módulo JS que envuelve todas las llamadas a `window.__TAURI__`. Es el único punto de contacto entre el frontend y el backend. Exporta `invoke()`, `listen()`, `emit()` y `waitForTauri()`. El resto de módulos JS importan de aquí; ninguno accede directamente a `window.__TAURI__`.
 
 **`AppConfig`**
-Struct Rust (también JSON serializable) que representa la configuración completa de la aplicación: tema, idioma, perfiles, precarga, locuciones, caché persistente de waveform, etc. Se persiste en `botonera_config.json`. Ver [`config.rs`](../src-tauri/src/model/config.rs).
+Struct Rust (también JSON serializable) que representa la configuración completa de la aplicación: tema, idioma, perfiles, precarga, locuciones, caché persistente de waveform, etc. Se persiste en `botonera_config.json`. Ver [`config.rs`](../src-tauri/src/model/config.rs), que contiene las **preferencias**; el **contenido** que crea el usuario (perfil → paleta → botón) vive aparte, en [`content.rs`](../src-tauri/src/model/content.rs).
 
 **`AppState`**
 Objeto inyectado por Tauri en cada comando IPC. Contiene referencias a todo el estado compartido del backend: configuración, motor de audio, base de datos, caché de formas de onda, historial de reproducción. Ver [`state.rs`](../src-tauri/src/core/state.rs).
 
 **`Arc<Mutex<T>>`**
 Patrón Rust para compartir estado entre hilos. `Arc` es un contador de referencias atómico (compartir el puntero); `Mutex` garantiza exclusión mutua (solo un hilo accede a la vez). Se usa extensivamente en `AppState` para pasar el estado a los hilos de audio, monitor y flusher.
+
+**`activar fila`**
+Lo que hace el **doble clic** sobre una canción de la cola del reproductor: si está detenido, la reproduce; si algo está sonando, la **marca como siguiente** sin cortar la música. **La decisión la toma el motor, no la interfaz** (regla 4): el IPC es `player_activate_index` y la lógica, `QueueState::activate(index, is_playing)`. El `is_playing` lo aporta el hilo, que es quien conoce los decks, porque una [pista huérfana](#p) puede sonar sin estar ya en la cola. Un **clic simple no marca nada**: marcar sin querer al rozar una fila era problemático en directo.
 
 **`analyze_track`**
 Comando IPC (`cmd_tracks.rs`) que analiza una pista para el editor y devuelve: envolvente de onda, LUFS, pico en dBFS, ganancia sugerida, duración y metadatos de cue ya guardados. Delega en `engine::dsp::editor_analysis` mediante `spawn_blocking`, emite `track-analysis-progress`, reutiliza `TrackAnalysisCache`, `tracks.db` y caché persistente de waveform antes de decodificar el audio completo. Nunca corre en el hilo de audio.
@@ -55,7 +58,7 @@ Extensión de archivo para exportar un perfil completo. Similar al `.bdelf` pero
 Celda de la rejilla a la que se asigna un archivo de audio (u otro tipo). Representado por `ButtonData` en Rust. Tiene id único, tipo, ruta, volumen, flags de comportamiento y atajo de teclado.
 
 **`ButtonData`**
-Struct Rust (`model/config.rs`) que representa un botón. Campo `type_field` se serializa como `"type"` en JSON. El campo `vol` es un multiplicador lineal 0–1, no en dB (ver [trim](#trim)).
+Struct Rust (`model/content.rs`) que representa un botón. Campo `type_field` se serializa como `"type"` en JSON. El campo `vol` es un multiplicador lineal 0–1, no en dB (ver [trim](#trim)). Es el ladrillo común: lo usan la rejilla, el panel fijo y la cola del reproductor, por eso vive en el contenido y no cuelga de ningún módulo concreto.
 
 **`ButtonSource`**
 Struct Rust (`engine/audio/button.rs`) que implementa `Iterator<Item=f32>`. Envuelve cualquier fuente de audio y aplica la cadena de ganancia: `muestra × file_gain × vol_botón × master`. Puede pararse por `stop_flag` o marcarse como terminado por `done_flag`.
@@ -95,8 +98,14 @@ Struct en `cue_source.rs` que implementa seek saltando muestras (O(n)). Se usa c
 **`dBFS`**
 *Decibeles relativos a la escala completa* (Full Scale). El valor 0 dBFS es el máximo sin distorsión. Los valores medidos son negativos (ej. −6 dBFS). El objetivo de pico en la normalización de la Botonera es −1 dBFS.
 
+**`deck`**
+Cada una de las dos "pletinas" del reproductor auxiliar (`engine/player/deck.rs`). Un deck envuelve un `Sink` de rodio y reproduce **una** pista a la vez, con estados `Empty`, `Loaded`, `Playing`, `Paused`, `Finished` y `Failed`. `Loaded` significa pre-cargado y en pausa, listo para arrancar al instante. `Finished` es fin natural (sink vacío) a la espera de relevo. `Failed` es "no se pudo cargar" (carpeta aleatoria vacía, sin clima, archivo ilegible): `poll_finished` lo trata como terminado para que el motor releve y **la música siga**, en vez de callarse esperando una pista que no existe. El motor alterna los dos decks en *ping-pong*. Concepto adaptado de `player.rs` del LF Automatizador 2.0.
+
 **`decode_pcm`**
 Función en `engine/cache/preload.rs` que decodifica un archivo a `Vec<i16>` para guardarlo en la `PreloadCache`. Solo se llama desde el hilo del `Preloader` o desde el análisis de pistas. Nunca desde el hilo de audio.
+
+**`detener al finalizar`**
+Interruptor del reproductor auxiliar: cuando está activo, al terminar la pista actual la siguiente **no arranca sola** hasta que se pulsa reproducir. Funciona en cualquier modo y **conserva** la pista marcada como siguiente. En el LF Automatizador 2.0 el concepto equivalente es `SilenceReason::StopAfterCurrent`. En Rust es el campo `stop_after` de `QueueState`; en el IPC, `player_set_stop_after`.
 
 **`DynamicMixer`**
 Componente de rodio que mezcla múltiples fuentes de audio en tiempo real. El `MasterBus` usa uno para combinar todos los botones activos en una sola señal antes de enviarla al dispositivo.
@@ -185,6 +194,16 @@ Aplicación hermana desarrollada por el mismo autor. Automatizador de radio que 
 **`domain/export/lfa_format/`**
 Subdirectorio en `src-tauri/src/domain/export/` con tres módulos (`types.rs`, `paleta.rs`, `profile.rs`) que implementan la conversión entre los tipos internos de la Botonera y el formato JSON del LFA.
 
+**`.LFPlay`**
+Formato de lista de reproducción del LF Automatizador, que la Botonera **también** guarda y abre desde el reproductor auxiliar. Es un array JSON de filas `{ruta, titulo, duracion, type, target}`. La conversión vive en `domain/export/lfa_format/playlist.rs`. Las filas de automatización del LFA (notas, saltos, ejecutar evento) y las emisoras por URL (`type: "stream"`) no aplican aquí: `from_lfa_row` devuelve `None` y se ignoran al importar. Los campos propios del LFA que no declaramos (pisadores, `customMix`, `eventId`, `temp`…) los descarta serde solo, sin configurar nada.
+
+**Trampa de la duración:** puede venir como `duracion` o `duration`, y como número (`172`) o como **cadena** (`"31"`), según la versión del LFA que guardó la lista — por eso el suyo la lee con `parseInt`. `flexible_secs` acepta todas las variantes, y una duración ilegible vale `0` en vez de hacer fallar la fila: si una sola fila revienta al deserializar, **se pierde el archivo entero**, y vale más una canción sin duración que perder la lista.
+
+**Trampa de las locuciones:** en una fila de hora o clima, `ruta` **no es una carpeta**: es un [marcador de locución](#m). Tomarlo por carpeta hacía buscar un directorio llamado `time_locution` y la locución no sonaba nunca.
+
+**`marcador de locución`**
+Los valores `time_locution`, `temperature_locution` y `humidity_locution` que el LF Automatizador escribe en el campo `ruta` de una fila de locución. No son rutas: son una **etiqueta de tipo**. Ninguna de las dos aplicaciones guarda ahí una carpeta, porque **cada una resuelve la locución con SUS propias carpetas**: es lo que hace que una lista creada en el LFA suene aquí y viceversa. Al importar, `from_lfa_row` los reconoce y deja la carpeta **vacía** (así manda la de Ajustes); al exportar, `to_lfa_row` escribe el marcador si la fila no tiene carpeta propia, porque una `ruta` vacía le dejaría al LFA una fila que no sabría resolver. Las configuraciones que ya los guardaron como carpeta se limpian solas al cargar (`config_io::clear_locution_markers`).
+
 **`lf-audio-tick`**
 `CustomEvent` del DOM (no evento Tauri) que `startup.js` dispara cada vez que llega un `"audio-tick"` de Rust. Los módulos que necesitan escuchar el progreso de audio (como `trackTransport.js`) usan `window.addEventListener('lf-audio-tick', ...)`.
 
@@ -207,11 +226,22 @@ Flag de `ButtonData`. Si está activo, el archivo se reproduce en bucle infinito
 
 ## M
 
+**`marcar siguiente`**
+Señalar qué pista de la cola sonará a continuación en el reproductor auxiliar. Se pinta en **naranja**. Es **ley**: si hay una pista marcada, se respeta siempre, sin importar el modo de avance (incluido `manual`). La marca sigue a **su canción**, no a la posición: al reordenar la lista se conserva por `id`, y si esa canción se borra, la marca se cae (no salta a otra). En Rust es el campo `marked` de `QueueState`, y la regla vive en `domain/player/advance.rs`. En el IPC, `player_mark_next`.
+
+El naranja es además la **guía de qué viene**, así que no desaparece con el reproductor detenido: al pulsar Stop, lo que estaba pre-cargado pasa a marcado, y si no hay nada marcado se calcula lo que sonaría al pulsar reproducir (`ensure_upcoming_marked`, en `engine/player/queue_select.rs`). De ahí sale también que, al añadir canciones a una lista vacía, la primera quede marcada sola: el invariante es "**detenido y con cola ⇒ hay naranja**".
+
 **`master_volume`**
 Volumen global del perfil activo. Rango 0–1 (o 0–1.5 en modo boost). Es la tercera capa del modelo de ganancia. Se aplica atómicamente en cada muestra dentro de `ButtonSource`.
 
 **`MasterBus`**
 Struct en `engine/audio/bus.rs`. Combina un `DynamicMixer<f32>` (mezcla todas las fuentes) con un `LevelSource` (mide el PICO del audio sumado) y un `Sink` (envía al dispositivo de audio). Existe uno para la salida principal y otro para la pre-escucha.
+
+**`modo de avance`**
+Cómo recorre la cola el reproductor auxiliar. Es un modo **de lista**, no de un botón. Cuatro valores: `normal` (recorre y se detiene al final), `repeat` (da la vuelta), `random` (al azar, evitando repetir la actual) y `manual` (no avanza solo). Por encima del modo mandan **marcar siguiente** y **detener al finalizar**. La regla pura es `domain::player::next_index`.
+
+**`modo reproductor`**
+Una de las dos presentaciones del panel lateral (`fixed_panel.view = "player"`); la otra es `"buttons"`. Muestra el reproductor auxiliar con su lista. Sustituyó a la antigua vista `"list"`, que enseñaba los botones fijos en lista compacta; las configuraciones antiguas se migran solas en `cmd_fixed_panel::state`.
 
 **`mtime`**
 *Modification time*. Fecha de modificación del archivo en época Unix (segundos). La Botonera usa `mtime` junto con `size` para detectar si un archivo fue reemplazado y así invalidar la fila correspondiente en `tracks.db`.
@@ -247,13 +277,49 @@ Flag de `ButtonData`. Si está activo, reproducir el botón mientras ya está so
 Pestaña de la rejilla de botones. Un perfil puede tener múltiples paletas. Cada paleta tiene su propia cuadrícula (filas × columnas), nombre, colores y opcionalmente un dispositivo de audio independiente. Representada por `PaletaData`.
 
 **`PaletaData`**
-Struct Rust (`model/config.rs`) que representa una paleta. Su id tiene el formato `"paleta_1"`, `"paleta_2"`, etc.
+Struct Rust (`model/content.rs`) que representa una paleta. Su id tiene el formato `"paleta_1"`, `"paleta_2"`, etc.
+
+**Trampa:** su campo `audio_out` **no enruta nada**. Existe solo por compatibilidad con LF Automatizador (se guarda y se exporta en `.bdelf`), pero el motor de la Botonera lo ignora: todo suena por el `out_main` del perfil. Hoy solo hay dos salidas de efectos (`device` y `device_pre` en `engine/audio/thread.rs`), elegidas con el booleano `to_pre`.
 
 **`perfil`**
 Configuración raíz que agrupa una o más paletas. Un perfil tiene nombre, colores, ajustes de audio (dispositivos, atajos, modo de reproducción) y una lista de paletas. Representado por `ProfileData`.
 
+**`panel fijo`**
+Panel lateral persistente e independiente de la pestaña activa. Puede mostrar una colección global compartida por todos los perfiles o una colección propia de cada perfil. Su presentación es **`buttons`** (botones fijos) o **`player`** ([modo reproductor](#m)); se coloca a izquierda o derecha. Los botones específicos de perfil viajan en `.bdeplf`; los globales permanecen en la configuración de la aplicación, porque no pertenecen a ningún perfil.
+Tiene sus propios modos Normal, Loop, Multi, Reset y Solo. Las operaciones Solo,
+Detener otros y Stop del panel no detienen fuentes de la botonera principal.
+Puede usar filas ilimitadas con desplazamiento o limitar su capacidad a
+`columnas × filas` (hasta cinco columnas y veinte filas), sin eliminar contenido existente.
+
+**Columnas y Filas son la CAPACIDAD de la rejilla de botones fijos**, no opciones del reproductor: `columnas × filas` limita cuántos botones caben (`cmd_fixed_panel::set_fixed_panel_settings`). En la presentación `player` no pintan nada y por eso se ocultan en Ajustes; la cola tiene desplazamiento propio.
+
+**El panel fijo no tiene salida de audio propia** (decisión del autor, 2026-07-16): sus botones suenan por el motor de efectos con el `out_main` del perfil. `PlaybackGroup::Fixed` solo agrupa (Solo, Detener otros), **no enruta**. El [reproductor](#r) sí tiene salida propia, porque es un motor aparte.
+
+**El alcance es de toda la barra**, no de cada botón: mezclar colecciones por botón sería más difícil de entender. Al cambiarlo, la colección anterior **se conserva guardada y oculta**; solo se borra si el usuario lo confirma (`clear_fixed_scope`). Las dos colecciones **nunca se fusionan**: pueden tener nombres, atajos e identificadores repetidos.
+
+**Identidad de los botones fijos:** el prefijo lo da `button_prefix()` según el alcance vigente — `fixed_global_btn_{index}` o `fixed_{profile_id}_btn_{index}` —, así que los globales y los de cada perfil nunca colisionan.
+
+**El lado no reconstruye nada:** `right` invierte las columnas con `flex-direction:row-reverse` sobre `.workspace-shell[data-fixed-side]`. Es CSS puro, sin rehacer la interfaz y sin parpadeo (regla 8).
+
+**Precarga:** los audios del panel entran en la precarga (`engine/cache/warm.rs`) — los globales siempre; en alcance por perfil, solo los del perfil activo.
+
 **`playback_mode`**
 Modo de reproducción global del perfil. Valores: `"normal"`, `"loop"`, `"overlap"`, `"restart"`. Se combina con los flags individuales de cada botón en `domain/playback/mode.rs`.
+
+**`player-tick`**
+Evento Tauri que emite `engine/player/monitor.rs` cada 100 ms con el `PlayerSnapshot`. Lo escucha `runtimeEvents.js` y lo pinta `playerView.js`. Es **independiente** del `audio-tick` de los efectos por una razón concreta: el `audio-tick` calla cuando no hay efectos sonando, y la música de fondo suele sonar sola; colgar la lista de aquel tick la dejaba sin pintar.
+
+**`PlayerEngine`**
+Handle del motor del reproductor auxiliar (`engine/player/mod.rs`). Es `Send + Sync` y no toca audio: envía comandos por un canal al hilo dedicado, que es el único dueño del `OutputStream` y de los dos decks (rodio no es `Send`). Vive en `AppState.player`.
+
+**`PlayerSnapshot`**
+Estado en vivo del reproductor que Rust entrega a la interfaz: `playing`, `path`, `position_s`, `duration_s`, `current_index` (verde), `next_index` (naranja), `mode`, `stop_after` y `queue_len`. La UI solo lo pinta.
+
+**`ping-pong`** (pre-carga)
+Alternancia entre los dos decks del reproductor: mientras uno suena, la siguiente pista queda **pre-cargada** (decodificada y en pausa) en el otro, así el relevo es instantáneo y el motor nunca "se queda pensando". Patrón tomado del `PlayerPool` del LF Automatizador 2.0, reducido a dos decks.
+
+**`pista huérfana`**
+La pista que sigue sonando en el reproductor auxiliar después de desaparecer de la cola, al limpiar la lista o al abrir otra. **Editar la lista nunca corta la música**: la canción termina, pero queda sin verde (ya no está en la lista, así que `current = None`), y al acabar entra la lista nueva desde el principio. Es el criterio del LF Automatizador v1, cuyo `clearList` vacía las filas sin tocar la reproducción. En Rust lo garantiza `QueueState::set_entries`, que **no** emite `StopAll` cuando la pista actual ya no está. Nota: `PlayerSnapshot.playing` se lee del deck, no de `current`, así que una huérfana sigue reportando su tiempo correctamente.
 
 **`pop-out`**
 Acción de sacar el editor de pistas del modal y abrirlo en una ventana flotante nativa (`WebviewWindow`). La URL de esa ventana contiene `?editor=<ruta>` para que `startup.js` la detecte y arranque en modo editor exclusivo.
@@ -270,8 +336,23 @@ Enum Rust: `FullProfile`, `VisibleTabs`, `OnPlay`. Controla qué archivos se pre
 **`prelisten`**
 Pre-escucha: reproducir un audio en un dispositivo de salida separado (auriculares del locutor) sin que salga al aire. Se usa el ID especial `__prelisten__` para el panel de pre-escucha, y `__track_preview__` para la previa dentro del editor. Los comandos con `to_pre=true` se enrutan al `device_pre` del hilo de audio.
 
+**`PlayerConfig`**
+Configuración persistida del reproductor auxiliar, colgada de `AppConfig.player`. Es **global**: hay un solo reproductor compartido entre perfiles. Contiene `tracks` (la cola, que reutiliza `ButtonData`), `playback_mode`, `volume` (0.0–1.5, independiente del master) y `output_device` (`""` = el mismo de los efectos).
+
 **`ProfileData`**
-Struct Rust (`model/config.rs`) que representa un perfil. Contiene `AudioConfig`, `active_paleta_id` y `Vec<PaletaData>`.
+Struct Rust (`model/content.rs`) que representa un perfil. Contiene `AudioConfig`, `active_paleta_id`, `Vec<PaletaData>` y `fixed_buttons` (los botones del panel fijo cuando el alcance es por perfil).
+
+---
+
+## Q
+
+**`QueueEntry`**
+Una fila de la cola del reproductor (`engine/player/queue.rs`): `id` (identidad estable, no depende de la posición), `kind`, `path`, `folder`, `cue_start_s`, `cue_end_s`, `gain` y `duration_s`. El `id` estable permite conservar la pista que suena y la marcada aunque se reordene o se borren otras filas.
+
+Solo el audio normal viaja **resuelto** (ruta, cue y ganancia ya leídos de `tracks.db`). Los tipos especiales viajan con su `kind` y su `folder` **sin resolver**, a propósito: ver [resolución tardía](#r). De ahí que `is_playable()` mire la ruta para el audio y la carpeta para los demás, y que `needs_late_resolve()` distinga la hora y el clima (que dependen del momento) de la carpeta aleatoria (que no).
+
+**`QueueState`**
+Estado de la cola del reproductor: entradas, modo, `stop_after`, pista actual, cursor, marcada, deck activo y qué hay pre-cargado. No toca audio: **decide y devuelve `DeckAction`** que el hilo ejecuta. Los datos viven en `queue.rs`, el transporte en `queue_ops.rs` y la elección/pre-carga en `queue_select.rs`.
 
 ---
 
@@ -280,8 +361,14 @@ Struct Rust (`model/config.rs`) que representa un perfil. Contiene `AudioConfig`
 **`random_folder`**
 Tipo de botón que reproduce archivos de una carpeta de forma secuencial. `random_folder.rs` mantiene el estado de qué archivo toca a continuación por cada botón. El nombre histórico es `random_folder` pero el comportamiento es secuencial (avanza uno a uno).
 
+**`reproductor auxiliar`**
+La lista de reproducción del panel lateral, pensada para dejar **música de fondo** sonando mientras se disparan los efectos. Tiene **motor propio** (`engine/player/`), independiente del de efectos: su hilo, su `OutputStream`, su dispositivo y su volumen. Por eso el Stop general y el Solo de los efectos no lo cortan; tiene su propio Stop. Es uno solo y global. Idea tomada de los reproductores auxiliares del LF Automatizador v1; la arquitectura, del motor Rust del 2.0.
+
+**`resolución tardía`**
+Resolver una pista **en el momento de sonar** en vez de al pre-cargarla (`engine/player/resolve.rs`). Es obligatorio para la locución horaria y el clima: la pre-carga ocurre mientras suena la pista anterior, así que precargarlas diría la hora de hace varios minutos. La carpeta aleatoria sí se precarga, porque elegir la canción por adelantado no la estropea.
+
 **`ResolvedEdit`**
-Struct interna de `cmd_button_playback.rs` con el resultado de consultar `tracks.db` para un archivo: `cue_start_s`, `cue_end_s`, `file_gain`, `duration`. Si el archivo cambió (mtime/size), devuelve valores neutros.
+Struct de `domain/playback/edit.rs` con el resultado de consultar `tracks.db` para un archivo: `cue_start_s`, `cue_end_s`, `file_gain`, `duration`. Si el archivo cambió (mtime/size), devuelve valores neutros. Es la **fuente única** del recorte y la ganancia: la usan tanto los botones como el reproductor auxiliar. Vive en `domain/` y depende solo del almacén de pistas (no del `AppState`) para que el motor del reproductor pueda llamarla sin depender de la capa IPC.
 
 **`restart`**
 Flag de `ButtonData`. Si está activo y el botón ya está sonando, volver a pulsarlo reinicia la reproducción desde el principio en lugar de crear una nueva instancia.

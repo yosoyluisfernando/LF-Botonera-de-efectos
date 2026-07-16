@@ -66,9 +66,7 @@ enum ShortcutAction {
 
 fn find_action(state: &AppState, shortcut: &Shortcut) -> Result<ShortcutAction, String> {
     let cfg = state.config.lock().unwrap();
-    let profile = cfg
-        .active_profile()
-        .ok_or("Perfil activo no encontrado")?;
+    let profile = cfg.active_profile().ok_or("Perfil activo no encontrado")?;
     if !profile.audio.global_keys {
         return Err("Atajos globales desactivados".to_string());
     }
@@ -98,6 +96,16 @@ fn find_action(state: &AppState, shortcut: &Shortcut) -> Result<ShortcutAction, 
             }
         }
     }
+    let fixed = if cfg.fixed_panel.scope == "profile" {
+        &profile.fixed_buttons
+    } else {
+        &cfg.fixed_panel.global_buttons
+    };
+    for btn in fixed {
+        if matches_key(&btn.shortcut, shortcut) {
+            return Ok(ShortcutAction::PlayButton(btn.id.clone()));
+        }
+    }
     Err("Atajo no encontrado".to_string())
 }
 
@@ -118,6 +126,14 @@ fn collect_keys(cfg: &crate::model::AppConfig) -> Vec<String> {
         for btn in &paleta.botones {
             add_key(&mut keys, &btn.shortcut);
         }
+    }
+    let fixed = if cfg.fixed_panel.scope == "profile" {
+        &profile.fixed_buttons
+    } else {
+        &cfg.fixed_panel.global_buttons
+    };
+    for btn in fixed {
+        add_key(&mut keys, &btn.shortcut);
     }
     keys.into_iter().collect()
 }

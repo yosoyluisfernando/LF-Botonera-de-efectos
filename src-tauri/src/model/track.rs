@@ -94,7 +94,8 @@ impl TrackMeta {
 
     /// Ganancia total en dB al reproducir = normalización (si activa) + manual.
     pub fn effective_gain_db(&self) -> f64 {
-        self.norm_gain_db + self.gain_db
+        let normalization = if self.norm_enabled { self.norm_gain_db } else { 0.0 };
+        normalization + self.gain_db
     }
 
     /// Ganancia efectiva en multiplicador lineal (capa 1 del modelo de 3 capas).

@@ -1,8 +1,9 @@
+use crate::domain::playback::source as playback_source;
+use crate::engine::audio::bus::{ButtonStateMap, MasterBus, SequenceSource};
+use crate::engine::audio::button::PlaybackGroup;
 /// Modulo: audio_thread_play.rs
 /// Proposito: operaciones auxiliares usadas por el hilo de audio.
 use crate::engine::audio::ops::{self as audio_ops, stop_removed};
-use crate::engine::audio::bus::{ButtonStateMap, MasterBus, SequenceSource};
-use crate::domain::playback::source as playback_source;
 use crate::engine::cache::preload::PreloadCache;
 use std::sync::{Arc, Mutex};
 
@@ -22,6 +23,7 @@ pub struct PlayArgs {
     pub fade_out_stop_s: f64,
     pub fade_out_end_s: f64,
     pub position_offset_s: f64,
+    pub group: PlaybackGroup,
 }
 
 pub fn play_file(
@@ -34,9 +36,9 @@ pub fn play_file(
     let mut states = states.lock().unwrap();
     if args.stop_other {
         if args.fade_out_stop_s > 0.0 {
-            audio_ops::fade_stop_other_ids(&mut states, &args.id);
+            audio_ops::fade_stop_other_ids(&mut states, &args.id, args.group);
         } else {
-            audio_ops::stop_other_ids(&mut states, &args.id);
+            audio_ops::stop_other_ids(&mut states, &args.id, args.group);
         }
     }
     if audio_ops::should_skip_existing(&mut states, &args.id, args.overlap, args.restart) {
@@ -61,6 +63,7 @@ pub fn play_file(
         args.fade_out_stop_s,
         args.fade_out_end_s,
         args.position_offset_s,
+        args.group,
     );
     states.entry(args.id).or_default().push(btn_state);
     true
@@ -73,6 +76,7 @@ pub fn play_sequence(
     paths: Vec<String>,
     volume: f32,
     duration: f64,
+    group: PlaybackGroup,
 ) {
     let Some(bus) = bus else { return };
     let mut states = states.lock().unwrap();
@@ -88,6 +92,7 @@ pub fn play_sequence(
             0.0,
             0.0,
             0.0,
+            group,
         );
         states.entry(id).or_default().push(btn_state);
     }

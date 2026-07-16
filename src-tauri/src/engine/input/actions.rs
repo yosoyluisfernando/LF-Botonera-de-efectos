@@ -31,9 +31,15 @@ pub fn activate_paleta(cfg: &mut AppConfig, paleta_id: &str) -> Result<bool, Str
 }
 
 pub fn play_by_shortcut(cfg: &AppConfig, key: &str) -> Result<Option<String>, String> {
-    let profile = cfg
-        .active_profile()
-        .ok_or("Perfil activo no encontrado")?;
+    let profile = cfg.active_profile().ok_or("Perfil activo no encontrado")?;
+    let fixed = if cfg.fixed_panel.scope == "profile" {
+        &profile.fixed_buttons
+    } else {
+        &cfg.fixed_panel.global_buttons
+    };
+    if let Some(btn) = fixed.iter().find(|btn| same_key(&btn.shortcut, key)) {
+        return Ok(Some(btn.id.clone()));
+    }
     let Some(active) = profile
         .paletas
         .iter()

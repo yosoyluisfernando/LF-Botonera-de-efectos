@@ -1,3 +1,5 @@
+use crate::core::AppState;
+use crate::model::preload::PreloadStrategy;
 /// Módulo: preload_warm.rs
 /// Propósito: estrategias de llenado PROACTIVO de la caché (FullProfile y
 /// VisibleTabs). Decide QUÉ encolar según la config y la pestaña/perfil activos;
@@ -5,8 +7,6 @@
 /// disparar (cmd_button_playback). No bloquea: solo recolecta rutas y encola.
 /// IMPORTANTE: no llamar con el lock de config tomado (volvería a bloquearlo).
 use crate::model::ButtonData;
-use crate::model::preload::PreloadStrategy;
-use crate::core::AppState;
 
 /// Encola según la estrategia activa. Para perfil completo: todos los audios
 /// cortos del perfil; para pestañas visibles: los de la pestaña activa.
@@ -70,6 +70,16 @@ fn collect_paths(state: &AppState) -> Vec<String> {
                     out.push(btn.path.clone());
                 }
             }
+        }
+    }
+    let fixed = if cfg.fixed_panel.scope == "profile" {
+        &profile.fixed_buttons
+    } else {
+        &cfg.fixed_panel.global_buttons
+    };
+    for btn in fixed {
+        if qualifies(btn, max) {
+            out.push(btn.path.clone());
         }
     }
     out

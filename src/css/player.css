@@ -1,0 +1,84 @@
+/* Modo reproductor del panel fijo: cola propia + transporte.
+   Verde = pista sonando. Naranja = pista marcada como siguiente. */
+.player-view { display:flex; flex-direction:column; flex:1; min-height:0; }
+.fixed-panel:not([data-view="player"]) .player-view { display:none; }
+.fixed-panel[data-view="player"] .fixed-panel-header,
+.fixed-panel[data-view="player"] .fixed-playback-modes,
+.fixed-panel[data-view="player"] .fixed-panel-items { display:none; }
+
+.player-header { display:flex; align-items:center; justify-content:space-between; gap:6px;
+  padding:7px 8px; color:var(--text-primary); font-size:12px; font-weight:bold;
+  border-bottom:1px solid var(--border-color); }
+.player-actions { display:flex; gap:4px; }
+.player-actions button, .player-transport button { border:1px solid var(--border-color);
+  background:var(--bg-secondary); color:var(--text-primary); border-radius:3px;
+  cursor:pointer; transition:background 0.12s ease; }
+.player-actions button { padding:2px 6px; }
+.player-actions button:hover, .player-transport button:hover { background:var(--playback-hover-bg); }
+
+.player-cols { display:flex; justify-content:space-between; padding:4px 8px;
+  color:var(--text-secondary); font-size:11px; border-bottom:1px solid var(--border-color); }
+
+.player-rows { flex:1; min-height:0; overflow-y:auto; padding:2px; }
+.player-row { display:flex; align-items:center; justify-content:space-between; gap:6px;
+  padding:5px 6px; border:1px solid var(--border-color); border-radius:3px; margin-bottom:2px;
+  color:var(--text-primary); font-size:12px; cursor:pointer; transition:background 0.12s ease; }
+.player-row:hover { background:var(--playback-hover-bg); }
+/* El titulo se recorta con puntos suspensivos. OJO: `text-overflow` no funciona
+   sobre un contenedor flex, asi que el texto va en un hijo de bloque; el icono
+   queda fuera, con `flex:none`, para que no se recorte el. */
+.player-row-title { display:flex; align-items:center; gap:5px; min-width:0; overflow:hidden; }
+.player-row-title > svg, .player-row-title > img { flex:none; }
+.player-row-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.player-row-dur { font-variant-numeric:tabular-nums; flex:none; }
+/* Verde = sonando, naranja = siguiente, con los colores exactos del LFA v1.
+   .playing va despues: si una fila fuera ambas cosas, manda la que suena. */
+.player-row.next { background:var(--player-next-bg); color:var(--player-state-text); font-weight:bold; }
+.player-row.playing { background:var(--player-playing-bg); color:var(--player-state-text); font-weight:bold; }
+/* Arrastre: origen atenuado, destino marcado. */
+.player-row.drag-source { opacity:.45; }
+.player-row.drag-over { outline:2px dashed var(--accent-color); outline-offset:-2px; }
+#player-view.drag-over { outline:2px dashed var(--accent-color); outline-offset:-2px; }
+
+/* Lectura del volumen propio (en Ajustes y en el panel flotante). */
+.player-volume-readout { font-family:"Courier New", Courier, monospace; font-weight:700;
+  color:var(--volume-readout-color); margin-left:6px; }
+
+/* Menú de modos y panel de volumen: flotantes sobre todo, colocados con
+   `placeMenu`, que los mete hacia dentro si no cupieran en la ventana. */
+.player-modes-menu, .player-volume-panel { position:fixed; z-index:9999;
+  background:var(--bg-secondary); border:1px solid var(--border-color);
+  border-radius:5px; box-shadow:0 4px 14px rgba(0,0,0,0.35); }
+.player-modes-menu { min-width:210px; padding:4px 0; }
+.player-modes-item { display:flex; align-items:center; gap:7px; width:100%;
+  padding:6px 9px; border:0; background:none; cursor:pointer; font-size:12px;
+  color:var(--text-primary); text-align:left; }
+.player-modes-item:hover { background:var(--playback-hover-bg); }
+.player-modes-item.active { color:var(--accent-color); font-weight:bold; }
+/* Ancho fijo: el check no debe descolocar el texto de las demás opciones. */
+.player-modes-check { width:12px; flex:none; }
+
+/* Se abre hacia arriba: a los lados no hay sitio en un panel estrecho. */
+.player-volume-panel { display:flex; align-items:center; gap:6px; padding:7px 9px; }
+.player-volume-panel input[type="range"] { width:130px; accent-color:var(--accent-color); }
+
+/* Progreso: contador + barra + Loop. El contador vive aqui, y no en el
+   transporte, porque con los controles nuevos no cabia todo en una fila. */
+.player-progress-row { display:flex; align-items:center; gap:6px; padding:4px 5px 0;
+  border-top:1px solid var(--border-color); }
+.player-time { color:var(--accent-clock); font-size:11px; cursor:pointer;
+  font-variant-numeric:tabular-nums; flex:none; min-width:42px; }
+.player-time:hover { text-decoration:underline; }
+/* Parado, el contador muestra el total de la lista: se distingue en apagado. */
+.player-time.is-total { color:var(--text-secondary); }
+.player-progress { flex:1; min-width:0; height:4px; cursor:pointer; accent-color:var(--accent-color); }
+.player-progress:disabled { cursor:default; opacity:.45; }
+.player-progress-row button { flex:none; border:1px solid var(--border-color);
+  background:var(--bg-secondary); color:var(--text-primary); border-radius:3px;
+  padding:2px 5px; cursor:pointer; transition:background 0.12s ease; }
+.player-progress-row button:hover { background:var(--playback-hover-bg); }
+.player-progress-row button.active { background:var(--action-accent); color:#fff; }
+
+.player-transport { display:flex; align-items:center; gap:3px; padding:5px; }
+.player-transport button { padding:4px 7px; }
+.player-transport button.active { background:var(--action-accent); color:#fff; }

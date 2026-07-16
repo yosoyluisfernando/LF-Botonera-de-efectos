@@ -9,8 +9,15 @@ use std::time::{Duration, Instant};
 
 pub type ButtonStateMap = HashMap<String, Vec<ButtonState>>;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PlaybackGroup {
+    Main,
+    Fixed,
+}
+
 /// Estado de un boton en reproduccion: flags atomicos de control + tiempo real.
 pub struct ButtonState {
+    pub group: PlaybackGroup,
     pub done_flag: Arc<AtomicBool>,
     pub stop_flag: Arc<AtomicBool>,
     /// Presente solo cuando el ButtonSource fue creado con fade_out_stop > 0.
@@ -127,7 +134,7 @@ impl Source for ButtonSource {
 
 #[cfg(test)]
 mod tests {
-    use super::ButtonState;
+    use super::{ButtonState, PlaybackGroup};
     use std::sync::atomic::{AtomicBool, AtomicU32};
     use std::sync::Arc;
     use std::time::{Duration, Instant};
@@ -147,6 +154,7 @@ mod tests {
 
     fn state_started_ago(duration: f64, loop_mode: bool, elapsed: Duration) -> ButtonState {
         ButtonState {
+            group: PlaybackGroup::Main,
             done_flag: Arc::new(AtomicBool::new(false)),
             stop_flag: Arc::new(AtomicBool::new(false)),
             fade_out_flag: None,

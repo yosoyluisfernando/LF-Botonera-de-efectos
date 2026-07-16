@@ -19,11 +19,22 @@ pub fn to_lfa_profile(p: &ProfileData) -> LfaProfile {
             },
         },
         paletas: p.paletas.iter().map(to_lfa_paleta).collect(),
+        fixed_buttons: p.fixed_buttons.clone(),
     }
 }
 
 /// Formato LFA -> perfil interno. `new_id` lo decide el caller.
 pub fn from_lfa_profile(lfa: LfaProfile, new_id: String) -> ProfileData {
+    let fixed_buttons = lfa
+        .fixed_buttons
+        .into_iter()
+        .enumerate()
+        .map(|(i, mut button)| {
+            button.index = i as u32 + 1;
+            button.id = format!("fixed_{}_btn_{}", new_id, button.index);
+            button
+        })
+        .collect();
     let paletas: Vec<PaletaData> = lfa
         .paletas
         .into_iter()
@@ -55,5 +66,6 @@ pub fn from_lfa_profile(lfa: LfaProfile, new_id: String) -> ProfileData {
         },
         active_paleta_id: first_pid,
         paletas,
+        fixed_buttons,
     }
 }

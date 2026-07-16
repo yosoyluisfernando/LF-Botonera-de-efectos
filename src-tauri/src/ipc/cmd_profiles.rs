@@ -59,6 +59,7 @@ pub fn create_profile(name: String, state: tauri::State<AppState>) -> Result<App
         audio: AudioConfig::default(),
         active_paleta_id: paleta_id,
         paletas: vec![paleta],
+        fixed_buttons: Vec::new(),
     });
     config::save_config(&cfg)?;
     Ok(cfg.clone())

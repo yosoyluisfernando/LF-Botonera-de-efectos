@@ -130,10 +130,7 @@ pub fn search_city(query: String) -> Result<Vec<geocode::CityResult>, String> {
 /// Comprueba el clima de una ciudad escrita en el panel, sin tocar la
 /// configuración ni exigir carpetas. Respaldo del botón "Comprobar".
 #[tauri::command]
-pub fn preview_weather(
-    city: String,
-    unit: String,
-) -> Result<weather::WeatherPreview, String> {
+pub fn preview_weather(city: String, unit: String) -> Result<weather::WeatherPreview, String> {
     weather::preview_weather(&city, &unit)
 }
 
@@ -158,7 +155,14 @@ pub fn play_time_locution(
     state: tauri::State<AppState>,
 ) -> Result<(), String> {
     let cfg = state.config.lock().unwrap().clone();
-    locution_playback::play_time(&state, &cfg, id, volume.unwrap_or(1.0), folder.as_deref())
+    locution_playback::play_time(
+        &state,
+        &cfg,
+        id,
+        volume.unwrap_or(1.0),
+        folder.as_deref(),
+        crate::engine::audio::button::PlaybackGroup::Main,
+    )
 }
 
 /// Anuncia temperatura o humedad actual. `kind`: "temperature" | "humidity".
@@ -179,5 +183,6 @@ pub fn play_climate_locution(
         &kind,
         volume.unwrap_or(1.0),
         folder.as_deref(),
+        crate::engine::audio::button::PlaybackGroup::Main,
     )
 }

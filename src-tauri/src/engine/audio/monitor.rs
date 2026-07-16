@@ -3,6 +3,7 @@
 /// de reproducción, tiempo restante para el reloj y niveles del vúmetro master.
 /// Toda la lógica de cálculo vive en Rust (Regla 4).
 use crate::engine::audio::bus::ButtonStateMap;
+use crate::engine::audio::button::PlaybackGroup;
 use crate::engine::audio::vu::LastPressedInfo;
 use serde::Serialize;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -17,6 +18,8 @@ pub struct TickInfo {
     pub pos: f64,
     pub remaining: f64,
     pub duration: f64,
+    pub group: &'static str,
+    pub progress_percent: f64,
 }
 
 #[derive(Serialize, Clone)]
@@ -51,11 +54,23 @@ pub fn start(
                 let buttons: Vec<TickInfo> = map
                     .iter()
                     .filter_map(|(id, g)| {
-                        g.iter().rev().find(|s| !s.is_done()).map(|s| TickInfo {
-                            id: id.clone(),
-                            pos: s.position(),
-                            remaining: s.remaining(),
-                            duration: s.duration,
+                        g.iter().rev().find(|s| !s.is_done()).map(|s| {
+                            let remaining = s.remaining();
+                            TickInfo {
+                                id: id.clone(),
+                                pos: s.position(),
+                                remaining,
+                                duration: s.duration,
+                                group: match s.group {
+                                    PlaybackGroup::Main => "main",
+                                    PlaybackGroup::Fixed => "fixed",
+                                },
+                                progress_percent: if s.duration > 0.0 {
+                                    (remaining / s.duration * 100.0).clamp(0.0, 100.0)
+                                } else {
+                                    0.0
+                                },
+                            }
                         })
                     })
                     .collect();
@@ -117,7 +132,11 @@ fn compute_display_time(
 
     // Último presionado terminó: retornar el mayor tiempo restante de los activos
     map.values()
-        .flat_map(|states| states.iter().filter(|s| !s.is_done()))
+        .flat_map(|states| {
+            states
+                .iter()
+                .filter(|s| !s.is_done() && s.group == PlaybackGroup::Main)
+        })
         .map(|s| (s.remaining(), s.duration))
         .max_by(|a, b| a.0.total_cmp(&b.0))
         .unwrap_or((0.0, 0.0))
@@ -127,6 +146,7 @@ fn compute_display_time(
 mod tests {
     use super::compute_display_time;
     use crate::engine::audio::bus::{ButtonState, ButtonStateMap};
+    use crate::engine::audio::button::PlaybackGroup;
     use crate::engine::audio::vu::LastPressedInfo;
     use std::sync::atomic::{AtomicBool, AtomicU32};
     use std::sync::{Arc, Mutex};
@@ -153,6 +173,7 @@ mod tests {
 
     fn state_started_ago(duration: f64, elapsed: Duration) -> ButtonState {
         ButtonState {
+            group: PlaybackGroup::Main,
             done_flag: Arc::new(AtomicBool::new(false)),
             stop_flag: Arc::new(AtomicBool::new(false)),
             fade_out_flag: None,

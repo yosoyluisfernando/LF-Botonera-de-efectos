@@ -23,6 +23,22 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 ## [Sin publicar]
 
 ### Añadido
+- Panel lateral de botones fijos con alcance global o por perfil, posición izquierda/derecha, columnas configurables, DnD y controles de reproducción independientes.
+- Panel fijo redimensionable, con una a cinco columnas y filas ilimitadas o capacidad limitada configurable hasta veinte filas.
+- **Modo reproductor en el panel lateral:** una lista de reproducción propia, pensada para dejar música de fondo mientras se disparan los efectos. Tiene su propio motor de audio, así que suena de forma independiente: el Stop general y el Solo de los efectos no la cortan, y el reproductor tiene su propio botón de detener.
+- Reproductor con cuatro modos de avance: normal, repetir, aleatorio y manual. La pista que suena se ve en verde y la marcada como siguiente en naranja, con los mismos colores que usa LF Automatizador. Lo que se marca como siguiente se respeta siempre, sin importar el modo, y sigue a su canción aunque se reordene la lista.
+- El naranja indica siempre qué sonará al pulsar reproducir, también con el reproductor detenido: no desaparece al parar, y al añadir canciones a una lista vacía la primera queda marcada sola.
+- En la lista del reproductor, un doble clic reproduce la canción si está detenido, o la marca como siguiente si ya hay música sonando, sin cortarla.
+- Limpiar la lista o abrir otra **no corta la música**: la canción que está sonando termina, y al acabar entra la lista nueva.
+- Botón **Detener al finalizar** en el reproductor: al terminar la pista actual la siguiente no arranca sola hasta pulsar reproducir, conservando la que estaba marcada como siguiente.
+- El reproductor tiene **volumen y dispositivo de salida propios**, configurables en Ajustes → Panel fijo, para poder mandar la música a otra tarjeta distinta de la de los efectos. El volumen también se puede ajustar desde el propio panel, sin entrar en Ajustes.
+- Barra de progreso en el reproductor: muestra por dónde va la canción y permite adelantar o atrasar a un punto concreto. Las locuciones de hora y clima no se pueden adelantar, porque son varios archivos encadenados.
+- Botón **Loop** en el reproductor: repite la canción actual hasta desactivarlo. Es distinto del modo Repetir, que repite la lista entera; por eso Repetir usa el icono ∞ y el Loop el 🔂. Ponerlo o quitarlo mientras suena no corta la música.
+- El contador del reproductor cambia entre tiempo transcurrido y restante al pulsarlo, y con el reproductor parado muestra el tiempo total de la lista. La preferencia se recuerda.
+- El modo de reproducción se puede cambiar desde el propio panel, con un menú donde el icono indica el modo activo.
+- Guardar y abrir listas de reproducción en formato `.LFPlay`, **compatible con LF Automatizador**. Limpiar y abrir preguntan antes si se desea guardar la lista actual.
+- Arrastrar y soltar en la lista del reproductor: añadir canciones desde el explorador, arrastrar botones de la botonera a la lista, y reordenar las canciones arrastrándolas. Soltar sobre una fila inserta en esa posición; soltar en el espacio vacío añade al final.
+- El reproductor admite los mismos tipos que los botones: audio, carpeta aleatoria, locución horaria, temperatura y humedad. La hora y el clima se resuelven en el momento de sonar, y respeta los cortes de inicio y fin marcados en el editor de pistas. Los tipos que no tienen una duración conocida de antemano se muestran como `--:--` y no cuentan para el total, igual que en LF Automatizador. Si alguno no se puede resolver (una carpeta vacía, o el clima sin conexión), se salta y la música continúa.
 - Caché persistente de waveforms del editor de pistas en disco, con límites configurables de tamaño y antigüedad y opción para limpiarla desde los ajustes del normalizador.
 - Progreso de análisis del editor de pistas con etapas visibles mientras Rust revisa caché, reconstruye waveform, decodifica, guarda y limpia.
 

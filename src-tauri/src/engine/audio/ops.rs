@@ -2,6 +2,7 @@
 /// Propósito: operaciones sobre el mapa de estados de botones (purgar, parar,
 /// volumen). Separadas del hilo de audio (audio_thread.rs) por cohesión.
 use crate::engine::audio::bus::{ButtonState, ButtonStateMap};
+use crate::engine::audio::button::PlaybackGroup;
 use std::sync::{Arc, Mutex};
 
 /// Elimina del mapa las fuentes ya terminadas.
@@ -13,22 +14,24 @@ pub fn purge_done(states: &Arc<Mutex<ButtonStateMap>>) {
 }
 
 /// Para otras fuentes con corte inmediato y elimina del mapa (sin fade).
-pub fn stop_other_ids(states: &mut ButtonStateMap, id: &str) {
+pub fn stop_other_ids(states: &mut ButtonStateMap, id: &str, target: PlaybackGroup) {
     states
         .iter()
-        .filter(|(key, _)| key.as_str() != id)
+        .filter(|(key, group)| key.as_str() != id && group.iter().any(|s| s.group == target))
         .flat_map(|(_, group)| group.iter())
+        .filter(|state| state.group == target)
         .for_each(|state| state.stop_immediate());
-    states.retain(|key, _| key.as_str() == id);
+    states.retain(|key, group| key.as_str() == id || group.iter().any(|s| s.group != target));
 }
 
 /// Para otras fuentes con fundido si está configurado; las mantiene en el mapa
 /// hasta que terminen (purge_done las retira cuando done_flag = true).
-pub fn fade_stop_other_ids(states: &mut ButtonStateMap, id: &str) {
+pub fn fade_stop_other_ids(states: &mut ButtonStateMap, id: &str, target: PlaybackGroup) {
     states
         .iter()
         .filter(|(key, _)| key.as_str() != id)
         .flat_map(|(_, group)| group.iter())
+        .filter(|state| state.group == target)
         .for_each(|state| state.stop());
     // Sin retain: purge_done() limpiará cuando el fade termine.
 }
@@ -78,6 +81,15 @@ pub fn fade_stop_all(states: &Arc<Mutex<ButtonStateMap>>) {
     }
 }
 
+pub fn fade_stop_group(states: &Arc<Mutex<ButtonStateMap>>, target: PlaybackGroup) {
+    for group in states.lock().unwrap().values() {
+        group
+            .iter()
+            .filter(|s| s.group == target)
+            .for_each(ButtonState::stop);
+    }
+}
+
 pub fn set_volume(states: &Arc<Mutex<ButtonStateMap>>, id: &str, volume: f32) {
     if let Some(group) = states.lock().unwrap().get(id) {
         for state in group {
@@ -91,6 +103,41 @@ pub fn stop_removed(group: Option<Vec<ButtonState>>) {
     if let Some(group) = group {
         for state in group {
             state.stop_immediate();
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::stop_other_ids;
+    use crate::engine::audio::button::{ButtonState, ButtonStateMap, PlaybackGroup};
+    use std::sync::atomic::{AtomicBool, AtomicU32};
+    use std::sync::Arc;
+    use std::time::Instant;
+
+    #[test]
+    fn stop_other_isolated_by_playback_group() {
+        let mut states = ButtonStateMap::new();
+        states.insert("main".into(), vec![state(PlaybackGroup::Main)]);
+        states.insert("fixed-a".into(), vec![state(PlaybackGroup::Fixed)]);
+        states.insert("fixed-b".into(), vec![state(PlaybackGroup::Fixed)]);
+        stop_other_ids(&mut states, "fixed-a", PlaybackGroup::Fixed);
+        assert!(states.contains_key("main"));
+        assert!(states.contains_key("fixed-a"));
+        assert!(!states.contains_key("fixed-b"));
+    }
+
+    fn state(group: PlaybackGroup) -> ButtonState {
+        ButtonState {
+            group,
+            done_flag: Arc::new(AtomicBool::new(false)),
+            stop_flag: Arc::new(AtomicBool::new(false)),
+            fade_out_flag: None,
+            volume: Arc::new(AtomicU32::new(1.0f32.to_bits())),
+            start_time: Instant::now(),
+            position_offset_s: 0.0,
+            duration: 1.0,
+            loop_mode: false,
         }
     }
 }

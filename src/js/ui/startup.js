@@ -8,30 +8,27 @@ import { invoke, listen, waitForTauri } from '../bridge/api.js';
 import { loadLanguage, t } from '../util/i18n.js';
 import { applyTheme } from './theme.js';
 import { initWizard } from './wizard.js';
-import { initTabs, updateTabPlayback, updateTabs } from './tabs.js';
+import { initTabs, updateTabs } from './tabs.js';
 import { initProfiles, updateProfiles } from './profiles.js';
 import { initShortcuts, updateShortcuts } from './shortcuts.js';
 import { initGrid, drawGrid } from './grid.js';
 import { initGridDnd } from './gridDnd.js';
+import { initFileDrop } from './fileDrop.js';
+import { initPlayerDnd } from './playerDnd.js';
 import { initTabDnd, updateTabDnd } from './tabDnd.js';
 import { initBottomBar, refreshBottomBar } from './bottomBar.js';
 import { initSettingsModal } from './settingsModal.js';
 import { initMapping } from './mapping.js';
-import { paintAudioTick } from './gridPlayback.js';
-import { updatePlaybackProgress } from './playbackProgressBar.js';
-import { updateClockTick, updateAudioTick } from './clockWidget.js';
-import { updateVuMeter } from './vuMeter.js';
-import { updateWeatherPanel } from './settingsLocutions.js';
 import { initUpdateNotifier, startUpdateChecks } from './updateNotifier.js';
 import { initColorPicker } from './colorPalette.js';
 import { initNumberInputs } from '../util/numberInputs.js';
 import { maybeShowPreloadDialog } from './preloadDialog.js';
 import { checkAudioDevicesOnStartup } from './audioDeviceRecovery.js';
 import { initStartupPrompts, runStartupPrompts } from './startupPrompts.js';
+import { initFixedPanel, drawFixedPanel, initialFixedPanel } from './fixedPanel.js';
+import { wireRuntimeEvents } from './runtimeEvents.js';
 
 let _closeWired = false;
-let _runtimeWired = false;
-
 /** Punto único de arranque llamado desde main.js al cargar el DOM. */
 export async function startApp() {
     try {
@@ -55,10 +52,12 @@ export async function startApp() {
             return;
         }
 
-        const grid = await invoke('get_grid_state');
-        _initModules(config, grid);
+        const [grid, fixedPanel] = await Promise.all([
+            invoke('get_grid_state'), initialFixedPanel(),
+        ]);
+        _initModules(config, grid, fixedPanel);
         initStartupPrompts();
-        await _wireRuntimeEvents();
+        await wireRuntimeEvents({ onRefresh: _refresh, onDockEditor: _openDockedEditor });
         _show('app-section');
         checkAudioDevicesOnStartup();
         await maybeShowPreloadDialog(); // Rust decide si toca (primer arranque)
@@ -105,9 +104,10 @@ async function _loadConfig() {
 }
 
 async function _refresh() {
-    const [config, grid] = await Promise.all([
+    const [config, grid, fixedPanel] = await Promise.all([
         _loadConfig(),
         invoke('get_grid_state'),
+        invoke('get_fixed_panel'),
     ]);
     updateTabs(config, _refresh);
     updateTabDnd(config, _refresh);
@@ -116,46 +116,29 @@ async function _refresh() {
     _applyButtonTextSize(config.button_text_size);
     refreshBottomBar();
     drawGrid(grid, _refresh);
+    drawFixedPanel(fixedPanel);
 }
 
-function _initModules(config, grid) {
+function _initModules(config, grid, fixedPanel) {
     initTabs(config, _refresh);
     initTabDnd(config, _refresh);
     initProfiles(config, _refresh);
     initShortcuts(config, _refresh);
     initGrid(_refresh);
     initGridDnd(_refresh);
+    initFileDrop(_refresh);
+    initPlayerDnd();
     initBottomBar();
     drawGrid(grid, _refresh);
+    initFixedPanel(fixedPanel, _refresh);
     initSettingsModal(_refresh);
     initMapping(_refresh);
     initUpdateNotifier();
 }
 
-async function _wireRuntimeEvents() {
-    if (_runtimeWired) return;
-    await Promise.all([
-        listen('clock-tick', e => updateClockTick(e.payload ?? {})),
-        listen('audio-tick', e => _paintAudio(e.payload ?? {})),
-        listen('weather-updated', e => updateWeatherPanel(e.payload)),
-        listen('global-shortcut-refresh', () => _refresh()),
-        listen('track-editor-dock', e => _openDockedEditor(e.payload ?? {})),
-    ]);
-    _runtimeWired = true;
-}
-
 async function _openDockedEditor(payload) {
     const editor = await import('./trackEditor.js');
     editor.openTrackEditor(payload.path, payload.name || '', null, { zoom: payload.zoom });
-}
-
-function _paintAudio(payload) {
-    paintAudioTick(payload);
-    updatePlaybackProgress(payload);
-    updateAudioTick(payload);
-    updateVuMeter(payload);
-    updateTabPlayback(payload);
-    window.dispatchEvent(new CustomEvent('lf-audio-tick', { detail: payload }));
 }
 
 function _applyButtonTextSize(size = 'normal') {

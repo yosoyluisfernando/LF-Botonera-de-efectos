@@ -1,10 +1,11 @@
+use crate::domain::playback::source as playback_source;
+use crate::engine::audio::bus::{ButtonStateMap, MasterBus};
+use crate::engine::audio::button::PlaybackGroup;
 /// Modulo: playback_seek.rs
 /// Proposito: estado de reconstruccion y seek para botones principales.
 use crate::engine::audio::ops as audio_ops;
-use crate::engine::audio::bus::{ButtonStateMap, MasterBus};
-use crate::domain::playback::source as playback_source;
-use crate::engine::cache::preload::PreloadCache;
 use crate::engine::audio::vu::LastPressedInfo;
+use crate::engine::cache::preload::PreloadCache;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
@@ -73,6 +74,7 @@ pub fn seek_active(
         info.fade_out_stop_s,
         info.fade_out_end_s,
         target,
+        PlaybackGroup::Main,
     );
     states.lock().unwrap().entry(id).or_default().push(state);
 }

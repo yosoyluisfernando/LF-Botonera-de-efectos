@@ -1,10 +1,11 @@
+use crate::core::AppState;
+use crate::engine::audio::button::PlaybackGroup;
 /// Modulo: locution_playback.rs
 /// Proposito: reproducir locuciones de hora y clima por una ruta unica.
 use crate::engine::audio::formats::probe_duration_secs;
 use crate::engine::weather::client as weather;
 use crate::engine::weather::resolver as locutions;
 use crate::model::AppConfig;
-use crate::core::AppState;
 
 /// Reproduce la locucion de hora usando carpeta propia o configuracion global.
 pub fn play_time(
@@ -13,6 +14,7 @@ pub fn play_time(
     id: String,
     volume: f32,
     folder: Option<&str>,
+    group: PlaybackGroup,
 ) -> Result<(), String> {
     let folder = resolve_time_folder(cfg, folder)?;
     let files = locutions::resolve_time_files(&folder)?;
@@ -21,7 +23,7 @@ pub fn play_time(
         .audio
         .lock()
         .unwrap()
-        .play_sequence(id, files, volume, duration)
+        .play_sequence(id, files, volume, duration, group)
 }
 
 /// Reproduce locucion de temperatura o humedad usando el clima actual.
@@ -32,6 +34,7 @@ pub fn play_climate(
     kind: &str,
     volume: f32,
     folder: Option<&str>,
+    group: PlaybackGroup,
 ) -> Result<(), String> {
     let folder = resolve_climate_folder(cfg, kind, folder)?;
     let now = weather::weather_now(&state.config, false)?;
@@ -46,7 +49,7 @@ pub fn play_climate(
         .audio
         .lock()
         .unwrap()
-        .play_sequence(id, vec![file], volume, duration)
+        .play_sequence(id, vec![file], volume, duration, group)
 }
 
 fn total_duration(paths: &[String]) -> f64 {
@@ -57,7 +60,10 @@ fn total_duration(paths: &[String]) -> f64 {
         .sum()
 }
 
-fn resolve_time_folder(cfg: &AppConfig, folder: Option<&str>) -> Result<String, String> {
+/// Carpeta de la locucion horaria: la propia de la fila si la trae; si no, la de
+/// Ajustes (y solo si el modulo esta activo). La comparte el reproductor
+/// auxiliar, para que una locucion se ubique igual venga de un boton o de la cola.
+pub(crate) fn resolve_time_folder(cfg: &AppConfig, folder: Option<&str>) -> Result<String, String> {
     if let Some(folder) = filled(folder) {
         return Ok(folder.to_string());
     }
@@ -67,7 +73,8 @@ fn resolve_time_folder(cfg: &AppConfig, folder: Option<&str>) -> Result<String, 
     Ok(cfg.locutions.time_folder.clone())
 }
 
-fn resolve_climate_folder(
+/// Igual que `resolve_time_folder`, para temperatura y humedad.
+pub(crate) fn resolve_climate_folder(
     cfg: &AppConfig,
     kind: &str,
     folder: Option<&str>,

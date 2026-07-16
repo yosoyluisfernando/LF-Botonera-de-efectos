@@ -1,7 +1,7 @@
+use crate::model::grid::{ButtonView, GridState};
 /// Modulo: grid_view.rs
 /// Proposito: preparar la vista de grilla que consume el frontend.
 use crate::model::{ButtonData, PaletaData};
-use crate::model::grid::{ButtonView, GridState};
 
 pub fn paleta_to_grid(paleta: &PaletaData) -> GridState {
     GridState {
@@ -11,7 +11,7 @@ pub fn paleta_to_grid(paleta: &PaletaData) -> GridState {
     }
 }
 
-fn button_to_view(button: &ButtonData) -> ButtonView {
+pub fn button_to_view(button: &ButtonData) -> ButtonView {
     ButtonView {
         data: button.clone(),
         timer_label_key: timer_label_key(&button.type_field).to_string(),

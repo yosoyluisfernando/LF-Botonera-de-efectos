@@ -13,6 +13,7 @@ const ICONS = {
 
 /** Devuelve markup seguro para pintar un icono de tipo. */
 export function typeIcon(type) {
+    if (!type) return '';
     const key = ICONS[type] ? type : 'audio';
     return `<span class="type-icon type-icon-${key}" aria-hidden="true">${ICONS[key]}</span>`;
 }

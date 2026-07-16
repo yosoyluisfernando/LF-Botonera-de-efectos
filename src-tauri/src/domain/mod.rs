@@ -4,4 +4,5 @@ pub mod colors;
 pub mod export;
 pub mod grid;
 pub mod playback;
+pub mod player;
 pub mod track_response;

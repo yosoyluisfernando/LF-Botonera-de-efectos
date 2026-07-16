@@ -25,7 +25,7 @@ import {
  * @param {object|null} btnData  Datos actuales del botón (null = celda vacía).
  * @param {Function}    onSave   Callback ejecutado tras guardar con éxito.
  */
-export async function openEditModal(index, btnData, onSave) {
+export async function openEditModal(index, btnData, onSave, target = 'grid') {
     const modal  = document.getElementById('edit-modal');
     const typeEl = document.getElementById('edit-type');
     const pathEl = document.getElementById('edit-filepath');
@@ -92,7 +92,9 @@ export async function openEditModal(index, btnData, onSave) {
                 }
                 return;
             }
-            const newState = await invoke('assign_file_to_button', { index, path: null });
+            const assignCommand = target === 'fixed'
+                ? 'assign_file_to_fixed_button' : 'assign_file_to_button';
+            const newState = await invoke(assignCommand, { index, path: null });
             const updated  = newState?.buttons?.find(b => b.index === index);
             if (updated) {
                 pathEl.value = updated.path;
@@ -129,7 +131,8 @@ export async function openEditModal(index, btnData, onSave) {
                 await appAlert(t(`edit_modal.missing_${sel}`));
                 return;
             }
-            await invokeShortcutSave('update_button_data', {
+            const updateCommand = target === 'fixed' ? 'update_fixed_button' : 'update_button_data';
+            await invokeShortcutSave(updateCommand, {
                 index,
                 label:     nameEl.value.trim() || btnData?.label || String(index),
                 colorBg:   document.getElementById('edit-bg-color').value,

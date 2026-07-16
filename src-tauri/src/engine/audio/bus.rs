@@ -1,10 +1,10 @@
+use crate::engine::audio::button::{ButtonSource, PlaybackGroup};
 use crate::engine::audio::decode as audio_decode;
+use crate::engine::audio::vu::LevelSource;
 /// Módulo: master_bus.rs
 /// Propósito: Master Bus de audio — todas las fuentes entran a un DynamicMixer;
 /// un único LevelSource mide el PICO de la señal sumada real post-mezcla.
 use crate::engine::dsp::fade::FadeRamp;
-use crate::engine::audio::button::ButtonSource;
-use crate::engine::audio::vu::LevelSource;
 use rodio::dynamic_mixer::{self, DynamicMixerController};
 use rodio::source::Zero;
 use rodio::{OutputStreamHandle, Sink, Source};
@@ -109,6 +109,7 @@ impl MasterBus {
         fade_out_stop_s: f64,
         fade_out_end_s: f64,
         position_offset_s: f64,
+        group: PlaybackGroup,
     ) -> ButtonState {
         let done_flag = Arc::new(AtomicBool::new(false));
         let stop_flag = Arc::new(AtomicBool::new(false));
@@ -144,6 +145,7 @@ impl MasterBus {
             fade,
         });
         ButtonState {
+            group,
             done_flag,
             stop_flag,
             fade_out_flag,

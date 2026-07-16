@@ -45,7 +45,7 @@ El documento completo está en [`Documentación/REGLAS_PROYECTO.md`](Documentaci
 
 9. **Proponer antes de reestructurar.** Si el cambio afecta la estructura de módulos, el esquema de datos o el flujo IPC, describir el plan y esperar aprobación antes de implementar.
 
-10. **Verificar sin lanzar la aplicación.** Verificar con `cargo test --lib` (backend) y `npm run build` (frontend). La prueba visual la hace el usuario en su equipo.
+10. **Verificar sin lanzar la aplicación.** Verificar con `cargo test --lib` **y `cargo build --lib`** (backend) y `npm run build` (frontend). Las dos de Rust: `cargo test` compila con los tests, y un `use super::*` de un fichero de pruebas puede tapar un import que ya no usa nadie; el usuario compila sin tests y ahí sí sale el aviso. La prueba visual la hace el usuario en su equipo.
 
 11. **Las IAs no son colaboradoras del proyecto.** Commits, PRs y cualquier contribución registrada van únicamente a nombre de usuarios humanos reales con cuenta de GitHub (ejemplo: "Juan Pérez", "Yo Soy Luis Fernando"). Sin trailers `Co-Authored-By: <nombre de IA>`, sin firmas de asistente, sin atribuciones de IA en mensajes de commit, descripciones de PR ni comentarios de código. El historial de git debe reflejar exclusivamente a personas reales. El reconocimiento al uso de herramientas de IA en el desarrollo está documentado en la sección "Créditos de desarrollo" de `README.md`.
 
@@ -78,11 +78,14 @@ El documento completo está en [`Documentación/REGLAS_PROYECTO.md`](Documentaci
 │  AppState {                                           │
 │    config:   Arc<Mutex<AppConfig>>      → JSON        │
 │    audio:    Mutex<AudioEngine>         → rodio/cpal  │
+│    player:   Mutex<PlayerEngine>        → rodio/cpal  │
 │    tracks:   Arc<Mutex<TrackStore>>     → SQLite      │
 │    waveforms, track_analysis, last_played, history    │
 │  }                                                    │
 └───────────────────────────────────────────────────────┘
 ```
+
+**Dos motores de audio independientes.** `audio` reproduce los efectos (mezcla muchas fuentes a la vez). `player` es el reproductor auxiliar del panel lateral (música de fondo): su propio hilo, su propia salida, su propio dispositivo y su propio volumen. Uno no detiene al otro: el Stop general y el Solo de los efectos no cortan la música, y el reproductor tiene su propio Stop.
 
 El frontend **nunca** calcula duración de audio, nivel de señal, si un archivo es válido, cuánto tiempo lleva sonando, ni ningún otro estado crítico. Todo eso lo calcula Rust y lo comunica via IPC o eventos.
 
@@ -97,11 +100,18 @@ AppConfig
   ├── theme, language, button_text_size, editor_mode
   ├── preload: PreloadConfig
   ├── locutions: LocutionConfig
+  ├── fixed_panel: FixedPanelConfig {scope, view: "player"|"buttons", side, columns, rows, width, ...}
+  ├── player: PlayerConfig          ← reproductor auxiliar, global (uno solo)
+  │     ├── tracks: Vec<ButtonData>   (la cola; reutiliza ButtonData, admite todos los tipos)
+  │     ├── playback_mode: "normal"|"repeat"|"random"|"manual"
+  │     ├── volume: f32               (0.0..=1.5, independiente del master)
+  │     └── output_device: String     ("" = el mismo de los efectos)
   └── profiles: Vec<ProfileData>
         └── ProfileData
               ├── id, name, bg, text
               ├── audio: AudioConfig {out_main, out_pre, playback_mode, master_volume, ...}
               ├── active_paleta_id
+              ├── fixed_buttons: Vec<ButtonData>
               └── paletas: Vec<PaletaData>
                     └── PaletaData
                           ├── id, nombre, rows, cols, audio_out, shortcut, tab_bg, tab_text
@@ -173,7 +183,8 @@ señal = muestra × file_gain(dB→lineal) × vol_botón(lineal 0-1) × master(l
 
 | Evento Tauri | Payload | Quién lo consume |
 |---|---|---|
-| `"audio-tick"` | `{buttons[], display_remaining, display_duration, master_level_l, master_level_r}` | gridPlayback.js, clockWidget.js, vuMeter.js, tabs.js |
+| `"audio-tick"` | `{buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r}` | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js |
+| `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | — | startup.js → recarga la UI |
@@ -182,6 +193,8 @@ señal = muestra × file_gain(dB→lineal) × vol_botón(lineal 0-1) × master(l
 | `"theme-changed"` | `{theme}` | ventana pop-out del editor |
 
 `startup.js` también dispara el `CustomEvent('lf-audio-tick')` en el DOM cada vez que recibe `"audio-tick"` de Rust. Los módulos del editor usan `window.addEventListener('lf-audio-tick', ...)` porque es un `CustomEvent`, no un evento Tauri.
+
+**Por qué el reproductor tiene su propio tick:** `"audio-tick"` no se emite en reposo (si no hay efectos sonando, calla). La música de fondo suele sonar sin ningún efecto disparado, así que colgar la lista de ese tick la dejaba sin pintar. `"player-tick"` es independiente, como lo son los dos motores.
 
 ---
 
@@ -201,6 +214,18 @@ Para la lista completa ver [`CLAUDE.md §9`](CLAUDE.md).
 - `export_tab_by_id(paleta_id)` / `import_tab()` → formatos .bdelf
 - `set_editor_mode(mode)` → "modal" | "window"; persiste en AppConfig
 
+**Reproductor auxiliar** (motor propio; los índices son POSICIONES 0-based en la cola):
+- `get_player` → cola + ajustes + estado; `get_player_snapshot` → solo el estado en vivo
+- `player_play_index(index)` / `player_activate_index(index)` → el motor decide si reproduce o marca
+- `player_next` / `player_prev` / `player_stop` / `player_pause` / `player_resume`
+- `player_mark_next(index?)` → marcar siguiente. **Es ley:** se respeta en todos los modos
+- `player_set_mode(mode)` → "normal" | "repeat" | "random" | "manual"
+- `player_set_stop_after(enabled)` → al acabar la actual, no arranca sola
+- `player_set_volume(volume)` / `player_set_device(device)` → salida propia ("" = la de los efectos)
+- `player_add_track(path, index?)` / `player_add_button(buttonId, index?)` → sin `index`, al final
+- `player_remove_track(index)` / `player_reorder_tracks(from, to)` / `player_clear_queue`
+- `player_save_playlist` / `player_open_playlist` → formato `.LFPlay` (compatible con LFA)
+
 ---
 
 ## 8. Mapa de archivos clave
@@ -215,8 +240,10 @@ Para el mapa completo, ver [`Documentación/LIBRO_PROYECTO.md §3 y §4`](Docume
 | `src-tauri/src/core/setup.rs` | Inicializa la app: dispositivo, hilos, precarga |
 | `src-tauri/src/model/` | Esquema de datos completo serializable |
 | `src-tauri/src/engine/persist/config_io.rs` | Persistencia JSON + migración automática |
-| `src-tauri/src/engine/audio/thread.rs` | El único hilo que toca rodio/cpal |
+| `src-tauri/src/engine/audio/thread.rs` | El único hilo que toca rodio/cpal en los efectos |
 | `src-tauri/src/engine/audio/bus.rs` | Mezcla de fuentes + medición de nivel |
+| `src-tauri/src/engine/player/thread.rs` | Hilo del reproductor auxiliar: único dueño de su salida y sus dos decks |
+| `src-tauri/src/domain/player/advance.rs` | Regla pura de los cuatro modos: qué pista suena después |
 | `src-tauri/src/ipc/cmd_button_playback.rs` | Lógica completa de disparo de un botón |
 | `src-tauri/src/engine/persist/tracks.rs` | CRUD de metadatos de pista en SQLite |
 | `src/js/bridge/api.js` | Única puerta de acceso al IPC desde el frontend |
@@ -282,7 +309,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (suite actual: 61 passed, 1 ignored)
+# Tests unitarios Rust (suite actual: 101 passed, 1 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -318,7 +345,17 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 - i18n en 4 idiomas (es, en, pt-BR, pt-PT)
 - CI/CD con GitHub Actions
 
+**En desarrollo (rama `codex/panel-lateral-fijo`):**
+- Panel lateral fijo: botones fijos con alcance global o por perfil, posición, columnas y filas.
+- **Reproductor auxiliar** (modo reproductor del panel): motor propio, cola, cuatro modos de
+  avance, marcar-siguiente (ley), detener al finalizar, pre-carga ping-pong entre dos decks,
+  volumen y dispositivo propios, DnD (añadir y reordenar), y listas `.LFPlay` compatibles con
+  LFA. Ver [`Documentación/PLAN_MODO_REPRODUCTOR.md`](Documentación/PLAN_MODO_REPRODUCTOR.md).
+
 **Pendientes conocidos:**
 
 **A — Prueba física en Linux**
 El código es multiplataforma (rutas via `config::get_data_dir()`, SQLite bundled, rodio/ALSA). Falta probar el build (`.deb`, `.AppImage`) en una máquina Linux real.
+
+**B — Política de colores de los botones nuevos**
+Diseño **acordado con el autor y no implementado**: elegir en Ajustes si los botones nuevos se colorean al azar (actual), con un color único, o siguiendo un patrón por filas o por columnas. Nunca recolorea lo existente y la edición manual siempre manda. Ver [`Documentación/PLAN_POLITICA_COLORES.md`](Documentación/PLAN_POLITICA_COLORES.md).

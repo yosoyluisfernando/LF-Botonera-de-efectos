@@ -98,4 +98,10 @@ pub struct LfaProfile {
     #[serde(default)]
     pub config: LfaConfig,
     pub paletas: Vec<LfaPaleta>,
+    #[serde(
+        default,
+        rename = "fixedButtons",
+        skip_serializing_if = "Vec::is_empty"
+    )]
+    pub fixed_buttons: Vec<crate::model::ButtonData>,
 }

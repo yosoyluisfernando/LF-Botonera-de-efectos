@@ -1,8 +1,8 @@
+use crate::domain::playback::seek::{self as playback_seek, ReplayInfo};
+use crate::engine::audio::bus::ButtonStateMap;
 use crate::engine::audio::command::AudioCommand;
 use crate::engine::audio::device::AudioDeviceRuntime;
 use crate::engine::audio::ops as audio_ops;
-use crate::engine::audio::bus::ButtonStateMap;
-use crate::domain::playback::seek::{self as playback_seek, ReplayInfo};
 use crate::engine::audio::thread_play::{play_file, play_sequence, PlayArgs};
 use crate::engine::audio::vu::LastPressedInfo;
 use crate::engine::cache::preload::PreloadCache;
@@ -87,8 +87,11 @@ fn run(
                 fade_in_s,
                 fade_out_stop_s,
                 fade_out_end_s,
+                group,
             } => {
-                let main_button = !to_pre && !id.starts_with("__");
+                let main_button = !to_pre
+                    && !id.starts_with("__")
+                    && group == crate::engine::audio::button::PlaybackGroup::Main;
                 let replay = main_button.then(|| ReplayInfo {
                     id: id.clone(),
                     path: path.clone(),
@@ -130,6 +133,7 @@ fn run(
                         fade_out_stop_s,
                         fade_out_end_s,
                         position_offset_s: 0.0,
+                        group,
                     },
                 );
                 if played {
@@ -150,6 +154,7 @@ fn run(
                 replays.clear();
                 audio_ops::stop_all(&states)
             }
+            AudioCommand::StopGroupFade { group } => audio_ops::fade_stop_group(&states, group),
             AudioCommand::StopAllFade => {
                 replays.clear();
                 audio_ops::fade_stop_all(&states)
@@ -174,8 +179,9 @@ fn run(
                 paths,
                 volume,
                 duration,
+                group,
             } => {
-                play_sequence(&states, device.bus(), id, paths, volume, duration);
+                play_sequence(&states, device.bus(), id, paths, volume, duration, group);
             }
         }
     }

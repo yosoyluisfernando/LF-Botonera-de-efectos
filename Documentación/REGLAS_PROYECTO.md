@@ -42,7 +42,7 @@ Cuando un cambio afecta la estructura de módulos, el esquema de datos, el flujo
 
 ### 10. Verificación sin lanzar la aplicación
 
-El método estándar de verificación es `cargo test --lib` para el backend y `npm run build` para el frontend. La prueba visual y funcional la realiza el usuario en su equipo. No se controla la pantalla del usuario ni se utilizan herramientas de automatización de escritorio como parte del flujo de verificación.
+El método estándar de verificación es `cargo test --lib` **y `cargo build --lib`** para el backend, y `npm run build` para el frontend. Hacen falta las dos comprobaciones de Rust: `cargo test` compila el código *junto con* las pruebas, y un `use super::*` de un fichero de pruebas puede mantener vivo un import que el módulo ya no usa; quien ejecuta la aplicación compila sin las pruebas y sí ve ese aviso. Una verificación que no reproduce cómo se compila de verdad no es una verificación. La prueba visual y funcional la realiza el usuario en su equipo. No se controla la pantalla del usuario ni se utilizan herramientas de automatización de escritorio como parte del flujo de verificación.
 
 ### 11. Solo personas reales como colaboradores
 

@@ -12,6 +12,7 @@ import { initPreloadPanel, loadPreloadPanel, savePreload } from './settingsPrelo
 import { initPlaybackPanel, loadPlaybackPanel, savePlaybackPanel } from './settingsPlayback.js';
 import { initKeyInputs } from '../util/keyInputs.js';
 import { appAlert } from './appDialog.js';
+import { initFixedPanelSettings, loadFixedPanelSettings, saveFixedPanelSettings } from './settingsFixedPanel.js';
 
 let _onSaved         = null;
 let _currentOutMain  = null; // Tarjeta vigente al abrir el modal
@@ -27,6 +28,7 @@ export function initSettingsModal(onSaved) {
     document.getElementById('btn-settings').addEventListener('click', _openSettings);
     document.getElementById('btn-save-settings').addEventListener('click', _saveSettings);
     initPlaybackPanel();
+    initFixedPanelSettings();
 
     // Pestañas internas del modal
     document.querySelectorAll('.s-tab').forEach(tab => {
@@ -83,6 +85,7 @@ async function _openSettings() {
     loadLocutionsPanel(config);
     loadPreloadPanel();
     loadPlaybackPanel(config);
+    await loadFixedPanelSettings(config, devices);
     _renderOrphanedShortcuts(config);
     document.getElementById('settings-modal').classList.remove('hidden');
 }
@@ -105,6 +108,7 @@ async function _saveSettings() {
         await saveLocutions();
         await savePreload();
         await savePlaybackPanel();
+        await saveFixedPanelSettings();
         await invoke('set_button_text_size', {
             size: document.getElementById('config-button-text-size').value,
         });

@@ -1,91 +1,25 @@
-/// Módulo: types.rs
-/// Propósito: Esquema de datos serializable compartido entre Rust, UI y disco.
+//! Modulo: model/config.rs
+//! Proposito: `AppConfig`, la raiz de la configuracion que se persiste en
+//! `botonera_config.json`. Son las PREFERENCIAS de la aplicacion; el contenido
+//! que crea el usuario (perfil → paleta → boton) vive en `model/content.rs`.
+//! Cada bloque de ajustes tiene su propio modulo y aqui solo se compone.
+use crate::model::content::{PaletaData, ProfileData};
 use crate::model::fade::FadeConfig;
+use crate::model::fixed_panel::FixedPanelConfig;
 use crate::model::locutions::LocutionConfig;
 use crate::model::norm::{CueDetectConfig, NormConfig};
 use crate::model::playback::PlaybackProgressConfig;
+use crate::model::player::PlayerConfig;
 use crate::model::preload::PreloadConfig;
 use crate::model::startup::StartupPromptState;
 use crate::model::waveform_cache::WaveformCacheConfig;
 use serde::{Deserialize, Serialize};
-
 // AudioConfig vive en su propio módulo; se re-exporta para que el resto del
 // código siga usándolo como `crate::model::AudioConfig` sin cambios.
 pub use crate::model::audio::AudioConfig;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ButtonData {
-    pub id: String,
-    pub index: u32,
-    pub label: String,
-    #[serde(default = "default_type", rename = "type")]
-    pub type_field: String,
-    #[serde(default)]
-    pub path: String,
-    #[serde(default)]
-    pub folder: String,
-    #[serde(default)]
-    pub name: String,
-    pub color_bg: String,
-    pub color_text: String,
-    #[serde(default = "default_vol")]
-    pub vol: f32,
-    #[serde(default)]
-    pub duration: f64,
-    #[serde(default)]
-    pub duration_str: String,
-    #[serde(default)]
-    pub loop_mode: bool,
-    #[serde(default)]
-    pub stop_other: bool,
-    #[serde(default)]
-    pub overlap: bool,
-    #[serde(default)]
-    pub restart: bool,
-    #[serde(default)]
-    pub shortcut: String,
-}
-
-fn default_type() -> String { "audio".to_string() }
-fn default_vol() -> f32 { 1.0 }
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PaletaData {
-    pub id: String,
-    pub nombre: String,
-    #[serde(default = "default_rows")]
-    pub rows: u32,
-    #[serde(default = "default_cols")]
-    pub cols: u32,
-    #[serde(default)]
-    pub audio_out: String,
-    #[serde(default)]
-    pub shortcut: String,
-    #[serde(default)]
-    pub tab_bg: String,
-    #[serde(default)]
-    pub tab_text: String,
-    pub botones: Vec<ButtonData>,
-}
-
-fn default_rows() -> u32 { 5 }
-fn default_cols() -> u32 { 5 }
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ProfileData {
-    pub id: String,
-    pub name: String,
-    #[serde(default)]
-    pub bg: String,
-    #[serde(default)]
-    pub text: String,
-    #[serde(default)]
-    pub audio: AudioConfig,
-    #[serde(default)]
-    pub active_paleta_id: String,
-    pub paletas: Vec<PaletaData>,
-}
-
+/// Todo campo nuevo lleva `#[serde(default)]`: una configuracion guardada por
+/// una version anterior debe seguir cargando (regla 6).
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
     #[serde(default = "default_true")]
@@ -127,9 +61,13 @@ pub struct AppConfig {
     #[serde(default)]
     pub startup: StartupPromptState,
     #[serde(default)]
+    pub fixed_panel: FixedPanelConfig,
+    /// Reproductor auxiliar: uno solo y global (no por perfil).
+    #[serde(default)]
+    pub player: PlayerConfig,
+    #[serde(default)]
     pub profiles: Vec<ProfileData>,
 }
-
 fn default_true() -> bool {
     true
 }
@@ -146,6 +84,7 @@ fn default_editor_mode() -> String {
     "modal".to_string()
 }
 
+/// Configuracion de fabrica: un perfil con una paleta de 5x5 vacia.
 impl Default for AppConfig {
     fn default() -> Self {
         let paleta = PaletaData {
@@ -167,6 +106,7 @@ impl Default for AppConfig {
             audio: AudioConfig::default(),
             active_paleta_id: "paleta_1".to_string(),
             paletas: vec![paleta],
+            fixed_buttons: Vec::new(),
         };
         Self {
             is_first_boot: true,
@@ -188,6 +128,8 @@ impl Default for AppConfig {
             playback_progress: PlaybackProgressConfig::default(),
             waveform_cache: WaveformCacheConfig::default(),
             startup: StartupPromptState::default(),
+            fixed_panel: FixedPanelConfig::default(),
+            player: PlayerConfig::default(),
             profiles: vec![profile],
         }
     }

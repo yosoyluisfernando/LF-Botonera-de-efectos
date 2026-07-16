@@ -6,6 +6,7 @@
 use crate::engine::audio::monitor as audio_monitor;
 use crate::engine::cache::warm as preload_warm;
 use crate::engine::input::keyboard as global_shortcuts;
+use crate::engine::player::monitor as player_monitor;
 use crate::engine::persist::last_played;
 use crate::engine::weather::client as weather;
 use crate::ipc::{cmd_master_volume, cmd_meta};
@@ -25,6 +26,9 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
         .map(|a| a.out_main.clone())
         .unwrap_or_else(|| "default".to_string());
     let out_pre = profile_audio.map(|a| a.out_pre.clone()).unwrap_or_default();
+    // Reproductor auxiliar: "" = mismo dispositivo que los efectos.
+    let player_device_cfg = cfg.player.output_device.clone();
+    let player_volume = cfg.player.volume;
     drop(cfg);
 
     let engine = state.audio.lock().unwrap();
@@ -50,6 +54,26 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
         engine.last_pressed_handle(),
     );
     drop(engine);
+
+    // Motor propio del reproductor auxiliar: dispositivo y volumen propios. Si
+    // el dispositivo configurado esta vacio, sale por el mismo de los efectos.
+    let player_device = if player_device_cfg.is_empty() {
+        device.clone()
+    } else {
+        player_device_cfg
+    };
+    let player_snapshot = {
+        let player = state.player.lock().unwrap();
+        player.set_device(&player_device);
+        player.set_volume(player_volume);
+        player.snapshot_handle()
+    };
+    // Sincroniza el modo y la cola guardados con el motor del reproductor.
+    crate::ipc::cmd_player::apply_startup(&state);
+
+    // Hilo monitor del reproductor: emite "player-tick". Es propio porque
+    // "audio-tick" no se emite en reposo y la musica suena sin efectos.
+    player_monitor::start(app.handle().clone(), player_snapshot);
 
     // Hilo del reloj: emite "clock-tick" con hora y fecha localizadas
     cmd_meta::start_clock_thread(app.handle().clone(), Arc::clone(&state.config));

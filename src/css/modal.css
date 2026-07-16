@@ -173,6 +173,11 @@ input[type="color"] {
   color: var(--text-primary);
   padding: 5px 15px;
   cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.btn-dark:hover {
+  background: var(--playback-hover-bg);
 }
 
 .btn-blue {
@@ -181,10 +186,18 @@ input[type="color"] {
   color: #fff;
   padding: 5px 15px;
   cursor: pointer;
+  transition: background 0.12s ease;
 }
 
 .btn-blue:hover {
   background: var(--modal-action-hover);
+}
+
+/* Dialogo de decisiones de 3 botones: se ensancha a su contenido para que las
+   etiquetas (p. ej. "Añadir al final") nunca se partan en dos lineas. */
+#app-dialog-modal .modal-footer button { white-space: nowrap; }
+#app-dialog-modal.dialog-wide .modal-content {
+  width: max-content !important; min-width: 300px; max-width: 90vw;
 }
 
 .confirm-text {

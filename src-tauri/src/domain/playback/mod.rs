@@ -1,3 +1,4 @@
+pub mod edit;
 pub mod mode;
 pub mod seek;
 pub mod source;

@@ -9,24 +9,54 @@ let _modal = null;
 let _title = null;
 let _body = null;
 let _ok = null;
+let _alt = null;
 let _cancel = null;
 let _resolve = null;
+let _values = null;
 
 /** Muestra un aviso modal sin usar alert nativo del WebView. */
 export function appAlert(message) {
-    return _open(message, false);
+    return _open(message, { buttons: { ok: true }, values: { ok: true, cancel: false } });
 }
 
-/** Muestra una confirmacion modal sin usar confirm nativo del WebView. */
-export function appConfirm(message) {
-    return _open(message, true);
+/**
+ * Confirmacion modal de dos botones. Resuelve true al aceptar, false al cancelar.
+ * `labels` (opcional) reetiqueta {ok, cancel}; por defecto Aceptar/Cancelar.
+ */
+export function appConfirm(message, labels, order) {
+    return _open(message, { buttons: { ok: true, cancel: true }, labels, order, values: { ok: true, cancel: false } });
 }
 
-function _open(message, withCancel) {
+/**
+ * Confirmacion de tres vias en orden ok / alt / cancel (izquierda a derecha).
+ * `labels` reetiqueta {ok, alt, cancel}. Resuelve 'yes', 'no' o 'cancel';
+ * cerrar (X o fondo) equivale a 'cancel'.
+ */
+export function appConfirm3(message, labels) {
+    return _open(message, {
+        buttons: { ok: true, alt: true, cancel: true },
+        labels,
+        order: { ok: 1, alt: 2, cancel: 3 },
+        values: { ok: 'yes', alt: 'no', cancel: 'cancel' },
+    });
+}
+
+function _open(message, opts) {
     _ensureDialog();
     _title.textContent = t('app.title');
     _body.textContent = message;
-    _cancel.classList.toggle('hidden', !withCancel);
+    const labels = opts.labels ?? {};
+    const order = opts.order ?? { cancel: 1, ok: 2 };
+    _ok.textContent = labels.ok ?? t('edit_modal.ok');
+    _alt.textContent = labels.alt ?? '';
+    _cancel.textContent = labels.cancel ?? t('edit_modal.cancel');
+    _ok.style.order = order.ok ?? 2;
+    _alt.style.order = order.alt ?? 0;
+    _cancel.style.order = order.cancel ?? 1;
+    _alt.classList.toggle('hidden', !opts.buttons.alt);
+    _cancel.classList.toggle('hidden', !opts.buttons.cancel);
+    _modal.classList.toggle('dialog-wide', !!opts.buttons.alt);
+    _values = opts.values;
     _modal.classList.remove('hidden');
     _ok.focus();
     return new Promise(resolve => { _resolve = resolve; });
@@ -50,6 +80,7 @@ function _ensureDialog() {
         </div>
         <div class="modal-footer">
           <button class="btn-dark app-dialog-cancel" type="button"></button>
+          <button class="btn-dark app-dialog-alt" type="button"></button>
           <button class="btn-blue app-dialog-ok" type="button"></button>
         </div>
       </div>`;
@@ -58,20 +89,20 @@ function _ensureDialog() {
     _title = _modal.querySelector('h3');
     _body = _modal.querySelector('.confirm-text');
     _ok = _modal.querySelector('.app-dialog-ok');
+    _alt = _modal.querySelector('.app-dialog-alt');
     _cancel = _modal.querySelector('.app-dialog-cancel');
-    _ok.textContent = t('edit_modal.ok');
-    _cancel.textContent = t('edit_modal.cancel');
 
-    _modal.querySelector('.close-btn').addEventListener('click', () => _finish(false));
-    _cancel.addEventListener('click', () => _finish(false));
-    _ok.addEventListener('click', () => _finish(true));
+    _modal.querySelector('.close-btn').addEventListener('click', () => _finish('cancel'));
+    _cancel.addEventListener('click', () => _finish('cancel'));
+    _alt.addEventListener('click', () => _finish('alt'));
+    _ok.addEventListener('click', () => _finish('ok'));
     _modal.addEventListener('click', e => {
-        if (e.target === _modal) _finish(false);
+        if (e.target === _modal) _finish('cancel');
     });
 }
 
-function _finish(value) {
+function _finish(kind) {
     _modal?.classList.add('hidden');
-    _resolve?.(value);
+    _resolve?.(_values?.[kind]);
     _resolve = null;
 }

@@ -18,8 +18,9 @@ let _cleanupFn = null;
  * @param {number}      index     Índice del botón.
  * @param {object|null} btnData   Datos del botón (null = celda vacía).
  * @param {Function}    onUpdate  Callback tras cualquier cambio de estado.
+ * @param {string}      group     'grid' (cuadrícula) | 'fixed' (panel fijo).
  */
-export function showContextMenu(x, y, index, btnData, onUpdate) {
+export function showContextMenu(x, y, index, btnData, onUpdate, group = 'grid') {
     const menu = document.getElementById('context-menu');
 
     // Actualizar estado de checkboxes desde los datos del botón
@@ -37,7 +38,7 @@ export function showContextMenu(x, y, index, btnData, onUpdate) {
 
     // Limpiar listeners anteriores antes de reasignar
     if (_cleanupFn) _cleanupFn();
-    _cleanupFn = _wireMenuActions(menu, index, btnData, onUpdate);
+    _cleanupFn = _wireMenuActions(menu, index, btnData, onUpdate, group);
 
     // Cerrar al hacer clic fuera
     setTimeout(() => {
@@ -45,7 +46,7 @@ export function showContextMenu(x, y, index, btnData, onUpdate) {
     }, 10);
 }
 
-function _wireMenuActions(menu, index, btnData, onUpdate) {
+function _wireMenuActions(menu, index, btnData, onUpdate, group) {
     const editarEl  = document.getElementById('menu-editar');
     const limpiarEl = document.getElementById('menu-limpiar');
     const bucleEl   = document.getElementById('menu-bucle');
@@ -57,7 +58,7 @@ function _wireMenuActions(menu, index, btnData, onUpdate) {
 
     const onEditar = () => {
         _hide();
-        openEditModal(index, btnData, onUpdate).catch(console.error);
+        openEditModal(index, btnData, onUpdate, group).catch(console.error);
     };
     const onPrevia  = () => {
         if (!btnData?.can_prelisten) return;
@@ -75,13 +76,14 @@ function _wireMenuActions(menu, index, btnData, onUpdate) {
     const onLimpiar = async () => {
         if (!btnData) return;
         _hide();
-        try { await invoke('clear_button', { index }); onUpdate?.(); }
+        const clearCommand = group === 'fixed' ? 'clear_fixed_button' : 'clear_button';
+        try { await invoke(clearCommand, { index }); onUpdate?.(); }
         catch (e) { console.error('Error al limpiar botón:', e); }
     };
-    const onBucle = () => _toggleButtonFlag(index, btnData, 'loop_mode', onUpdate);
-    const onOverlap = () => _toggleButtonFlag(index, btnData, 'overlap', onUpdate);
-    const onDetener = () => _toggleButtonFlag(index, btnData, 'stop_other', onUpdate);
-    const onRestart = () => _toggleButtonFlag(index, btnData, 'restart', onUpdate);
+    const onBucle = () => _toggleButtonFlag(index, btnData, 'loop_mode', onUpdate, group);
+    const onOverlap = () => _toggleButtonFlag(index, btnData, 'overlap', onUpdate, group);
+    const onDetener = () => _toggleButtonFlag(index, btnData, 'stop_other', onUpdate, group);
+    const onRestart = () => _toggleButtonFlag(index, btnData, 'restart', onUpdate, group);
 
     editarEl.addEventListener('click', onEditar);
     limpiarEl.addEventListener('click', onLimpiar);
@@ -113,11 +115,12 @@ function _hideOnClickOutside(e) {
     if (!document.getElementById('context-menu')?.contains(e.target)) _hide();
 }
 
-async function _toggleButtonFlag(index, btnData, flag, onUpdate) {
+async function _toggleButtonFlag(index, btnData, flag, onUpdate, group) {
     if (!btnData) return;
     _hide();
+    const toggleCommand = group === 'fixed' ? 'toggle_fixed_button_flag' : 'toggle_button_flag';
     try {
-        await invoke('toggle_button_flag', { index, flag });
+        await invoke(toggleCommand, { index, flag });
         onUpdate?.();
     } catch (e) {
         console.error(e);
