@@ -449,6 +449,10 @@ Enum de `domain/console/routing.rs`. Dice a dónde entrega un [bus](#b) su seña
 - **`ProgramDevice`** — sale por la **misma tarjeta** que el programa, pero **sin sumar en él**. Esta variante es la idea entera de la consola: que dos cosas salgan por el mismo altavoz no las convierte en la misma señal — se suman en el *conector*, no en el *bus*. Es lo que mantiene privada la [pre-escucha](#p) cuando solo hay una tarjeta de sonido.
 - **`Device(x)`** — su propia tarjeta, ajeno al programa y al máster. Sacar un bus aquí es lo que "rompe" la regla de que todo pase por el máster.
 
+**`effective(bus, routing, program_device)`** resuelve el ruteo pedido contra la tarjeta del programa: **pedir la tarjeta del programa es pedir el programa**. Sin eso habría dos formas de decir "por los altavoces" que suenan distinto — elegirlos por su nombre daría una salida directa (sin máster y fuera del vúmetro) y elegir "la misma que los efectos" sumaría en el programa. Nadie quiere dos señales en el mismo altavoz, una con máster y otra sin. El **CUE es la excepción**, y es la razón de ser de la consola: comparte el altavoz *a propósito* sin sumar en el programa.
+
+Si el programa se muda a otra tarjeta, un bus que estaba en la suya se queda ahí solo y pasa a ser salida directa sin que nadie lo toque.
+
 `sanitize(bus, routing)` corrige los ruteos imposibles antes de que lleguen al motor: el CUE no puede ser `Program`, y el `Programa` no puede sumarse a sí mismo. No es programación defensiva — es la regla de negocio: pedir que la pre-escucha suene "en el programa" no es un error que haya que silenciar, es una petición que la consola traduce a lo único que puede significar.
 
 **`random_folder`**

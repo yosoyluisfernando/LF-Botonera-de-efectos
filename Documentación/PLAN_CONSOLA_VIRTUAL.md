@@ -662,6 +662,50 @@ tarjeta cierra el endpoint, que se lleva la cadena por delante. El fantasma solo
 el grafo **conservando la tarjeta**, que es algo que no existía hasta que hubo varios buses (Fase
 3) y ruteos que se cambian por separado (Fase 4).
 
+#### Corrección posterior: pedir la tarjeta del programa es pedir el programa (2026-07-16)
+
+El autor reportó que el reproductor **no se veía en el vúmetro** al elegirle "Altavoces" por su
+nombre, pero **sí** al elegir "la misma que los efectos" — siendo la misma tarjeta.
+
+El código hacía exactamente lo diseñado: por nombre es `Routing::Device` (salida directa, ajena al
+programa) y vacío es `Routing::Program`. Coherente por dentro, **mal diseño por fuera**: dos formas
+de decir lo mismo que suenan distinto. Y el caso de uso que justificaría la diferencia —dos señales
+en el mismo altavoz, una con máster y otra sin— no lo quiere nadie.
+
+Nace `routing::effective(bus, routing, program_device)`: si un bus que puede sumar en programa pide
+**la tarjeta del programa**, se resuelve a `Program`. El **CUE queda excluido** por
+`can_sum_into_program`, y esa exclusión es la razón de ser de la consola: comparte el altavoz *a
+propósito* sin sumar. Si el programa se muda después, el bus se queda en su tarjeta y pasa a ser
+salida directa solo, sin que nadie lo toque.
+
+**Pendiente conocido:** `"default"` y el nombre real de esa misma tarjeta se tratan como distintos,
+porque la comparación es por nombre. Programa en `"Altavoces"` y reproductor en `"default"` —siendo
+Altavoces el predeterminado— abriría la tarjeta dos veces. Resolverlo pide normalizar `"default"` a
+su nombre real al abrir el endpoint. No se ha hecho: es un caso raro y la Fase 6 puede evitarlo
+desde el selector.
+
+#### Pruebas contra tarjetas reales (2026-07-16)
+
+A petición del autor, antes de conectar la interfaz. `src-tauri/tests/consola_tarjetas_reales.rs`,
+marcadas `#[ignore]` porque necesitan hardware — una prueba que falla por el entorno no dice nada:
+
+```bash
+cargo test --test consola_tarjetas_reales -- --ignored --nocapture --test-threads=1
+```
+
+Montan la `ConsoleEngine` de verdad sobre las tarjetas del equipo y comprueban lo que los mixers de
+mentira no pueden. Ejecutadas sobre las dos tarjetas del autor (*Altavoces (High Definition Audio
+Device)* y *AUDIO PCI (C-Media PCI Audio Device)*):
+
+- **Reproductor en la tarjeta del programa, por su nombre** → programa `0.8`. El caso reportado.
+- **Reproductor en otra tarjeta** → programa `0`, reproductor `0.8`. Sale del máster, como debe.
+- **Cinco reconstrucciones del grafo sin cambiar de tarjeta** → `[0.8 ×10]`, ni un cero.
+- **Altavoces → AUDIO PCI → Altavoces** → `0.8` en los tres pasos.
+
+**La tercera se comprobó reintroduciendo la regresión**, y el resultado es el síntoma del autor
+palabra por palabra: `[0.8, 0.0, 0.0, 0.0, 0.8, 0.0, 0.0, 0.8, 0.8, 0.0]`. Esos ceros intercalados
+son "los espacios vacíos cuando la música está sonando normalmente".
+
 ---
 
 ## 10. Resumen en tres frases

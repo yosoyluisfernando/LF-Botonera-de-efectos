@@ -94,6 +94,27 @@ pub fn sanitize(bus: BusId, requested: Routing) -> Routing {
     }
 }
 
+/// El ruteo que se aplica de verdad, una vez se sabe por donde sale el programa.
+///
+/// **Pedir la tarjeta del programa es pedir el programa.** Sin esto hay dos
+/// formas de decir "por los altavoces" que suenan distinto: elegirlos por su
+/// nombre daria una salida directa —sin master y fuera del vumetro— y elegir "la
+/// misma que los efectos" sumaria en el programa. Nadie quiere dos señales en el
+/// mismo altavoz, una con master y otra sin; y de dos formas de decir lo mismo
+/// no puede salir un comportamiento distinto.
+///
+/// **El CUE es la excepcion**, y es justo la razon de ser de la consola: comparte
+/// el altavoz A PROPOSITO sin sumar en el programa. Por eso la regla solo alcanza
+/// a los buses que pueden sumar en el.
+pub fn effective(bus: BusId, routing: &Routing, program_device: &str) -> Routing {
+    match routing {
+        Routing::Device(name) if bus.can_sum_into_program() && name == program_device => {
+            Routing::Program
+        }
+        other => other.clone(),
+    }
+}
+
 /// La tarjeta por la que sale de verdad un bus, o None si no tiene salida propia
 /// porque va sumado dentro del programa.
 pub fn device_of(routing: &Routing, program_device: &str) -> Option<String> {

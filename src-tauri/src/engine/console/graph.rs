@@ -13,7 +13,7 @@ use super::bus::{Bus, BusOutput};
 use super::endpoint::EndpointRegistry;
 use super::ConsoleState;
 use crate::domain::console::routing::devices_in_use;
-use crate::domain::console::{device_of, BusId, Routing};
+use crate::domain::console::{device_of, effective, BusId, Routing};
 use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, Mutex};
 
@@ -41,18 +41,26 @@ pub fn rebuild(endpoints: &mut EndpointRegistry, state: &Arc<Mutex<ConsoleState>
         }
     }
 
-    let live = live_routings(&guard);
+    let live = live_routings(&guard, &program_device);
     drop(guard);
     endpoints.retain_only(&devices_in_use(&live, &program_device));
 }
 
-/// El ruteo de los buses que han quedado vivos, para saber que tarjetas siguen
-/// haciendo falta.
-fn live_routings(state: &ConsoleState) -> Vec<(BusId, Routing)> {
+/// El ruteo que se aplica de verdad a un bus: el pedido, ya resuelto contra la
+/// tarjeta del programa.
+fn effective_of(state: &ConsoleState, bus: BusId, program_device: &str) -> Option<Routing> {
+    let slot = state.slots.get(&bus)?;
+    Some(effective(bus, &slot.routing, program_device))
+}
+
+/// El ruteo EFECTIVO de los buses que han quedado vivos, para saber que tarjetas
+/// siguen haciendo falta. El efectivo y no el pedido: un bus que pidio la tarjeta
+/// del programa acaba sumado en el, y entonces no retiene tarjeta propia.
+fn live_routings(state: &ConsoleState, program_device: &str) -> Vec<(BusId, Routing)> {
     BusId::ALL
         .iter()
         .filter(|bus| state.live.contains_key(bus))
-        .filter_map(|bus| state.slots.get(bus).map(|s| (*bus, s.routing.clone())))
+        .filter_map(|bus| effective_of(state, *bus, program_device).map(|r| (*bus, r)))
         .collect()
 }
 
@@ -80,7 +88,7 @@ fn open_bus(
     bus: BusId,
     program_device: &str,
 ) {
-    let Some(routing) = state.slots.get(&bus).map(|s| s.routing.clone()) else {
+    let Some(routing) = effective_of(state, bus, program_device) else {
         return;
     };
     let (level_l, level_r, gain) = atomics(state, bus);

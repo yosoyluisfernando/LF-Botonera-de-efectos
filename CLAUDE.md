@@ -658,9 +658,17 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 113 passed, 1 ignored)
+# Backend Rust (suite actual: 168 passed, 1 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
+
+# Consola contra las TARJETAS REALES del equipo (no entran en la suite normal:
+# necesitan hardware, y una prueba que falla por el entorno no dice nada).
+# Comprueban lo que los mixers de mentira no pueden: que el grafo se monta sobre
+# tarjetas de verdad, que el medidor mide lo que sale, y que cambiar de salida no
+# deja el vúmetro mudo ni pisado por buses fantasma.
+# CIERRA LA APLICACIÓN antes: abren las mismas tarjetas.
+cargo test --test consola_tarjetas_reales -- --ignored --nocapture --test-threads=1
 
 # OJO: `cargo test` compila CON los tests, y un `use super::*` de un fichero de
 # pruebas puede tapar un import que ya nadie usa en el módulo. El usuario compila

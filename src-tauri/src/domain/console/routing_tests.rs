@@ -1,6 +1,54 @@
 //! Pruebas de las reglas de ruteo de la consola. Van aparte por el limite de
 //! 200 lineas por archivo (regla 3).
-use super::{device_of, devices_in_use, sanitize, BusId, Routing};
+use super::{device_of, devices_in_use, effective, sanitize, BusId, Routing};
+
+/// Elegir la tarjeta del programa por su nombre es pedir el programa. Si no, el
+/// selector tendria dos formas de decir "por los altavoces" que suenan distinto:
+/// una con master y en el vumetro, otra sin.
+#[test]
+fn pedir_la_tarjeta_del_programa_es_pedir_el_programa() {
+    for bus in [BusId::Reproductor, BusId::Efectos, BusId::Panel] {
+        let pedido = Routing::Device("Altavoces".into());
+        assert_eq!(
+            effective(bus, &pedido, "Altavoces"),
+            Routing::Program,
+            "{bus:?} en la tarjeta del programa deberia sumar en el"
+        );
+    }
+}
+
+/// El CUE es la excepcion, y es la razon de ser de la consola: comparte el
+/// altavoz del programa A PROPOSITO sin sumar en el.
+#[test]
+fn el_cue_en_la_tarjeta_del_programa_sigue_aparte() {
+    let pedido = Routing::Device("Altavoces".into());
+    assert_eq!(
+        effective(BusId::Cue, &pedido, "Altavoces"),
+        Routing::Device("Altavoces".into())
+    );
+}
+
+/// Otra tarjeta sigue siendo otra tarjeta: salida directa, sin master.
+#[test]
+fn otra_tarjeta_sigue_siendo_salida_directa() {
+    let pedido = Routing::Device("AUDIO PCI".into());
+    assert_eq!(
+        effective(BusId::Reproductor, &pedido, "Altavoces"),
+        Routing::Device("AUDIO PCI".into())
+    );
+}
+
+/// Si el programa se muda, un bus que estaba en su tarjeta se queda solo ahi:
+/// pasa a ser salida directa sin que nadie lo toque.
+#[test]
+fn si_el_programa_se_muda_el_bus_se_queda_de_salida_directa() {
+    let pedido = Routing::Device("Altavoces".into());
+    assert_eq!(effective(BusId::Reproductor, &pedido, "Altavoces"), Routing::Program);
+    assert_eq!(
+        effective(BusId::Reproductor, &pedido, "AUDIO PCI"),
+        Routing::Device("Altavoces".into())
+    );
+}
 
 /// El caso que justifica el registro de tarjetas: el programa y la pre-escucha
 /// comparten conector, y hace falta UNA tarjeta, no dos.
