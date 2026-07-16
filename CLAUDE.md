@@ -334,8 +334,20 @@ solo atiende ruteo, porque `OutputStream` no es `Send` y alguien debe ser su due
 
 **El grafo se reconstruye entero ante cualquier cambio de ruteo** (`engine/console/graph.rs`), y
 no es pereza: rodio no sabe sacar una fuente de un mixer. Remendar dejaría el mixer de un bus
-viejo colgado dentro del programa para siempre, sonando a silencio y sin que nadie pueda
-quitarlo. Reconstruir corta lo que suene — igual que ya hacía cambiar de tarjeta.
+viejo colgado dentro del programa para siempre, sonando a silencio y sin que nadie pueda quitarlo.
+
+**Pero cambiar de tarjeta NO calla nada.** Las fuentes mueren con sus buses, así que **se vuelven
+a crear en el segundo por el que iban**. Los motores se enteran por la **generación** de la
+consola (`console.generation()`), que sube en cada `rebuild`:
+- **Efectos y panel:** el hilo de audio lo hace en el acto — `set_bus_routing_sync` (esperar es
+  obligatorio: entregar antes sería dárselo al bus muerto) y `reattach::reattach_all`.
+- **Reproductor:** lo detecta en su tick comparando la generación, y **antes** de mirar si el deck
+  terminó — si no, lo tomaría por fin de pista y saltaría de canción.
+
+La ficha para rehacer (`ReplayInfo`) va en el **`ButtonState`**, no en un mapa por id: con
+`overlap` hay varias instancias del mismo botón sonando cada una por su sitio, y una ficha
+compartida las pondría a todas en la misma posición. Las locuciones llevan `replay: None` — son
+varios archivos encadenados y no se reposicionan.
 
 **Modelo de ganancia — cada factor en su etapa:**
 ```

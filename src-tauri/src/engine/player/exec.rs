@@ -4,7 +4,8 @@
 //! aqui se obedece, sin logica de avance. Aqui se resuelven ademas los tipos
 //! especiales, porque cargar es justo "el momento de sonar". Reutiliza
 //! `build_play_source` (cue y cache) y `SequenceSource` (locuciones).
-use super::deck::{Deck, DeckTrack};
+use super::deck::Deck;
+use super::deck_track::DeckTrack;
 use super::queue::DeckAction;
 use super::resolve::{QueueResolver, ResolvedPlayback};
 use crate::engine::audio::decode::BoxSource;

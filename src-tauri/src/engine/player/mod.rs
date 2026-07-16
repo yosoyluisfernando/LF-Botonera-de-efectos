@@ -11,6 +11,7 @@
 //! ese fader, y no toca a los efectos. Dos decks con pre-carga ping-pong.
 //! Guia: Documentacion/PLAN_MODO_REPRODUCTOR.md y PLAN_CONSOLA_VIRTUAL.md.
 mod deck;
+mod deck_track;
 mod exec;
 pub mod monitor;
 mod queue;

@@ -9,40 +9,12 @@
 //!
 //! El volumen tampoco esta aqui: es el fader del bus. El deck solo aplica la
 //! ganancia de SU pista, que es del archivo.
+use super::deck_track::{DeckStatus, DeckTrack};
 use super::source::{DeckHandle, DeckSource};
 use crate::engine::audio::decode::BoxSource;
+use crate::engine::cache::preload::{build_play_source, PreloadCache};
 use crate::engine::console::Bus;
-
-/// Estado de un deck. `Loaded` = pre-cargado en pausa, listo para arrancar al
-/// instante. `Finished` = termino de forma natural y espera relevo. `Failed` = no
-/// se pudo cargar (carpeta vacia, sin clima, archivo ilegible); se trata como
-/// "termino" para que el motor releve y la musica siga.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum DeckStatus {
-    Empty,
-    Loaded,
-    Playing,
-    Paused,
-    Finished,
-    Failed,
-}
-
-/// Lo que el deck recuerda de la pista cargada. Hace falta para poder
-/// RECONSTRUIRLA en otra posicion: una fuente no se reposiciona, asi que un seek
-/// es volver a crearla desde el punto pedido.
-#[derive(Clone, Default)]
-pub struct DeckTrack {
-    /// Ruta YA resuelta (la que suena). Para una carpeta aleatoria es la cancion
-    /// elegida, no la carpeta: al recargar debe sonar la misma, no otra.
-    pub path: String,
-    pub duration_s: f64,
-    pub gain: f32,
-    pub cue_start_s: f64,
-    pub cue_end_s: Option<f64>,
-    /// Una locucion son varios archivos encadenados en una sola fuente: no se
-    /// puede reposicionar. La barra de progreso lo respeta y no deja arrastrar.
-    pub seekable: bool,
-}
+use std::sync::{Arc, Mutex};
 
 #[derive(Default)]
 pub struct Deck {
@@ -53,12 +25,6 @@ pub struct Deck {
     /// Segundos que ya habian pasado al recargar por un seek: la fuente nueva
     /// cuenta desde cero, asi que sin esto el tiempo retrocederia.
     position_offset_s: f64,
-}
-
-impl Default for DeckStatus {
-    fn default() -> Self {
-        Self::Empty
-    }
 }
 
 impl Deck {
@@ -100,6 +66,41 @@ impl Deck {
     fn release(&mut self) {
         if let Some(handle) = self.handle.take() {
             handle.stop();
+        }
+    }
+
+    /// El bus murio (cambio de tarjeta) y con el la fuente: se rehace la MISMA
+    /// pista en el bus nuevo, por el segundo en el que iba. El deck conserva su
+    /// estado, asi que lo que sonaba sigue sonando y lo que estaba en pausa sigue
+    /// en pausa.
+    ///
+    /// Una locucion no se puede reposicionar (son varios archivos encadenados),
+    /// asi que se deja caer: se marca terminada para que el motor releve y la
+    /// lista siga, en vez de callarse esperandola.
+    pub fn reattach(&mut self, bus: &Bus, cache: &Arc<Mutex<PreloadCache>>) {
+        if self.status == DeckStatus::Empty || self.track.path.is_empty() {
+            return;
+        }
+        let at = self.position_s();
+        if !self.track.seekable {
+            self.fail();
+            return;
+        }
+        let from = (self.track.cue_start_s + at).max(0.0);
+        let Some(source) =
+            build_play_source(cache, &self.track.path, false, from, self.track.cue_end_s)
+        else {
+            self.fail();
+            return;
+        };
+        self.reload_at(bus, source, at);
+    }
+
+    /// Suelta una pista pre-cargada que no llego a sonar. El ping-pong la volvera
+    /// a preparar cuando toque: no hay que rehacerla ahora.
+    pub fn release_preloaded(&mut self) {
+        if self.status == DeckStatus::Loaded {
+            self.stop();
         }
     }
 

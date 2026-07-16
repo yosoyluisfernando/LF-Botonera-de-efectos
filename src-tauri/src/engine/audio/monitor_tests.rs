@@ -36,5 +36,6 @@ fn state_started_ago(duration: f64, elapsed: Duration) -> ButtonState {
         position_offset_s: 0.0,
         duration,
         loop_mode: false,
+        replay: None,
     }
 }

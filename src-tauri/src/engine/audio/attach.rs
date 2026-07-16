@@ -5,7 +5,7 @@
 /// Vive en el motor de efectos y no en la consola a proposito: un bus solo sabe
 /// sumar fuentes. Que un boton tenga fades, trim, estado y grupo es asunto de
 /// quien sabe de botones, que es este motor.
-use crate::engine::audio::button::{ButtonSource, ButtonState, PlaybackGroup};
+use crate::engine::audio::button::{ButtonSource, ButtonState, PlaybackGroup, ReplayInfo};
 use crate::engine::console::Bus;
 use crate::engine::dsp::fade::FadeRamp;
 use rodio::Source;
@@ -23,6 +23,9 @@ pub struct AttachArgs {
     pub fade_out_end_s: f64,
     pub position_offset_s: f64,
     pub group: PlaybackGroup,
+    /// Con que rehacer la fuente si su bus muere. `None` = no se puede (las
+    /// locuciones van encadenadas y no se reposicionan).
+    pub replay: Option<Arc<ReplayInfo>>,
 }
 
 /// Mete la fuente en el bus y devuelve el estado para controlarla desde fuera.
@@ -75,5 +78,6 @@ pub fn attach_button(
         position_offset_s: args.position_offset_s,
         duration: args.duration,
         loop_mode: args.loop_mode,
+        replay: args.replay,
     }
 }

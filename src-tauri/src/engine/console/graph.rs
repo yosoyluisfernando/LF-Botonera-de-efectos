@@ -20,6 +20,10 @@ use std::sync::{Arc, Mutex};
 pub fn rebuild(endpoints: &mut EndpointRegistry, state: &Arc<Mutex<ConsoleState>>) {
     let mut guard = state.lock().unwrap();
     guard.live.clear();
+    // Los buses viejos acaban de morir, y con ellos las fuentes que tenian
+    // dentro. Subir la generacion es como se enteran los motores de que lo que
+    // estaban tocando ya no existe y hay que rehacerlo.
+    guard.generation = guard.generation.wrapping_add(1);
 
     let program_device = program_device(&guard);
     open_program(endpoints, &mut guard, &program_device);

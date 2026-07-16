@@ -7,31 +7,20 @@ use crate::engine::audio::last_pressed::LastPressedInfo;
 use crate::engine::audio::ops as audio_ops;
 use crate::engine::cache::preload::PreloadCache;
 use crate::engine::console::Bus;
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-#[derive(Clone)]
-pub struct ReplayInfo {
-    pub id: String,
-    pub path: String,
-    pub volume: f32,
-    pub duration: f64,
-    pub loop_mode: bool,
-    pub cue_start_s: f64,
-    pub cue_end_s: Option<f64>,
-    pub file_gain: f32,
-    pub fade_in_s: f64,
-    pub fade_out_stop_s: f64,
-    pub fade_out_end_s: f64,
-}
+pub use crate::engine::audio::button::ReplayInfo;
 
-#[allow(clippy::too_many_arguments)]
+/// Salta a otro punto del ultimo boton disparado.
+///
+/// La ficha para rehacer la fuente sale del propio estado que suena, no de un
+/// mapa aparte: hubo uno, y mantener dos censos de lo mismo solo servia para que
+/// se contradijeran.
 pub fn seek_active(
     states: &Arc<Mutex<ButtonStateMap>>,
     bus: Option<&Bus>,
     cache: &Arc<Mutex<PreloadCache>>,
     last_pressed: &Mutex<Option<LastPressedInfo>>,
-    replays: &HashMap<String, ReplayInfo>,
     delta_s: Option<f64>,
     position_s: Option<f64>,
 ) {
@@ -41,17 +30,13 @@ pub fn seek_active(
     let Some(id) = last_pressed.lock().unwrap().as_ref().map(|i| i.id.clone()) else {
         return;
     };
-    let Some(info) = replays.get(&id).cloned() else {
+    // Ficha y posicion de una vez, soltando el candado antes de decodificar: es
+    // lento y el resto del motor no debe esperar a que acabe.
+    let Some((info, current)) = current_state(states, &id) else {
         return;
     };
-    let Some(target) = target_position(
-        states,
-        &id,
-        info.duration,
-        info.loop_mode,
-        delta_s,
-        position_s,
-    ) else {
+    let Some(target) = target_position(current, info.duration, info.loop_mode, delta_s, position_s)
+    else {
         return;
     };
     let Some(source) = playback_source::build_seek(
@@ -78,14 +63,25 @@ pub fn seek_active(
             fade_out_end_s: info.fade_out_end_s,
             position_offset_s: target,
             group: PlaybackGroup::Main,
+            replay: Some(Arc::clone(&info)),
         },
     );
     states.lock().unwrap().entry(id).or_default().push(state);
 }
 
-fn target_position(
+/// La ficha y la posicion de la instancia que suena de ese boton. La ULTIMA, que
+/// con `overlap` no es la unica.
+fn current_state(
     states: &Arc<Mutex<ButtonStateMap>>,
     id: &str,
+) -> Option<(Arc<ReplayInfo>, f64)> {
+    let map = states.lock().unwrap();
+    let state = map.get(id)?.iter().rev().find(|s| !s.is_done())?;
+    Some((state.replay.clone()?, state.position()))
+}
+
+fn target_position(
+    current: f64,
     duration: f64,
     loop_mode: bool,
     delta_s: Option<f64>,
@@ -94,14 +90,6 @@ fn target_position(
     if duration <= 0.0 {
         return None;
     }
-    let current = states
-        .lock()
-        .unwrap()
-        .get(id)?
-        .iter()
-        .rev()
-        .find(|s| !s.is_done())?
-        .position();
     let raw = position_s.unwrap_or(current + delta_s.unwrap_or(0.0));
     if loop_mode {
         Some(raw.rem_euclid(duration))

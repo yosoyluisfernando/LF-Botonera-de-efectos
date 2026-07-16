@@ -55,6 +55,9 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - **La paleta de colores de los botones tiene ahora variedad real.** Antes eran 32 colores, pero en la práctica se veían 16: la mitad eran el mismo tono en otra intensidad, y la app iguala las intensidades para que el texto se lea en tema claro y oscuro. Además había seis azules y seis rojos, pero un solo verde. Ahora son 24 colores repartidos por todo el círculo de color, y ninguno se repite. Los botones que ya tienes conservan su color.
 - El texto de los botones nuevos se lee mejor sobre los colores más vivos: antes se elegía blanco o negro con una regla fija que en algunos fondos acertaba mal; ahora se elige el que de verdad contrasta más. Los botones que ya tienes conservan sus colores.
 
+### Cambiado
+- **Cambiar de tarjeta de sonido ya no corta lo que esté sonando.** Antes, elegir otra salida callaba de golpe la botonera, el panel fijo y la música. Ahora todo continúa por donde iba: se oye un salto de milisegundos, inevitable porque el altavoz también cambia, pero nada se detiene. Las locuciones de hora y clima son la excepción y se dejan caer: son varios archivos encadenados y no se puede retomar por la mitad.
+
 ### Corregido
 - **La pre-escucha se colaba en la salida principal si no tenías una tarjeta de sonido dedicada para ella.** Al no haber una segunda salida configurada —que es el caso por defecto—, la pre-escucha y la previa del editor acababan mezcladas con lo que sale al aire: les afectaba el volumen máster y movían el vúmetro como si fueran programa. Con una tarjeta dedicada no pasaba, así que el mismo botón se comportaba distinto según el equipo. Ahora la pre-escucha es siempre un canal aparte: aunque comparta altavoces con la salida principal porque solo tengas una tarjeta, no pasa por el máster ni cuenta en el vúmetro.
 

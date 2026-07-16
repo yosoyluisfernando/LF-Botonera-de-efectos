@@ -590,6 +590,51 @@ autor no se habría cumplido, sin que nada fallara.
 **Lo que la Fase 4 NO hace:** cambiar de tarjeta sigue cortando lo que suena. Es la Fase 4.5, que
 ahora ya se puede hacer una sola vez para los tres motores.
 
+### Fase 4.5 — completada (2026-07-16)
+
+**Cambiar de salida ya no calla nada.** Ni la botonera, ni el panel, ni la música.
+
+**Cómo, ya que mover las fuentes es imposible:** rodio no sabe sacar una fuente de un mixer, así
+que al rehacer el grafo mueren con sus buses. No se mueven — **se vuelven a crear en el segundo
+por el que iban**. Hay un salto de milisegundos, que además es inevitable porque el altavoz físico
+también cambia, pero nada se pierde. La pieza ya existía: `seek_source.rs` reconstruye en ~10 ms
+sea cual sea la distancia.
+
+**Cómo se enteran los motores:** la consola lleva una **generación** que sube en cada `rebuild`.
+Un motor que la ve cambiar sabe que lo que estaba tocando ya no existe.
+
+- **Efectos y panel:** el hilo de audio dispara el cambio, así que lo hace en el acto —
+  `set_bus_routing_sync` (espera a que el grafo esté listo; entregar antes sería dárselo al bus
+  muerto) y `reattach::reattach_all`.
+- **Reproductor:** su bus también muere aunque el cambio no sea suyo (el grafo se rehace entero).
+  Lo detecta en su tick de 100 ms comparando la generación. Se rehace **antes** de mirar si el
+  deck terminó: si no, el motor lo tomaría por fin de pista y saltaría a la siguiente canción.
+
+**La ficha de reconstrucción se mudó al estado.** `ReplayInfo` vivía en un `HashMap` por id dentro
+del hilo, mantenido a mano en cada Stop, StopAll y `stop_other`. Ahora va en el `ButtonState`, y
+no es un capricho: **un botón con `overlap` tiene varias instancias sonando a la vez, cada una por
+su sitio**, y una ficha compartida por id las habría rehecho todas en la misma posición.
+
+De paso desaparece esa contabilidad entera: el mapa `replays` era un segundo censo de lo mismo, y
+`seek_active` lo lee ahora del estado que suena. Dos censos de lo mismo solo sirven para
+contradecirse. El hilo de audio adelgazó de 175 a 132 líneas.
+
+**Lo que no se puede rehacer se dice cuál y se deja caer:** las locuciones son varios archivos
+encadenados en una sola fuente y no admiten reposicionarse (`replay: None`). Se marcan terminadas
+para que el motor releve y la lista siga, en vez de callarse esperándolas.
+
+**Detalles que importan al oído:**
+- **Sin fade de entrada al rehacer:** no es un disparo nuevo, es la misma fuente que sigue. Un
+  fundido ahí se oiría como un bache.
+- **Se usa el volumen en vivo, no el de la ficha:** el operador pudo haberlo movido después de
+  disparar (la barra de pre-escucha lo hace).
+- **En bucle se retoma la vuelta, no el total** (`rem_euclid`): la fuente nueva arranca dentro del
+  archivo, y el archivo dura una vuelta.
+
+**Verificación:** `cargo build --lib` sin avisos, `cargo test --lib` con 164 pruebas, `npm run
+build` correcto, ningún archivo sobre 200 líneas (`deck.rs` llegó a 214 y sus datos salieron a
+`deck_track.rs`).
+
 ---
 
 ## 10. Resumen en tres frases

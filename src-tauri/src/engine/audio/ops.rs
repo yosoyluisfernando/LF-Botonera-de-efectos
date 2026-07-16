@@ -137,6 +137,7 @@ mod tests {
             position_offset_s: 0.0,
             duration: 1.0,
             loop_mode: false,
+            replay: None,
         }
     }
 }

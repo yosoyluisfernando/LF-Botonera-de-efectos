@@ -40,11 +40,17 @@ pub use crate::domain::console::{BusId, Routing};
 use crate::domain::console::sanitize;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::mpsc::{channel, Sender};
+use std::sync::mpsc::{channel, sync_channel, Sender, SyncSender};
 use std::sync::{Arc, Mutex};
 
 pub enum ConsoleCommand {
-    SetBusRouting { bus: BusId, routing: Routing },
+    SetBusRouting {
+        bus: BusId,
+        routing: Routing,
+        /// Avisa cuando el grafo ya esta rehecho. Quien vaya a rehacer sus
+        /// fuentes necesita esperar: entregarlas al bus viejo seria tirarlas.
+        done: Option<SyncSender<()>>,
+    },
 }
 
 /// Lo que un bus conserva aunque su tarjeta no exista. Los atomicos se crean una
@@ -76,6 +82,10 @@ pub struct ConsoleState {
     /// Solo estan los buses con salida viva. Que un bus falte aqui significa
     /// exactamente "ese bus no existe ahora mismo".
     pub live: HashMap<BusId, Bus>,
+    /// Sube cada vez que el grafo se rehace. Un motor que la vea cambiar sabe que
+    /// las fuentes que habia entregado murieron con los buses viejos y que, si
+    /// quiere seguir sonando, tiene que rehacerlas.
+    pub generation: u64,
 }
 
 /// Handle de la consola (Send + Sync). No toca audio: los cambios de ruteo van
@@ -96,20 +106,45 @@ impl ConsoleEngine {
         let state = Arc::new(Mutex::new(ConsoleState {
             slots,
             live: HashMap::new(),
+            generation: 0,
         }));
         let state_thread = Arc::clone(&state);
         std::thread::spawn(move || thread::run(rx, state_thread));
         Self { tx, state }
     }
 
-    /// Cambia a donde entrega un bus. Asincrono, como lo era el cambio de
-    /// dispositivo del motor de efectos. Reconstruye el grafo, asi que corta lo
-    /// que este sonando: cambiar de ruteo no es gratis, ni deberia parecerlo.
+    /// Cambia a donde entrega un bus. Asincrono.
     pub fn set_bus_routing(&self, bus: BusId, routing: Routing) {
         let _ = self.tx.send(ConsoleCommand::SetBusRouting {
             bus,
             routing: sanitize(bus, routing),
+            done: None,
         });
+    }
+
+    /// Igual, pero espera a que el grafo este rehecho.
+    ///
+    /// Lo usa quien va a devolver sus fuentes al bus nuevo justo despues:
+    /// entregarlas antes seria darselas al bus viejo, que esta a punto de morir,
+    /// y se perderian sin que nada avisara.
+    pub fn set_bus_routing_sync(&self, bus: BusId, routing: Routing) {
+        let (done, wait) = sync_channel(0);
+        let sent = self.tx.send(ConsoleCommand::SetBusRouting {
+            bus,
+            routing: sanitize(bus, routing),
+            done: Some(done),
+        });
+        if sent.is_ok() {
+            // Con tope: si la consola se atasca abriendo una tarjeta que no
+            // responde, mas vale seguir sin restaurar que colgar el motor.
+            let _ = wait.recv_timeout(std::time::Duration::from_secs(2));
+        }
+    }
+
+    /// Sube cada vez que el grafo se rehace. Comparala con la que viste la ultima
+    /// vez para saber si las fuentes que entregaste siguen vivas.
+    pub fn generation(&self) -> u64 {
+        self.state.lock().unwrap().generation
     }
 
     /// El bus, si existe ahora mismo. Clonar es barato (solo Arcs) y suelta el

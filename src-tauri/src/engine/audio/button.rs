@@ -28,6 +28,31 @@ pub struct ButtonState {
     pub position_offset_s: f64,
     pub duration: f64,
     pub loop_mode: bool,
+    /// Con que rehacer esta fuente si su bus muere (un cambio de tarjeta).
+    ///
+    /// Va en el ESTADO y no en un mapa por id porque un boton con `overlap`
+    /// tiene varias instancias sonando a la vez, cada una por su sitio: rehacerlas
+    /// desde una sola ficha las pondria a todas en la misma posicion.
+    ///
+    /// `None` = no se puede rehacer, y es el caso de las locuciones: son varios
+    /// archivos encadenados en una sola fuente y no admiten reposicionarse.
+    pub replay: Option<Arc<ReplayInfo>>,
+}
+
+/// Lo que hace falta para volver a crear la fuente de un boton en un punto dado.
+#[derive(Clone)]
+pub struct ReplayInfo {
+    pub id: String,
+    pub path: String,
+    pub volume: f32,
+    pub duration: f64,
+    pub loop_mode: bool,
+    pub cue_start_s: f64,
+    pub cue_end_s: Option<f64>,
+    pub file_gain: f32,
+    pub fade_in_s: f64,
+    pub fade_out_stop_s: f64,
+    pub fade_out_end_s: f64,
 }
 
 impl ButtonState {
@@ -51,6 +76,12 @@ impl ButtonState {
 
     pub fn set_volume(&self, v: f32) {
         self.volume.store(v.to_bits(), Ordering::Relaxed);
+    }
+
+    /// El volumen que tiene AHORA, que no es siempre con el que se disparo: la
+    /// barra de pre-escucha lo mueve en vivo.
+    pub fn live_volume(&self) -> f32 {
+        f32::from_bits(self.volume.load(Ordering::Relaxed))
     }
 
     /// Segundos restantes honestos. En loop, vuelve a contar cada vuelta.
@@ -163,6 +194,7 @@ mod tests {
             position_offset_s: 0.0,
             duration,
             loop_mode,
+            replay: None,
         }
     }
 }

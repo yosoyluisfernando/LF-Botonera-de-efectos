@@ -1,6 +1,6 @@
 use crate::domain::playback::source as playback_source;
 use crate::engine::audio::attach::{attach_button, AttachArgs};
-use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup};
+use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup, ReplayInfo};
 /// Modulo: audio_thread_play.rs
 /// Proposito: operaciones auxiliares usadas por el hilo de audio.
 use crate::engine::audio::ops::{self as audio_ops, stop_removed};
@@ -55,6 +55,23 @@ pub fn play_file(
     ) else {
         return false;
     };
+    // La ficha para rehacer esta fuente si su bus muere (un cambio de tarjeta).
+    // La lleva el estado, no un mapa por id: con `overlap` hay varias instancias
+    // del mismo boton sonando por su sitio, y una ficha compartida las rehariat
+    // odas en la misma posicion.
+    let replay = Arc::new(ReplayInfo {
+        id: args.id.clone(),
+        path: args.path.clone(),
+        volume: args.volume,
+        duration: args.duration,
+        loop_mode: args.loop_mode,
+        cue_start_s: args.cue_start_s,
+        cue_end_s: args.cue_end_s,
+        file_gain: args.file_gain,
+        fade_in_s: args.fade_in_s,
+        fade_out_stop_s: args.fade_out_stop_s,
+        fade_out_end_s: args.fade_out_end_s,
+    });
     let btn_state = attach_button(
         bus,
         source,
@@ -68,6 +85,7 @@ pub fn play_file(
             fade_out_end_s: args.fade_out_end_s,
             position_offset_s: args.position_offset_s,
             group: args.group,
+            replay: Some(replay),
         },
     );
     states.entry(args.id).or_default().push(btn_state);
@@ -100,6 +118,10 @@ pub fn play_sequence(
                 fade_out_end_s: 0.0,
                 position_offset_s: 0.0,
                 group,
+                // Una locucion son varios archivos encadenados en una sola
+                // fuente: no se puede reposicionar, asi que no se puede rehacer.
+                // Si la tarjeta cambia a mitad, se cae y ya.
+                replay: None,
             },
         );
         states.entry(id).or_default().push(btn_state);

@@ -7,7 +7,8 @@
 //! Ya NO posee tarjeta: entrega sus fuentes al bus `Reproductor` de la consola,
 //! como el motor de efectos entrega las suyas a los suyos. Sigue siendo un motor
 //! independiente —su cola, su avance, su transporte— pero comparte la salida.
-use super::deck::{Deck, DeckStatus};
+use super::deck::Deck;
+use super::deck_track::DeckStatus;
 use super::exec::exec_all;
 use super::queue::{DeckAction, QueueState};
 use super::resolve::QueueResolver;
@@ -40,6 +41,7 @@ pub fn run(
         decks: vec![Deck::new(), Deck::new()],
         queue: QueueState::new(),
     };
+    let mut generation = console.generation();
     loop {
         let sync = match rx.recv_timeout(TICK) {
             Ok(PlayerCommand::Sync(done)) => Some(done),
@@ -50,6 +52,14 @@ pub fn run(
             Err(RecvTimeoutError::Timeout) => None,
             Err(RecvTimeoutError::Disconnected) => break,
         };
+        // ¿Se rehizo el grafo? Entonces la cancion que sonaba murio con su bus.
+        // Se rehace por donde iba, antes de mirar si el deck "termino": si no,
+        // el motor lo tomaria por fin de pista y saltaria a la siguiente.
+        let now = console.generation();
+        if now != generation {
+            generation = now;
+            rebuild_decks(&mut motor, &cache, &console);
+        }
         let active = motor.queue.active_deck();
         if motor.decks.get_mut(active).is_some_and(|d| d.poll_finished()) {
             let actions = motor.queue.advance(false);
@@ -63,6 +73,30 @@ pub fn run(
     }
 }
 
+/// La tarjeta cambio y el bus es otro: se devuelve al deck activo su cancion, en
+/// el segundo por el que iba. La musica da un salto de milisegundos y sigue, en
+/// vez de perderse.
+///
+/// Solo el deck activo: el otro lleva la SIGUIENTE pista pre-cargada y no suena,
+/// asi que basta con soltarla — el ping-pong la volvera a pre-cargar cuando toque.
+fn rebuild_decks(
+    motor: &mut Motor,
+    cache: &Arc<Mutex<PreloadCache>>,
+    console: &Arc<ConsoleEngine>,
+) {
+    let active = motor.queue.active_deck();
+    let Some(bus) = console.bus(BusId::Reproductor) else {
+        return;
+    };
+    for (i, deck) in motor.decks.iter_mut().enumerate() {
+        if i == active {
+            deck.reattach(&bus, cache);
+        } else {
+            deck.release_preloaded();
+        }
+    }
+}
+
 fn handle(
     cmd: PlayerCommand,
     motor: &mut Motor,
@@ -72,7 +106,7 @@ fn handle(
 ) {
     let actions = match cmd {
         PlayerCommand::SetRouting(routing) => {
-            set_routing(routing, motor, console);
+            set_routing(routing, console);
             return;
         }
         PlayerCommand::SetQueue(entries) => motor.queue.set_entries(entries),
@@ -134,16 +168,11 @@ fn resume(motor: &mut Motor) -> Vec<DeckAction> {
 /// programa, asi que obedece al master; `Device(x)` = sale por su tarjeta, ajeno
 /// a el.
 ///
-/// Reconstruir el grafo mata las fuentes que estuvieran sonando en ese bus, asi
-/// que el transporte se detiene: no deben sobrevivir indices "sonando" apuntando
-/// a fuentes que ya no existen. La Fase 4.5 lo hara en caliente reconstruyendolas
-/// en su posicion.
-fn set_routing(routing: Routing, motor: &mut Motor, console: &Arc<ConsoleEngine>) {
-    let _ = motor.queue.stop();
-    for deck in motor.decks.iter_mut() {
-        deck.stop();
-    }
-    console.set_bus_routing(BusId::Reproductor, routing);
+/// **No detiene la musica.** Rehacer el grafo mata las fuentes, pero el bucle
+/// principal ve subir la generacion y devuelve al deck su cancion por donde iba.
+/// Se pide sincrono para que el grafo ya este listo cuando eso ocurra.
+fn set_routing(routing: Routing, console: &Arc<ConsoleEngine>) {
+    console.set_bus_routing_sync(BusId::Reproductor, routing);
 }
 
 fn refresh(motor: &Motor, snapshot: &Arc<Mutex<PlayerSnapshot>>, volume: &Arc<AtomicU32>) {
