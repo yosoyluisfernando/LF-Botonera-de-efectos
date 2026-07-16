@@ -99,3 +99,7 @@ impl Bus {
         (Arc::clone(&self.level_l), Arc::clone(&self.level_r))
     }
 }
+
+#[cfg(test)]
+#[path = "bus_tests.rs"]
+mod bus_tests;

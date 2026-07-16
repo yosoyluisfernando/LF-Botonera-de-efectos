@@ -8,7 +8,11 @@
 
 /** Actualiza los dos canales VU. Llamar desde el handler de audio-tick en main.js. */
 export function updateVuMeter(payload) {
-    const isFinal = (payload.buttons ?? []).length === 0;
+    // `idle` lo decide Rust: es el último tick antes del silencio. NO se deduce
+    // de que no haya botones — la música del reproductor suma en el mismo bus y
+    // no aparece en esa lista, así que deducirlo daba cada tick por final, le
+    // ponía el decaimiento de 0.8 s y la aguja nunca alcanzaba el nivel real.
+    const isFinal = payload.idle ?? false;
     _setLevel('vu-left',  payload.master_level_l ?? 0, isFinal);
     _setLevel('vu-right', payload.master_level_r ?? 0, isFinal);
 }

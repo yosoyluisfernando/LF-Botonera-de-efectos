@@ -399,7 +399,7 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 
 | Evento | Payload | Quién escucha |
 |---|---|---|
-| `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r}` | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
+| `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r, idle}` | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
 | `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, loop_current, can_seek, volume, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"player-drop-progress"` | progreso al añadir una carpeta grande a la cola (lotes de 20) | playerDrop.js |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
@@ -686,6 +686,7 @@ No lanzar la app por computer-use. El usuario prueba en su PC.
 
 - **`window.__TAURI__`** no está disponible al parsear módulos en producción (WebView2). Capturarlo al nivel del módulo lo congela como `undefined`. `api.js` lo resuelve dentro de cada función.
 - **`lf-audio-tick`** es un `CustomEvent` del DOM (dispara `startup.js`), NO un evento de Tauri. Escuchar con `window.addEventListener('lf-audio-tick', ...)`, nunca con `api.listen()`.
+- **`buttons` vacío NO significa silencio.** El bus `Programa` suma efectos, panel **y reproductor**, y la música no aparece en esa lista. Para saber si hay silencio está el campo `idle` del tick, que lo decide Rust. Deducirlo de `buttons.length` fue un bug real: el vúmetro daba cada tick por final, le aplicaba el decaimiento de 0.8 s y la aguja nunca alcanzaba el nivel con música de fondo.
 - **IDs de botón** cambiaron de `btn_{index}` a `{paleta_id}_btn_{index}` para evitar colisiones entre pestañas. `config_io.rs::normalize_button_ids()` migra automáticamente al cargar.
 - **Instalador MSI** tiene `upgradeCode` fijo (`43888972-…`). No cambiar entre versiones.
 - **`capabilities/default.json`** NO debe tener BOM: el parser de Tauri lo rechaza silenciosamente.

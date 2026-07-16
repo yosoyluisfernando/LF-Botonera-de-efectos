@@ -31,6 +31,15 @@ pub struct AudioTickPayload {
     pub display_duration: f64,
     pub master_level_l: f32,
     pub master_level_r: f32,
+    /// Ya no suena nada en el programa: ni efectos, ni panel, ni reproductor.
+    /// Este es el ÚLTIMO tick antes del silencio, y va con nivel cero.
+    ///
+    /// Lo decide Rust porque solo Rust lo sabe (regla 4): el frontend lo deducía
+    /// de que la lista de botones viniera vacía, y con música de fondo sin
+    /// efectos eso es falso — hay señal de sobra. El vúmetro daba entonces cada
+    /// tick por final y le ponía el decaimiento largo, así que la aguja nunca
+    /// alcanzaba el nivel real.
+    pub idle: bool,
 }
 
 pub fn start(
@@ -105,6 +114,7 @@ pub fn start(
                         display_duration,
                         master_level_l: ml,
                         master_level_r: mr,
+                        idle,
                     },
                 );
             }
@@ -147,45 +157,7 @@ fn compute_display_time(
         .unwrap_or((0.0, 0.0))
 }
 
+
 #[cfg(test)]
-mod tests {
-    use super::compute_display_time;
-    use crate::engine::audio::button::{ButtonState, ButtonStateMap, PlaybackGroup};
-    use crate::engine::audio::last_pressed::LastPressedInfo;
-    use std::sync::atomic::{AtomicBool, AtomicU32};
-    use std::sync::{Arc, Mutex};
-    use std::time::{Duration, Instant};
-
-    #[test]
-    fn display_time_uses_latest_instance_of_last_pressed_button() {
-        let mut map = ButtonStateMap::new();
-        map.insert(
-            "btn".to_string(),
-            vec![
-                state_started_ago(10.0, Duration::from_secs(9)),
-                state_started_ago(10.0, Duration::from_secs(2)),
-            ],
-        );
-        let last = Mutex::new(Some(LastPressedInfo {
-            id: "btn".to_string(),
-        }));
-
-        let (remaining, _) = compute_display_time(&map, &last);
-
-        assert!(remaining > 7.5);
-    }
-
-    fn state_started_ago(duration: f64, elapsed: Duration) -> ButtonState {
-        ButtonState {
-            group: PlaybackGroup::Main,
-            done_flag: Arc::new(AtomicBool::new(false)),
-            stop_flag: Arc::new(AtomicBool::new(false)),
-            fade_out_flag: None,
-            volume: Arc::new(AtomicU32::new(1.0f32.to_bits())),
-            start_time: Instant::now() - elapsed,
-            position_offset_s: 0.0,
-            duration,
-            loop_mode: false,
-        }
-    }
-}
+#[path = "monitor_tests.rs"]
+mod monitor_tests;
