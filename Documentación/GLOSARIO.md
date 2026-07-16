@@ -62,6 +62,10 @@ Struct Rust (`engine/console/bus.rs`). Un punto de suma **con nombre**: un `Dyna
 
 Un bus es una **señal**, no una tarjeta. Esa distinción es la razón de ser de la [consola](#c): dos buses pueden salir por el mismo altavoz sin ser el mismo bus, porque se suman en el conector y no entre ellos. Se clona barato (solo son `Arc`) y se le añaden fuentes desde cualquier hilo.
 
+**Trampa: soltar un `Bus` no lo retira de su destino.** A un mixer de rodio no se le quita una fuente; la única forma de sacar algo de ahí es que **se agote**. Por eso existe `close()`: cierra el grifo del bus (`BusOutlet` devuelve `None`) y el padre lo deja caer. `graph::rebuild` cierra los viejos antes de soltarlos.
+
+Sin eso, un bus soltado sigue vivo dentro de la tarjeta. Y como los atómicos del medidor son del `BusSlot` y sobreviven a la reconstrucción, **el viejo y el nuevo escriben el mismo nivel a la vez** — el viejo, ya sin fuentes, escribiendo cero. El vúmetro parpadea. Fue un bug real (2026-07-16), lo cubre `bus_tests.rs`.
+
 **`BusId`**
 Enum de los buses de la consola (`domain/console/routing.rs`): `Efectos` (botones de la botonera), `Panel` (botones del panel fijo), `Cue` ([pre-escucha](#p)) y `Programa` (la suma de lo que va al aire). El bus `Reproductor` llega en la Fase 4.
 

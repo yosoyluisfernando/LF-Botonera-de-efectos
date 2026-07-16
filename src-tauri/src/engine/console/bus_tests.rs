@@ -61,24 +61,15 @@ fn drain(rig: &mut Rig, windows: usize) -> f32 {
     peak
 }
 
+/// El bus entrega su señal al padre, escalada por su fader, y el medidor cuenta
+/// lo que SALE — no lo que entro: va despues del fader.
 #[test]
-fn el_bus_entrega_su_senal_al_programa() {
-    let mut rig = program();
-    let (l, r, gain) = atomics(1.0);
-    let bus = Bus::open(BusOutput::Bus(&rig.controller), l, r, gain).unwrap();
-    bus.add(tone(0.5, WINDOW * 4));
-    assert!((drain(&mut rig, 1) - 0.5).abs() < 1e-6);
-}
-
-/// El fader del bus escala su suma antes de entregarla.
-#[test]
-fn el_fader_del_bus_escala_lo_que_entrega() {
+fn el_bus_entrega_su_senal_escalada_y_medida() {
     let mut rig = program();
     let (l, r, gain) = atomics(0.5);
     let bus = Bus::open(BusOutput::Bus(&rig.controller), Arc::clone(&l), r, gain).unwrap();
     bus.add(tone(1.0, WINDOW * 4));
     assert!((drain(&mut rig, 1) - 0.5).abs() < 1e-6);
-    // Y el medidor cuenta lo que SALE, no lo que entro: va despues del fader.
     assert!((read(&l) - 0.5).abs() < 1e-6);
 }
 
@@ -142,6 +133,55 @@ fn el_fader_de_un_bus_no_toca_al_otro() {
         read(&l1)
     );
     assert_eq!(read(&l2), 0.0);
+}
+
+/// El bug de los microcortes: al rehacer el grafo, el bus viejo se soltaba del
+/// mapa pero su cadena seguia DENTRO de la tarjeta, viva y midiendo. Como los
+/// atomicos son del slot y sobreviven, el viejo y el nuevo escribian en el mismo
+/// numero — y el viejo, ya sin fuentes, escribia cero. El vumetro parpadeaba
+/// entre el nivel real y nada.
+///
+/// Cerrar el bus lo retira del padre de verdad: su cadena devuelve None y el
+/// mixer lo deja caer, que es la unica forma de sacar algo de un mixer de rodio.
+#[test]
+fn un_bus_cerrado_deja_de_medir_y_de_sonar() {
+    let mut rig = program();
+    let (l, r, gain) = atomics(1.0);
+    // El viejo: con señal, para que deje el medidor en alto.
+    let viejo = Bus::open(
+        BusOutput::Bus(&rig.controller),
+        Arc::clone(&l),
+        Arc::clone(&r),
+        Arc::clone(&gain),
+    )
+    .unwrap();
+    viejo.add(tone(1.0, WINDOW * 100));
+    drain(&mut rig, 1);
+    assert!(read(&l) > 0.9);
+
+    // Se rehace el grafo: el viejo se cierra y nace otro con LOS MISMOS atomicos.
+    viejo.close();
+    let nuevo = Bus::open(
+        BusOutput::Bus(&rig.controller),
+        Arc::clone(&l),
+        Arc::clone(&r),
+        gain,
+    )
+    .unwrap();
+    nuevo.add(tone(0.5, WINDOW * 100));
+    drain(&mut rig, 2);
+
+    // Sin cerrar, el viejo seguiria sumando su tono al padre y pisando el medidor.
+    let salida = drain(&mut rig, 1);
+    assert!(
+        (salida - 0.5).abs() < 1e-6,
+        "el bus cerrado no debe seguir sonando: salio {salida}"
+    );
+    assert!(
+        (read(&l) - 0.5).abs() < 1e-6,
+        "el medidor debe ser solo del bus nuevo: {}",
+        read(&l)
+    );
 }
 
 /// Un bus sin fuentes no se muere ni mata al padre: el `Zero` lo mantiene vivo

@@ -19,6 +19,14 @@ use std::sync::{Arc, Mutex};
 
 pub fn rebuild(endpoints: &mut EndpointRegistry, state: &Arc<Mutex<ConsoleState>>) {
     let mut guard = state.lock().unwrap();
+    // Cerrarlos ANTES de soltarlos, y no solo soltarlos: a un mixer de rodio no
+    // se le quita una fuente, asi que un bus soltado seguiria dentro de su
+    // tarjeta sonando y midiendo. Y como los atomicos del medidor son del slot y
+    // sobreviven, el viejo y el nuevo escribirian el mismo nivel a la vez —el
+    // viejo, ya sin fuentes, escribiendo cero— y el vumetro parpadearia.
+    for bus in guard.live.values() {
+        bus.close();
+    }
     guard.live.clear();
     // Los buses viejos acaban de morir, y con ellos las fuentes que tenian
     // dentro. Subir la generacion es como se enteran los motores de que lo que

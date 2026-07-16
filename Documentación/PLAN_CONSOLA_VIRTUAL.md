@@ -635,6 +635,33 @@ para que el motor releve y la lista siga, en vez de callarse esperándolas.
 build` correcto, ningún archivo sobre 200 líneas (`deck.rs` llegó a 214 y sus datos salieron a
 `deck_track.rs`).
 
+#### Corrección posterior: los buses viejos no morían (2026-07-16)
+
+El autor reportó dos síntomas tras probar la 4.5: la música dejó de moverse en el vúmetro, y el
+vúmetro de los botones daba huecos con una canción larga sonando. Eran el mismo bug.
+
+**La causa:** `rebuild` hacía `live.clear()`, que suelta el *handle* del `Bus` — pero **no retira
+su cadena del `OutputStream`**. A un mixer de rodio no se le quita una fuente: la única forma de
+sacar algo de ahí es que se agote, y la cadena del bus no se agota nunca (tiene su `Zero`).
+
+Cuando el grafo se rehace **sin cambiar de tarjeta** —cambiar la salida del reproductor o de la
+pre-escucha, por ejemplo— el endpoint del programa no se cierra, así que el bus viejo seguía
+dentro, vivo. Y como **los atómicos del medidor son del `BusSlot` y sobreviven a la
+reconstrucción**, el viejo y el nuevo escribían el mismo nivel a la vez. El viejo, ya sin fuentes,
+escribía cero: de ahí el parpadeo. Cada cambio de ruteo acumulaba un fantasma más por bus.
+
+**El arreglo:** `Bus::close()` y `BusOutlet`, el grifo al final de la cadena. Al cerrarse devuelve
+`None` y el padre lo deja caer — el mismo patrón que ya usaba `DeckSource` para retirarse del bus.
+`rebuild` cierra los viejos **antes** de soltarlos.
+
+**La prueba se comprobó reintroduciendo la regresión**, y el número que dio es el diagnóstico
+entero: `salió 1.5` — 1.0 del bus viejo más 0.5 del nuevo, sumando los dos a la vez.
+
+**Por qué no se vio antes:** las fases 1 y 2 tenían **un solo bus por tarjeta**, y cambiar de
+tarjeta cierra el endpoint, que se lleva la cadena por delante. El fantasma solo aparece al rehacer
+el grafo **conservando la tarjeta**, que es algo que no existía hasta que hubo varios buses (Fase
+3) y ruteos que se cambian por separado (Fase 4).
+
 ---
 
 ## 10. Resumen en tres frases

@@ -336,6 +336,14 @@ solo atiende ruteo, porque `OutputStream` no es `Send` y alguien debe ser su due
 no es pereza: rodio no sabe sacar una fuente de un mixer. Remendar dejaría el mixer de un bus
 viejo colgado dentro del programa para siempre, sonando a silencio y sin que nadie pueda quitarlo.
 
+**Trampa: soltar un `Bus` NO lo retira de su destino.** A un mixer de rodio no se le quita una
+fuente; la única forma de sacar algo es que **se agote**. Por eso `Bus` tiene un `close()` que
+cierra su grifo (`BusOutlet` devuelve `None` y el padre lo deja caer), y `rebuild` cierra los
+viejos **antes** de soltarlos. Sin eso, un bus soltado sigue vivo dentro de la tarjeta: como los
+atómicos del medidor son del `BusSlot` y sobreviven a la reconstrucción, **el bus viejo y el nuevo
+escriben el mismo nivel a la vez** — y el viejo, ya sin fuentes, escribe cero. El vúmetro
+parpadea. Fue un bug real (2026-07-16); lo cubre `bus_tests.rs`.
+
 **Pero cambiar de tarjeta NO calla nada.** Las fuentes mueren con sus buses, así que **se vuelven
 a crear en el segundo por el que iban**. Los motores se enteran por la **generación** de la
 consola (`console.generation()`), que sube en cada `rebuild`:
