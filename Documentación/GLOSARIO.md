@@ -353,7 +353,7 @@ Pestaña de la rejilla de botones. Un perfil puede tener múltiples paletas. Cad
 **`PaletaData`**
 Struct Rust (`model/content.rs`) que representa una paleta. Su id tiene el formato `"paleta_1"`, `"paleta_2"`, etc.
 
-**Trampa:** su campo `audio_out` **no enruta nada**. Existe solo por compatibilidad con LF Automatizador (se guarda y se exporta en `.bdelf`), pero el motor de la Botonera lo ignora: todo suena por el `out_main` del perfil. Hoy solo hay dos buses de efectos (`BusId::Main` y `BusId::Pre` en [`engine/console/`](#c)), elegidos con el booleano `to_pre`.
+**Trampa:** su campo `audio_out` **no enruta nada**. Existe solo por compatibilidad con LF Automatizador (se guarda y se exporta en `.bdelf`), pero el motor de la Botonera lo ignora: todo suena por el `out_main` del perfil. El ruteo de verdad lo decide la [consola](#c) por [`BusId`](#b), y una paleta no tiene bus propio: sus botones van al de `Efectos`, como los de cualquier otra.
 
 **`perfil`**
 Configuración raíz que agrupa una o más paletas. Un perfil tiene nombre, colores, ajustes de audio (dispositivos, atajos, modo de reproducción) y una lista de paletas. Representado por `ProfileData`.

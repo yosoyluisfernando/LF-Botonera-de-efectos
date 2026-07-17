@@ -195,7 +195,7 @@ Este es el flujo más importante del sistema. Entenderlo explica por qué existe
               │
               ▼
 4. engine/audio/thread.rs (hilo dedicado)
-   ├─ Pide el bus a la consola: to_pre=false → console.bus(BusId::Main)
+   ├─ Pide su bus a la consola: routing::bus_for(to_pre, group) → Efectos | Panel | Cue
    ├─ engine/cache/preload.rs::build_play_source()
    │    ├─ Cache HIT  → CachedSource::new_at(pcm, offset) — seek O(1) instantáneo
    │    └─ Cache MISS → engine/audio/decode.rs + CuedSource (skip O(n))

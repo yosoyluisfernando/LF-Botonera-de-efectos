@@ -71,6 +71,9 @@ AppConfig {
   language: String,              // "es" | "en" | "pt-BR" | "pt-PT"
   button_text_size: String,      // "small" | "normal" | "large"
   editor_mode: String,           // "modal" | "window" — persiste cómo abrió el editor
+  console_mode: String,          // "window" | "modal" — cómo abre la consola (nace en ventana)
+  show_console_button: bool,     // botones de la barra superior que se pueden esconder;
+  show_fixed_panel_button: bool, // nacen visibles y ausente = visible (compat)
   active_profile_id: String,
   clock_24h: bool,
   last_update_check: i64,        // epoch de la última comprobación de actualizaciones
@@ -85,6 +88,7 @@ AppConfig {
   startup: StartupPromptState,
   fixed_panel: FixedPanelConfig, // alcance, vista, lado, dimensiones, capacidad y botones
   player: PlayerConfig,          // reproductor auxiliar: uno solo y GLOBAL (no por perfil)
+  console: ConsoleConfig,        // los faders de la consola que no viven en otro sitio
   profiles: Vec<ProfileData>,
 }
 ```
@@ -185,6 +189,23 @@ TrackMeta {
 **Normalización de clave en disco:**
 - Windows: `path.to_lowercase()` (sistema de archivos case-insensitive)
 - Linux: `path.to_string()` (case-sensitive)
+
+### ConsoleConfig (dentro de AppConfig) — la consola de audio
+```
+ConsoleConfig {
+  efectos: f32,   // el fader del bus Efectos
+  panel: f32,     // el de los botones fijos
+  cue: f32,       // el de la pre-escucha
+}
+```
+Global, como el reproductor: la consola es del equipo, no del perfil. Los faders **nacen abiertos**
+(1.0): abrir la consola no debe cambiar cómo suena nada.
+
+**Aquí NO están el máster ni el volumen del reproductor**, y no es un olvido: el máster es
+`AudioConfig.master_volume` (por perfil, con su "recordar" y su modo boost) y el del reproductor es
+`PlayerConfig.volume`. Los dos se guardaban desde antes de que existiera la consola, y tenerlos
+también aquí sería un segundo censo de lo mismo. Por eso `set_bus_fader` **delega en ellos** en vez
+de duplicar sus reglas.
 
 ### PlayerConfig (dentro de AppConfig) — reproductor auxiliar
 ```
@@ -436,6 +457,7 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | (vacío) | startup.js → `_refresh()` |
 | `"track-editor-dock"` | `{path, name, zoom}` | startup.js → abre editor en modo modal |
+| `"console-dock"` | (vacío) | runtimeEvents.js → devuelve la consola al modal |
 | `"track-analysis-progress"` | `{path, stage}` | trackEditor.js → actualiza progreso del análisis |
 | `"theme-changed"` | `{theme}` | ventana pop-out del editor |
 
@@ -449,6 +471,7 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `set_theme(theme)`
 - `set_language(language)`
 - `set_button_text_size(size)`
+- `set_toolbar_button(button, visible)` — `button` ∈ {console, fixed_panel}. Solo esos dos se pueden esconder: sin el resto de la barra no se crean pestañas, no se cambia de perfil y no habría forma de volver a Ajustes a recuperarlos
 - `set_active_profile(profile_id)`
 - `create_profile(name)`
 - `delete_profile(profile_id)`
@@ -475,6 +498,11 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `get_master_volume_state` → `{volume, remember, boost, max}`
 - `set_master_volume(volume)`
 - `set_master_volume_options(remember, boost)`
+
+### Consola de audio
+- `get_console_view` → `ConsoleView {strips[{bus, fader, max, in_program}], program, cue, mode}`. Las tiras llegan resueltas: su fader, su techo (el programa llega a 1.5 en boost, los demás a 1.0) y si suma en el programa — un bus con tarjeta propia no obedece al máster y la tira lo tiene que decir. **El CUE va aparte** porque no suma nunca. Las etiquetas NO vienen de aquí: el IPC manda identificadores y el texto lo pone i18n (regla 7)
+- `set_bus_fader(bus, value, persist?)` — `persist: false` mientras se arrastra (aplicar es un atómico; guardar en cada píxel sería una tormenta de escrituras). **Delega** en `set_master_volume` y `player_set_volume` para sus buses: ellos tienen dueño desde antes y sus propias reglas
+- `set_console_mode(mode)` — "window" | "modal"; se persiste
 
 ### Grid / botones
 - `get_grid_state` → grid de la paleta activa
@@ -668,7 +696,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 168 passed, 1 ignored)
+# Backend Rust (suite actual: 170 passed, 1 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
 

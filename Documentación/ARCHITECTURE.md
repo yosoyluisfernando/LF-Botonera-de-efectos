@@ -145,7 +145,7 @@ El frontend está organizado en 3 capas:
    d. Combina modo global (AudioConfig.playback_mode) con flags del botón
    e. Envía AudioCommand::Play al canal del hilo de audio
 4. engine/audio/thread.rs recibe el comando:
-   a. Pide a la consola el bus de destino (BusId::Main o BusId::Pre)
+   a. Pide a la consola su bus: Efectos, Panel o Cue (routing::bus_for)
    b. build_play_source: cache hit → O(1) seek; cache miss → decode + skip O(n)
    c. attach_button → ButtonSource dentro del bus de la consola
 5. engine/audio/monitor.rs detecta el nuevo ButtonState → emite "audio-tick" cada 100ms
