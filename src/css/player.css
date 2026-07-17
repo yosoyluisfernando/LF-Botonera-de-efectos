@@ -20,6 +20,19 @@
   color:var(--text-secondary); font-size:11px; border-bottom:1px solid var(--border-color); }
 
 .player-rows { flex:1; min-height:0; overflow-y:auto; padding:2px; }
+
+/* Lista vacía: los botones fijos tienen su "+", pero aquí las canciones entran
+   arrastrándolas y eso no se ve por ningún lado. Hasta que haya un explorador
+   propio, se dice con palabras. */
+.player-empty {
+    margin: 0;
+    padding: 22px 16px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    opacity: 0.75;
+}
 .player-row { display:flex; align-items:center; justify-content:space-between; gap:6px;
   padding:5px 6px; border:1px solid var(--border-color); border-radius:3px; margin-bottom:2px;
   color:var(--text-primary); font-size:12px; cursor:pointer; transition:background 0.12s ease; }

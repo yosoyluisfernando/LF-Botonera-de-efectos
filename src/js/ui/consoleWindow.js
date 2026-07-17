@@ -4,9 +4,9 @@
  * recordar cuál se eligió. Mismo patrón que el editor de pistas: la preferencia
  * la guarda Rust (`console_mode`), aquí solo se obedece.
  */
-import { invoke } from '../bridge/api.js';
+import { invoke, listen } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
-import { renderConsole, clearConsole } from './consoleView.js';
+import { renderConsole, clearConsole, updateConsoleTick } from './consoleView.js';
 
 const MODAL = 'console-modal';
 
@@ -28,7 +28,13 @@ export function closeModal() {
     clearConsole();
 }
 
-/** La consola vive sola en su ventana: no hay botonera detrás que oscurecer. */
+/**
+ * La consola vive sola en su ventana: no hay botonera detrás que oscurecer.
+ *
+ * Se cablea su propio tick, que en la ventana principal reparte `runtimeEvents`
+ * junto al resto. Llega porque la ventana está en `capabilities/default.json`:
+ * sin eso `listen` falla en silencio y los vúmetros no se mueven.
+ */
 export function initWindowMode() {
     document.body.classList.add('console-window-mode');
     document.getElementById(MODAL)?.classList.remove('hidden');
@@ -38,6 +44,7 @@ export function initWindowMode() {
     document.getElementById('console-popout')?.addEventListener('click', dockIn);
     renderConsole();
     _syncPopout();
+    listen('audio-tick', e => updateConsoleTick(e.payload ?? {})).catch(console.error);
 }
 
 export function wire() {

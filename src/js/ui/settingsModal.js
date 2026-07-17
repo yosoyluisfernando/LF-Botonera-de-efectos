@@ -13,6 +13,7 @@ import { initPlaybackPanel, loadPlaybackPanel, savePlaybackPanel } from './setti
 import { initKeyInputs } from '../util/keyInputs.js';
 import { appAlert } from './appDialog.js';
 import { initFixedPanelSettings, loadFixedPanelSettings, saveFixedPanelSettings } from './settingsFixedPanel.js';
+import { loadToolbarButtons, saveToolbarButtons } from './toolbarButtons.js';
 
 let _onSaved         = null;
 let _currentOutMain  = null; // Tarjeta vigente al abrir el modal
@@ -80,6 +81,7 @@ async function _openSettings() {
     document.getElementById('config-theme').value    = config.theme    || 'dark';
     document.getElementById('config-language').value = config.language || 'es';
     document.getElementById('config-button-text-size').value = config.button_text_size || 'normal';
+    loadToolbarButtons(config);
     _currentLanguage = config.language || 'es';
 
     loadLocutionsPanel(config);
@@ -112,6 +114,7 @@ async function _saveSettings() {
         await invoke('set_button_text_size', {
             size: document.getElementById('config-button-text-size').value,
         });
+        await saveToolbarButtons();
 
         // Idioma: persistir y recargar la UI solo si cambió
         const lang = document.getElementById('config-language').value;

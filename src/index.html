@@ -7,6 +7,9 @@
     <link rel="icon" type="image/png" href="/icono_circular.png" />
     <script type="module" src="/js/ui/theme.js"></script>
     <link rel="stylesheet" href="/css/theme.css" />
+    <!-- Variables de tema de la consola. Aparte de theme.css solo por el límite
+         de 200 líneas: son variables de tema como las demás. -->
+    <link rel="stylesheet" href="/css/themeConsole.css" />
     <link rel="stylesheet" href="/css/main.css" />
     <link rel="stylesheet" href="/css/tabs.css" />
     <link rel="stylesheet" href="/css/grid.css" />
@@ -460,6 +463,21 @@
                   <option value="large" data-i18n="settings.button_text_large">Grande</option>
                   <option value="xlarge" data-i18n="settings.button_text_xlarge">Muy grande</option>
                 </select>
+              </div>
+            </div>
+            <!-- Botones de la barra superior que se pueden esconder para dejar
+                 la vista más limpia. Solo estos dos: el resto no es opcional. -->
+            <div class="row">
+              <div class="col">
+                <label data-i18n="settings.toolbar_buttons">Botones de la barra superior:</label>
+                <div class="checkbox-line">
+                  <input type="checkbox" id="config-show-console">
+                  <label for="config-show-console" data-i18n="settings.show_console">Mostrar la Consola de audio</label>
+                </div>
+                <div class="checkbox-line">
+                  <input type="checkbox" id="config-show-fixed-panel">
+                  <label for="config-show-fixed-panel" data-i18n="settings.show_fixed_panel">Mostrar el Panel fijo</label>
+                </div>
               </div>
             </div>
             <hr class="modal-divider">

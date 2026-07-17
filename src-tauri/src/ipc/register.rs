@@ -6,6 +6,7 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_config::set_theme,
             ipc::cmd_config::set_language,
             ipc::cmd_config::set_button_text_size,
+            ipc::cmd_config::set_toolbar_button,
             ipc::cmd_profiles::set_active_profile,
             ipc::cmd_profiles::create_profile,
             ipc::cmd_profiles::delete_profile,

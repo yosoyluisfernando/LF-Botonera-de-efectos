@@ -40,6 +40,13 @@ pub struct AppConfig {
     /// Cómo abre la consola de audio: "window" (flotante) | "modal".
     #[serde(default = "default_console_mode")]
     pub console_mode: String,
+    /// Botones de la barra superior que se pueden esconder para dejar la vista
+    /// más limpia. Van visibles por defecto: quien no sepa que existen no puede
+    /// echarlos de menos, pero quien los use no debe encontrárselos ocultos.
+    #[serde(default = "default_true")]
+    pub show_console_button: bool,
+    #[serde(default = "default_true")]
+    pub show_fixed_panel_button: bool,
     #[serde(default)]
     pub active_profile_id: String,
     #[serde(default = "default_true")]
@@ -131,6 +138,8 @@ impl Default for AppConfig {
             button_text_size: default_button_text_size(),
             editor_mode: default_editor_mode(),
             console_mode: default_console_mode(),
+            show_console_button: true,
+            show_fixed_panel_button: true,
             active_profile_id: "perfil_1".to_string(),
             clock_24h: true,
             last_update_check: 0,

@@ -100,7 +100,10 @@
     "about_license": "Free software under the GPL-3.0 license. All software derived from this project must also be free software.",
     "about_formats_label": "Supported audio formats:",
     "about_formats": "MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF",
-    "donate_btn": "☕ Support the creator here"
+    "donate_btn": "☕ Support the creator here",
+    "toolbar_buttons": "Top bar buttons:",
+    "show_console": "Show the Audio console",
+    "show_fixed_panel": "Show the Fixed panel"
   },
   "audio_device": {
     "title": "Audio output unavailable",
@@ -465,7 +468,8 @@
     "mode_random": "Random (at random, never repeating the current one)",
     "volume": "Player volume:",
     "device": "Player output:",
-    "device_same": "Same as the effects"
+    "device_same": "Same as the effects",
+    "empty_hint": "Drag your songs here from the file explorer"
   },
   "errors": {
     "no_buttons_selected": "No buttons are selected.",

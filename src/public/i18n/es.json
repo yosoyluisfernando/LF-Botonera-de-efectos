@@ -100,7 +100,10 @@
     "about_license": "Software libre bajo licencia GPL-3.0. Todo software derivado de este proyecto debe ser también software libre.",
     "about_formats_label": "Formatos de audio compatibles:",
     "about_formats": "MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF",
-    "donate_btn": "☕ Apoya al creador aquí"
+    "donate_btn": "☕ Apoya al creador aquí",
+    "toolbar_buttons": "Botones de la barra superior:",
+    "show_console": "Mostrar la Consola de audio",
+    "show_fixed_panel": "Mostrar el Panel fijo"
   },
   "audio_device": {
     "title": "Salida de audio no disponible",
@@ -465,7 +468,8 @@
     "mode_random": "Aleatorio (al azar, sin repetir la actual)",
     "volume": "Volumen del reproductor:",
     "device": "Salida del reproductor:",
-    "device_same": "La misma de los efectos"
+    "device_same": "La misma de los efectos",
+    "empty_hint": "Arrastra aquí tus canciones desde el explorador de archivos"
   },
   "errors": {
     "no_buttons_selected": "No hay botones seleccionados.",

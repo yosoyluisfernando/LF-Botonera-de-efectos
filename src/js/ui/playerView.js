@@ -83,6 +83,10 @@ export async function drawPlayerView() {
     _tracks = view.tracks;
     const rows = document.getElementById('player-rows');
     rows.innerHTML = '';
+    // Con la lista vacía no hay nada que hacer evidente: los botones fijos tienen
+    // su "+", pero aquí las canciones entran arrastrándolas y eso no se ve por
+    // ningún lado. Hasta que haya un explorador propio, se dice con palabras.
+    if (!view.tracks.length) rows.appendChild(_emptyHint());
     view.tracks.forEach((track, position) => rows.appendChild(_row(track, position)));
     // El total lo suma Rust: que cuenta y que no es regla de negocio, no de la UI.
     setQueueTotal(view.total_s, view.time_display);
@@ -110,6 +114,15 @@ export function paintPlayerTick(snapshot) {
     paintPlayerProgress(snapshot);
     paintPlayerModes(snapshot.mode);
     paintPlayerVolume(snapshot.volume);
+}
+
+/** El cartel de la lista vacía. Se cae solo en cuanto entre la primera canción:
+ *  `drawPlayerView` vacía las filas y solo lo vuelve a poner si sigue sin haber. */
+function _emptyHint() {
+    const el = document.createElement('p');
+    el.className = 'player-empty';
+    el.textContent = t('player.empty_hint');
+    return el;
 }
 
 function _row(track, position) {

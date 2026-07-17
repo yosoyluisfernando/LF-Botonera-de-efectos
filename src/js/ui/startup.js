@@ -29,7 +29,7 @@ import { checkAudioDevicesOnStartup } from './audioDeviceRecovery.js';
 import { initStartupPrompts, runStartupPrompts } from './startupPrompts.js';
 import { initFixedPanel, drawFixedPanel, initialFixedPanel } from './fixedPanel.js';
 import { wire as wireConsole, initWindowMode as initConsoleWindow } from './consoleWindow.js';
-import { updateConsoleTick } from './consoleView.js';
+import { applyToolbarButtons } from './toolbarButtons.js';
 import { wireRuntimeEvents } from './runtimeEvents.js';
 
 let _closeWired = false;
@@ -77,9 +77,8 @@ export async function startApp() {
     }
 }
 
-/** Arranque en modo ventana de la consola: solo tema, i18n y las tiras. El
- *  audio-tick llega igual — es un evento de Tauri y lo reciben todas las
- *  ventanas, así que los vúmetros se mueven sin nada más. */
+/** Arranque en modo ventana de la consola: solo tema, i18n y las tiras. Ella se
+ *  cablea su propio tick — ver initWindowMode. */
 async function _startConsoleWindow() {
     const config = await invoke('get_config').catch(() => ({}));
     applyTheme(config.theme || 'dark');
@@ -88,7 +87,6 @@ async function _startConsoleWindow() {
     _blockNativeContextMenu();
     document.getElementById('loading-screen')?.classList.add('hidden');
     initConsoleWindow();
-    listen('audio-tick', e => updateConsoleTick(e.payload ?? {})).catch(console.error);
 }
 
 /** Arranque en modo ventana del editor (pop-out): solo tema, i18n y el editor a
@@ -154,6 +152,7 @@ function _initModules(config, grid, fixedPanel) {
     drawGrid(grid, _refresh);
     initFixedPanel(fixedPanel, _refresh);
     wireConsole();
+    applyToolbarButtons(config);
     initSettingsModal(_refresh);
     initMapping(_refresh);
     initUpdateNotifier();

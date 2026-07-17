@@ -45,3 +45,20 @@ pub fn set_button_text_size(size: String, state: tauri::State<AppState>) -> Resu
     cfg.button_text_size = size;
     config::save_config(&cfg)
 }
+
+/// Enseña o esconde uno de los botones de la barra superior que se pueden
+/// prescindir. Solo esos dos: el resto de la barra no es opcional.
+#[tauri::command]
+pub fn set_toolbar_button(
+    button: String,
+    visible: bool,
+    state: tauri::State<AppState>,
+) -> Result<(), String> {
+    let mut cfg = state.config.lock().unwrap();
+    match button.as_str() {
+        "console" => cfg.show_console_button = visible,
+        "fixed_panel" => cfg.show_fixed_panel_button = visible,
+        _ => return Err("unknown_toolbar_button".to_string()),
+    }
+    config::save_config(&cfg)
+}
