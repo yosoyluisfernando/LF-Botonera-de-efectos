@@ -10,9 +10,10 @@
 //! El volumen tampoco esta aqui: es el fader del bus. El deck solo aplica la
 //! ganancia de SU pista, que es del archivo.
 use super::deck_track::{DeckStatus, DeckTrack};
+use super::prefetch::deck_source;
 use super::source::{DeckHandle, DeckSource};
 use crate::engine::audio::decode::BoxSource;
-use crate::engine::cache::preload::{build_play_source, PreloadCache};
+use crate::engine::cache::preload::PreloadCache;
 use crate::engine::console::Bus;
 use std::sync::{Arc, Mutex};
 
@@ -87,9 +88,7 @@ impl Deck {
             return;
         }
         let from = (self.track.cue_start_s + at).max(0.0);
-        let Some(source) =
-            build_play_source(cache, &self.track.path, false, from, self.track.cue_end_s)
-        else {
+        let Some(source) = deck_source(cache, &self.track.path, from, self.track.cue_end_s) else {
             self.fail();
             return;
         };

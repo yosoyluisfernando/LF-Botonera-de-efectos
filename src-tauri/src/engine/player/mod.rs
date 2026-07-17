@@ -14,6 +14,7 @@ mod deck;
 mod deck_track;
 mod exec;
 pub mod monitor;
+mod prefetch;
 mod queue;
 mod queue_edit;
 mod queue_ops;
