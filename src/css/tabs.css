@@ -13,7 +13,11 @@
   font-size: 14px;
   height: 32px;
   border-radius: 5px 5px 0 0;
-  margin-left: auto;
+  /* Igual que sus vecinos. Llevaba `auto` de cuando era el primero de la
+     derecha; al dejar de serlo, ese hueco elástico ya no separaba nada —lo
+     consume `.tabs-scroll` con su flex-grow— y el botón se quedaba pegado al
+     de al lado. */
+  margin-left: 5px;
   font-weight: bold;
   max-width: 250px;
   overflow: hidden;

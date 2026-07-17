@@ -20,15 +20,40 @@
   width: 34px;
 }
 
-/* Vertical con el cero abajo. `writing-mode` + `direction` es la forma estándar;
-   `slider-vertical` es el fallback para motores que aún no la implementan.
-   Se estira con la tira: el recorrido del fader es el alto que haya. */
+/* La ranura la dibuja el CONTENEDOR, no el track nativo del `range`.
+   Centrarla así es exacto: en vertical, el track nativo se coloca donde el motor
+   quiere y el capuchón acababa desplazado a un lado de su propia guía. */
+.fader-track::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 6px;
+  transform: translateX(-50%);
+  border: 1px solid var(--console-strip-border);
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--console-rail) 0%,
+    var(--console-rail-mid) 50%,
+    var(--console-rail) 100%
+  );
+}
+
+/* Vertical con el cero abajo, y estilable.
+   `appearance: none` es obligatorio: con `slider-vertical` el motor pinta su
+   propio control y se salta el capuchón entero — por eso salía el pomo azul de
+   Chromium en vez del nuestro. La verticalidad la da `writing-mode`, que es la
+   forma estándar y la que sustituyó a `slider-vertical`.
+   El ancho es el del capuchón: así queda centrado por definición. */
 .fader {
+  position: relative;
   writing-mode: vertical-lr;
   direction: rtl;
-  -webkit-appearance: slider-vertical;
-  appearance: slider-vertical;
-  width: 34px;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;
   height: 100%;
   margin: 0;
   background: transparent;
@@ -41,30 +66,20 @@
   border-radius: 4px;
 }
 
-/* ── La ranura ─────────────────────────────────────────────────────────── */
+/* ── El carril del control ─────────────────────────────────────────────── */
+/* No pinta: la ranura que se ve es la del contenedor. Este solo marca por dónde
+   corre el capuchón, y ocupa todo el ancho para que corra por el centro. */
 
 .fader::-webkit-slider-runnable-track {
-  width: 6px;
-  border-radius: 3px;
-  border: 1px solid var(--console-strip-border);
-  background: linear-gradient(
-    90deg,
-    var(--console-rail) 0%,
-    var(--console-rail-mid) 50%,
-    var(--console-rail) 100%
-  );
+  width: 100%;
+  background: transparent;
+  border: none;
 }
 
 .fader::-moz-range-track {
-  width: 6px;
-  border-radius: 3px;
-  border: 1px solid var(--console-strip-border);
-  background: linear-gradient(
-    90deg,
-    var(--console-rail) 0%,
-    var(--console-rail-mid) 50%,
-    var(--console-rail) 100%
-  );
+  width: 100%;
+  background: transparent;
+  border: none;
 }
 
 /* ── El capuchón ───────────────────────────────────────────────────────── */
