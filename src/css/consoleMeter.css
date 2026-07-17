@@ -1,0 +1,60 @@
+/**
+ * Archivo: consoleMeter.css
+ * Propósito: el vúmetro de una tira de canal.
+ *
+ * Usa la MISMA escala que el vúmetro de la barra inferior —`--vu-green` /
+ * `--vu-yellow` / `--vu-red`, con los cortes en 79.5% y 89.7%—, solo que girada
+ * a vertical. Un mismo nivel no puede verse de dos colores según dónde lo mires:
+ * el color tiene que cambiar a los mismos decibelios en los dos sitios.
+ *
+ * El truco viene de la consola virtual del LF Automatizador: el fondo ES la
+ * escala y una máscara la tapa desde arriba. El nivel no pinta color — lo revela.
+ */
+
+.strip-meters {
+  display: flex;
+  gap: 5px;
+}
+
+.meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.meter-ch {
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  color: var(--console-dim);
+}
+
+.meter-bg {
+  position: relative;
+  flex: 1;
+  min-height: 90px;
+  width: 13px;
+  border: 1px solid var(--console-strip-border);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 45%);
+  background: linear-gradient(
+    to top,
+    var(--vu-green) 0%,
+    var(--vu-green) 79.5%,
+    var(--vu-yellow) 79.5%,
+    var(--vu-yellow) 89.7%,
+    var(--vu-red) 89.7%,
+    var(--vu-red) 100%
+  );
+}
+
+/* Tapa la escala desde arriba. Bajarla revela el color. */
+.meter-mask {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 100%;
+  background: var(--vu-channel-bg);
+  transition: height 0.07s linear;
+}

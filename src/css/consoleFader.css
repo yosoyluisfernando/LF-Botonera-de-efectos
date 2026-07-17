@@ -7,26 +7,29 @@
  * `-moz-`), porque las pseudoclases del `range` no se pueden agrupar — si un
  * navegador no entiende un selector de la lista, descarta la regla entera.
  *
- * El capuchón imita el de una mesa física: cuerpo claro con relieve y una línea
- * de guía en el centro, que es la que marca de verdad la posición.
+ * Los colores están en `theme.css` (regla 8). El capuchón va como un degradado
+ * entero y no como paradas sueltas porque es UN objeto: son siete cortes que si
+ * no habría que repetir en cada motor.
  */
 
 .fader-track {
   position: relative;
   display: flex;
   justify-content: center;
+  align-items: stretch;
   width: 34px;
 }
 
 /* Vertical con el cero abajo. `writing-mode` + `direction` es la forma estándar;
-   `slider-vertical` es el fallback para motores que aún no la implementan. */
+   `slider-vertical` es el fallback para motores que aún no la implementan.
+   Se estira con la tira: el recorrido del fader es el alto que haya. */
 .fader {
   writing-mode: vertical-lr;
   direction: rtl;
   -webkit-appearance: slider-vertical;
   appearance: slider-vertical;
   width: 34px;
-  height: clamp(120px, 34vh, 300px);
+  height: 100%;
   margin: 0;
   background: transparent;
   cursor: pointer;
@@ -43,15 +46,25 @@
 .fader::-webkit-slider-runnable-track {
   width: 6px;
   border-radius: 3px;
-  background: linear-gradient(90deg, #0b0d10 0%, #1c2128 50%, #0b0d10 100%);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--console-strip-border);
+  background: linear-gradient(
+    90deg,
+    var(--console-rail) 0%,
+    var(--console-rail-mid) 50%,
+    var(--console-rail) 100%
+  );
 }
 
 .fader::-moz-range-track {
   width: 6px;
   border-radius: 3px;
-  background: linear-gradient(90deg, #0b0d10 0%, #1c2128 50%, #0b0d10 100%);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--console-strip-border);
+  background: linear-gradient(
+    90deg,
+    var(--console-rail) 0%,
+    var(--console-rail-mid) 50%,
+    var(--console-rail) 100%
+  );
 }
 
 /* ── El capuchón ───────────────────────────────────────────────────────── */
@@ -61,71 +74,31 @@
   appearance: none;
   width: 30px;
   height: 15px;
-  border: 1px solid #454f59;
+  border: 1px solid var(--console-cap-border);
   border-radius: 3px;
+  background: var(--console-cap);
   box-shadow:
     0 2px 4px rgb(0 0 0 / 55%),
     inset 0 1px 0 rgb(255 255 255 / 45%);
-  /* Relieve: claro arriba, la línea de guía en el centro, sombra abajo. */
-  background: linear-gradient(
-    180deg,
-    #e2e7ec 0%,
-    #b6bfc9 42%,
-    #6d7883 47%,
-    #f2f5f8 50%,
-    #6d7883 53%,
-    #aab3bd 58%,
-    #78828d 100%
-  );
 }
 
 .fader::-moz-range-thumb {
   width: 30px;
   height: 15px;
-  border: 1px solid #454f59;
+  border: 1px solid var(--console-cap-border);
   border-radius: 3px;
+  background: var(--console-cap);
   box-shadow:
     0 2px 4px rgb(0 0 0 / 55%),
     inset 0 1px 0 rgb(255 255 255 / 45%);
-  background: linear-gradient(
-    180deg,
-    #e2e7ec 0%,
-    #b6bfc9 42%,
-    #6d7883 47%,
-    #f2f5f8 50%,
-    #6d7883 53%,
-    #aab3bd 58%,
-    #78828d 100%
-  );
 }
 
-/* ── El máster ─────────────────────────────────────────────────────────── */
-/* Rojo, como el MAIN de una mesa: es el que no te puedes equivocar de agarrar. */
-
 .fader.is-master::-webkit-slider-thumb {
-  border-color: #7d1f1f;
-  background: linear-gradient(
-    180deg,
-    #ff8080 0%,
-    #d63838 42%,
-    #7d1f1f 47%,
-    #ffdede 50%,
-    #7d1f1f 53%,
-    #c93030 58%,
-    #8f2222 100%
-  );
+  border-color: var(--console-cap-master-border);
+  background: var(--console-cap-master);
 }
 
 .fader.is-master::-moz-range-thumb {
-  border-color: #7d1f1f;
-  background: linear-gradient(
-    180deg,
-    #ff8080 0%,
-    #d63838 42%,
-    #7d1f1f 47%,
-    #ffdede 50%,
-    #7d1f1f 53%,
-    #c93030 58%,
-    #8f2222 100%
-  );
+  border-color: var(--console-cap-master-border);
+  background: var(--console-cap-master);
 }

@@ -62,6 +62,31 @@
   --vu-green: #208c4d;
   --vu-yellow: #c77d12;
   --vu-red: #b93a31;
+
+  /* Consola de audio — tomados de la consola virtual del LF Automatizador, para
+     que las dos aplicaciones se reconozcan entre sí. */
+  --console-bg: #0f1114;
+  --console-strip-top: #171a1f;
+  --console-strip-bottom: #111418;
+  --console-strip-border: #28313a;
+  --console-rail: #0b0d10;
+  --console-rail-mid: #1c2128;
+  --console-label: #ffffff;
+  --console-dim: #7e8a97;
+  --console-db: #00d2ff;
+  /* El capuchón del fader, imitando el de una mesa física: relieve claro y la
+     línea de guía en el centro, que es la que marca de verdad la posición. Va
+     como degradado entero y no como paradas sueltas porque es UN objeto, y
+     porque son siete cortes que se repiten en cada motor de render. */
+  --console-cap: linear-gradient(180deg, #e2e7ec 0%, #b6bfc9 42%, #6d7883 47%,
+                 #f2f5f8 50%, #6d7883 53%, #aab3bd 58%, #78828d 100%);
+  --console-cap-border: #454f59;
+  /* El máster en rojo, como el MAIN de una mesa: es el que no te puedes
+     equivocar de agarrar. */
+  --console-cap-master: linear-gradient(180deg, #ff8080 0%, #d63838 42%, #7d1f1f 47%,
+                        #ffdede 50%, #7d1f1f 53%, #c93030 58%, #8f2222 100%);
+  --console-cap-master-border: #7d1f1f;
+
   --danger-bg: #4a1515;
   --danger-text: #ff6b6b;
   --danger-border: #7c3030;
@@ -146,6 +171,29 @@
   --vu-green: #04cf56;
   --vu-yellow: #e7ba00;
   --vu-red: #e63a35;
+
+  /* Consola de audio en claro. El LFA no tiene tema claro, así que aquí no había
+     de dónde copiar: se busca el aire de una mesa de estudio clara —chasis gris,
+     tiras casi blancas— manteniendo la ranura oscura, porque un fader se lee por
+     el contraste entre el capuchón y su carril. */
+  --console-bg: #e8eaed;
+  --console-strip-top: #ffffff;
+  --console-strip-bottom: #eceef1;
+  --console-strip-border: #c3c8cf;
+  --console-rail: #6f7883;
+  --console-rail-mid: #99a2ad;
+  --console-label: #1b1f24;
+  --console-dim: #5f6a75;
+  --console-db: #0a6c96;
+  /* El capuchón se oscurece un punto en claro: sobre una tira casi blanca, el
+     gris de estudio se perdía. */
+  --console-cap: linear-gradient(180deg, #cdd4db 0%, #98a3ae 42%, #4e5761 47%,
+                 #eef2f6 50%, #4e5761 53%, #8b96a1 58%, #5d6874 100%);
+  --console-cap-border: #6f7883;
+  --console-cap-master: linear-gradient(180deg, #f26a6a 0%, #c02b2b 42%, #6b1818 47%,
+                        #ffd4d4 50%, #6b1818 53%, #b02424 58%, #7a1c1c 100%);
+  --console-cap-master-border: #6b1818;
+
   --danger-bg: #f5c6c6;
   --danger-text: #b91c1c;
   --danger-border: #ef9898;

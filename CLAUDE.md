@@ -718,5 +718,6 @@ No lanzar la app por computer-use. El usuario prueba en su PC.
 - **IDs de botón** cambiaron de `btn_{index}` a `{paleta_id}_btn_{index}` para evitar colisiones entre pestañas. `config_io.rs::normalize_button_ids()` migra automáticamente al cargar.
 - **Instalador MSI** tiene `upgradeCode` fijo (`43888972-…`). No cambiar entre versiones.
 - **`capabilities/default.json`** NO debe tener BOM: el parser de Tauri lo rechaza silenciosamente.
+- **Una ventana nueva hay que añadirla a `capabilities/default.json`** (`"windows"`), o **no recibirá ningún evento**. Trampa fina: los comandos `#[tauri::command]` propios **sí** funcionan sin capability, así que la ventana parece viva —`invoke` responde, la UI se pinta— pero `listen` es del core y falla en silencio (`.catch` lo traga). Síntoma: todo se ve bien y nada se mueve. Pasó con la consola (2026-07-16): las tiras se pintaban y los vúmetros no subían.
 - **Instancias `tauri dev`** acumuladas: matar TODAS las instancias de `tauri-app` y relanzar `npm run tauri dev`; matar solo una puede dejar Vite caído.
 - **Sincronización de versión:** al publicar, actualizar la misma versión en `package.json`, `src-tauri/Cargo.toml` y `src-tauri/tauri.conf.json`.

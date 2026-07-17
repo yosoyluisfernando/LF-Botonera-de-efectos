@@ -2,27 +2,21 @@
  * Archivo: console.css
  * Propósito: la consola de audio — tiras de canal con su vúmetro y su fader.
  *
- * Adaptada de la consola virtual del LF Automatizador. Los colores del vúmetro
- * (verde / ámbar / rojo) NO son de tema: son la escala de una señal y significan
- * lo mismo en claro y en oscuro, igual que en una consola de verdad. El resto sí
- * usa las variables del tema (regla 8).
+ * Los colores salen de `theme.css` (regla 8). Los del modo oscuro vienen de la
+ * consola virtual del LF Automatizador, para que las dos aplicaciones se
+ * reconozcan entre sí; el claro se inventó aquí, porque el LFA no tiene.
  *
- * El truco del vúmetro viene del LFA: el fondo ES el degradado de la escala, y
- * una máscara lo tapa desde arriba. El nivel no "pinta" color — lo revela.
+ * Aquí está el armazón y la tira. El vúmetro vive en `consoleMeter.css` y el
+ * fader en `consoleFader.css`: cada uno pide bastante CSS por su cuenta y juntos
+ * pasaban de 200 líneas (regla 3).
  */
 
-:root {
-  --console-meter-low: #27ae60;
-  --console-meter-mid: #f39c12;
-  --console-meter-hot: #e74c3c;
-  --console-strip-w: 104px;
-}
-
 .console-content {
-  width: min(96vw, 1080px);
+  width: min(96vw, 900px);
   max-height: 92vh;
   display: flex;
   flex-direction: column;
+  background: var(--console-bg);
 }
 
 .console-header-actions {
@@ -37,33 +31,36 @@
   line-height: 1;
 }
 
-/* El aviso de que esto está en pruebas. Semitransparente para que se lea como
-   una nota al margen y no como una alarma. */
+/* El aviso de que esto está en pruebas: una nota al margen, no una alarma. */
 .console-notice {
-  margin: 0 0 14px;
-  padding: 8px 12px;
+  margin: 0 0 12px;
+  padding: 7px 12px;
   border-left: 3px solid var(--accent-color);
   border-radius: 4px;
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  font-size: 12px;
-  line-height: 1.5;
-  opacity: 0.85;
+  background: var(--console-strip-bottom);
+  color: var(--console-dim);
+  font-size: 11.5px;
+  line-height: 1.45;
 }
 
+/* Las tiras se centran y ocupan el alto disponible: la consola no tiene por qué
+   dejar un hueco muerto debajo. */
 .console-body {
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: stretch;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
+  padding-bottom: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
 }
 
 .console-strips,
 .console-program,
 .console-cue {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* La pre-escucha NO suma en el programa, y la consola lo dice separándola: es la
@@ -71,103 +68,75 @@
 .console-split {
   flex: 0 0 1px;
   align-self: stretch;
-  background: var(--border-color);
-  margin: 0 6px;
+  background: var(--console-strip-border);
+  margin: 0 4px;
 }
 
 .console-strip {
-  flex: 0 0 var(--console-strip-w);
+  flex: 0 0 108px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 10px 6px;
-  border: 1px solid var(--border-color);
+  padding: 12px 8px 10px;
+  border: 1px solid var(--console-strip-border);
   border-radius: 8px;
-  background: var(--bg-tertiary);
+  background: linear-gradient(
+    180deg,
+    var(--console-strip-top) 0%,
+    var(--console-strip-bottom) 100%
+  );
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
 }
 
-/* Un bus con tarjeta propia no obedece al máster. La tira lo dice: si no, se
-   movería el máster esperando que baje y no bajaría. */
-.console-strip.is-direct {
-  border-color: var(--console-meter-mid);
+/* El máster manda: se le da su sitio y un borde que lo distingue. */
+.console-strip.is-master {
+  flex-basis: 124px;
+  border-color: var(--console-db);
 }
 
+/* Un bus con tarjeta propia no obedece al máster. La tira lo dice: si no, se
+   movería el máster esperando que bajara y no bajaría. */
+.console-strip.is-direct {
+  border-color: var(--vu-yellow);
+}
+
+/* Medidores y fader, hombro con hombro y estirados a lo que haya. */
 .strip-stage {
+  flex: 1;
+  min-height: 0;
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   justify-content: center;
   gap: 10px;
-  margin: 6px 0 10px;
-}
-
-.strip-meters {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.meter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-
-.meter-ch {
-  font-size: 10px;
-  font-weight: bold;
-  letter-spacing: 0.08em;
-  color: var(--text-secondary);
-}
-
-.meter-bg {
-  position: relative;
-  width: 14px;
-  height: clamp(120px, 34vh, 300px);
-  border: 2px solid var(--border-color);
-  border-radius: 5px;
-  overflow: hidden;
-  background: linear-gradient(
-    to top,
-    var(--console-meter-low) 0%,
-    var(--console-meter-low) 79.5%,
-    var(--console-meter-mid) 79.5%,
-    var(--console-meter-mid) 89.7%,
-    var(--console-meter-hot) 89.7%,
-    var(--console-meter-hot) 100%
-  );
-}
-
-/* Tapa el degradado desde arriba. Bajarla revela el color. */
-.meter-mask {
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 100%;
-  background: var(--bg-primary);
-  transition: height 0.07s linear;
+  margin-bottom: 10px;
 }
 
 .strip-label {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: bold;
-  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  color: var(--console-label);
 }
 
 .strip-dest {
   margin-top: 3px;
-  min-height: 24px;
-  font-size: 9px;
+  min-height: 22px;
+  font-size: 8.5px;
   line-height: 1.3;
-  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  color: var(--console-dim);
 }
 
 .strip-db {
-  margin-top: 6px;
+  margin-top: 7px;
+  padding: 2px 0;
+  width: 100%;
+  border-radius: 3px;
+  background: var(--console-rail);
   font-size: 10px;
   font-variant-numeric: tabular-nums;
-  color: var(--accent-color);
+  color: var(--console-db);
 }
 
 /* ── Modo ventana ──────────────────────────────────────────────────────── */
@@ -177,6 +146,10 @@
 body.console-window-mode { overflow: hidden; }
 body.console-window-mode .titlebar { display: none; }
 body.console-window-mode #console-modal { background: none; }
+/* El título y la ✕ los pone ya la ventana del sistema: repetirlos aquí es decir
+   dos veces lo mismo. Queda solo el botón de volver al modal. */
+body.console-window-mode .console-content > .modal-header h3,
+body.console-window-mode #close-console { display: none; }
 body.console-window-mode .console-content {
   width: 100vw !important;
   max-width: none;

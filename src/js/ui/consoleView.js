@@ -6,6 +6,7 @@
  * No registra listeners de audio — main.js es el único punto de escucha.
  */
 import '../../css/console.css';
+import '../../css/consoleMeter.css';
 import '../../css/consoleFader.css';
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
@@ -54,17 +55,19 @@ function _fill(containerId, strips) {
 }
 
 function _buildStrip(strip) {
+    const master = strip.bus === 'programa';
     const el = document.createElement('div');
     el.className = 'console-strip';
+    if (master) el.classList.add('is-master');
     // Un bus con tarjeta propia no obedece al máster; la tira tiene que decirlo.
-    if (!strip.in_program) el.classList.add('is-direct');
+    else if (!strip.in_program) el.classList.add('is-direct');
     el.innerHTML = `
       <div class="strip-stage">
         <div class="strip-meters">
           ${_meter('L')}${_meter('R')}
         </div>
         <div class="fader-track">
-          <input type="range" class="fader${strip.bus === 'programa' ? ' is-master' : ''}"
+          <input type="range" class="fader${master ? ' is-master' : ''}"
                  min="0" max="${strip.max}" step="0.01" value="${strip.fader}"
                  aria-label="${t(`console.bus.${strip.bus}`)}">
         </div>
