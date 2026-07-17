@@ -21,9 +21,7 @@ export function initLocutionsPanel() {
     _wireBrowse('loc-hum-browse',  'loc-hum-folder');
     _wireCitySearch();
 
-    document.getElementById('loc-time-test').addEventListener('click', () => {
-        invoke('play_time_locution', { id: '__loc_test__' }).catch(console.error);
-    });
+    document.getElementById('loc-time-test').addEventListener('click', _testTime);
     document.getElementById('loc-weather-test').addEventListener('click', _previewWeather);
     document.getElementById('loc-unit').addEventListener('change', _clearWeather);
 }
@@ -69,19 +67,35 @@ export function saveLocutions() {
     });
 }
 
+/** Botón ▶: prueba la carpeta que está EN PANTALLA, no la guardada; si no, se
+ *  probaría algo distinto de lo que se ve. El fallo se enseña: antes iba a la
+ *  consola del navegador y el operador solo notaba que no sonaba nada. */
+async function _testTime() {
+    _status('loc-time-status', '', '');
+    try {
+        await invoke('play_time_locution', {
+            id: '__loc_test__',
+            folder: document.getElementById('loc-time-folder').value.trim(),
+        });
+        _status('loc-time-status', t('settings_loc.test_playing'), 'ok');
+    } catch (e) {
+        _status('loc-time-status', _errMessage(e), 'error');
+    }
+}
+
 /** Botón "Comprobar": prueba la ciudad escrita sin guardar ni exigir carpetas. */
 async function _previewWeather() {
     const city = document.getElementById('loc-city').value.trim();
-    if (!city) { _status(t('settings_loc.err_no_city'), 'error'); return; }
+    if (!city) { _status('loc-weather-status', t('settings_loc.err_no_city'), 'error'); return; }
     _paintWeather(null);
-    _status(t('settings_loc.searching'), '');
+    _status('loc-weather-status', t('settings_loc.searching'), '');
     try {
         const w = await invoke('preview_weather', { city, unit: _unit() });
         _paintWeather(w);
-        _status(`✓ ${w.label}`, 'ok');
+        _status('loc-weather-status', `✓ ${w.label}`, 'ok');
     } catch (e) {
         _paintWeather(null);
-        _status(_errMessage(e), 'error');
+        _status('loc-weather-status', _errMessage(e), 'error');
     }
 }
 
@@ -103,12 +117,12 @@ function _paintWeather(w) {
 
 function _clearWeather() {
     _paintWeather(null);
-    _status('', '');
+    _status('loc-weather-status', '', '');
 }
 
-/** Pinta la línea de estado; `kind` ('', 'ok', 'error') colorea vía CSS. */
-function _status(msg, kind) {
-    const el = document.getElementById('loc-weather-status');
+/** Pinta una línea de estado; `kind` ('', 'ok', 'error') colorea vía CSS. */
+function _status(id, msg, kind) {
+    const el = document.getElementById(id);
     if (!el) return;
     el.textContent = msg;
     el.dataset.kind = kind;

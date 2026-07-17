@@ -278,7 +278,7 @@ Los valores `time_locution`, `temperature_locution` y `humidity_locution` que el
 Función de `api.js` que suscribe un handler a un evento emitido por Rust. Equivale a `window.__TAURI__.event.listen(event, handler)`.
 
 **`locución`**
-Archivo de audio que representa un valor de texto (una hora, una temperatura, un número). Los botones de tipo `time`, `temperature` y `humidity` construyen una secuencia de locuciones y la reproducen en orden. El patrón de nombre de archivo lo define `engine/weather/resolver.rs`.
+Archivo de audio que representa un valor de texto (una hora, una temperatura, un número). Los botones de tipo `time`, `temperature` y `humidity` construyen una secuencia de locuciones y la reproducen en orden. Qué archivo dice qué lo decide `domain/locution.rs` —puro y probado sin disco—; `engine/weather/resolver.rs` solo lee la carpeta y obedece. El formato es el de **ZaraRadio**, y se aceptan además las variantes de Salamandra y RadioBOSS: ver el capítulo 12 del [Libro del proyecto](LIBRO_PROYECTO.md).
 
 **`loop_mode`**
 Flag de `ButtonData`. Si está activo, el archivo se reproduce en bucle infinito hasta que el usuario lo para. El bucle repite la región entre `cue_start_s` y `cue_end_s` (si están definidos).

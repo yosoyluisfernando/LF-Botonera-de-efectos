@@ -1,53 +1,32 @@
-/// Módulo: locutions.rs
-/// Propósito: Resolución de archivos de locución, traducida del LF
-/// Automatizador (frontend/render.js):
-///  - Hora:        HRS{hh} + MIN{mm}; al minuto 00 solo HRS{hh}_O ("en punto").
-///  - Temperatura: TMP{###} (positiva) / TMPN{###} (negativa).
-///  - Humedad:     HUM{###} (0-100).
-/// Se busca el PRIMER archivo de la carpeta cuyo nombre empiece con el prefijo.
+/// Módulo: resolver.rs
+/// Propósito: llevar a disco las reglas de `domain::locution`. Lee la carpeta,
+/// mira el reloj y pregunta qué archivo toca; no decide nada.
+///
+/// Los errores salen como CLAVES, no como frases: el texto lo pone i18n (regla
+/// 7). Una locución que falla en mitad de un directo tiene que poder explicarse
+/// en el idioma del operador.
+use crate::domain::locution;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// Devuelve los archivos a reproducir en secuencia para anunciar la hora.
+/// Los archivos a encadenar para anunciar la hora.
 pub fn resolve_time_files(folder: &str) -> Result<Vec<String>, String> {
     let entries = read_folder(folder)?;
-    let now = chrono_now();
-    let (hh, mm) = (format!("{:02}", now.0), format!("{:02}", now.1));
-
-    let mut files = Vec::new();
-    if mm == "00" {
-        // En punto: variante especial HRS{hh}_O
-        if let Some(f) = find_prefix(&entries, &format!("HRS{}_O", hh), None) {
-            files.push(f);
-        }
-    } else {
-        // HRS{hh} (excluyendo la variante _O) seguido de MIN{mm}
-        if let Some(f) = find_prefix(&entries, &format!("HRS{}", hh), Some("_O")) {
-            files.push(f);
-        }
-        if let Some(f) = find_prefix(&entries, &format!("MIN{}", mm), None) {
-            files.push(f);
-        }
+    let (hh, mm) = chrono_now();
+    let sequence = locution::time_sequence(&names_of(&entries), hh, mm);
+    if sequence.is_empty() {
+        return Err("no_time_locution".to_string());
     }
-    if files.is_empty() {
-        return Err("No hay locuciones de hora para este momento".to_string());
-    }
-    Ok(files)
+    Ok(sequence.iter().map(|&i| path_of(&entries[i])).collect())
 }
 
-/// Devuelve el archivo de locución para un valor de clima.
+/// El archivo de locución para un valor de clima.
 /// `kind`: "temperature" | "humidity".
 pub fn resolve_climate_file(folder: &str, kind: &str, value: f64) -> Result<String, String> {
     let entries = read_folder(folder)?;
-    let rounded = value.round() as i64;
-    let prefix = if kind == "humidity" {
-        format!("HUM{:03}", rounded.clamp(0, 100))
-    } else if rounded < 0 {
-        format!("TMPN{:03}", rounded.abs())
-    } else {
-        format!("TMP{:03}", rounded)
-    };
-    find_prefix(&entries, &prefix, None).ok_or(format!("No hay locución para el valor {}", rounded))
+    locution::climate(&names_of(&entries), kind, value)
+        .map(|i| path_of(&entries[i]))
+        .ok_or_else(|| "no_climate_locution".to_string())
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -55,29 +34,30 @@ pub fn resolve_climate_file(folder: &str, kind: &str, value: f64) -> Result<Stri
 /// Lista los archivos de una carpeta como rutas absolutas.
 fn read_folder(folder: &str) -> Result<Vec<PathBuf>, String> {
     if folder.is_empty() || !Path::new(folder).exists() {
-        return Err("Carpeta de locuciones no configurada o inexistente".to_string());
+        return Err("locution_folder_missing".to_string());
     }
     Ok(fs::read_dir(folder)
-        .map_err(|e| e.to_string())?
+        .map_err(|_| "locution_folder_missing".to_string())?
         .filter_map(|e| e.ok())
         .map(|e| e.path())
         .collect())
 }
 
-/// Primer archivo cuyo nombre (en mayúsculas) empiece con `prefix`,
-/// excluyendo opcionalmente los que contengan `exclude`.
-fn find_prefix(entries: &[PathBuf], prefix: &str, exclude: Option<&str>) -> Option<String> {
-    let prefix = prefix.to_uppercase();
+/// Los nombres sueltos, en el mismo orden que `entries`: el dominio decide por
+/// nombre y no tiene por qué saber de rutas.
+fn names_of(entries: &[PathBuf]) -> Vec<String> {
     entries
         .iter()
-        .find(|p| {
-            let name = p
-                .file_name()
-                .map(|n| n.to_string_lossy().to_uppercase())
-                .unwrap_or_default();
-            name.starts_with(&prefix) && exclude.map_or(true, |ex| !name.contains(ex))
+        .map(|p| {
+            p.file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_default()
         })
-        .map(|p| p.to_string_lossy().to_string())
+        .collect()
+}
+
+fn path_of(path: &Path) -> String {
+    path.to_string_lossy().to_string()
 }
 
 /// Hora y minuto locales del SO (chrono respeta zona horaria y DST).

@@ -451,17 +451,56 @@ Los botones de tipo `time`, `temperature` y `humidity` reproducen archivos de au
 ```
 Botón type="time"
   └─► cmd_button_playback → locution_playback::play_time()
-        └─► locutions::parse_time(hora_actual, carpeta_configurada)
-              └─► Construye lista de archivos: HRS14.mp3, MIN30.mp3…
+        └─► resolver::resolve_time_files(carpeta)   ← lee la carpeta y mira el reloj
+              └─► domain::locution::time_sequence(nombres, hh, mm)   ← DECIDE (puro)
                     └─► audio::play_sequence(id, paths, vol, dur)
                           └─► SequenceSource: reproduce los archivos en orden como uno solo
 
 Botón type="temperature" / "humidity"
   └─► locution_playback::play_climate()
         └─► engine/weather/client.rs proporciona el valor actual (caché 10 min; open-meteo API)
-              └─► locutions::parse_climate(valor, carpeta)
-                    └─► mismo mecanismo de secuencia
+              └─► resolver::resolve_climate_file(carpeta, tipo, valor)
+                    └─► domain::locution::climate(nombres, tipo, valor)
 ```
+
+### El formato de los nombres
+
+El formato es el de **ZaraRadio**, que es el que usa medio gremio:
+
+- **Hora:** `HRS00`–`HRS23` más `MIN00`–`MIN59`. Dos dígitos siempre.
+- **En punto:** `HRS14_O` — con la **letra O**, no un cero. Se acepta también `HRS14_0`
+  con cero, porque confundirlos es el error más repetido y aceptarlo sale más barato
+  que explicarlo.
+- **Temperatura:** `TMP025`. Bajo cero, `TMPN003`.
+- **Humedad:** `HUM082` (0–100).
+
+**Y también las variantes de RadioBOSS**, que dice lo mismo con otra convención: su manual
+da `TMP29.mp3`, `TMP-10.mp3` y `HUM3.mp3` — **sin ceros a la izquierda**, y las negativas
+con signo en vez de la `N`. Se aceptan las dos escrituras para que un pack traído de
+cualquiera de los dos suene sin renombrar nada. **Salamandra** usa la hora de ZaraRadio tal
+cual (y un `TIME_JINGLE` que aquí se ignora, sin estorbar).
+
+**Dinesat y Audicom NO entran, y no es pereza:** no localizan estos audios por nombre de
+archivo. Dinesat usa una **categoría de su base de datos** (`HTH ESPAÑOL`, elegida en
+Preferencias de la terminal → Clima) más una plantilla en `HTH.ini` donde la temperatura es
+un número, no un archivo; Audicom trae su módulo *Meteor* con voces pregrabadas que la
+emisora regraba con sus propios locutores. No hay convención con la que ser compatible: no
+existe un `TMP025` de Dinesat esperando a que lo leamos. Los packs que se venden como
+"compatibles con los cuatro" lo son porque el comprador los coloca a mano, no porque los
+cuatro programas lean igual. (Investigado contra las fuentes primarias el 2026-07-17.)
+
+### Dos trampas que costaron sangre
+
+**El número tiene que acabar donde acaba el prefijo.** Aceptar `TMP25` sin ceros abre un
+agujero: a 0 grados el nombre corto es `TMP0`, y `TMP025` **empieza por** `TMP0`. Buscando
+por prefijo a secas, la radio diría "veinticinco grados" con la ciudad a cero. Por eso
+`starts()` exige que lo que siga al alias no sea otra cifra. Lo cubren
+`a_cero_grados_no_se_cuela_la_de_veinticinco` y `bajo_cero_no_confunde_tres_con_treinta`.
+
+**`read_dir` no promete ningún orden.** Con `HRS14.mp3` y `HRS14 - las dos.mp3` en la misma
+carpeta se elegía uno u otro según el sistema de archivos, y la misma carpeta podía sonar
+distinta en dos equipos. Ahora se ordena alfabéticamente y el nombre exacto le gana al
+rotulado.
 
 > Ver glosario: [locución](#), [SequenceSource](#), [open-meteo](#)
 

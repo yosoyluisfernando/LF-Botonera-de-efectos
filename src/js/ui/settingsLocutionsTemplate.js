@@ -21,7 +21,9 @@ export function locutionsTemplate() {
           <button id="loc-time-browse">...</button>
           <button id="loc-time-test" title="${t('settings_loc.test')}">▶</button>
         </div>
+        <p id="loc-time-status" class="weather-status" data-kind=""></p>
         <p class="hint">${t('settings_loc.time_hint')}</p>
+        <p class="hint">${t('settings_loc.time_hint_sharp')}</p>
       </div>
       <hr class="modal-divider">
       <label><input type="checkbox" id="loc-weather-on"> <b>${typeIcon('temperature')} ${t('settings_loc.weather_block')}</b></label>
@@ -51,6 +53,7 @@ export function locutionsTemplate() {
           <button id="loc-hum-browse">...</button>
         </div>
         <p class="hint">${t('settings_loc.weather_hint')}</p>
+        <p class="hint">${t('settings_loc.weather_hint_packs')}</p>
       </div>
     </div>`;
 }

@@ -5,6 +5,7 @@ pub mod console;
 pub mod palette;
 pub mod export;
 pub mod grid;
+pub mod locution;
 pub mod playback;
 pub mod player;
 pub mod track_response;
