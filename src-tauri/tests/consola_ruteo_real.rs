@@ -19,6 +19,36 @@ use std::time::Duration;
 use tauri_app_lib::domain::console::{BusId, Routing};
 use tauri_app_lib::engine::console::ConsoleEngine;
 
+/// El bug de "cambio la salida del reproductor y se calla la botonera": mover UN
+/// bus rehace el grafo ENTERO, así que las fuentes de los demás mueren también.
+///
+/// La generación es como se enteran los motores. Si no subiera al cambiar un bus
+/// ajeno, el motor de efectos no sabría que lo suyo murió y se quedaría callado
+/// hasta que algo le llegara por su propio canal — que era justo lo que pasaba:
+/// solo volvía el sonido al guardar los ajustes, porque eso le mandaba un
+/// comando.
+#[test]
+#[ignore]
+fn mover_un_bus_avisa_a_los_demas_de_que_su_grafo_murio() {
+    let Some((una, otra)) = dos_tarjetas() else {
+        eprintln!("hacen falta DOS tarjetas; se salta");
+        return;
+    };
+    let consola = ConsoleEngine::new();
+    consola.set_bus_routing_sync(BusId::Programa, Routing::Device(una));
+    let antes = consola.generation();
+
+    // Se mueve el REPRODUCTOR: el motor de efectos no pide nada y no se entera
+    // por su canal.
+    consola.set_bus_routing_sync(BusId::Reproductor, Routing::Device(otra));
+    let despues = consola.generation();
+    println!("generación: {antes} → {despues}");
+    assert_ne!(
+        antes, despues,
+        "mover un bus ajeno debe avisar: el grafo de todos se rehizo"
+    );
+}
+
 /// El caso que el autor reporto: el reproductor en LA MISMA tarjeta que la
 /// botonera debe verse en el vumetro. Elegir esa tarjeta por su nombre es pedir
 /// el programa.

@@ -346,11 +346,21 @@ parpadea. Fue un bug real (2026-07-16); lo cubre `bus_tests.rs`.
 
 **Pero cambiar de tarjeta NO calla nada.** Las fuentes mueren con sus buses, así que **se vuelven
 a crear en el segundo por el que iban**. Los motores se enteran por la **generación** de la
-consola (`console.generation()`), que sube en cada `rebuild`:
-- **Efectos y panel:** el hilo de audio lo hace en el acto — `set_bus_routing_sync` (esperar es
-  obligatorio: entregar antes sería dárselo al bus muerto) y `reattach::reattach_all`.
-- **Reproductor:** lo detecta en su tick comparando la generación, y **antes** de mirar si el deck
-  terminó — si no, lo tomaría por fin de pista y saltaría de canción.
+consola (`console.generation()`), que sube en cada `rebuild`.
+
+**Trampa: rehacer el grafo lo dispara CUALQUIERA, y afecta a TODOS.** Mover un solo bus lo rehace
+entero, así que un motor no puede fiarse de enterarse por su propio canal — cambiar la salida del
+reproductor mataba las fuentes de la botonera y su hilo ni se enteraba, porque el comando iba por
+el canal del reproductor. Los dos hilos **miran la generación en su tick**, con `recv_timeout`, y
+no solo cuando ellos piden el cambio. Fue un bug real (2026-07-16): la botonera se quedaba muda
+hasta que algo le llegaba por su canal, y por eso "revivía" al guardar los ajustes — eso llamaba a
+`set_pre_device`.
+- **Efectos:** `engine/audio/thread.rs`, tras atender el comando (o el timeout) → `reattach_all`.
+- **Reproductor:** en su tick, y **antes** de mirar si el deck terminó — si no, lo tomaría por fin
+  de pista y saltaría de canción.
+
+`set_bus_routing_sync` sigue siendo obligatorio para quien vaya a rehacer justo después: entregar
+las fuentes antes de que el grafo esté montado sería dárselas al bus muerto.
 
 La ficha para rehacer (`ReplayInfo`) va en el **`ButtonState`**, no en un mapa por id: con
 `overlap` hay varias instancias del mismo botón sonando cada una por su sitio, y una ficha

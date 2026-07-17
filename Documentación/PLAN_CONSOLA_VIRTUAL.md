@@ -747,6 +747,32 @@ mentira.
 **Lo que la Fase 5 NO hace:** nadie lee `buses` todavía. Los datos existen y están probados; la
 tira de canal que los pinta es la Fase 6.
 
+#### Corrección posterior: rehacer el grafo lo dispara cualquiera (2026-07-16)
+
+El autor reportó que cambiar la salida **del reproductor** dejaba muda **la botonera**, y que el
+sonido volvía al abrir los ajustes y guardar sin tocar nada. Esa segunda pista es la que resuelve
+el caso.
+
+**La causa, y es un fallo de diseño de la Fase 4.5:** el hilo de audio rehacía sus fuentes dentro
+de `AudioCommand::SetBusRouting`, es decir, **solo cuando el cambio lo pedía él**. Pero mover un
+bus rehace el grafo **entero**, y el de la salida del reproductor lo dispara su propio hilo
+llamando a la consola directamente. Las fuentes de la botonera morían con su bus y nadie las
+rehacía, porque por el canal del motor de efectos no pasaba nada que lo delatara.
+
+Y por eso "revivía" al guardar los ajustes: `_saveSettings` llama **siempre** a `set_pre_device`,
+que sí entra por el hilo de audio y disparaba el rehacer.
+
+**El arreglo:** el motor de efectos mira la generación **en su tick**, como ya hacía el
+reproductor, en vez de fiarse de haber pedido el cambio. Su bucle pasa de `for cmd in rx` a
+`recv_timeout(100ms)`. No es un pulso de trabajo — sigue despertando al instante con cada comando;
+solo deja de estar ciego cuando no le llega ninguno.
+
+De paso el `match` gigante sale a `handle()`, y `SetBusRouting` se queda en una línea: pedir el
+cambio y ya. Rehacer es del bucle, que es quien sabe si el grafo cambió.
+
+**La lección, anotada como trampa en `CLAUDE.md`:** con la consola, el ruteo es de todos. Un motor
+no puede enterarse de lo que le pasa a su bus escuchando solo su propio canal.
+
 ---
 
 ## 10. Resumen en tres frases
