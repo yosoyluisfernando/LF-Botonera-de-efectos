@@ -11,7 +11,9 @@ Lee todo antes de tocar código.
 
 ## 1. Identidad del proyecto
 
-**LF Botonera de Efectos** es una botonera de sonidos (soundboard) para radio y streaming en directo. El operador asigna archivos de audio a botones organizados en paletas (pestañas) dentro de perfiles, y los dispara en tiempo real.
+**LF Botonera de Efectos** es una botonera de sonidos (soundboard) para directo. Se asignan archivos de audio a botones organizados en paletas (pestañas) dentro de perfiles, y se disparan en tiempo real.
+
+**El público son cuatro, y no uno:** operadores de radio, locutores, streamers y DJs. Comparten la mecánica —una rejilla de sonidos y las manos ocupadas mientras algo sale al aire— pero no el vocabulario ni el equipo. Conviene tenerlo presente al decidir: las locuciones de hora y clima son de radio y un streamer no las tocará nunca, mientras que mandar la música a una tarjeta distinta de la de los efectos le importa sobre todo a quien emite por internet. No dar por supuesto un estudio de radio.
 
 - **Versión actual:** 1.1.2
 - **Repositorio:** `C:\OVERLAY\BOTONERA`
@@ -630,6 +632,21 @@ dueño de las tarjetas), `graph.rs` (monta el grafo de buses según el ruteo), `
 `devices_in_use`. Puras y probadas sin tarjeta de sonido. Aquí se decide qué va dónde; el motor
 solo obedece.
 
+**`domain/locution.rs`** — qué archivo dice qué: los nombres de las locuciones de hora y clima.
+Puro y probado sin disco ni reloj (`engine/weather/resolver.rs` solo lee la carpeta y obedece).
+El formato es el de **ZaraRadio** (`HRS14`+`MIN25`, `HRS14_O` en punto, `TMP025`, `TMPN003`,
+`HUM082`), y se aceptan además el cero por la letra O (`HRS14_0`, confusión habitual) y las
+variantes de **RadioBOSS** (`TMP25`, `TMP-3`, `HUM82`, sin ceros a la izquierda). **Dinesat y
+Audicom no se pueden soportar por nombre de archivo** —categoría de base de datos el primero,
+módulo con voces pregrabadas el segundo—: no hay convención con la que ser compatible. Detalle y
+fuentes en el capítulo 12 de `Documentación/LIBRO_PROYECTO.md`.
+
+**Trampa: el número tiene que acabar donde acaba el prefijo.** Aceptar `TMP25` abre un agujero:
+a 0 grados el nombre corto es `TMP0`, y `TMP025` empieza por `TMP0` — buscando por prefijo a
+secas, la radio diría "veinticinco grados" con la ciudad a cero. Y `read_dir` **no promete
+ningún orden**: sin ordenar, `HRS14.mp3` y `HRS14 - las dos.mp3` en la misma carpeta sonaban
+distinto en cada equipo.
+
 Es un motor **debajo** de `audio/` y `player/`, no al lado: no produce audio, lo encamina, y los
 dos son sus clientes. `MasterBus` y `AudioDeviceRuntime` desaparecieron absorbidos por él.
 Fases y decisiones: `Documentación/PLAN_CONSOLA_VIRTUAL.md`.
@@ -640,8 +657,18 @@ Fases y decisiones: `Documentación/PLAN_CONSOLA_VIRTUAL.md`.
 sosteniendo a mano posición, fin de pista y pausa),
 `deck.rs` (estados de un deck), `queue.rs` (datos de la cola), `queue_ops.rs` (transporte),
 `queue_select.rs` (elegir siguiente + pre-carga ping-pong), `resolve.rs` (resuelve los tipos
-especiales **al sonar**), `exec.rs` (traduce acciones a rodio), `monitor.rs` (emite `"player-tick"`).
+especiales **al sonar**), `exec.rs` (traduce acciones a rodio), `prefetch.rs` (colchón de 10 s
+entre disco y tarjeta), `monitor.rs` (emite `"player-tick"`).
 La regla pura de avance vive en `domain/player/advance.rs`; el cue/ganancia en `domain/playback/edit.rs`.
+
+**Trampa: el colchón va DEBAJO de `DeckSource`, no encima.** `DeckSource` cuenta las muestras
+que consume, y de ese contador salen la posición, el fin de pista y el segundo por el que se
+rehace la fuente al cambiar de tarjeta. Con el colchón por encima, ese contador iría 10 s por
+delante de lo que suena: barra adelantada, la canción siguiente entrando antes de tiempo y un
+salto al cambiar de tarjeta. Por debajo mide lo que de verdad sale. Y **las tres vías que
+construyen fuente** (`exec::source_for`, el seek de `exec` y `deck::reattach`) pasan por
+`prefetch`: dejar una fuera devolvería los microcortes solo al saltar o solo al cambiar de
+tarjeta. Lo cubre `prefetch_tests.rs`.
 
 ## 11. Mapa de módulos Frontend (`src/`)
 
@@ -696,9 +723,23 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 170 passed, 1 ignored)
+# Backend Rust (suite actual: 206 passed, 1 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
+
+# Colchón del reproductor contra un ARCHIVO de verdad (necesita un audio en el
+# equipo, por eso va #[ignore]; no necesita tarjeta, la app puede seguir abierta).
+# Las rutas se dan por variable de entorno para no clavarlas en el repo:
+#   una canción larga (caso disco) y un efecto corto (caso precargado en RAM).
+LF_TEST_LONG_SONG="ruta/cancion.mp3" LF_TEST_SHORT_FX="ruta/efecto.mp3" \
+  cargo test --lib prefetch_real -- --ignored --nocapture
+
+# Locuciones contra CARPETAS de verdad: monta en un directorio temporal los packs
+# de ZaraRadio, Salamandra y RadioBOSS con sus nombres reales y comprueba que
+# suena el archivo que toca. Los archivos van vacíos: el resolver elige rutas, no
+# decodifica. NO va marcada #[ignore] —no necesita tarjeta ni red— y es lo único
+# que cubre `read_dir`, que es donde estaba el bug del orden indefinido.
+cargo test --test locuciones_carpeta_real
 
 # Consola contra las TARJETAS REALES del equipo (no entran en la suite normal:
 # necesitan hardware, y una prueba que falla por el entorno no dice nada).

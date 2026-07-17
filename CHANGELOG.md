@@ -38,6 +38,7 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - Botón **Loop** en el reproductor: repite la canción actual hasta desactivarlo. Es distinto del modo Repetir, que repite la lista entera; por eso Repetir usa el icono ∞ y el Loop el 🔂. Ponerlo o quitarlo mientras suena no corta la música.
 - El contador del reproductor cambia entre tiempo transcurrido y restante al pulsarlo, y con el reproductor parado muestra el tiempo total de la lista. La preferencia se recuerda.
 - El modo de reproducción se puede cambiar desde el propio panel, con un menú donde el icono indica el modo activo.
+- **Colchón de diez segundos en el reproductor:** la música se va decodificando por delante, así que un disco que se atasca un instante —otro programa copiando archivos, el antivirus, un disco que estaba dormido— ya no provoca microcortes. Vale para toda la música: al reproducir, al adelantar o atrasar y al cambiar de tarjeta de sonido.
 - Guardar y abrir listas de reproducción en formato `.LFPlay`, **compatible con LF Automatizador**. Limpiar y abrir preguntan antes si se desea guardar la lista actual.
 - En el reproductor se puede arrastrar una **carpeta entera** (incluidas sus subcarpetas) o **varios archivos a la vez**. Si son más de 250 canciones avisa antes, con opción de no volver a preguntar; esa decisión se puede cambiar después en Ajustes → Panel fijo. La carga va en segundo plano: la aplicación no se congela y la lista va creciendo a la vista. En la botonera de botones fijos se mantiene como estaba: un archivo por vez y sin carpetas.
 - Con **Detener al finalizar** activo, la canción marcada como siguiente se ve en gris en vez de naranja: sigue marcada y se respeta, pero avisa de que no sonará sola.
@@ -66,6 +67,16 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - **Cambiar de tarjeta de sonido ya no corta lo que esté sonando.** Antes, elegir otra salida callaba de golpe la botonera, el panel fijo y la música. Ahora todo continúa por donde iba: se oye un salto de milisegundos, inevitable porque el altavoz también cambia, pero nada se detiene. Las locuciones de hora y clima son la excepción y se dejan caer: son varios archivos encadenados y no se puede retomar por la mitad.
 
 ### Corregido
+- **A las horas en punto no se locutaba nada si tus locuciones no traían los archivos `_O`.** El archivo del «en punto» (`HRS14_O`) es opcional en la práctica —hay packs que no lo incluyen, y Salamandra ni siquiera lo documenta—, pero al llegar el minuto 00 se buscaba solo ese y, si no estaba, se callaba. Ahora, cuando falta, se dicen la hora y el minuto como en cualquier otro momento.
+
+- **Se acepta el cero además de la letra O en las locuciones «en punto».** El nombre correcto es `HRS14_O` con la letra O, pero escribirlo con un cero (`HRS14_0`) es una confusión muy repetida y a simple vista no se distingue. Ahora valen las dos formas.
+
+- **Ya sirven las locuciones de temperatura y humedad de RadioBOSS, sin renombrarlas.** RadioBOSS escribe los números sin ceros a la izquierda (`TMP25`, `HUM82`) y las temperaturas bajo cero con signo (`TMP-3`), mientras que ZaraRadio usa tres dígitos (`TMP025`, `HUM082`, `TMPN003`). Solo se reconocía la segunda forma. Ahora se reconocen las dos, así que los packs de ZaraRadio, Salamandra y RadioBOSS funcionan tal cual. Ajustes → Hora y Clima explica los nombres que valen en cada caso.
+
+- **Con dos archivos que empezaban igual, la locución que sonaba podía cambiar de un equipo a otro.** Teniendo por ejemplo `HRS14.mp3` y `HRS14 - las dos.mp3` en la misma carpeta, se elegía uno u otro sin criterio, según lo que devolviera el sistema de archivos. Ahora gana siempre el nombre exacto, y entre dos rotulados se elige siempre el mismo.
+
+- **El botón de probar la locución de hora fallaba en silencio.** Si la carpeta no estaba, o no había archivo para esa hora, no sonaba nada y no se decía por qué. Ahora enseña el motivo, y prueba la carpeta que tienes en pantalla en lugar de la última guardada. Los mensajes de las locuciones estaban además siempre en español, sin traducir al idioma de la aplicación.
+
 - **El clima daba el de otra ciudad cuando había varias con el mismo nombre.** Al elegir «Barcelona, Estado Anzoátegui, VE» en Ajustes → Hora y Clima, la temperatura y la humedad que se locutaban eran las de Barcelona (España). Lo mismo con Valencia (Carabobo), que daba la de España, y con El Callao (Bolívar), que daba el de Perú. Pasaba con cualquier ciudad homónima, y siempre ganaba la más poblada.
 
   La ciudad elegida en la lista se guardaba entera —con su estado y su país—, pero al ir a buscar el clima solo se usaba el nombre y se descartaba el resto, así que ya no había manera de saber cuál de todas era. Ahora se tiene en cuenta lo que se eligió.
