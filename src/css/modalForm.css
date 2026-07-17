@@ -1,0 +1,91 @@
+/*
+ * Archivo: modalForm.css
+ * Propósito: los controles de formulario dentro de un modal — filas, columnas,
+ * desplegables, sliders y la fila de elegir archivo.
+ *
+ * Aparte de modal.css por el límite de 200 líneas (regla 3), y porque son otra
+ * cosa: aquel es el armazón —la caja, su cabecera y su pie—, esto es lo que se
+ * mete dentro.
+ */
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  gap: 15px;
+}
+
+.col {
+  flex: 1;
+}
+
+input[type="text"], input[type="number"] {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 5px;
+}
+
+/* Slider con el color del tema (sin caja blanca en modo oscuro) */
+input[type="range"] {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  accent-color: var(--accent-color);
+}
+
+/* Desplegables con el tema activo (sin esto se ven blancos en modo oscuro) */
+select {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 5px;
+}
+
+select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+input[type="color"] {
+  width: 100%;
+  height: 30px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+
+.file-input-group {
+  display: flex;
+}
+
+.edit-type-select {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.file-input-group input {
+  flex: 1;
+  border-right: none;
+}
+
+/* Botones de la fila de archivo ("..." y ▶): tamaño cómodo de pulsar */
+.file-input-group button {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  min-width: 42px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.file-input-group button:hover {
+  background: var(--accent-color);
+  color: #fff;
+}

@@ -1,0 +1,91 @@
+/*
+ * Archivo: settingsModal.css
+ * Propósito: el modal de Ajustes — su caja grande y sus pestañas verticales.
+ *
+ * Vivía dentro de tabs.css, que es la barra de pestañas de la botonera: no
+ * tienen nada que ver más que la palabra "pestaña". Y estaba mal colocado: se
+ * cargaba ANTES que modal.css, así que .modal-content le pisaba el ancho y hacía
+ * falta un !important para defenderse. Cargado después, ya no.
+ */
+
+/* Modal de Ajustes: pestañas verticales a la izquierda */
+.modal-lg {
+  width: 720px;
+  max-width: 95vw;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#settings-modal .modal-lg {
+  height: 560px;
+}
+
+.settings-body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+}
+.settings-tabs {
+  display: flex;
+  flex-direction: column;
+  width: 160px;
+  flex-shrink: 0;
+  background: var(--modal-bg);
+  border-right: 1px solid var(--border-color);
+  padding-top: 5px;
+}
+.s-tab {
+  padding: 12px 15px;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  text-align: left;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+}
+.s-tab:hover { color: var(--text-primary); background: var(--menu-hover-bg); }
+.s-tab.active {
+  color: var(--text-primary);
+  background: var(--input-bg);
+  border-left: 3px solid var(--accent-color);
+}
+.settings-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+.s-panel { display: block; }
+
+.about-panel {
+  min-height: 100%;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 22px 36px;
+}
+
+.about-panel:not(.hidden) { display: flex; }
+
+.about-panel h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.about-panel p {
+  max-width: 460px;
+  margin: 6px 0;
+  line-height: 1.35;
+}
+
+.about-spacer { flex: 1; }
+
+.update-box {
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  padding: 10px;
+  margin-top: 18px;
+  width: min(100%, 420px);
+}

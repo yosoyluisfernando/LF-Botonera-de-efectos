@@ -3,65 +3,14 @@
  * Propósito: Estilos para la estructura principal de la botonera (Pestañas y Cuadrícula).
  */
 
+/* La barra de pestañas vive en `tabs.css`: estaba aquí y no es la cuadrícula. */
+
 .app-layout {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   padding: 5px;
-}
-
-/* --- CONTENEDOR DE PESTAÑAS --- */
-.tabs-container {
-  display: flex;
-  background: var(--bg-tertiary);
-  padding: 5px 5px 0 5px;
-  border-radius: 5px 5px 0 0;
-  flex-shrink: 0;
-  align-items: flex-end;
-}
-
-.tabs-scroll {
-  display: flex;
-  overflow-x: auto;
-  flex-grow: 1;
-  scrollbar-width: thin;
-}
-
-.tab {
-  padding: 8px 15px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-bottom: none;
-  cursor: pointer;
-  border-radius: 5px 5px 0 0;
-  margin-right: 2px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.tab.active {
-  background: var(--bg-primary);
-  border-style: dashed;
-  color: var(--text-primary);
-}
-
-.btn-add-tab {
-  background: var(--action-accent);
-  color: white;
-  border: none;
-  cursor: pointer;
-  padding: 0 15px;
-  font-size: 16px;
-  height: 32px;
-  border-radius: 5px 5px 0 0;
-  margin-left: 5px;
-  font-weight: bold;
-}
-
-.btn-add-tab:hover {
-  background: var(--action-accent-hover);
 }
 
 /* --- CUADRÍCULA (GRID) --- */

@@ -1,6 +1,11 @@
 /*
  * Archivo: modal.css
- * Propósito: Estilos para ventanas modales (Editor, Configuraciones).
+ * Propósito: el ARMAZÓN de cualquier modal — la caja, su cabecera, su cuerpo y
+ * su pie, con los botones de acción.
+ *
+ * Lo que va dentro está aparte: los controles de formulario en `modalForm.css`,
+ * el modal de Ajustes en `settingsModal.css` y el panel de Hora y Clima en
+ * `settingsWeather.css`. Este archivo no debe saber de ningún modal concreto.
  */
 
 .modal-overlay {
@@ -76,88 +81,6 @@
   accent-color: var(--accent-color);
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-  gap: 15px;
-}
-
-.col {
-  flex: 1;
-}
-
-input[type="text"], input[type="number"] {
-  width: 100%;
-  background: var(--input-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 5px;
-}
-
-/* Slider con el color del tema (sin caja blanca en modo oscuro) */
-input[type="range"] {
-  width: 100%;
-  background: transparent;
-  border: none;
-  padding: 0;
-  accent-color: var(--accent-color);
-}
-
-/* Desplegables con el tema activo (sin esto se ven blancos en modo oscuro) */
-select {
-  width: 100%;
-  background: var(--input-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 5px;
-}
-
-select option {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-input[type="color"] {
-  width: 100%;
-  height: 30px;
-  border: none;
-  background: none;
-  cursor: pointer;
-}
-
-
-.file-input-group {
-  display: flex;
-}
-
-.edit-type-select {
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.file-input-group input {
-  flex: 1;
-  border-right: none;
-}
-
-/* Botones de la fila de archivo ("..." y ▶): tamaño cómodo de pulsar */
-.file-input-group button {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  cursor: pointer;
-  min-width: 42px;
-  padding: 6px 10px;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.file-input-group button:hover {
-  background: var(--accent-color);
-  color: #fff;
-}
-
 .modal-footer {
   padding: 10px 15px;
   display: flex;
@@ -210,40 +133,3 @@ input[type="color"] {
 .danger-action {
   background: var(--error-color);
 }
-
-/* ─── Panel Hora y Clima ─────────────────────────────────────────────── */
-
-/* Botón "Comprobar" destacado dentro de la fila de ciudad. */
-#loc-weather-test {
-  background: var(--accent-color);
-  color: #fff;
-  min-width: auto;
-  white-space: nowrap;
-}
-
-#loc-weather-test:hover {
-  background: var(--accent-hover);
-}
-
-/* Resultado de la comprobación: temperatura y humedad destacadas. */
-.weather-result {
-  display: flex;
-  gap: 20px;
-  margin: 10px 0 4px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-#loc-weather-temp { color: var(--success-color); }
-#loc-weather-hum  { color: var(--accent-color); }
-
-/* Línea de estado (buscando / ✓ ciudad / error), coloreada por data-kind. */
-.weather-status {
-  min-height: 16px;
-  margin: 0 0 6px;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.weather-status[data-kind="ok"]    { color: var(--success-color); }
-.weather-status[data-kind="error"] { color: var(--error-color); }
