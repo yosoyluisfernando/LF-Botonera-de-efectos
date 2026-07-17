@@ -89,14 +89,16 @@
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
 }
 
-/* El máster manda: se le da su sitio y un borde que lo distingue. */
+/* El máster manda, y se le da su sitio. Sin borde de color: en una mesa el MAIN
+   no se distingue por un marco, se distingue por dónde está y por su capuchón. */
 .console-strip.is-master {
   flex-basis: 124px;
-  border-color: var(--console-db);
 }
 
-/* Un bus con tarjeta propia no obedece al máster. La tira lo dice: si no, se
-   movería el máster esperando que bajara y no bajaría. */
+/* El aviso que SÍ dice algo: este bus tiene tarjeta propia, así que no obedece
+   al máster. Sin él se movería el máster esperando que bajara y no bajaría.
+   Solo se marca cuando es una decisión del usuario — la pre-escucha nunca suma
+   en el programa y avisarlo siempre no informaría de nada, solo haría ruido. */
 .console-strip.is-direct {
   border-color: var(--vu-yellow);
 }
@@ -112,7 +114,12 @@
   margin-bottom: 10px;
 }
 
+/* Una línea y solo una: al partirse en dos le robaba alto al vúmetro, y una tira
+   acababa con la barra más corta que sus vecinas sin más motivo que su nombre.
+   Por eso las etiquetas son cortas — el destino, debajo, ya dice de qué va. */
 .strip-label {
+  min-height: 14px;
+  white-space: nowrap;
   font-size: 11.5px;
   font-weight: bold;
   letter-spacing: 0.02em;

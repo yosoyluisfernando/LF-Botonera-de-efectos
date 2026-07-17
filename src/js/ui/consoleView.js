@@ -59,8 +59,10 @@ function _buildStrip(strip) {
     const el = document.createElement('div');
     el.className = 'console-strip';
     if (master) el.classList.add('is-master');
-    // Un bus con tarjeta propia no obedece al máster; la tira tiene que decirlo.
-    else if (!strip.in_program) el.classList.add('is-direct');
+    // Aviso de que este bus tiene tarjeta propia y no obedece al máster. Solo
+    // cuando es una DECISIÓN del usuario: la pre-escucha nunca suma en el
+    // programa, y marcarla siempre no informaría de nada — sería ruido fijo.
+    else if (strip.bus !== 'cue' && !strip.in_program) el.classList.add('is-direct');
     el.innerHTML = `
       <div class="strip-stage">
         <div class="strip-meters">

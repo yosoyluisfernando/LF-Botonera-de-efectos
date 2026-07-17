@@ -413,7 +413,7 @@
     "silence": "-inf dB",
     "bus": {
       "efectos": "EFECTOS",
-      "panel": "BOTONES FIJOS",
+      "panel": "B. FIJOS",
       "reproductor": "REPRODUCTOR",
       "cue": "PRE-ESCUCHA",
       "programa": "MÁSTER"
