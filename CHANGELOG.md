@@ -66,6 +66,14 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - **Cambiar de tarjeta de sonido ya no corta lo que esté sonando.** Antes, elegir otra salida callaba de golpe la botonera, el panel fijo y la música. Ahora todo continúa por donde iba: se oye un salto de milisegundos, inevitable porque el altavoz también cambia, pero nada se detiene. Las locuciones de hora y clima son la excepción y se dejan caer: son varios archivos encadenados y no se puede retomar por la mitad.
 
 ### Corregido
+- **El clima daba el de otra ciudad cuando había varias con el mismo nombre.** Al elegir «Barcelona, Estado Anzoátegui, VE» en Ajustes → Hora y Clima, la temperatura y la humedad que se locutaban eran las de Barcelona (España). Lo mismo con Valencia (Carabobo), que daba la de España, y con El Callao (Bolívar), que daba el de Perú. Pasaba con cualquier ciudad homónima, y siempre ganaba la más poblada.
+
+  La ciudad elegida en la lista se guardaba entera —con su estado y su país—, pero al ir a buscar el clima solo se usaba el nombre y se descartaba el resto, así que ya no había manera de saber cuál de todas era. Ahora se tiene en cuenta lo que se eligió.
+
+  **Si tienes una ciudad afectada, vuelve a elegirla en Ajustes:** las coordenadas equivocadas se guardaron y no se corrigen solas.
+
+  Dos cosas que conviene saber. El buscador encuentra por el principio del nombre, así que **El Callao** hay que escribirlo entero: «Callao» a secas no lo encuentra, porque devuelve los de Perú y Estados Unidos. Y una ciudad sin país sigue siendo ambigua: «Barcelona» a secas dará la de España.
+
 - **La pre-escucha se colaba en la salida principal si no tenías una tarjeta de sonido dedicada para ella.** Al no haber una segunda salida configurada —que es el caso por defecto—, la pre-escucha y la previa del editor acababan mezcladas con lo que sale al aire: les afectaba el volumen máster y movían el vúmetro como si fueran programa. Con una tarjeta dedicada no pasaba, así que el mismo botón se comportaba distinto según el equipo. Ahora la pre-escucha es siempre un canal aparte: aunque comparta altavoces con la salida principal porque solo tengas una tarjeta, no pasa por el máster ni cuenta en el vúmetro.
 
 - **Algunas canciones no mostraban su duración** (y por eso no dejaban adelantar ni atrasar, ni mostraban el tiempo). El audio estaba bien: fallaba porque el archivo tenía el título o el artista guardados con una codificación inválida, algo habitual en MP3 antiguos, y eso tiraba la lectura entera. Ahora solo se lee la duración, sin las etiquetas. Lo que ya estuviera guardado sin duración —botones de la botonera, del panel fijo y canciones de la lista— la recupera al abrir la aplicación.

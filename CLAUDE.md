@@ -708,6 +708,11 @@ cargo test --lib
 #   vúmetros: que cada medidor cuente LO SUYO y el del programa la suma
 cargo test --test consola_ruteo_real --test consola_vumetros_real -- --ignored --nocapture --test-threads=1
 
+# Geocodificación contra la API REAL (necesita red, por eso va marcada #[ignore]).
+# Fija que las ciudades homónimas del autor siguen distinguiéndose: si Open-Meteo
+# cambiara su orden o sus etiquetas, se vería aquí.
+cargo test --test clima_ciudades_reales -- --ignored --nocapture
+
 # OJO: `cargo test` compila CON los tests, y un `use super::*` de un fichero de
 # pruebas puede tapar un import que ya nadie usa en el módulo. El usuario compila
 # SIN tests (`tauri dev`) y ahí sí sale el warning. Comprobar siempre las dos:

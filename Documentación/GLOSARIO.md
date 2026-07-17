@@ -338,7 +338,11 @@ Struct Rust (`engine/console/endpoint.rs`). Una tarjeta física abierta **exacta
 Un endpoint **no construye ningún mixer**: `OutputStream` ya lleva uno dentro (`play_raw` añade a él). Solo mantiene el stream vivo —si se suelta, el `Weak` del handle deja de resolver— y reparte su handle. Un endpoint es un **conector**; lo que lleva señal es el [bus](#b).
 
 **`open-meteo`**
-API de clima gratuita y de código abierto usada por `engine/weather/client.rs` para obtener temperatura y humedad actuales a partir de coordenadas geográficas. La caché es de 10 minutos.
+API de clima gratuita y de código abierto usada por `engine/weather/client.rs` para obtener temperatura y humedad actuales a partir de coordenadas geográficas. La caché es de 10 minutos. La geocodificación (nombre → coordenadas) es otra API suya y vive en `engine/weather/geocode.rs`.
+
+**Trampa: busca por NOMBRE, no por etiqueta.** Mandarle `name=Barcelona, Estado Anzoátegui, VE` devuelve **cero resultados**. Por eso `resolve_coords` busca solo por el nombre — pero el resto de la etiqueta **no se tira**: se usa para elegir cuál de las homónimas es (`pick`). Tirarla fue un bug real (2026-07-16): al elegir Barcelona de Venezuela salía el clima de España, porque sin el país gana la más poblada. La cadena guardada en `weather_city` ya trae todo lo necesario; solo había que dejar de descartarlo.
+
+**Y busca por PREFIJO.** «Callao» no encuentra «El Callao»: devuelve los de Perú y Estados Unidos. Eso es de la API y no tiene arreglo desde aquí — hay que escribir el nombre entero.
 
 **`overlap`**
 Flag de `ButtonData`. Si está activo, reproducir el botón mientras ya está sonando crea una nueva instancia simultánea en lugar de pararlo o ignorarlo.

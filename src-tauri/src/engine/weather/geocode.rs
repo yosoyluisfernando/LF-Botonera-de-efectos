@@ -50,19 +50,56 @@ pub fn search_city(query: &str) -> Result<Vec<CityResult>, String> {
     geocode(query, 5)
 }
 
-/// Resuelve una ciudad a coordenadas. Usa solo el primer segmento antes de la
-/// coma ("Madrid" de "Madrid, Comunidad de Madrid, ES"): así la etiqueta
-/// completa del autocompletado nunca devuelve cero resultados (raíz del antiguo
-/// "no existe la ciudad que el propio servidor autocompletó").
+/// Cuántas candidatas se piden al resolver. Diez van sobradas: en los nombres
+/// más repetidos (Barcelona, Valencia, Santiago, San José) la del país buscado
+/// aparece siempre entre las dos primeras.
+const RESOLVE_COUNT: u8 = 10;
+
+/// Resuelve una ciudad a coordenadas.
+///
+/// La API busca por NOMBRE, no por etiqueta: mandarle "Barcelona, Estado
+/// Anzoátegui, VE" entera devuelve cero resultados. Por eso se busca solo por el
+/// nombre... pero el resto de la etiqueta **no se tira**, que era el bug: dice
+/// CUÁL de las Barcelonas es, y sin ella siempre ganaba la más poblada.
 pub fn resolve_coords(city: &str) -> Result<CityResult, String> {
     let name = city.split(',').next().unwrap_or(city).trim();
     if name.is_empty() {
         return Err("no_city".to_string());
     }
-    geocode(name, 1)?
-        .into_iter()
-        .next()
+    let found = geocode(name, RESOLVE_COUNT)?;
+    pick(&found, city)
+        .cloned()
         .ok_or_else(|| "city_not_found".to_string())
+}
+
+/// Elige, de las candidatas, la que pide la etiqueta guardada. Aquí vive la
+/// decisión y por eso está separada de la red: se puede probar sin ella.
+///
+/// Se afina de más a menos, y el último escalón es el comportamiento de siempre.
+fn pick<'a>(found: &'a [CityResult], city: &str) -> Option<&'a CityResult> {
+    // 1. La etiqueta entera. Sale del propio autocompletado, así que compararla
+    //    con la que genera `geocode` es exacto: misma fuente, mismo formato.
+    if let Some(exact) = found.iter().find(|c| c.label == city) {
+        return Some(exact);
+    }
+    // 2. Solo el país. Cubre lo escrito a mano ("Valencia, VE") y las etiquetas
+    //    viejas cuya región la API haya renombrado desde entonces.
+    let country = country_of(city);
+    if country != city {
+        if let Some(same) = found.iter().find(|c| country_of(&c.label) == country) {
+            return Some(same);
+        }
+    }
+    // 3. Sin país que valga es ambigua de verdad: "Barcelona" a secas, o una
+    //    configuración anterior a las etiquetas. La primera es lo único
+    //    razonable, y es lo que se ha hecho siempre.
+    found.first()
+}
+
+/// El país de una etiqueta: su último segmento. Sin coma no hay país, y
+/// devuelve la cadena entera — así el llamante puede saber que no lo había.
+fn country_of(label: &str) -> &str {
+    label.rsplit(',').next().unwrap_or(label).trim()
 }
 
 /// Codificación mínima de URL para el nombre de ciudad.
@@ -79,3 +116,7 @@ fn urlencode(s: &str) -> String {
         })
         .collect()
 }
+
+#[cfg(test)]
+#[path = "geocode_tests.rs"]
+mod geocode_tests;
