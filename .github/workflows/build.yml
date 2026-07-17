@@ -93,6 +93,10 @@ jobs:
 
   release:
     name: Publicar Release en GitHub
+    # Solo al empujar un tag. Una compilacion manual (workflow_dispatch) sirve
+    # para comprobar que todo compila SIN publicar nada: sin esta guarda,
+    # lanzarla a mano intentaria crear una release desde una rama.
+    if: startsWith(github.ref, 'refs/tags/')
     needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     permissions:
