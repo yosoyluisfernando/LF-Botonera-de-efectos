@@ -355,6 +355,8 @@ Struct Rust (`model/content.rs`) que representa una paleta. Su id tiene el forma
 
 **Trampa:** su campo `audio_out` **no enruta nada**. Existe solo por compatibilidad con LF Automatizador (se guarda y se exporta en `.bdelf`), pero el motor de la Botonera lo ignora: todo suena por el `out_main` del perfil. El ruteo de verdad lo decide la [consola](#c) por [`BusId`](#b), y una paleta no tiene bus propio: sus botones van al de `Efectos`, como los de cualquier otra.
 
+**El modal de pestaña llegó a ofrecerlo** con la etiqueta «Salida de Audio (Esta pestaña)», y se retiró (2026-07-16): un control que no hace nada es peor que no tenerlo, porque el operador cree que lo dejó configurado. El campo **sigue en el modelo** y `update_paleta_meta` no lo toca si no se le manda, así que lo que traiga un `.bdelf` del LFA se conserva intacto (regla 6). Si algún día se quiere de verdad, la consola ya lo hace posible: sería un bus con `Routing::Device`.
+
 **`perfil`**
 Configuración raíz que agrupa una o más paletas. Un perfil tiene nombre, colores, ajustes de audio (dispositivos, atajos, modo de reproducción) y una lista de paletas. Representado por `ProfileData`.
 

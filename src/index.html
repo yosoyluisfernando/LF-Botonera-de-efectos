@@ -374,12 +374,13 @@
             </div>
           </div>
           <hr class="modal-divider">
-          <div class="row" style="margin-top:12px">
-            <div class="col">
-              <label data-i18n="tab_modal.audio_out">Salida de Audio:</label>
-              <select id="tab-audio-out" class="audio-select"></select>
-            </div>
-          </div>
+          <!-- Aquí iba un selector de "Salida de Audio (Esta pestaña)". Se retiró
+               porque no ruteaba nada y nunca lo hizo: `PaletaData.audio_out` solo
+               se guarda y se exporta a `.bdelf` por compatibilidad con el LF
+               Automatizador, y el motor de la Botonera lo ignora. Ofrecerlo hacía
+               creer que se configuraba algo. El campo sigue en el modelo, así que
+               lo que venga del LFA se conserva intacto.
+               Los colores de la pestaña los inserta aquí `_ensureColorControls`. -->
         </div>
         <div class="modal-footer">
           <button id="btn-save-tab" class="btn-blue" data-i18n="tab_modal.save">Guardar</button>

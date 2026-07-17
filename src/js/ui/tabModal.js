@@ -25,7 +25,6 @@ export async function openTabModal(config, paleta, onRefresh) {
     const nameEl  = document.getElementById('tab-name');
     const rowsEl  = document.getElementById('tab-v');
     const colsEl  = document.getElementById('tab-h');
-    const audioEl = document.getElementById('tab-audio-out');
     _ensureColorControls();
     const bgEl    = document.getElementById('tab-bg-color');
     const textEl  = document.getElementById('tab-text-color');
@@ -50,8 +49,6 @@ export async function openTabModal(config, paleta, onRefresh) {
     }
     await refreshColorInputs();
 
-    await _fillAudioSelect(audioEl, isEdit ? paleta.audio_out : '');
-
     modal.classList.remove('hidden');
     nameEl.focus();
 
@@ -61,7 +58,6 @@ export async function openTabModal(config, paleta, onRefresh) {
             nombre:    nameEl.value.trim() || _newTabName(_tabCount(config)),
             rows:      parseInt(rowsEl.value) || 5,
             cols:      parseInt(colsEl.value) || 5,
-            audioOut:  audioEl.value,
             tabBg:     bgEl.value,
             tabText:   textEl.value,
         };
@@ -82,23 +78,13 @@ export async function openTabModal(config, paleta, onRefresh) {
     };
 }
 
-async function _fillAudioSelect(select, current) {
-    const devices = await invoke('get_audio_devices').catch(() => ['default']);
-    select.innerHTML = `<option value="">${t('tab_modal.audio_global')}</option>`;
-    devices.forEach(d => {
-        const opt = document.createElement('option');
-        opt.value = d;
-        opt.textContent = d;
-        if (d === current) opt.selected = true;
-        select.appendChild(opt);
-    });
-    if (!current) select.value = '';
-}
-
+/** Los colores van al final del modal. Se insertaban antes de la fila de la
+ *  salida de audio, que se retiró por no rutear nada; ya no hay a qué anclarse ni
+ *  falta: este es su sitio. */
 function _ensureColorControls() {
     if (document.getElementById('tab-bg-color')) return;
-    const audioRow = document.getElementById('tab-audio-out')?.closest('.row');
-    if (!audioRow) return;
+    const body = document.querySelector('#tab-modal .modal-body');
+    if (!body) return;
     const row = document.createElement('div');
     row.className = 'row tab-color-row';
     row.innerHTML = `
@@ -110,7 +96,7 @@ function _ensureColorControls() {
           <label data-i18n="tab_modal.text_color">${t('tab_modal.text_color')}</label>
           <input type="color" id="tab-text-color" value="#ffffff">
         </div>`;
-    audioRow.parentNode.insertBefore(row, audioRow);
+    body.appendChild(row);
 }
 
 function _tabCount(config) {

@@ -39,8 +39,6 @@
     "cols_label": "Columns (H):",
     "bg_color": "Background color:",
     "text_color": "Text color:",
-    "audio_out": "Audio Output (This tab):",
-    "audio_global": "Use Main Output (Global)",
     "save": "Save"
   },
   "profiles": {

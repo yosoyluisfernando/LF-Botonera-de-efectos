@@ -39,8 +39,6 @@
     "cols_label": "Colunas (H):",
     "bg_color": "Cor de fundo:",
     "text_color": "Cor do texto:",
-    "audio_out": "Saída de Áudio (Este separador):",
-    "audio_global": "Usar Saída Principal (Global)",
     "save": "Guardar"
   },
   "profiles": {
