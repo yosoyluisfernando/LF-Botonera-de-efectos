@@ -25,72 +25,25 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 ## [Sin publicar]
 
 ### Añadido
-- Panel lateral de botones fijos con alcance global o por perfil, posición izquierda/derecha, columnas configurables, DnD y controles de reproducción independientes.
-- Panel fijo redimensionable, con una a cinco columnas y filas ilimitadas o capacidad limitada configurable hasta veinte filas.
-- **Modo reproductor en el panel lateral:** una lista de reproducción propia, pensada para dejar música de fondo mientras se disparan los efectos. Suena de forma independiente: el Stop general y el Solo de los efectos no la cortan, y el reproductor tiene su propio botón de detener. El volumen máster sí la gobierna, como a todo lo que sale por la salida principal, y la música se refleja en el vúmetro; para bajar la música y hablar encima sin tocar los efectos está el volumen propio del reproductor.
-- Reproductor con tres modos de avance: normal, repetir la lista y aleatorio. El modo decide qué canción viene; que el reproductor se detenga al terminar la actual lo decide el botón **Detener al finalizar**, que se combina con cualquiera de los tres (por ejemplo: pararse en cada canción y que la siguiente salga al azar). La pista que suena se ve en verde y la marcada como siguiente en naranja, con los mismos colores que usa LF Automatizador. Lo que se marca como siguiente se respeta siempre, sin importar el modo, y sigue a su canción aunque se reordene la lista.
-- El naranja indica siempre qué sonará al pulsar reproducir, también con el reproductor detenido: no desaparece al parar, y al añadir canciones a una lista vacía la primera queda marcada sola.
-- En la lista del reproductor, un doble clic reproduce la canción si está detenido, o la marca como siguiente si ya hay música sonando, sin cortarla.
-- Limpiar la lista o abrir otra **no corta la música**: la canción que está sonando termina, y al acabar entra la lista nueva.
-- Botón **Detener al finalizar** en el reproductor: al terminar la pista actual la siguiente no arranca sola hasta pulsar reproducir, conservando la que estaba marcada como siguiente. No se recuerda al cerrar la aplicación: siempre arranca apagado.
-- El reproductor tiene **volumen y dispositivo de salida propios**. La salida está en Ajustes → Principal, junto a las demás salidas de audio, y sirve para mandar la música a otra tarjeta distinta de la de los efectos; el volumen se ajusta desde el propio panel o desde la consola de audio, sin entrar en Ajustes.
-- Barra de progreso en el reproductor: muestra por dónde va la canción y permite adelantar o atrasar a un punto concreto. Las locuciones de hora y clima no se pueden adelantar, porque son varios archivos encadenados.
-- Botón **Loop** en el reproductor: repite la canción actual hasta desactivarlo. Es distinto del modo Repetir, que repite la lista entera; por eso Repetir usa el icono ∞ y el Loop el 🔂. Ponerlo o quitarlo mientras suena no corta la música.
-- El contador del reproductor cambia entre tiempo transcurrido y restante al pulsarlo, y con el reproductor parado muestra el tiempo total de la lista. La preferencia se recuerda.
-- El modo de reproducción se puede cambiar desde el propio panel, con un menú donde el icono indica el modo activo.
-- **Colchón de diez segundos en el reproductor:** la música se va decodificando por delante, así que un disco que se atasca un instante —otro programa copiando archivos, el antivirus, un disco que estaba dormido— ya no provoca microcortes. Vale para toda la música: al reproducir, al adelantar o atrasar y al cambiar de tarjeta de sonido.
-- Guardar y abrir listas de reproducción en formato `.LFPlay`, **compatible con LF Automatizador**. Limpiar y abrir preguntan antes si se desea guardar la lista actual.
-- En el reproductor se puede arrastrar una **carpeta entera** (incluidas sus subcarpetas) o **varios archivos a la vez**. Si son más de 250 canciones avisa antes, con opción de no volver a preguntar; esa decisión se puede cambiar después en Ajustes → Panel fijo. La carga va en segundo plano: la aplicación no se congela y la lista va creciendo a la vista. En la botonera de botones fijos se mantiene como estaba: un archivo por vez y sin carpetas.
-- Con **Detener al finalizar** activo, la canción marcada como siguiente se ve en gris en vez de naranja: sigue marcada y se respeta, pero avisa de que no sonará sola.
-- Arrastrar y soltar en la lista del reproductor: añadir canciones desde el explorador, arrastrar botones de la botonera a la lista, y reordenar las canciones arrastrándolas. Soltar sobre una fila inserta en esa posición; soltar en el espacio vacío añade al final.
-- El reproductor admite los mismos tipos que los botones: audio, carpeta aleatoria, locución horaria, temperatura y humedad. La hora y el clima se resuelven en el momento de sonar, y respeta los cortes de inicio y fin marcados en el editor de pistas. Los tipos que no tienen una duración conocida de antemano se muestran como `--:--` y no cuentan para el total, igual que en LF Automatizador. Si alguno no se puede resolver (una carpeta vacía, o el clima sin conexión), se salta y la música continúa.
-- **Cambiar el color de varios botones a la vez:** con **Ctrl + clic** se seleccionan los botones que se quieran (en la botonera o en el panel fijo) y, al hacer clic derecho, se ofrece pintarlos todos del mismo color. Ctrl+clic no dispara el sonido, y la selección se suelta con Escape o con un clic normal. Los botones nuevos se siguen creando con un color al azar.
-- **Consola de audio.** Un botón nuevo en la barra superior (🎛️) abre una consola con una tira de canal por cada cosa que suena: los efectos de la botonera, los botones fijos, la música del reproductor y la pre-escucha, más el máster. Cada tira tiene su vúmetro estéreo y su fader, así que se puede bajar la música para hablar encima sin tocar los efectos, o bajarlo todo a la vez con el máster. Los niveles se ven en decibelios y el color cambia a los mismos que el vúmetro de la barra inferior.
-
-  La pre-escucha se dibuja aparte porque **nunca** se mezcla con lo que sale al aire, ni cuando comparte los mismos altavoces. Y si a un canal se le da una tarjeta de sonido propia, su tira lo avisa: entonces sale por su cuenta y el máster ya no lo gobierna.
-
-  Se abre en una ventana flotante, para poder tener la botonera al lado, y también puede usarse como ventana emergente sobre la botonera. Está **en fase de prueba** y se irá adaptando a un sitio mejor, así que lo avisa al abrirse.
-- En Ajustes → Principal se pueden **ocultar los botones de Consola de audio y Panel fijo** de la barra superior, para quien no los use y prefiera una vista más limpia.
-- El reproductor vacío indica qué hacer: **arrastrar las canciones desde el explorador de archivos**. Los botones fijos tienen su «+», pero la lista se llena arrastrando y eso no se veía por ningún lado.
-- Caché persistente de waveforms del editor de pistas en disco, con límites configurables de tamaño y antigüedad y opción para limpiarla desde los ajustes del normalizador.
-- Progreso de análisis del editor de pistas con etapas visibles mientras Rust revisa caché, reconstruye waveform, decodifica, guarda y limpia.
+- **Panel lateral fijo:** una botonera y un reproductor de música siempre a mano, aparte de las pestañas. Global o por perfil, a izquierda o derecha, redimensionable y con columnas configurables.
+- **Reproductor de música de fondo:** lista propia que el Stop y el Solo de los efectos no cortan. Modos normal, repetir y aleatorio, marcar la siguiente, Loop, detener al finalizar, barra de progreso, y volumen y salida de audio propios. Admite arrastrar carpetas enteras o varios archivos, y los mismos tipos que los botones (audio, carpeta aleatoria, hora, temperatura y humedad). Guarda y abre listas en formato `.LFPlay`, compatible con LF Automatizador.
+- **Consola de audio:** un fader y un vúmetro por cada fuente —efectos, panel fijo, reproductor y pre-escucha— más el máster, para bajar la música y hablar encima sin tocar los efectos. En fase de prueba.
+- **Colchón de diez segundos en el reproductor:** un disco que se atasca un instante ya no entrecorta la música.
+- **Pintar varios botones a la vez:** con `Ctrl`+clic se seleccionan y con clic derecho se les da el mismo color.
+- Se pueden ocultar los botones de Consola y Panel fijo de la barra superior, para una vista más limpia.
 
 ### Cambiado
-- El análisis del editor de pistas se ejecuta en un worker bloqueante de Tauri y reutiliza caché en memoria, `tracks.db` y waveforms persistidas antes de decodificar de nuevo.
-- El recordatorio de donación deja de mostrarse seguido, ahora solo se muestra cada 100 aperturas de la botonera.
-- El editor solo inserta PCM en la caché RAM si la precarga está activa y la duración del archivo entra en el límite configurado.
-- Reorganización interna del código fuente alrededor de un núcleo central y motores especializados. Al ser un proyecto de código abierto, este cambio deja una base más clara y ordenada para programadores que en el futuro quieran apoyar con mejoras o nuevas funciones. No está pensado como una mejora directa de rendimiento; la app debería sentirse igual, pero será más fácil mantenerla y ampliarla con seguridad.
-- **La paleta de colores de los botones tiene ahora variedad real.** Antes eran 32 colores, pero en la práctica se veían 16: la mitad eran el mismo tono en otra intensidad, y la app iguala las intensidades para que el texto se lea en tema claro y oscuro. Además había seis azules y seis rojos, pero un solo verde. Ahora son 24 colores repartidos por todo el círculo de color, y ninguno se repite. Los botones que ya tienes conservan su color.
-- El texto de los botones nuevos se lee mejor sobre los colores más vivos: antes se elegía blanco o negro con una regla fija que en algunos fondos acertaba mal; ahora se elige el que de verdad contrasta más. Los botones que ya tienes conservan sus colores.
-
-### Cambiado
-- **Cambiar de tarjeta de sonido ya no corta lo que esté sonando.** Antes, elegir otra salida callaba de golpe la botonera, el panel fijo y la música. Ahora todo continúa por donde iba: se oye un salto de milisegundos, inevitable porque el altavoz también cambia, pero nada se detiene. Las locuciones de hora y clima son la excepción y se dejan caer: son varios archivos encadenados y no se puede retomar por la mitad.
+- **Cambiar de tarjeta de sonido ya no corta lo que suena:** todo continúa por donde iba, con un salto de milisegundos inevitable.
+- **La paleta de botones tiene ahora 24 colores** repartidos por todo el círculo, sin repetidos ni casi iguales. Los botones que ya tienes conservan su color.
+- Reorganización interna del código para que sea más fácil de mantener y ampliar; la app se siente igual.
 
 ### Corregido
-- **A las horas en punto no se locutaba nada si tus locuciones no traían los archivos `_O`.** El archivo del «en punto» (`HRS14_O`) es opcional en la práctica —hay packs que no lo incluyen, y Salamandra ni siquiera lo documenta—, pero al llegar el minuto 00 se buscaba solo ese y, si no estaba, se callaba. Ahora, cuando falta, se dicen la hora y el minuto como en cualquier otro momento.
-
-- **Se acepta el cero además de la letra O en las locuciones «en punto».** El nombre correcto es `HRS14_O` con la letra O, pero escribirlo con un cero (`HRS14_0`) es una confusión muy repetida y a simple vista no se distingue. Ahora valen las dos formas.
-
-- **Ya sirven las locuciones de temperatura y humedad de RadioBOSS, sin renombrarlas.** RadioBOSS escribe los números sin ceros a la izquierda (`TMP25`, `HUM82`) y las temperaturas bajo cero con signo (`TMP-3`), mientras que ZaraRadio usa tres dígitos (`TMP025`, `HUM082`, `TMPN003`). Solo se reconocía la segunda forma. Ahora se reconocen las dos, así que los packs de ZaraRadio, Salamandra y RadioBOSS funcionan tal cual. Ajustes → Hora y Clima explica los nombres que valen en cada caso.
-
-- **Con dos archivos que empezaban igual, la locución que sonaba podía cambiar de un equipo a otro.** Teniendo por ejemplo `HRS14.mp3` y `HRS14 - las dos.mp3` en la misma carpeta, se elegía uno u otro sin criterio, según lo que devolviera el sistema de archivos. Ahora gana siempre el nombre exacto, y entre dos rotulados se elige siempre el mismo.
-
-- **El botón de probar la locución de hora fallaba en silencio.** Si la carpeta no estaba, o no había archivo para esa hora, no sonaba nada y no se decía por qué. Ahora enseña el motivo, y prueba la carpeta que tienes en pantalla en lugar de la última guardada. Los mensajes de las locuciones estaban además siempre en español, sin traducir al idioma de la aplicación.
-
-- **El clima daba el de otra ciudad cuando había varias con el mismo nombre.** Al elegir «Barcelona, Estado Anzoátegui, VE» en Ajustes → Hora y Clima, la temperatura y la humedad que se locutaban eran las de Barcelona (España). Lo mismo con Valencia (Carabobo), que daba la de España, y con El Callao (Bolívar), que daba el de Perú. Pasaba con cualquier ciudad homónima, y siempre ganaba la más poblada.
-
-  La ciudad elegida en la lista se guardaba entera —con su estado y su país—, pero al ir a buscar el clima solo se usaba el nombre y se descartaba el resto, así que ya no había manera de saber cuál de todas era. Ahora se tiene en cuenta lo que se eligió.
-
-  **Si tienes una ciudad afectada, vuelve a elegirla en Ajustes:** las coordenadas equivocadas se guardaron y no se corrigen solas.
-
-  Dos cosas que conviene saber. El buscador encuentra por el principio del nombre, así que **El Callao** hay que escribirlo entero: «Callao» a secas no lo encuentra, porque devuelve los de Perú y Estados Unidos. Y una ciudad sin país sigue siendo ambigua: «Barcelona» a secas dará la de España.
-
-- **La pre-escucha se colaba en la salida principal si no tenías una tarjeta de sonido dedicada para ella.** Al no haber una segunda salida configurada —que es el caso por defecto—, la pre-escucha y la previa del editor acababan mezcladas con lo que sale al aire: les afectaba el volumen máster y movían el vúmetro como si fueran programa. Con una tarjeta dedicada no pasaba, así que el mismo botón se comportaba distinto según el equipo. Ahora la pre-escucha es siempre un canal aparte: aunque comparta altavoces con la salida principal porque solo tengas una tarjeta, no pasa por el máster ni cuenta en el vúmetro.
-
-- **Algunas canciones no mostraban su duración** (y por eso no dejaban adelantar ni atrasar, ni mostraban el tiempo). El audio estaba bien: fallaba porque el archivo tenía el título o el artista guardados con una codificación inválida, algo habitual en MP3 antiguos, y eso tiraba la lectura entera. Ahora solo se lee la duración, sin las etiquetas. Lo que ya estuviera guardado sin duración —botones de la botonera, del panel fijo y canciones de la lista— la recupera al abrir la aplicación.
-- Las pestañas nuevas se llaman ahora **Pestaña 2**, **Pestaña 3**… en vez de nombres extraños como "BOTONERA 1 4". El número sigue la posición, así que renombrar una pestaña no descoloca a las siguientes.
-- **Adelantar o atrasar un audio ya no deja silencios.** Saltar a un punto lejano de una canción podía tardar varios segundos (más de seis al ir al minuto dos de un tema largo), porque el salto no era real y había que recorrer el audio por dentro hasta llegar. Ahora es inmediato sin importar la distancia, y afecta tanto al reproductor como a la barra de progreso de la botonera principal. Los efectos cortos no estaban afectados porque ya se cargan en memoria.
-- El editor de pistas evita congelamientos al analizar audios largos y reabre más rápido archivos ya analizados.
+- **Locuciones de más automatizadores:** ahora sirven los packs de ZaraRadio, Salamandra y RadioBOSS sin renombrar nada (`TMP025` o `TMP25`; bajo cero `TMPN003` o `TMP-3`). A las horas en punto ya no se calla si falta el archivo, y vale tanto la letra O como el cero.
+- **El clima ya no da el de otra ciudad del mismo nombre** (la Barcelona de Venezuela frente a la de España). Si tienes una ciudad afectada, vuelve a elegirla en Ajustes.
+- **La pre-escucha ya no se cuela en lo que sale al aire** aunque no tengas una tarjeta dedicada para ella.
+- **Adelantar o atrasar un audio es inmediato** y ya no deja silencios.
+- Algunas canciones no mostraban su duración por etiquetas mal codificadas; ahora sí, y las recupera al abrir la app.
+- Las pestañas nuevas se llaman `Pestaña 2`, `Pestaña 3`… en vez de nombres extraños.
 
 ---
 
