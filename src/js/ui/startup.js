@@ -146,7 +146,7 @@ function _initModules(config, grid, fixedPanel) {
     initGrid(_refresh);
     initGridDnd(_refresh);
     initFileDrop(_refresh);
-    initPlayerDnd();
+    initPlayerDnd(_refresh);
     initPlayerDrop();
     initBottomBar();
     drawGrid(grid, _refresh);

@@ -74,6 +74,32 @@ pub fn assign_file_to_button(
     save_grid(&mut cfg)
 }
 
+/// Copia una pista del reproductor a un boton de la paleta activa (arrastre
+/// reproductor -> botonera principal). Conserva tipo, ruta, carpeta, volumen y
+/// colores; toma un id e indice nuevos de la rejilla y suelta el atajo, que era
+/// del boton de origen y no debe duplicarse. Es el inverso de `player_add_button`.
+#[tauri::command]
+pub fn assign_player_track_to_button(
+    track_index: u32,
+    to_index: u32,
+    state: tauri::State<AppState>,
+) -> Result<GridState, String> {
+    let mut cfg = state.config.lock().unwrap();
+    let mut btn = cfg
+        .player
+        .tracks
+        .get(track_index as usize)
+        .cloned()
+        .ok_or("button_not_found")?;
+    let paleta = active_paleta(&mut cfg)?;
+    btn.id = format!("{}_btn_{}", paleta.id, to_index);
+    btn.index = to_index;
+    btn.shortcut = String::new();
+    paleta.botones.retain(|b| b.index != to_index);
+    paleta.botones.push(btn);
+    save_grid(&mut cfg)
+}
+
 #[tauri::command]
 pub fn suggest_button_style(state: tauri::State<AppState>) -> ButtonStyleSuggestion {
     let cfg = state.config.lock().unwrap();

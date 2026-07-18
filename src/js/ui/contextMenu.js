@@ -56,6 +56,40 @@ export function showContextMenu(x, y, index, btnData, onUpdate, group = 'grid') 
     }, 10);
 }
 
+/**
+ * Menú contextual de una fila del reproductor: solo Escucha previa y Editor de
+ * pista, reutilizando el mismo menú y sus etiquetas. `onUpdate` se llama tras
+ * editar en el editor de pista.
+ */
+export function showTrackContextMenu(x, y, track, onUpdate) {
+    if (!track?.can_prelisten) return; // sin archivo no hay nada que previsualizar
+    const menu = document.getElementById('context-menu');
+    menu.querySelectorAll('li, hr').forEach(el =>
+        el.classList.toggle('hidden', el.id !== 'menu-previa' && el.id !== 'menu-editar-pista'));
+    _toggleDisabled('menu-previa', false);
+    _toggleDisabled('menu-editar-pista', false);
+    placeMenu(menu, x, y);
+    if (_cleanupFn) _cleanupFn();
+    _cleanupFn = _wireTrackActions(track, onUpdate);
+    setTimeout(() => document.addEventListener('click', _hideOnClickOutside), 10);
+}
+
+function _wireTrackActions(track, onUpdate) {
+    const name = track.name || track.label;
+    const previaEl = document.getElementById('menu-previa');
+    const editTrackEl = document.getElementById('menu-editar-pista');
+    const onPrevia = () => { _hide(); import('./prelisten.js').then(m =>
+        m.openPrelisten(track.path, name, track.vol ?? 1.0, track.duration ?? 0)); };
+    const onEditTrack = () => { _hide(); import('./trackEditor.js').then(m =>
+        m.openPreferredTrackEditor(track.path, name, onUpdate)); };
+    previaEl.addEventListener('click', onPrevia);
+    editTrackEl.addEventListener('click', onEditTrack);
+    return () => {
+        previaEl.removeEventListener('click', onPrevia);
+        editTrackEl.removeEventListener('click', onEditTrack);
+    };
+}
+
 /** Devuelve true si el menú quedó en modo "solo color" (hay selección). */
 function _showColorOnly(menu, onUpdate) {
     const multi = hasSelection();

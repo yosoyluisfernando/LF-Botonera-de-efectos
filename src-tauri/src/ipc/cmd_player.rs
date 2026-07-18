@@ -131,6 +131,16 @@ pub fn player_seek(position_s: f64, state: tauri::State<AppState>) -> Result<(),
     Ok(())
 }
 
+/// Reconstruye la cola resuelta desde la config, sin editarla. Se usa tras editar
+/// el cue o la ganancia de una pista en el editor: el reproductor pre-resuelve la
+/// cola y no veria el cambio hasta reiniciar. Conserva la pista que suena y la
+/// siguiente, porque los ids no cambian.
+#[tauri::command]
+pub fn player_resync(state: tauri::State<AppState>) -> PlayerView {
+    sync_queue(&state);
+    player_view(&state)
+}
+
 /// Arranque: sincroniza modo y cola con el motor tras aplicar dispositivo/volumen.
 pub(crate) fn apply_startup(state: &AppState) {
     let mode = PlayerMode::from_config(&state.config.lock().unwrap().player.playback_mode);

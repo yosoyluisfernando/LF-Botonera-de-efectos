@@ -140,8 +140,21 @@ function _row(track, position) {
     // Doble clic: Rust decide segun suene o no (reproducir / marcar siguiente).
     // Un clic no hace nada: marcar sin querer al rozar una fila era problematico.
     el.addEventListener('dblclick', () => invoke('player_activate_index', { index: position }));
+    // Clic derecho: escucha previa y editor de pista, las mismas de los botones.
+    el.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        import('./contextMenu.js').then(m =>
+            m.showTrackContextMenu(e.clientX, e.clientY, track, _afterTrackEdit));
+    });
     el.title = t('player.row_hint');
     return el;
+}
+
+/** Tras editar el cue o la ganancia de una pista, el reproductor pre-resuelve la
+ *  cola y no veria el cambio: se re-sincroniza y se repinta. */
+async function _afterTrackEdit() {
+    try { await invoke('player_resync'); } catch (e) { console.error(e); }
+    await drawPlayerView();
 }
 
 function _on(id, handler) {
