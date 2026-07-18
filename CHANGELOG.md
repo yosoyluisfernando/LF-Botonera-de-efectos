@@ -24,6 +24,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ## [Sin publicar]
 
+## [1.2.0] — 2026-07-17
+
 ### Añadido
 - **Panel lateral fijo:** una botonera y un reproductor de música siempre a mano, aparte de las pestañas. Global o por perfil, a izquierda o derecha, redimensionable y con columnas configurables.
 - **Reproductor de música de fondo:** lista propia que el Stop y el Solo de los efectos no cortan. Modos normal, repetir y aleatorio, marcar la siguiente, Loop, detener al finalizar, barra de progreso, y volumen y salida de audio propios. Admite arrastrar carpetas enteras o varios archivos, y los mismos tipos que los botones (audio, carpeta aleatoria, hora, temperatura y humedad). Guarda y abre listas en formato `.LFPlay`, compatible con LF Automatizador.
@@ -169,7 +171,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ---
 
-[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.3...HEAD
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.0...v1.1.1
