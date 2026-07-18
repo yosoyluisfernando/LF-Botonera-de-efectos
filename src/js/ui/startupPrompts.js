@@ -123,6 +123,9 @@ async function _closeDonationPrompt() {
 
 function _renderLine(line) {
     if (!line) return '';
+    // Un separador de Markdown (--- entre versiones) no es contenido: se omite,
+    // o el lector de pantalla lo leería como "guion guion guion".
+    if (/^-{3,}$/.test(line)) return '';
     if (line.startsWith('### ')) return `<h4>${_escape(line.slice(4))}</h4>`;
     if (line.startsWith('- ')) return `<p class="release-note-item">${_inline(line.slice(2))}</p>`;
     return `<p>${_inline(line)}</p>`;
