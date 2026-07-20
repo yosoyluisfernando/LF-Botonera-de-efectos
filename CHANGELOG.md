@@ -26,10 +26,22 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ## [1.2.1] — 2026-07-20
 
+Esta versión está dedicada a preparar la llegada de **LF Botonera de Efectos a
+Microsoft Store**. No incorpora funciones nuevas ni mejoras de rendimiento: el motor
+de audio y la experiencia de uso son los mismos de la versión 1.2.0. Los cambios se
+limitan a la distribución mediante Store, la integración correcta con Windows y una
+reducción de permisos innecesarios.
+
+### Distribución
+- Se preparó una edición para Microsoft Store. Cuando la certificación de Microsoft
+  sea aprobada, la aplicación podrá instalarse y actualizarse directamente desde Store.
+- La edición de Microsoft Store recibirá sus actualizaciones mediante la propia tienda.
+  Las instalaciones descargadas directamente desde GitHub conservarán su mecanismo
+  de actualización actual.
+
 ### Cambiado
-- La edición distribuida por Microsoft Store delega sus actualizaciones en Store y no
-  consulta ni abre descargas desde GitHub; las instalaciones directas conservan el
-  comprobador de actualizaciones existente.
+- La edición de Microsoft Store no consulta GitHub Releases ni abre instaladores
+  externos, evitando dos mecanismos de actualización simultáneos.
 
 ### Corregido
 - La compilación de Windows declara explícitamente compatibilidad DPI `PerMonitorV2`
