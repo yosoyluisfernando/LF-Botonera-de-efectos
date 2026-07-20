@@ -130,8 +130,21 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
   - Los enlaces externos siguen abriendo el navegador con el permiso reducido.
   - Un cierre accidental seguido de un segundo inicio conservó el estado y funcionó
     normalmente.
-- [ ] Probar archivos, carpetas, arrastrar y soltar, audio, preescucha, atajos globales,
-  ventanas, red y persistencia dentro de MSIX.
+  - Archivos y carpetas externos, arrastrar y soltar, atajos globales, editor modal y
+    ventana independiente, clima y persistencia: correctos.
+  - La exportación de una pestaña del perfil 1 y su importación en el perfil 2
+    conservaron el contenido y funcionaron correctamente.
+- [x] Completar la matriz funcional local dentro de MSIX.
+- [x] Comprobar el canal alfa de los PNG del paquete: las esquinas de `StoreLogo.png`,
+  `Square44x44Logo.png` y `Square150x150Logo.png` son transparentes. La placa azul de
+  App Installer la dibuja Windows alrededor del logo de paquete; no está en el PNG.
+- [x] Preparar y empaquetar las variantes de escala y tema de los iconos exigidas por
+  Microsoft Store, incluidas 14 variantes sin placa para Inicio y barra de tareas.
+- [x] Generar `resources.pri`: incluir los PNG sin este índice no permite que Windows
+  resuelva los calificadores de tamaño, tema y forma alternativa.
+- [x] Confirmar visualmente en la revisión `1.2.0.5` que la barra usa la variante sin
+  placa. App Installer conserva su propia placa para el logo de paquete; es una
+  superficie distinta y no indica que el PNG haya perdido transparencia.
 - [ ] Comparar MSIX con MSI/EXE autónomo y firmado.
 - [ ] Aprobar una sola ruta de publicación.
 - [ ] Repetir Windows App Certification Kit sobre el candidato final y revisar si

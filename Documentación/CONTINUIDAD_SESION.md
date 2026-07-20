@@ -94,6 +94,17 @@ No abrir varios procesos de publicación a la vez.
   `D0FF484FCDD0A54BAA93102E3804036E2937C411EAFB6A277CEB582524BE53C7`.
 - El autor revalidó la revisión `1.2.0.2`: audio, salida principal, preescucha, URLs e
   interfaz funcionan. También cerró y abrió una segunda vez sin perder el estado.
+- El autor completó la matriz funcional local: archivos y carpetas externos, arrastre,
+  atajos globales, editor modal y separado, clima y persistencia funcionan. También
+  exportó una pestaña del perfil 1, la importó en el perfil 2 y verificó su contenido.
+- Los PNG de icono conservan alfa transparente. La placa azul observada en App
+  Installer pertenece a la presentación de Windows del logo de paquete, no al archivo.
+- `scripts/build-msix.ps1` genera desde `icon.png` 14 tamaños para la lista de
+  aplicaciones, con variantes transparentes para tema claro y oscuro, y cinco escalas
+  de `StoreLogo`. La revisión `1.2.0.4` demostró que los PNG solos no bastan.
+- La revisión `1.2.0.5` añade `resources.pri`, con 58 candidatos y calificadores
+  `UNPLATED` y `LIGHTUNPLATED`. La comprobación visual confirmó que eliminó la placa
+  azul de la barra de tareas. App Installer conserva su placa propia esperada.
 - No se encontró telemetría ni publicidad en el código.
 - La aplicación consulta GitHub Releases y, cuando se habilita el clima, Open-Meteo.
   PayPal solo se abre si el usuario acepta o pulsa el enlace de donación.
@@ -138,12 +149,10 @@ titular; esos datos no se guardarán en el repositorio.
 
 ## 6. Siguiente punto de reanudación
 
-1. Completar la matriz MSIX: archivos externos, arrastre, atajos globales, editor,
-   ventana separada, clima y persistencia tras reinicio.
-2. Probar actualización, desinstalación y el caso de un usuario sin datos previos.
-3. Resolver la cobertura de WebView2 en un Windows 10 limpio.
-4. Retirar paquete y certificado locales cuando termine la prueba.
-5. Pasar a Partner Center únicamente después de cerrar esa preparación local.
+1. Probar actualización, desinstalación y el caso de un usuario sin datos previos.
+2. Resolver la cobertura de WebView2 en un Windows 10 limpio.
+3. Retirar paquete y certificado locales cuando termine la prueba.
+4. Pasar a Partner Center únicamente después de cerrar esa preparación local.
 
 Privacidad, soporte y ficha base fueron aprobados por el autor el 2026-07-20.
 Los informes completos de licencias Rust y Node ya se generan con `npm run licenses`.

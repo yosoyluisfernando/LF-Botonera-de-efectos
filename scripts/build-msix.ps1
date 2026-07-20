@@ -41,6 +41,10 @@ if (-not $MakeAppxPath) {
 if (-not $MakeAppxPath -or -not (Test-Path -LiteralPath $MakeAppxPath -PathType Leaf)) {
     throw 'No se encontró MakeAppx.exe en el Windows SDK.'
 }
+$makePriPath = Join-Path (Split-Path -Parent $MakeAppxPath) 'makepri.exe'
+if (-not (Test-Path -LiteralPath $makePriPath -PathType Leaf)) {
+    throw 'No se encontró MakePri.exe junto a MakeAppx.exe.'
+}
 
 $resolvedTarget = [IO.Path]::GetFullPath($targetRoot)
 $resolvedStage = [IO.Path]::GetFullPath($stageRoot)
@@ -60,6 +64,44 @@ $assets = 'StoreLogo.png', 'Square150x150Logo.png', 'Square44x44Logo.png'
 foreach ($asset in $assets) {
     Copy-Item -LiteralPath (Join-Path $projectRoot "src-tauri\icons\$asset") `
         -Destination (Join-Path $resolvedStage "Assets\$asset")
+}
+
+Add-Type -AssemblyName System.Drawing
+function Export-ScaledPng([string]$Source, [string]$Destination, [int]$Size) {
+    $sourceImage = [Drawing.Bitmap]::new($Source)
+    $outputImage = [Drawing.Bitmap]::new(
+        $Size, $Size, [Drawing.Imaging.PixelFormat]::Format32bppArgb
+    )
+    $graphics = [Drawing.Graphics]::FromImage($outputImage)
+    try {
+        $graphics.CompositingMode = [Drawing.Drawing2D.CompositingMode]::SourceCopy
+        $graphics.CompositingQuality = [Drawing.Drawing2D.CompositingQuality]::HighQuality
+        $graphics.InterpolationMode = [Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+        $graphics.PixelOffsetMode = [Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+        $graphics.SmoothingMode = [Drawing.Drawing2D.SmoothingMode]::HighQuality
+        $graphics.Clear([Drawing.Color]::Transparent)
+        $graphics.DrawImage($sourceImage, 0, 0, $Size, $Size)
+        $outputImage.Save($Destination, [Drawing.Imaging.ImageFormat]::Png)
+    } finally {
+        $graphics.Dispose()
+        $outputImage.Dispose()
+        $sourceImage.Dispose()
+    }
+}
+
+$iconSource = (Resolve-Path -LiteralPath (Join-Path $projectRoot 'src-tauri\icons\icon.png')).Path
+$targetSizes = 16, 20, 24, 30, 32, 36, 40, 48, 60, 64, 72, 80, 96, 256
+foreach ($size in $targetSizes) {
+    foreach ($suffix in '', '_altform-unplated', '_altform-lightunplated') {
+        $name = "Square44x44Logo.targetsize-$size$suffix.png"
+        Export-ScaledPng $iconSource (Join-Path $resolvedStage "Assets\$name") $size
+    }
+}
+
+foreach ($scale in 100, 125, 150, 200, 400) {
+    $size = [int][Math]::Ceiling(50 * $scale / 100)
+    $name = "StoreLogo.scale-$scale.png"
+    Export-ScaledPng $iconSource (Join-Path $resolvedStage "Assets\$name") $size
 }
 
 $legalFiles = @(
@@ -82,6 +124,16 @@ $manifest = $manifest.Replace('{{PUBLISHER_DISPLAY_NAME}}', (ConvertTo-XmlText $
 $manifest = $manifest.Replace('{{VERSION}}', $msixVersion)
 $manifestPath = Join-Path $resolvedStage 'AppxManifest.xml'
 [IO.File]::WriteAllText($manifestPath, $manifest, [Text.UTF8Encoding]::new($false))
+
+$priConfigPath = Join-Path $resolvedTarget 'priconfig.xml'
+& $makePriPath createconfig /cf $priConfigPath /dq 'lang-es_scale-100' /pv 10.0.0 /o
+if ($LASTEXITCODE -ne 0) { throw "MakePri createconfig terminó con código $LASTEXITCODE." }
+$priConfig = Get-Content -LiteralPath $priConfigPath -Raw -Encoding utf8
+$priConfig = [regex]::Replace($priConfig, '(?s)\s*<packaging>.*?</packaging>', '')
+[IO.File]::WriteAllText($priConfigPath, $priConfig, [Text.UTF8Encoding]::new($false))
+$priPath = Join-Path $resolvedStage 'resources.pri'
+& $makePriPath new /pr $resolvedStage /cf $priConfigPath /mn $manifestPath /of $priPath /o
+if ($LASTEXITCODE -ne 0) { throw "MakePri new terminó con código $LASTEXITCODE." }
 
 $outputName = "LF-Botonera-$msixVersion-x64-unsigned.msix"
 $outputPath = Join-Path $resolvedTarget $outputName

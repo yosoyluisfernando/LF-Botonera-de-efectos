@@ -167,9 +167,9 @@ Los tres valores deben pasarse exactamente al script:
 
 El nombre público y el identificador de Store no deben deducirse ni abreviarse.
 
-## Verificación pendiente con paquete instalado
+## Verificación con el paquete instalado
 
-Cuando exista una firma de prueba o un paquete firmado por Store, se comprobarán:
+La revisión local `1.2.0.2` firmada con el certificado de desarrollo superó:
 
 - inicio y cierre normal;
 - perfiles, paletas y migración de datos existentes;
@@ -177,8 +177,18 @@ Cuando exista una firma de prueba o un paquete firmado por Store, se comprobará
 - salida principal, preescucha y cambio de dispositivos;
 - atajos globales;
 - editor modal y ventana independiente;
-- clima, enlaces externos y ausencia del actualizador de GitHub en el canal Store;
-- actualización, desinstalación y conservación de datos del usuario.
+- clima, enlaces externos y persistencia tras reiniciar;
+- exportación desde un perfil e importación correcta en otro.
+
+Quedan pendientes la actualización y desinstalación, una cuenta de Windows sin datos,
+WebView2 en Windows 10 limpio y desactivar el actualizador de GitHub para Store.
+
+Los PNG conservan transparencia real. App Installer coloca una placa detrás del logo
+de paquete; no forma parte de `StoreLogo.png` ni admite la variante sin placa usada por
+la barra. El script genera cinco escalas de ese recurso y 14 tamaños del icono, con variantes
+`altform-unplated` y `altform-lightunplated` para Inicio y barra de tareas. `MakePri`
+las registra en `resources.pri`; la revisión `1.2.0.5` verificó que así desaparece la
+placa azul de la barra de tareas.
 
 Fuentes oficiales:
 
@@ -187,3 +197,4 @@ Fuentes oficiales:
 - [Declaraciones de capacidades](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/app-capability-declarations)
 - [Distribución de WebView2](https://learn.microsoft.com/es-es/microsoft-edge/webview2/concepts/distribution)
 - [Identidad asignada por Store](https://learn.microsoft.com/en-us/windows/apps/publish/view-app-identity-details)
+- [Construcción y variantes de iconos](https://learn.microsoft.com/en-us/windows/apps/design/iconography/app-icon-construction)
