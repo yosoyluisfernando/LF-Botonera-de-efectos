@@ -187,9 +187,10 @@ titular; esos datos no se guardarán en el repositorio.
 
 ## 6. Siguiente punto de reanudación
 
-1. Pedir confirmación expresa antes de pulsar `Enviar para certificación`; Microsoft
-   ya habilitó el botón y el borrador está listo para enviarse.
-2. Registrar el identificador y estado que entregue Microsoft tras el envío.
+1. La Submission `1152921505701454351` fue enviada a Microsoft Store el 2026-07-20.
+   Está en proceso de certificación, fase `Preprocesando` (paso 2 de 4).
+2. Revisar el resultado de certificación; Microsoft estima desde unas horas hasta
+   tres días hábiles. Si se aprueba, la publicación comenzará automáticamente.
 3. Dejar como prueba externa el caso de Windows limpio sin datos ni WebView2.
 4. Retirar paquete y certificado locales cuando ya no hagan falta más pruebas.
 
