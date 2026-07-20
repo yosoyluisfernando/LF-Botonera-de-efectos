@@ -1,13 +1,14 @@
+use crate::core::AppState;
 /// Módulo: cmd_updates.rs
 /// Propósito: Revisión segura de nuevas versiones publicadas en GitHub Releases.
 /// La UI no consulta GitHub directamente: Rust controla cadencia y comparación.
 use crate::engine::persist::config_io as config;
-use crate::core::AppState;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::State;
 
 const CHECK_INTERVAL_SECS: i64 = 12 * 60 * 60;
+const STORE_CHANNEL: &str = "store";
 const LATEST_RELEASE_URL: &str =
     "https://api.github.com/repos/yosoyluisfernando/LF-Botonera-de-efectos/releases/latest";
 
@@ -22,6 +23,7 @@ struct GithubRelease {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateCheck {
     pub checked: bool,
+    pub store_managed: bool,
     pub update_available: bool,
     pub current_version: String,
     pub latest_version: String,
@@ -37,6 +39,10 @@ pub fn check_for_updates(
     force: bool,
     startup: Option<bool>,
 ) -> Result<UpdateCheck, String> {
+    if updates_managed_by_store() {
+        return Ok(store_managed());
+    }
+
     let now = unix_now();
     let startup = startup.unwrap_or(false);
     if !force && !startup {
@@ -57,6 +63,7 @@ pub fn check_for_updates(
     let latest = normalize_version(&release.tag_name);
     Ok(UpdateCheck {
         checked: true,
+        store_managed: false,
         update_available: is_newer(&latest, &current),
         current_version: current,
         latest_version: latest,
@@ -79,12 +86,33 @@ fn fetch_latest_release() -> Result<GithubRelease, String> {
 fn no_check() -> UpdateCheck {
     UpdateCheck {
         checked: false,
+        store_managed: false,
         update_available: false,
         current_version: env!("CARGO_PKG_VERSION").to_string(),
         latest_version: String::new(),
         release_url: String::new(),
         notes: String::new(),
     }
+}
+
+fn store_managed() -> UpdateCheck {
+    UpdateCheck {
+        checked: false,
+        store_managed: true,
+        update_available: false,
+        current_version: env!("CARGO_PKG_VERSION").to_string(),
+        latest_version: String::new(),
+        release_url: String::new(),
+        notes: String::new(),
+    }
+}
+
+fn updates_managed_by_store() -> bool {
+    is_store_channel(option_env!("LF_DISTRIBUTION_CHANNEL"))
+}
+
+fn is_store_channel(value: Option<&str>) -> bool {
+    value.is_some_and(|channel| channel.eq_ignore_ascii_case(STORE_CHANNEL))
 }
 
 fn unix_now() -> i64 {
@@ -107,4 +135,17 @@ fn parse_version(value: &str) -> Vec<u32> {
         .split('.')
         .map(|p| p.parse::<u32>().unwrap_or(0))
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_store_channel;
+
+    #[test]
+    fn detects_store_distribution_channel() {
+        assert!(is_store_channel(Some("store")));
+        assert!(is_store_channel(Some("STORE")));
+        assert!(!is_store_channel(Some("direct")));
+        assert!(!is_store_channel(None));
+    }
 }

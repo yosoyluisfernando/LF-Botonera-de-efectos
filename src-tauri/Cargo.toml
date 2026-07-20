@@ -1,8 +1,8 @@
 [package]
 name = "tauri-app"
-version = "1.2.0"
-description = "LF Botonera de Efectos — botonera de sonido para locutores y radio"
-authors = ["Luis Fernando Velásquez"]
+version = "1.2.1"
+description = "LF Botonera de Efectos â€” botonera de sonido para locutores y radio"
+authors = ["Luis Fernando VelÃ¡squez"]
 license = "GPL-3.0-or-later"
 homepage = "https://github.com/yosoyluisfernando/LF-Botonera-de-efectos"
 repository = "https://github.com/yosoyluisfernando/LF-Botonera-de-efectos"

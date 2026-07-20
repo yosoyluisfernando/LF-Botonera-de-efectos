@@ -1,7 +1,7 @@
 # Continuidad de sesión — distribución en tiendas
 
 Este documento contiene únicamente el estado del trabajo iniciado el 2026-07-20
-para publicar **LF Botonera de Efectos 1.2.0** en Microsoft Store y preparar su
+para publicar **LF Botonera de Efectos 1.2.1** en Microsoft Store y preparar su
 distribución en Linux.
 
 No usar aquí planes históricos de funciones ya terminadas. Para retomar esta tarea,
@@ -115,8 +115,21 @@ No abrir varios procesos de publicación a la vez.
 - Identidad Store: paquete `LuisFernandoVelasquez.LFBotoneradeEfectos`, publicador
   `CN=AD90DE58-447F-47AE-AC1A-3D369955282B` y PFN
   `LuisFernandoVelasquez.LFBotoneradeEfectos_5cjhmbb3mr2nr`.
-- `build-store-msix.ps1` generó el MSIX definitivo sin firma `1.2.0.0`; SHA-256
-  `349D58CEF81429C3B7E8A698758D793A95C76EEB8BACDA145E27DF87A2E88FAA`.
+- Partner Center validó el primer MSIX `1.2.0.0`, con la advertencia esperada de
+  `runFullTrust`, y se guardó la justificación técnica de esa capacidad.
+- Microsoft exige que el cuarto componente de versión sea cero y no permite sustituir
+  un paquete por contenido distinto con la misma identidad y versión. Por eso la
+  corrección del canal Store se publica como versión de parche `1.2.1`.
+- El canal `store` deshabilita la consulta a GitHub Releases, oculta su interfaz y deja
+  las actualizaciones a cargo de Microsoft Store; el canal directo conserva GitHub.
+- El MSIX final `LF-Botonera-1.2.1.0-x64-unsigned.msix` mide `9172945` bytes y tiene
+  SHA-256 `AD01DCE29E2191CE2867E6FF2279AFD38B6A64AA9E390CDE82992EEE72B31BF5`.
+- Partner Center sustituyó `1.2.0.0` por `1.2.1.0`; el nuevo paquete aparece validado y
+  la sección Paquetes figura como completada. Se mantiene la advertencia esperada de
+  `runFullTrust` y su justificación técnica.
+- El paquete declara y Partner Center detecta español, inglés, portugués de Brasil y
+  portugués de Portugal. El borrador español ya contiene descripción, resumen, autor,
+  copyright y ocho características; falta al menos una captura limpia obligatoria.
 - No se encontró telemetría ni publicidad en el código.
 - La aplicación consulta GitHub Releases y, cuando se habilita el clima, Open-Meteo.
   PayPal solo se abre si el usuario acepta o pulsa el enlace de donación.
@@ -162,9 +175,13 @@ titular; esos datos no se guardarán en el repositorio.
 
 ## 6. Siguiente punto de reanudación
 
-1. Iniciar el borrador de envío y revisar sus apartados sin publicarlo.
-2. Dejar como prueba externa el caso de Windows limpio sin datos ni WebView2.
-3. Retirar paquete y certificado locales cuando ya no hagan falta más pruebas.
+1. Crear capturas Release limpias, sin rutas personales ni audio de terceros, y cargar
+   al menos una en cada ficha de Store.
+2. Completar las fichas en los cuatro idiomas y decidir precio, mercados y visibilidad.
+3. Responder IARC después de autorizar el envío de los datos de contacto a ese tercero.
+4. Revalidar las opciones de envío y pedir confirmación antes de enviar a certificación.
+5. Dejar como prueba externa el caso de Windows limpio sin datos ni WebView2.
+6. Retirar paquete y certificado locales cuando ya no hagan falta más pruebas.
 
 Privacidad, soporte y ficha base fueron aprobados por el autor el 2026-07-20.
 Los informes completos de licencias Rust y Node ya se generan con `npm run licenses`.

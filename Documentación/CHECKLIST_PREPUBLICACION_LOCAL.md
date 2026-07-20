@@ -3,7 +3,7 @@
 Esta lista reúne todo lo que debe quedar comprobado en el equipo de desarrollo antes
 de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 
-**Versión auditada:** 1.2.0.
+**Versión auditada:** 1.2.1.
 
 **Rama:** `codex/distribucion-tiendas`.
 **Inicio:** 2026-07-20.
@@ -12,7 +12,7 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 
 ## 1. Identidad y metadatos
 
-- [x] Versión 1.2.0 sincronizada en `package.json`, `Cargo.toml` y
+- [x] Versión 1.2.1 sincronizada en `package.json`, `Cargo.toml` y
   `tauri.conf.json`.
 - [x] Identificador Tauri y Flatpak común:
   `io.github.yosoyluisfernando.LF-Botonera-de-efectos`.
@@ -27,7 +27,7 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 - [x] Textos de ficha revisados y aprobados por el autor el 2026-07-20.
 - [x] Crear y verificar la cuenta individual de Microsoft; registro gratuito.
 - [x] Reservar `LF Botonera de Efectos` y registrar la identidad asignada por Store.
-- [x] Generar MSIX `1.2.0.0` sin firma con la identidad definitiva mediante
+- [x] Generar MSIX `1.2.1.0` sin firma con la identidad definitiva mediante
   `scripts/build-store-msix.ps1`; `MakePri` y `MakeAppx` finalizaron correctamente.
 
 ## 2. Documentación pública y legal
@@ -55,12 +55,13 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 - [x] Documentar búsquedas y consultas de clima a Open-Meteo.
 - [x] Documentar que PayPal se abre solo por acción o aceptación del usuario.
 - [x] Documentar archivos, rutas y metadatos guardados localmente.
-- [ ] Diseñar el canal `microsoft-store` para que Store gestione las actualizaciones.
+- [x] Crear el canal `store`: no consulta GitHub ni ofrece descargas externas y deja
+  las actualizaciones a cargo de Microsoft Store.
 - [ ] Volver a auditar conexiones justo antes de cada publicación.
 
 ## 4. Calidad del repositorio
 
-- [x] `cargo test --lib`: 206 aprobadas, 4 ignoradas.
+- [x] `cargo test --lib`: 207 aprobadas, 4 ignoradas.
 - [x] `cargo build --lib`: correcto.
 - [x] `npm run build`: correcto.
 - [x] `npm audit`: 0 vulnerabilidades conocidas.
@@ -68,8 +69,8 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 - [x] `git diff --check`: sin errores.
 - [x] Repetir estas verificaciones después del saneamiento documental y de metadatos.
 - [x] `npm run tauri build`: compilación Release completa y generación de MSI y NSIS.
-- [ ] Repetir todas las verificaciones después de los futuros cambios de empaquetado
-  MSIX o del canal Microsoft Store.
+- [x] Repetir todas las verificaciones después de los cambios de empaquetado MSIX y
+  del canal Microsoft Store para la versión 1.2.1.
 - [ ] Ejecutar las cuatro pruebas ignoradas con audio, hardware y red reales cuando
   corresponda.
 - [ ] Hacer prueba auditiva usando exclusivamente una compilación Release.

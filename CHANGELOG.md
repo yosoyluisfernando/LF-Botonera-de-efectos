@@ -24,6 +24,13 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ## [Sin publicar]
 
+## [1.2.1] — 2026-07-20
+
+### Cambiado
+- La edición distribuida por Microsoft Store delega sus actualizaciones en Store y no
+  consulta ni abre descargas desde GitHub; las instalaciones directas conservan el
+  comprobador de actualizaciones existente.
+
 ### Corregido
 - La compilación de Windows declara explícitamente compatibilidad DPI `PerMonitorV2`
   para que ventanas y diálogos se adapten correctamente a monitores con escalas
@@ -180,7 +187,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ---
 
-[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.0...HEAD
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.1...v1.1.2

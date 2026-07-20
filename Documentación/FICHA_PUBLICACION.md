@@ -4,7 +4,7 @@ Borrador común para Microsoft Store, Flathub y otros catálogos. Se adapta a lo
 campos y límites vigentes de cada canal en el momento del envío; no se copiará a
 ciegas si una tienda cambia sus requisitos.
 **Producto:** LF Botonera de Efectos
-**Versión base:** 1.2.0
+**Versión base:** 1.2.1
 **Licencia:** GPL-3.0-or-later
 **Autor y publicador humano:** Luis Fernando Velásquez
 
@@ -143,7 +143,7 @@ rama principal. Antes del envío se abrirán desde una sesión sin autenticar.
 - Publicidad: ninguna.
 - Compras dentro de la aplicación: ninguna.
 - Donaciones: enlace externo opcional a PayPal.
-- Telemetría: ninguna encontrada en la auditoría de la versión 1.2.0.
+- Telemetría: ninguna encontrada en la auditoría de la versión 1.2.1.
 - Contenido generado por usuarios: no se publica ni comparte desde la aplicación.
 - Archivos de audio: deben ser aportados y licenciados por el usuario.
 

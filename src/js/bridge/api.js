@@ -87,6 +87,7 @@ export function invoke(cmd, args) {
     if (cmd === 'check_for_updates') {
         return Promise.resolve({
             checked: true,
+            storeManaged: false,
             updateAvailable: false,
             currentVersion: 'dev',
             latestVersion: 'dev',

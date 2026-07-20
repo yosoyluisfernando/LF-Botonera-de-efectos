@@ -14,7 +14,7 @@ Lee este archivo completo antes de proponer o escribir código.
 
 **LF Botonera de Efectos** es una botonera de sonidos (*soundboard*) para radio y *streaming* en directo. Los operadores de radio asignan archivos de audio a botones en una rejilla, organizados en pestañas (paletas) dentro de perfiles, y los disparan en tiempo real durante transmisiones.
 
-- **Versión:** 1.2.0
+- **Versión:** 1.2.1
 - **Stack:** Tauri v2 (backend Rust) + Vanilla JS + Vite (frontend)
 - **Repositorio local:** `C:\OVERLAY\BOTONERA`
 - **GitHub:** https://github.com/yosoyluisfernando/LF-Botonera-de-efectos
@@ -358,7 +358,7 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 
 ## 12. Estado del proyecto y pendientes
 
-**Versión 1.2.0 — funcionalidades completas:**
+**Versión 1.2.1 — funcionalidades completas:**
 - Perfiles, paletas, botones (tipos: audio, time, temperature, humidity, random_folder)
 - Motor de audio: loop, overlap, restart, stop_other, pre-escucha independiente
 - Modos de reproducción global: normal, loop, overlap, restart + solo mode
