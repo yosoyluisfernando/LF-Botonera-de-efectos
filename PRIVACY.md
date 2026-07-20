@@ -4,6 +4,8 @@
 
 Versión de esta política: 2026-07-20
 
+Versión web oficial: <https://lfbotonera.blogspot.com/p/privacidad.html>
+
 ## Español
 
 ### Resumen
@@ -76,9 +78,11 @@ clima descritas anteriormente.
 
 ### Cambios y contacto
 
-Los cambios se publicarán en este archivo y quedarán registrados en el historial del
-repositorio. Para consultas de privacidad, contacte al mantenedor mediante el perfil
-de [Yo Soy Luis Fernando en GitHub](https://github.com/yosoyluisfernando). No publique
+Los cambios se publicarán en la
+[versión web oficial](https://lfbotonera.blogspot.com/p/privacidad.html) y en este
+archivo, y quedarán registrados en el historial del repositorio. Para consultas de
+privacidad, contacte al mantenedor mediante el perfil de
+[Yo Soy Luis Fernando en GitHub](https://github.com/yosoyluisfernando). No publique
 datos personales o archivos privados en una incidencia pública.
 
 ## English
@@ -149,7 +153,9 @@ described above.
 
 ### Changes and contact
 
-Changes will be published in this file and recorded in the repository history. For
-privacy questions, contact the maintainer through the
+Changes will be published on the
+[official web version](https://lfbotonera.blogspot.com/p/privacidad.html) and in this
+file, and recorded in the repository history. For privacy questions, contact the
+maintainer through the
 [Yo Soy Luis Fernando GitHub profile](https://github.com/yosoyluisfernando). Do not
 post personal information or private files in a public issue.

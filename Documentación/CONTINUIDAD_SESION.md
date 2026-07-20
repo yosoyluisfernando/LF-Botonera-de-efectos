@@ -142,6 +142,10 @@ No abrir varios procesos de publicación a la vez.
   `C:\LF Botonera - Capturas Microsoft Store\01 - Rejilla principal en reproduccion.png`.
 - Se guardaron la publicación automática tras certificar, la justificación de
   `runFullTrust` y las instrucciones de prueba sin credenciales para los certificadores.
+- La documentación pública necesaria para Microsoft Store se integró en `main`
+  mediante el PR #3, commit de fusión `013e196`: `PRIVACY.md`, `SUPPORT.md`, la guía
+  de migración y los avisos e informes de licencias de terceros. El campo Website del
+  repositorio apunta al sitio oficial `https://lfbotonera.blogspot.com/`.
 - No se encontró telemetría ni publicidad en el código.
 - La aplicación consulta GitHub Releases y, cuando se habilita el clima, Open-Meteo.
   PayPal solo se abre si el usuario acepta o pulsa el enlace de donación.

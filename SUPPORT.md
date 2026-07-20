@@ -4,14 +4,17 @@
 
 ### Canales de ayuda
 
+- Para consultar la ayuda publicada, visite el
+  [centro de soporte oficial](https://lfbotonera.blogspot.com/p/soporte.html).
 - Para errores reproducibles o solicitudes de funciones, abra una
   [incidencia en GitHub](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/issues).
 - Para conversación con la comunidad, use el
   [grupo de Telegram](https://t.me/+bXppwWvJvSg5YjNh).
 - Para avisos del proyecto, consulte el
   [canal de Telegram](https://t.me/+XKof2wDvGVw1YTRh).
-- Para vulnerabilidades, siga la [política de seguridad](SECURITY.md). No publique
-  detalles sensibles en una incidencia abierta.
+- Para vulnerabilidades, siga la
+  [política de seguridad](Documentación/SECURITY.md). No publique detalles sensibles
+  en una incidencia abierta.
 
 El proyecto es mantenido por una persona independiente. No se garantiza atención
 inmediata ni un nivel de servicio comercial, pero los informes claros y reproducibles
@@ -67,14 +70,17 @@ Para cambiar desde un instalador MSI o EXE a Microsoft Store, siga la
 
 ### Support channels
 
+- For published help, visit the
+  [official support center](https://lfbotonera.blogspot.com/p/soporte.html).
 - For reproducible bugs or feature requests, open a
   [GitHub issue](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/issues).
 - For community discussion, use the
   [Telegram group](https://t.me/+bXppwWvJvSg5YjNh).
 - For project announcements, see the
   [Telegram channel](https://t.me/+XKof2wDvGVw1YTRh).
-- For vulnerabilities, follow the [security policy](SECURITY.md). Do not publish
-  sensitive details in an open issue.
+- For vulnerabilities, follow the
+  [security policy](Documentación/SECURITY.md). Do not publish sensitive details in
+  an open issue.
 
 The project is maintained by an independent developer. Immediate responses or a
 commercial service level are not guaranteed, but clear and reproducible reports will
