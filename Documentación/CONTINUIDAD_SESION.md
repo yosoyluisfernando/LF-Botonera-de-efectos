@@ -128,8 +128,20 @@ No abrir varios procesos de publicación a la vez.
   la sección Paquetes figura como completada. Se mantiene la advertencia esperada de
   `runFullTrust` y su justificación técnica.
 - El paquete declara y Partner Center detecta español, inglés, portugués de Brasil y
-  portugués de Portugal. El borrador español ya contiene descripción, resumen, autor,
-  copyright y ocho características; falta al menos una captura limpia obligatoria.
+  portugués de Portugal. Las cuatro fichas contienen descripción, resumen, autor,
+  copyright, ocho características y la captura obligatoria; la sección figura completada.
+- Precios y disponibilidad quedaron guardados como aplicación gratuita (`0 PEN`),
+  pública, detectable, disponible en los 240 mercados actuales y mercados futuros,
+  con lanzamiento lo antes posible y sin fecha de retirada.
+- IARC generó la vista previa apta para todo público: Microsoft Store `3+`, PEGI `3`,
+  ESRB `Todos` y equivalentes. El editor confirmó que es mayor de edad y que acepta los
+  términos; debe marcar y guardar personalmente la casilla por ser una verificación de edad.
+- Se creó fuera del repositorio `C:\LF Botonera - Demo Microsoft Store 5x5` con 25
+  copias numeradas de efectos locales para preparar capturas sin nombres problemáticos.
+- Los 25 efectos se cargaron en una paleta 5×5 y se guardó la captura Release limpia
+  `C:\LF Botonera - Capturas Microsoft Store\01 - Rejilla principal en reproduccion.png`.
+- Se guardaron la publicación automática tras certificar, la justificación de
+  `runFullTrust` y las instrucciones de prueba sin credenciales para los certificadores.
 - No se encontró telemetría ni publicidad en el código.
 - La aplicación consulta GitHub Releases y, cuando se habilita el clima, Open-Meteo.
   PayPal solo se abre si el usuario acepta o pulsa el enlace de donación.
@@ -175,13 +187,11 @@ titular; esos datos no se guardarán en el repositorio.
 
 ## 6. Siguiente punto de reanudación
 
-1. Crear capturas Release limpias, sin rutas personales ni audio de terceros, y cargar
-   al menos una en cada ficha de Store.
-2. Completar las fichas en los cuatro idiomas y decidir precio, mercados y visibilidad.
-3. Responder IARC después de autorizar el envío de los datos de contacto a ese tercero.
-4. Revalidar las opciones de envío y pedir confirmación antes de enviar a certificación.
-5. Dejar como prueba externa el caso de Windows limpio sin datos ni WebView2.
-6. Retirar paquete y certificado locales cuando ya no hagan falta más pruebas.
+1. Marcar personalmente la declaración de edad y guardar IARC.
+2. Confirmar que todas las secciones del envío figuren completadas.
+3. Pedir confirmación expresa antes de pulsar `Enviar para certificación`.
+4. Dejar como prueba externa el caso de Windows limpio sin datos ni WebView2.
+5. Retirar paquete y certificado locales cuando ya no hagan falta más pruebas.
 
 Privacidad, soporte y ficha base fueron aprobados por el autor el 2026-07-20.
 Los informes completos de licencias Rust y Node ya se generan con `npm run licenses`.
