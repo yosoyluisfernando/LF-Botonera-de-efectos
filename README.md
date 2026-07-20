@@ -228,6 +228,10 @@ Los instaladores de Windows no están firmados con certificado de desarrollador.
 | **[Guía de Contribución](Documentación/CONTRIBUTING.md)** | Cómo empezar, reglas del código y cómo enviar un PR. |
 | **[Código de Conducta](Documentación/CODE_OF_CONDUCT.md)** | Nuestras normas para mantener un ambiente profesional e inclusivo. |
 | **[Política de Seguridad](Documentación/SECURITY.md)** | Cómo reportar vulnerabilidades de forma responsable. |
+| **[Sitio web oficial](https://lfbotonera.blogspot.com/)** | Presentación, funciones, capturas y disponibilidad del proyecto. |
+| **[Política de Privacidad](PRIVACY.md)** | Qué se guarda localmente y qué conexiones externas realiza la aplicación. |
+| **[Soporte](SUPPORT.md)** | Cómo pedir ayuda o informar un problema reproducible. |
+| **[Avisos de terceros](THIRD_PARTY_NOTICES.md)** | Estado de licencias y avisos de componentes incluidos. |
 
 También puedes unirte a nuestros espacios de comunicación:
 
