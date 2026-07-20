@@ -150,19 +150,16 @@ comportamiento normal, una migración explícita o una exclusión limitada.
 
 ## Identidad definitiva
 
-Después de reservar `LF Botonera de Efectos`, Partner Center mostrará al menos:
+Partner Center asignó estos valores al reservar `LF Botonera de Efectos`:
 
-- `Package/Identity/Name`;
-- `Package/Identity/Publisher`;
-- `Package/Properties/PublisherDisplayName`.
+- `Package/Identity/Name`: `LuisFernandoVelasquez.LFBotoneradeEfectos`;
+- `Package/Identity/Publisher`: `CN=AD90DE58-447F-47AE-AC1A-3D369955282B`;
+- `Package/Properties/PublisherDisplayName`: `Luis Fernando Velasquez`.
 
 Los tres valores deben pasarse exactamente al script:
 
 ```powershell
-./scripts/build-msix.ps1 `
-  -IdentityName '<Package/Identity/Name>' `
-  -Publisher '<Package/Identity/Publisher>' `
-  -PublisherDisplayName '<PublisherDisplayName>'
+./scripts/build-store-msix.ps1
 ```
 
 El nombre público y el identificador de Store no deben deducirse ni abreviarse.

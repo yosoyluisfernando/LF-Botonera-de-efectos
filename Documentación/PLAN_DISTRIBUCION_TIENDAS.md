@@ -349,18 +349,18 @@ presentarán como repositorios oficiales de la distribución.
 - [x] Instalar o preparar las herramientas MSIX necesarias.
 - [x] Generar una prueba MSIX repetible con una identidad provisional local.
 - [x] Ejecutar la matriz funcional que no dependa de Partner Center.
-- [ ] Documentar qué valores deberán sustituirse con la identidad de Store.
+- [x] Documentar qué valores deberán sustituirse con la identidad de Store.
 
 ### Fase 3 — Cuenta e identidad Microsoft
 
-- [ ] Completar la verificación del titular real.
-- [ ] Reservar el nombre del producto.
-- [ ] Registrar en este documento la identidad asignada, sin secretos.
+- [x] Completar la verificación del titular real.
+- [x] Reservar el nombre del producto.
+- [x] Registrar en este documento la identidad asignada, sin secretos.
 - [ ] Confirmar mercado, precio, visibilidad y público objetivo.
 
 ### Fase 4 — Paquete definitivo y adaptación
 
-- [ ] Reemplazar la identidad provisional por la asignada por Store.
+- [x] Generar el paquete sin firma con la identidad asignada por Store.
 - [ ] Completar la matriz funcional del MSIX definitivo.
 - [ ] Si falla una capacidad esencial, documentar la causa y evaluar MSI/EXE firmado.
 - [ ] Aprobar una sola ruta de publicación.

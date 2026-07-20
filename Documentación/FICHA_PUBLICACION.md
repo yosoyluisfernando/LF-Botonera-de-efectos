@@ -3,23 +3,21 @@
 Borrador común para Microsoft Store, Flathub y otros catálogos. Se adapta a los
 campos y límites vigentes de cada canal en el momento del envío; no se copiará a
 ciegas si una tienda cambia sus requisitos.
-
 **Producto:** LF Botonera de Efectos
-
 **Versión base:** 1.2.0
-
 **Licencia:** GPL-3.0-or-later
 **Autor y publicador humano:** Luis Fernando Velásquez
-
----
 
 ## 1. Identidad propuesta
 
 - Nombre público: `LF Botonera de Efectos`.
 - Identificador técnico común:
   `io.github.yosoyluisfernando.LF-Botonera-de-efectos`.
-- Nombre de paquete Microsoft: pendiente de Partner Center.
-- Nombre de publicador Microsoft: pendiente de verificación de la cuenta.
+- Nombre de paquete Microsoft: `LuisFernandoVelasquez.LFBotoneradeEfectos`.
+- Publicador Microsoft: `CN=AD90DE58-447F-47AE-AC1A-3D369955282B`.
+- Nombre visible del publicador Microsoft: `Luis Fernando Velasquez`.
+- Familia del paquete: `LuisFernandoVelasquez.LFBotoneradeEfectos_5cjhmbb3mr2nr`.
+- Id. de Microsoft Store: `9NJ8ST39QP7V`.
 - Identificador Flatpak propuesto:
   `io.github.yosoyluisfernando.LF-Botonera-de-efectos`. Coincide con el propietario y
   el nombre reales del repositorio de GitHub, por lo que puede verificarse mediante la
@@ -28,8 +26,6 @@ ciegas si una tienda cambia sus requisitos.
 Referencias: [identificador de Tauri](https://v2.tauri.app/reference/config/#identifier),
 [requisitos de ID de Flathub](https://docs.flathub.org/docs/for-app-authors/requirements#application-id)
 y [verificación de autor en Flathub](https://docs.flathub.org/docs/for-app-authors/verification).
-
----
 
 ## 2. Texto en español
 
@@ -74,8 +70,6 @@ formatos de pestañas, perfiles y listas de LF Automatizador.
 
 `botonera`, `soundboard`, `radio`, `streaming`, `efectos de sonido`, `locución`,
 `audio`, `podcast`, `reproductor`, `emisión en directo`.
-
----
 
 ## 3. English copy
 
@@ -122,8 +116,6 @@ the tab, profile, and playlist formats used by LF Automatizador.
 `soundboard`, `radio`, `streaming`, `sound effects`, `voice-over`, `audio`, `podcast`,
 `music player`, `live production`, `broadcast`.
 
----
-
 ## 4. Información común de la ficha
 
 - Sitio web y código fuente:
@@ -140,8 +132,6 @@ the tab, profile, and playlist formats used by LF Automatizador.
 Estas URLs serán válidas públicamente cuando los documentos estén integrados en la
 rama principal. Antes del envío se abrirán desde una sesión sin autenticar.
 
----
-
 ## 5. Requisitos y declaraciones
 
 - Windows admitido: Windows 10 y Windows 11.
@@ -156,8 +146,6 @@ rama principal. Antes del envío se abrirán desde una sesión sin autenticar.
 - Telemetría: ninguna encontrada en la auditoría de la versión 1.2.0.
 - Contenido generado por usuarios: no se publica ni comparte desde la aplicación.
 - Archivos de audio: deben ser aportados y licenciados por el usuario.
-
----
 
 ## 6. Recursos gráficos que hay que producir
 
@@ -177,8 +165,6 @@ Se preparará al menos una serie en inglés para Flathub. Las imágenes deben mo
 aplicación funcionando en la plataforma correspondiente; no se reutilizará una captura
 de Windows como si fuera Linux.
 
----
-
 ## 7. Decisiones pendientes del autor
 
 - Gratuita o de pago en Microsoft Store. Recomendación inicial: gratuita, coherente
@@ -192,8 +178,6 @@ de Windows como si fuera Linux.
 No se responderá el cuestionario de clasificación por edades hasta verlo en Partner
 Center. Las respuestas se basarán en funciones reales, no en una clasificación
 estimada.
-
----
 
 ## 8. Afirmaciones que no deben hacerse todavía
 

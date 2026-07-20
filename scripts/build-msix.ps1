@@ -145,6 +145,6 @@ if ($LASTEXITCODE -ne 0) { throw "MakeAppx terminó con código $LASTEXITCODE." 
 
 $hash = (Get-FileHash -LiteralPath $outputPath -Algorithm SHA256).Hash
 Write-Host "MSIX sin firma: $outputPath"
-Write-Host "Identidad provisional: $IdentityName"
+Write-Host "Identidad del paquete: $IdentityName"
 Write-Host "Versión MSIX: $msixVersion"
 Write-Host "SHA-256: $hash"

@@ -25,8 +25,10 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 - [x] Preparar descripción corta, descripción larga y palabras clave en español e
   inglés en `FICHA_PUBLICACION.md`.
 - [x] Textos de ficha revisados y aprobados por el autor el 2026-07-20.
-- [ ] Definir la identidad asignada por Microsoft. Este punto espera la cuenta y la
-  reserva del nombre.
+- [x] Crear y verificar la cuenta individual de Microsoft; registro gratuito.
+- [x] Reservar `LF Botonera de Efectos` y registrar la identidad asignada por Store.
+- [x] Generar MSIX `1.2.0.0` sin firma con la identidad definitiva mediante
+  `scripts/build-store-msix.ps1`; `MakePri` y `MakeAppx` finalizaron correctamente.
 
 ## 2. Documentación pública y legal
 
