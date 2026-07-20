@@ -79,11 +79,14 @@ galería en una actualización futura, después de la aprobación inicial.
 - [`06-atajos-de-teclado.png`](windows/es/configuracion/06-atajos-de-teclado.png): modo
   de mapeo, atajos globales y combinaciones reservadas.
 
-## Uso restringido o pendiente de repetir
+## Casos especiales
 
-- [`05-hora-y-clima-datos-locales.png`](windows/es/configuracion/05-hora-y-clima-datos-locales.png)
-  contiene una ruta local y una ubicación concreta. Se conserva como referencia interna;
-  no debe publicarse en tiendas, redes, GitHub ni web.
+- [`05-hora-y-clima-aragua-de-barcelona.png`](windows/es/configuracion/05-hora-y-clima-aragua-de-barcelona.png)
+  muestra deliberadamente Aragua de Barcelona, Anzoátegui, Venezuela, ciudad de origen
+  del autor. Su aparición pública está autorizada y forma parte de la identidad humana
+  del proyecto. La ruta visible no contiene un nombre de usuario ni una credencial. Es
+  apta para GitHub, el manual, la web o una publicación sobre las locuciones de clima;
+  no se recomienda como primera imagen comercial porque requiere contexto.
 - [`07-acerca-de-version-1.2.0.png`](windows/es/configuracion/07-acerca-de-version-1.2.0.png)
   muestra una versión anterior. Solo sirve como registro histórico hasta repetirla con
   la versión vigente.
@@ -92,7 +95,8 @@ galería en una actualización futura, después de la aprobación inicial.
 
 1. Usar siempre una compilación Release y la versión que se va a publicar.
 2. Utilizar perfiles y audios de demostración con nombres genéricos y derechos claros.
-3. Ocultar rutas personales, cuentas, notificaciones, ubicaciones y datos privados.
+3. Ocultar rutas personales, cuentas, notificaciones y datos privados. Una ubicación
+   solo puede mostrarse cuando el autor haya decidido publicarla expresamente.
 4. Esperar a que termine cualquier carga o análisis, salvo que ese proceso sea el tema.
 5. Mostrar una acción comprensible: reproducción, cue, medidores o controles activos.
 6. Mantener al menos `1366×768`; conservar el PNG maestro antes de crear recortes.
@@ -110,3 +114,5 @@ captura literal de la aplicación.
 
 La planificación de mensajes y canales está en
 [`GUIA_CONTENIDOS_PUBLICOS.md`](../Documentación/GUIA_CONTENIDOS_PUBLICOS.md).
+La separación entre código público, archivos de Release y material privado está en
+[`POLITICA_REPOSITORIO_PUBLICO.md`](../Documentación/POLITICA_REPOSITORIO_PUBLICO.md).

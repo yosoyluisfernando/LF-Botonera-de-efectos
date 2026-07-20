@@ -160,9 +160,10 @@ La biblioteca actual contiene 17 PNG maestros de Windows en español, todos de
 5. Ajustes de dispositivos y preescucha.
 6. Tema claro o idiomas disponibles, si la tienda admite una sexta captura.
 
-Antes de ampliar una ficha se repetirán el reproductor en reposo, Acerca de con la
-versión vigente y Hora y Clima sin datos locales. Para Linux se hará una serie en el
-sistema real; no se reutilizará una captura de Windows como evidencia de Linux.
+Antes de ampliar una ficha se repetirán el reproductor en reposo y Acerca de con la
+versión vigente. La captura de Hora y Clima con Aragua de Barcelona está autorizada por
+el autor; se usará cuando el canal permita explicar ese contexto. Para Linux se hará
+una serie real; no se reutilizará una captura de Windows como evidencia de Linux.
 
 ## 7. Decisiones pendientes del autor
 

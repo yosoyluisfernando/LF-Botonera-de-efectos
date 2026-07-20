@@ -174,7 +174,7 @@ Hay que preparar:
 - inventario y avisos de licencias de dependencias de Rust, Node y recursos incluidos;
 - descripción corta y larga en los idiomas que se publiquen;
 - categoría, palabras clave, requisitos y notas de la versión;
-- iconos y capturas legibles, sin datos personales ni material ajeno.
+- iconos y capturas legibles, sin datos personales no autorizados ni material ajeno.
 
 La aplicación usa Internet para Open-Meteo, la comprobación de versiones en GitHub y
 el enlace de donaciones. No se encontró telemetría en la auditoría, pero la política de

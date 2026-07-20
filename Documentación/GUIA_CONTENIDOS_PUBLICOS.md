@@ -10,6 +10,8 @@ No sustituye las fuentes técnicas: las conecta y define cómo reutilizarlas.
   [`FICHA_PUBLICACION.md`](FICHA_PUBLICACION.md).
 - Capturas, calidad, restricciones y selección por uso:
   [`../Capturas/README.md`](../Capturas/README.md).
+- Archivos que entran o no en GitHub:
+  [`POLITICA_REPOSITORIO_PUBLICO.md`](POLITICA_REPOSITORIO_PUBLICO.md).
 - Funcionamiento para desarrolladores: [`LIBRO_PROYECTO.md`](LIBRO_PROYECTO.md).
 - Estrategia del manual: [`PLAN_MANUAL_USUARIO.md`](PLAN_MANUAL_USUARIO.md).
 - Privacidad, soporte y licencia: `PRIVACY.md`, `SUPPORT.md` y `LICENSE` en la raíz.
@@ -78,7 +80,8 @@ la galería ni se cambiará la rama principal hasta conocer la respuesta de Micr
 
 La primera galería mejorada debería seguir una narración: vista general, panel fijo,
 reproductor, editor, consola y tema oscuro. Las imágenes de configuración son material
-de ayuda, no de venta. La captura con ruta y ubicación local queda excluida.
+de ayuda, no de venta. La captura de Aragua de Barcelona puede publicarse por decisión
+expresa del autor, pero funciona mejor con contexto que como imagen comercial principal.
 
 La ficha ya enviada se mantiene estable durante la certificación. Si se aprueba, las
 capturas adicionales se tratarán como una actualización posterior, no como un cambio
