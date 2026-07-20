@@ -14,7 +14,7 @@ Lee este archivo completo antes de proponer o escribir código.
 
 **LF Botonera de Efectos** es una botonera de sonidos (*soundboard*) para radio y *streaming* en directo. Los operadores de radio asignan archivos de audio a botones en una rejilla, organizados en pestañas (paletas) dentro de perfiles, y los disparan en tiempo real durante transmisiones.
 
-- **Versión:** 1.1.2
+- **Versión:** 1.2.0
 - **Stack:** Tauri v2 (backend Rust) + Vanilla JS + Vite (frontend)
 - **Repositorio local:** `C:\OVERLAY\BOTONERA`
 - **GitHub:** https://github.com/yosoyluisfernando/LF-Botonera-de-efectos
@@ -268,7 +268,7 @@ Para el mapa completo, ver [`Documentación/LIBRO_PROYECTO.md §3 y §4`](Docume
 | `src-tauri/src/engine/console/bus.rs` | Un bus: mezcla de fuentes + medición de nivel |
 | `src-tauri/src/engine/console/endpoint.rs` | Una tarjeta física abierta exactamente una vez |
 | `src-tauri/src/engine/player/thread.rs` | Hilo del reproductor auxiliar: único dueño de su salida y sus dos decks |
-| `src-tauri/src/domain/player/advance.rs` | Regla pura de los cuatro modos: qué pista suena después |
+| `src-tauri/src/domain/player/advance.rs` | Regla pura de los tres modos: qué pista suena después |
 | `src-tauri/src/ipc/cmd_button_playback.rs` | Lógica completa de disparo de un botón |
 | `src-tauri/src/engine/persist/tracks.rs` | CRUD de metadatos de pista en SQLite |
 | `src/js/bridge/api.js` | Única puerta de acceso al IPC desde el frontend |
@@ -334,7 +334,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (suite actual: 101 passed, 1 ignored)
+# Tests unitarios Rust (suite actual: 206 passed, 4 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -358,7 +358,7 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 
 ## 12. Estado del proyecto y pendientes
 
-**Versión 1.1.2 — funcionalidades completas:**
+**Versión 1.2.0 — funcionalidades completas:**
 - Perfiles, paletas, botones (tipos: audio, time, temperature, humidity, random_folder)
 - Motor de audio: loop, overlap, restart, stop_other, pre-escucha independiente
 - Modos de reproducción global: normal, loop, overlap, restart + solo mode
@@ -367,15 +367,16 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 - Precarga de audio RAM (LRU, estrategias FullProfile/VisibleTabs/OnPlay, TTL)
 - Locuciones dinámicas de hora y clima (open-meteo)
 - Export/import `.bdelf`/`.bdeplf` con portabilidad de cue/dB
+- Panel lateral fijo con botones globales o por perfil
+- Reproductor auxiliar con cola y listas `.LFPlay` compatibles con LF Automatizador
 - i18n en 4 idiomas (es, en, pt-BR, pt-PT)
 - CI/CD con GitHub Actions
 
-**En desarrollo (rama `codex/panel-lateral-fijo`):**
-- Panel lateral fijo: botones fijos con alcance global o por perfil, posición, columnas y filas.
-- **Reproductor auxiliar** (modo reproductor del panel): motor propio, cola, cuatro modos de
-  avance, marcar-siguiente (ley), detener al finalizar, pre-carga ping-pong entre dos decks,
-  volumen y dispositivo propios, DnD (añadir y reordenar), y listas `.LFPlay` compatibles con
-  LFA. Ver [`Documentación/PLAN_MODO_REPRODUCTOR.md`](Documentación/PLAN_MODO_REPRODUCTOR.md).
+**En desarrollo (rama `codex/distribucion-tiendas`):**
+- Publicación prioritaria en Microsoft Store.
+- Preparación común para Flathub y repositorios oficiales de Linux.
+- Plan y evidencia en
+  [`Documentación/PLAN_DISTRIBUCION_TIENDAS.md`](Documentación/PLAN_DISTRIBUCION_TIENDAS.md).
 
 **Pendientes conocidos:**
 

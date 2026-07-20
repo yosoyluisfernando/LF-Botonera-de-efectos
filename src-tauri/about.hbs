@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LF Botonera de Efectos — Rust third-party licenses</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.5; margin: 2rem; }
+    main { max-width: 70rem; margin: 0 auto; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #777; padding: .4rem; text-align: left; }
+    pre { border: 1px solid #777; padding: 1rem; white-space: pre-wrap; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #202124; color: #f1f3f4; }
+      a { color: #8ab4f8; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Rust third-party licenses</h1>
+  <p>
+    Generated from the locked Rust dependency graph of LF Botonera de Efectos.
+    Each component remains subject to its own license and copyright notices.
+  </p>
+  <h2>Components</h2>
+  <table>
+    <thead><tr><th>Component</th><th>Version</th><th>License</th></tr></thead>
+    <tbody>
+    {{#each crates}}
+      <tr>
+        <td><a href="{{#if package.repository}}{{package.repository}}{{else}}https://crates.io/crates/{{package.name}}{{/if}}">{{package.name}}</a></td>
+        <td>{{package.version}}</td>
+        <td>{{license}}</td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+  <h2>License texts</h2>
+  {{#each overview}}
+    <h3 id="{{id}}">{{name}}</h3>
+    <pre>{{text}}</pre>
+  {{/each}}
+</main>
+</body>
+</html>

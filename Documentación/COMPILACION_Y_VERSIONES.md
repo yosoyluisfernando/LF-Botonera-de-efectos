@@ -3,6 +3,11 @@
 Este documento define los sistemas operativos soportados y el proceso de
 compilacion, versionado y publicacion del proyecto Tauri + Rust.
 
+La estrategia para Microsoft Store, Flathub y repositorios oficiales de Linux
+se mantiene en [`PLAN_DISTRIBUCION_TIENDAS.md`](PLAN_DISTRIBUCION_TIENDAS.md).
+Los instaladores descritos aquí son artefactos técnicos; no todos cumplen todavía
+los requisitos de una tienda.
+
 ## 1. Sistemas Operativos Soportados
 
 **Windows 10 y 11**
