@@ -105,6 +105,11 @@ No abrir varios procesos de publicación a la vez.
 - La revisión `1.2.0.5` añade `resources.pri`, con 58 candidatos y calificadores
   `UNPLATED` y `LIGHTUNPLATED`. La comprobación visual confirmó que eliminó la placa
   azul de la barra de tareas. App Installer conserva su placa propia esperada.
+- La desinstalación y reinstalación de `1.2.0.5` conservó sin diferencias los 25
+  archivos de datos. El autor abrió después tanto la instalación tradicional como la
+  MSIX y confirmó que ambas funcionan y muestran los mismos perfiles.
+- MSIX no reemplaza automáticamente NSIS: durante la transición Windows muestra dos
+  entradas. La publicación debe incluir instrucciones de migración para evitar confusión.
 - No se encontró telemetría ni publicidad en el código.
 - La aplicación consulta GitHub Releases y, cuando se habilita el clima, Open-Meteo.
   PayPal solo se abre si el usuario acepta o pulsa el enlace de donación.
@@ -132,6 +137,7 @@ e incorpora la página de licencia GPL.
 
 - `PRIVACY.md`: política de privacidad en español e inglés.
 - `SUPPORT.md`: soporte, reporte de fallos y canales de contacto.
+- `MIGRACION_MICROSOFT_STORE.md`: transición segura desde MSI o EXE sin perder datos.
 - `THIRD_PARTY_NOTICES.md`: inventario y avisos de dependencias incluidos.
 - `CHECKLIST_PREPUBLICACION_LOCAL.md`: verificaciones locales y evidencia.
 - `FICHA_PUBLICACION.md`: textos comunes y decisiones pendientes de la ficha.
@@ -149,10 +155,9 @@ titular; esos datos no se guardarán en el repositorio.
 
 ## 6. Siguiente punto de reanudación
 
-1. Probar actualización, desinstalación y el caso de un usuario sin datos previos.
-2. Resolver la cobertura de WebView2 en un Windows 10 limpio.
-3. Retirar paquete y certificado locales cuando termine la prueba.
-4. Pasar a Partner Center únicamente después de cerrar esa preparación local.
+1. Dejar como prueba externa el caso de Windows limpio sin datos ni WebView2.
+2. Revisar Partner Center y comenzar la creación de la cuenta individual.
+3. Retirar paquete y certificado locales cuando ya no hagan falta más pruebas.
 
 Privacidad, soporte y ficha base fueron aprobados por el autor el 2026-07-20.
 Los informes completos de licencias Rust y Node ya se generan con `npm run licenses`.

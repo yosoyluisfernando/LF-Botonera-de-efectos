@@ -180,8 +180,8 @@ La revisión local `1.2.0.2` firmada con el certificado de desarrollo superó:
 - clima, enlaces externos y persistencia tras reiniciar;
 - exportación desde un perfil e importación correcta en otro.
 
-Quedan pendientes la actualización y desinstalación, una cuenta de Windows sin datos,
-WebView2 en Windows 10 limpio y desactivar el actualizador de GitHub para Store.
+Actualización y reinstalación fueron correctas; los 25 archivos conservaron sus hashes.
+MSIX y NSIS comparten perfiles, pero muestran dos entradas: se documentará la migración.
 
 Los PNG conservan transparencia real. App Installer coloca una placa detrás del logo
 de paquete; no forma parte de `StoreLogo.png` ni admite la variante sin placa usada por

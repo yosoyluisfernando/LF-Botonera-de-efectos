@@ -60,6 +60,9 @@ se copian allí; la configuración guarda referencias a sus ubicaciones original
 
 Consulte también la [política de privacidad](PRIVACY.md).
 
+Para cambiar desde un instalador MSI o EXE a Microsoft Store, siga la
+[guía de migración](Documentación/MIGRACION_MICROSOFT_STORE.md).
+
 ## English
 
 ### Support channels
@@ -111,3 +114,6 @@ Close the application before copying or restoring that directory. Audio files ar
 copied there; the configuration references their original locations.
 
 See also the [privacy policy](PRIVACY.md).
+
+To move from an MSI or EXE installer to Microsoft Store, follow the
+[migration guide](Documentación/MIGRACION_MICROSOFT_STORE.md#migrating-to-microsoft-store).

@@ -145,6 +145,12 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 - [x] Confirmar visualmente en la revisión `1.2.0.5` que la barra usa la variante sin
   placa. App Installer conserva su propia placa para el logo de paquete; es una
   superficie distinta y no indica que el PNG haya perdido transparencia.
+- [x] Desinstalar y reinstalar `1.2.0.5`: los 25 archivos de `%APPDATA%\LF Botonera`
+  conservaron exactamente su tamaño y SHA-256; el paquete volvió a estado `Ok`.
+- [x] Abrir por separado la instalación tradicional y la MSIX: ambas leen los mismos
+  perfiles y funcionan. Windows muestra dos entradas porque son instalaciones distintas.
+- [x] Preparar instrucciones de migración: comprobar datos en Store y desinstalar luego
+  la versión tradicional para evitar dos entradas, sin borrar `%APPDATA%\LF Botonera`.
 - [ ] Comparar MSIX con MSI/EXE autónomo y firmado.
 - [ ] Aprobar una sola ruta de publicación.
 - [ ] Repetir Windows App Certification Kit sobre el candidato final y revisar si
