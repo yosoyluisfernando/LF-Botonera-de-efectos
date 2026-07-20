@@ -24,6 +24,15 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ## [Sin publicar]
 
+### Corregido
+- La compilación de Windows declara explícitamente compatibilidad DPI `PerMonitorV2`
+  para que ventanas y diálogos se adapten correctamente a monitores con escalas
+  diferentes.
+
+### Seguridad
+- El permiso para abrir recursos externos se limita a URLs admitidas; la interfaz ya
+  no recibe el permiso innecesario para revelar archivos en el Explorador.
+
 ## [1.2.0] — 2026-07-17
 
 ### Añadido

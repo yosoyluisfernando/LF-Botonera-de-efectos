@@ -92,12 +92,50 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
   `signtool` mediante Windows SDK.
 - [x] Confirmar que MSIX Packaging Tool no está instalado actualmente.
 - [ ] Definir el contenido autónomo de WebView2 y medir el tamaño resultante.
-- [ ] Generar una prueba MSIX repetible.
+- [x] Generar una prueba MSIX repetible con `scripts/build-msix.ps1` y una identidad
+  provisional que no se confundirá con la asignada por Store.
+  - Resultado sin firma después de reconstruir Release: 8.365.091 bytes.
+  - Versión de manifiesto: `1.2.0.0`, arquitectura `x64`.
+  - SHA-256: `E6480763EC1A60E68E4D8752AD169EE56B6951EB0CABC67376E1243A72FA566D`.
+  - `MakeAppx` aceptó el manifiesto; al extraerlo se recuperaron los 12 archivos y el
+    ejecutable conservó exactamente su hash.
+- [x] Auditar la virtualización de `%APPDATA%`: una instalación existente debería ser
+  visible en Windows 10 2004 o posterior, pero los datos nuevos pueden quedar en la
+  zona privada del paquete y deben probarse antes de decidir una excepción.
+- [x] Firmar e instalar la prueba local autorizada.
+  - Firma `Developer` válida, sin advertencias de `SignTool`.
+  - Paquete instalado: `LF.Botonera.Efectos.Local_1.2.0.0_x64__b7gt2fsps2vdj`.
+  - Estado informado por Windows: `Ok`.
+  - SHA-256 firmado:
+    `7782803F64DD2642DF51B18999AACB0585F9E3D2E4A20F94163E979392184EA9`.
+- [x] Probar el primer inicio MSIX con datos existentes.
+  - El autor confirmó inicio, cierre, perfiles, pestañas, botones, reproducción, salida
+    principal y preescucha.
+  - `botonera_config.json` se modificó directamente en `%APPDATA%\LF Botonera`.
+  - No se crearon copias virtuales de `botonera_config.json` ni `tracks.db`.
+  - Solo `.window-state.json` quedó virtualizado, como estado interno de Tauri.
+- [x] Ejecutar WACK sobre la prueba instalada y auditar todos sus hallazgos.
+  - 24 pruebas ejecutadas, sin ejecución parcial: 22 `PASS`, un fallo opcional y una
+    advertencia; resultado global `WARNING`.
+  - El fallo opcional combina soporte general de Rust para procesos, apertura legítima
+    de URLs con Tauri y coincidencias accidentales dentro del binario.
+  - El Release declara `PerMonitorV2`; `mt.exe` lo confirmó, aunque el analizador DPI
+    de WACK informó que no pudo procesar el ejecutable Rust.
+  - Revisión instalada: `LF.Botonera.Efectos.Local_1.2.0.2_x64__b7gt2fsps2vdj`.
+  - SHA-256 firmado:
+    `D0FF484FCDD0A54BAA93102E3804036E2937C411EAFB6A277CEB582524BE53C7`.
+- [x] Revalidar funcionalmente la revisión `1.2.0.2` después de los cambios derivados
+  de WACK.
+  - Inicio, audio, salida principal, preescucha e interfaz: correctos.
+  - Los enlaces externos siguen abriendo el navegador con el permiso reducido.
+  - Un cierre accidental seguido de un segundo inicio conservó el estado y funcionó
+    normalmente.
 - [ ] Probar archivos, carpetas, arrastrar y soltar, audio, preescucha, atajos globales,
   ventanas, red y persistencia dentro de MSIX.
 - [ ] Comparar MSIX con MSI/EXE autónomo y firmado.
 - [ ] Aprobar una sola ruta de publicación.
-- [ ] Pasar Windows App Certification Kit al candidato final.
+- [ ] Repetir Windows App Certification Kit sobre el candidato final y revisar si
+  Store acepta o pide justificar las dos observaciones conocidas.
 - [ ] Probar instalación silenciosa si se elige MSI o EXE.
 - [ ] Probar instalación, actualización, desinstalación y conservación de datos en una
   cuenta limpia de Windows.

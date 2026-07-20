@@ -346,8 +346,8 @@ presentarán como repositorios oficiales de la distribución.
 ### Fase 2 — Preparación técnica de Windows
 
 - [ ] Definir cómo se incluye WebView2 sin descargas durante la instalación.
-- [ ] Instalar o preparar las herramientas MSIX necesarias.
-- [ ] Generar una prueba MSIX repetible con una identidad provisional local.
+- [x] Instalar o preparar las herramientas MSIX necesarias.
+- [x] Generar una prueba MSIX repetible con una identidad provisional local.
 - [ ] Ejecutar la matriz funcional que no dependa de Partner Center.
 - [ ] Documentar qué valores deberán sustituirse con la identidad de Store.
 
