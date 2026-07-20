@@ -147,12 +147,11 @@ rama principal. Antes del envío se abrirán desde una sesión sin autenticar.
 - Contenido generado por usuarios: no se publica ni comparte desde la aplicación.
 - Archivos de audio: deben ser aportados y licenciados por el usuario.
 
-## 6. Recursos gráficos que hay que producir
+## 6. Recursos gráficos
 
-Las capturas se harán con una compilación Release y datos de demostración propios.
-No contendrán nombres reales de emisoras, rutas personales ni audio sin permiso.
-
-Secuencia propuesta:
+La biblioteca actual contiene 17 PNG maestros de Windows en español, todos de
+`1440×860`. Su inventario, aptitud y restricciones están documentados en
+[`../Capturas/README.md`](../Capturas/README.md). La selección pública recomendada es:
 
 1. Rejilla principal con varias pestañas y botones representativos.
 2. Panel lateral fijo y reproductor auxiliar.
@@ -161,9 +160,9 @@ Secuencia propuesta:
 5. Ajustes de dispositivos y preescucha.
 6. Tema claro o idiomas disponibles, si la tienda admite una sexta captura.
 
-Se preparará al menos una serie en inglés para Flathub. Las imágenes deben mostrar la
-aplicación funcionando en la plataforma correspondiente; no se reutilizará una captura
-de Windows como si fuera Linux.
+Antes de ampliar una ficha se repetirán el reproductor en reposo, Acerca de con la
+versión vigente y Hora y Clima sin datos locales. Para Linux se hará una serie en el
+sistema real; no se reutilizará una captura de Windows como evidencia de Linux.
 
 ## 7. Decisiones pendientes del autor
 

@@ -173,9 +173,9 @@ e incorpora la página de licencia GPL.
 - `THIRD_PARTY_NOTICES.md`: inventario y avisos de dependencias incluidos.
 - `CHECKLIST_PREPUBLICACION_LOCAL.md`: verificaciones locales y evidencia.
 - `FICHA_PUBLICACION.md`: textos comunes y decisiones pendientes de la ficha.
+- `GUIA_CONTENIDOS_PUBLICOS.md` y `Capturas/README.md`: mensajes y 17 capturas auditadas.
 - `PLAN_DISTRIBUCION_TIENDAS.md`: estrategia, fases y decisiones.
-- `MSIX_LOCAL.md`: manifiesto, script reproducible, identidad provisional y límites de
-  la prueba sin firma.
+- `MSIX_LOCAL.md`: manifiesto, script reproducible, identidad y límites de la prueba.
 - `LICENSE`: texto completo de GPL-3.0, ya existente.
 - `README.md`: enlaces visibles a privacidad, soporte, licencia y código fuente.
 
