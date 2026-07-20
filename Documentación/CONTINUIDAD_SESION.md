@@ -133,9 +133,9 @@ No abrir varios procesos de publicación a la vez.
 - Precios y disponibilidad quedaron guardados como aplicación gratuita (`0 PEN`),
   pública, detectable, disponible en los 240 mercados actuales y mercados futuros,
   con lanzamiento lo antes posible y sin fecha de retirada.
-- IARC generó la vista previa apta para todo público: Microsoft Store `3+`, PEGI `3`,
-  ESRB `Todos` y equivalentes. El editor confirmó que es mayor de edad y que acepta los
-  términos; debe marcar y guardar personalmente la casilla por ser una verificación de edad.
+- IARC quedó guardado con clasificación apta para todo público: Microsoft Store `3+`,
+  PEGI `3`, ESRB `Todos` y equivalentes. El editor marcó personalmente la aceptación
+  de términos y la declaración de mayoría de edad.
 - Se creó fuera del repositorio `C:\LF Botonera - Demo Microsoft Store 5x5` con 25
   copias numeradas de efectos locales para preparar capturas sin nombres problemáticos.
 - Los 25 efectos se cargaron en una paleta 5×5 y se guardó la captura Release limpia
@@ -187,11 +187,11 @@ titular; esos datos no se guardarán en el repositorio.
 
 ## 6. Siguiente punto de reanudación
 
-1. Marcar personalmente la declaración de edad y guardar IARC.
-2. Confirmar que todas las secciones del envío figuren completadas.
-3. Pedir confirmación expresa antes de pulsar `Enviar para certificación`.
-4. Dejar como prueba externa el caso de Windows limpio sin datos ni WebView2.
-5. Retirar paquete y certificado locales cuando ya no hagan falta más pruebas.
+1. Pedir confirmación expresa antes de pulsar `Enviar para certificación`; Microsoft
+   ya habilitó el botón y el borrador está listo para enviarse.
+2. Registrar el identificador y estado que entregue Microsoft tras el envío.
+3. Dejar como prueba externa el caso de Windows limpio sin datos ni WebView2.
+4. Retirar paquete y certificado locales cuando ya no hagan falta más pruebas.
 
 Privacidad, soporte y ficha base fueron aprobados por el autor el 2026-07-20.
 Los informes completos de licencias Rust y Node ya se generan con `npm run licenses`.
