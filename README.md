@@ -7,6 +7,7 @@
 
   <p>Dispara efectos, cortinas, identificaciones, locuciones y audios de apoyo en directo, con un motor nativo en Rust y una interfaz diseñada para la velocidad y el control total.</p>
 
+  [![Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-Descargar-0078D4?logo=microsoft)](https://apps.microsoft.com/detail/9NJ8ST39QP7V)
   [![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D4?logo=windows)](#descarga)
   [![Linux](https://img.shields.io/badge/Linux-DEB%20%7C%20AppImage-FCC624?logo=linux&logoColor=black)](#descarga)
   [![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)](https://tauri.app/)
@@ -30,19 +31,30 @@ También forma parte del ecosistema de [LF Automatizador](https://github.com/yos
 
 ## Descarga
 
-La última versión estable está disponible en la página de releases:
+### Microsoft Store — recomendado para Windows
 
-**[→ Descargar LF Botonera de Efectos](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/releases/latest)**
+La forma más sencilla de instalar LF Botonera de Efectos en Windows 10 y Windows 11 es mediante Microsoft Store. La tienda gestiona la instalación y las actualizaciones automáticamente.
+
+**[→ Descargar desde Microsoft Store](https://apps.microsoft.com/detail/9NJ8ST39QP7V)**
+
+### Instaladores directos y Linux
+
+Los instaladores directos para Windows y los paquetes para Linux siguen disponibles en GitHub Releases:
+
+**[→ Ver todas las descargas](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/releases/latest)**
 
 | Sistema | Archivo recomendado | Descripción |
 |---|---|---|
-| Windows 10/11 | `LF.Botonera.de.Efectos_*_x64-setup.exe` | Instalador con asistente, para la mayoría de usuarios |
+| Windows 10/11 | [Microsoft Store](https://apps.microsoft.com/detail/9NJ8ST39QP7V) | Opción recomendada: instalación sencilla y actualizaciones automáticas |
+| Windows 10/11 | `LF.Botonera.de.Efectos_*_x64-setup.exe` | Instalador directo con asistente |
 | Windows 10/11 | `LF.Botonera.de.Efectos_*_x64_en-US.msi` | Instalador MSI para entornos controlados o corporativos |
 | Ubuntu / Debian | `LF.Botonera.de.Efectos_*_amd64.deb` | Paquete `.deb` para distribuciones basadas en Debian |
 | Fedora / openSUSE | `LF.Botonera.de.Efectos_*_x86_64.rpm` | Paquete RPM para distribuciones compatibles |
 | Linux universal | `LF.Botonera.de.Efectos_*_amd64.AppImage` | Ejecutable portable, sin instalación |
 
 > **Windows:** requiere Windows 10 20H2 o posterior con WebView2 Runtime (incluido en Windows 11 y en versiones actualizadas de Windows 10).
+
+> Si ya utilizabas el instalador MSI o EXE, consulta la guía de [migración a Microsoft Store](Documentación/MIGRACION_MICROSOFT_STORE.md) para conservar tu configuración al cambiar de edición.
 
 ---
 
