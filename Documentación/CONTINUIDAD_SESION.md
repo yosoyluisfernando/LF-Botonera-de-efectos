@@ -110,8 +110,9 @@ No abrir varios procesos de publicación a la vez.
   MSIX y confirmó que ambas funcionan y muestran los mismos perfiles.
 - MSIX no reemplaza automáticamente NSIS: durante la transición Windows muestra dos
   entradas. La publicación debe incluir instrucciones de migración para evitar confusión.
-- Partner Center reservó `LF Botonera de Efectos` como aplicación MSIX o PWA. Id. de
-  Store: `9NJ8ST39QP7V`; el producto está en borrador y debe enviarse en tres meses.
+- Partner Center publicó `LF Botonera de Efectos` como aplicación MSIX el 2026-07-21.
+  Id. de Store: `9NJ8ST39QP7V`; la ficha pública está disponible en
+  `https://apps.microsoft.com/detail/9NJ8ST39QP7V`.
 - Identidad Store: paquete `LuisFernandoVelasquez.LFBotoneradeEfectos`, publicador
   `CN=AD90DE58-447F-47AE-AC1A-3D369955282B` y PFN
   `LuisFernandoVelasquez.LFBotoneradeEfectos_5cjhmbb3mr2nr`.
@@ -146,6 +147,10 @@ No abrir varios procesos de publicación a la vez.
   mediante el PR #3, commit de fusión `013e196`: `PRIVACY.md`, `SUPPORT.md`, la guía
   de migración y los avisos e informes de licencias de terceros. El campo Website del
   repositorio apunta al sitio oficial `https://lfbotonera.blogspot.com/`.
+- Microsoft aprobó la Submission `1152921505701454351` el 2026-07-21. Partner Center
+  muestra `En Microsoft Store` y la ficha pública permite descargar la versión 1.2.1.
+  La página confirma el editor, la categoría Música, la captura, ocho características,
+  cuatro idiomas, clasificación para todos y un tamaño aproximado de 21 MB.
 - No se encontró telemetría ni publicidad en el código.
 - La aplicación consulta GitHub Releases y, cuando se habilita el clima, Open-Meteo.
   PayPal solo se abre si el usuario acepta o pulsa el enlace de donación.
@@ -183,20 +188,25 @@ e incorpora la página de licencia GPL.
 - `LICENSE`: texto completo de GPL-3.0, ya existente.
 - `README.md`: enlaces visibles a privacidad, soporte, licencia y código fuente.
 
-Las URLs públicas definitivas se obtendrán desde GitHub cuando estos archivos estén
-confirmados y publicados. Partner Center puede exigir además datos privados del
-titular; esos datos no se guardarán en el repositorio.
+Las URLs públicas definitivas ya están disponibles en el sitio oficial de Blogger y
+en la rama `main` de GitHub. Los datos privados del titular exigidos por Partner Center
+no se guardan en el repositorio.
 
 ---
 
 ## 6. Siguiente punto de reanudación
 
-1. La Submission `1152921505701454351` fue enviada a Microsoft Store el 2026-07-20.
-   Está en proceso de certificación, fase `Preprocesando` (paso 2 de 4).
-2. Revisar el resultado de certificación; Microsoft estima desde unas horas hasta
-   tres días hábiles. Si se aprueba, la publicación comenzará automáticamente.
-3. Dejar como prueba externa el caso de Windows limpio sin datos ni WebView2.
-4. Retirar paquete y certificado locales cuando ya no hagan falta más pruebas.
+1. Probar la instalación pública desde Microsoft Store en un Windows limpio sin datos
+   previos y, si es posible, sin WebView2 preinstalado.
+2. Preparar una actualización exclusivamente de metadatos para sustituir los enlaces
+   de GitHub de la ficha por el sitio oficial, soporte y privacidad de Blogger. No
+   cambiar el paquete 1.2.1 aprobado para esta corrección.
+3. Actualizar el sitio web para indicar que la aplicación ya está disponible y añadir
+   el enlace público de Microsoft Store.
+4. Retirar el paquete de prueba y el certificado local cuando ya no hagan falta más
+   verificaciones.
+5. Retomar la prueba física en Linux antes de solicitar publicación en Flathub o en
+   repositorios oficiales.
 
 Privacidad, soporte y ficha base fueron aprobados por el autor el 2026-07-20.
 Los informes completos de licencias Rust y Node ya se generan con `npm run licenses`.
