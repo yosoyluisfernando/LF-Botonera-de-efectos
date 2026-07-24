@@ -723,7 +723,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 206 passed, 4 ignored)
+# Backend Rust (suite actual: 209 passed, 4 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
 

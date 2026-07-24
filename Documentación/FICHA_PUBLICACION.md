@@ -118,19 +118,21 @@ the tab, profile, and playlist formats used by LF Automatizador.
 
 ## 4. Información común de la ficha
 
-- Sitio web y código fuente:
+- Sitio web oficial:
+  `https://lfbotonera.blogspot.com/`
+- Código fuente:
   `https://github.com/yosoyluisfernando/LF-Botonera-de-efectos`
 - Releases:
   `https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/releases`
 - Soporte:
-  `https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/blob/main/SUPPORT.md`
+  `https://lfbotonera.blogspot.com/p/soporte.html`
 - Privacidad:
-  `https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/blob/main/PRIVACY.md`
+  `https://lfbotonera.blogspot.com/p/privacidad.html`
 - Licencia:
   `https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/blob/main/LICENSE`
 
-Estas URLs serán válidas públicamente cuando los documentos estén integrados en la
-rama principal. Antes del envío se abrirán desde una sesión sin autenticar.
+Estas URLs están publicadas y se comprobaron sin depender de una rama de trabajo.
+GitHub conserva copias públicas de privacidad y soporte como respaldo.
 
 ## 5. Requisitos y declaraciones
 
@@ -165,19 +167,15 @@ versión vigente. La captura de Hora y Clima con Aragua de Barcelona está autor
 el autor; se usará cuando el canal permita explicar ese contexto. Para Linux se hará
 una serie real; no se reutilizará una captura de Windows como evidencia de Linux.
 
-## 7. Decisiones pendientes del autor
+## 7. Decisiones cerradas en Microsoft Store
 
-- Gratuita o de pago en Microsoft Store. Recomendación inicial: gratuita, coherente
-  con el canal actual y la GPL, conservando la donación opcional.
-- Países o regiones de distribución.
-- Categoría y subcategoría disponibles en Partner Center.
-- Visibilidad pública inicial o publicación limitada para pruebas.
-- Idiomas que tendrán ficha completa desde el primer envío.
-- Datos públicos de contacto que exige la cuenta individual.
-
-No se responderá el cuestionario de clasificación por edades hasta verlo en Partner
-Center. Las respuestas se basarán en funciones reales, no en una clasificación
-estimada.
+- Aplicación gratuita, pública y disponible en todos los mercados actuales y futuros.
+- Categoría Música y publicación automática tras superar la certificación.
+- Ficha completa en español, inglés, portugués de Brasil y portugués de Portugal.
+- Clasificación IARC apta para todo público.
+- Publicada el 2026-07-21 con Id. de Store `9NJ8ST39QP7V`.
+- La siguiente entrega será solo de metadatos: enlaces oficiales, descripción y
+  galería. No sustituirá el paquete 1.2.1 aprobado.
 
 ## 8. Afirmaciones que no deben hacerse todavía
 

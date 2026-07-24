@@ -24,6 +24,15 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ## [Sin publicar]
 
+### Añadido
+- «Acerca de» indica el canal de distribución, el sistema operativo y quién
+  administra las actualizaciones. Los paquetes directos de Windows y Linux muestran
+  GitHub Releases; la edición de Microsoft Store muestra Microsoft Store.
+
+### Corregido
+- Disparar un botón ya no detiene la escucha previa general ni la reproducción del
+  editor de pistas, incluso con Solo o «Detener otros» activos.
+
 ## [1.2.1] — 2026-07-20
 
 Esta versión está dedicada a preparar la llegada de **LF Botonera de Efectos a

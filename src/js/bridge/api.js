@@ -54,6 +54,9 @@ export function invoke(cmd, args) {
     }
     if (cmd === 'get_audio_devices') return Promise.resolve(['default']);
     if (cmd === 'get_app_version') return Promise.resolve('dev');
+    if (cmd === 'get_distribution_info') return Promise.resolve({
+        version: 'dev', channel: 'direct', platform: 'other', updateManager: 'github_releases',
+    });
     if (cmd === 'set_button_text_size') return Promise.resolve(null);
     if (cmd === 'undo_config') return invoke('get_config');
     if (cmd === 'redo_config') return invoke('get_config');

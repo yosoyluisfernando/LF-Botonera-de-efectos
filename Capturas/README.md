@@ -1,8 +1,8 @@
 # Biblioteca de capturas
 
 Esta carpeta conserva las capturas maestras de LF Botonera de Efectos. Las imágenes
-actuales corresponden a Windows, interfaz en español y compilación Release. Todas son
-PNG de `1440×860`; se reorganizaron y renombraron sin recomprimirlas.
+actuales corresponden a Windows, interfaz en español y compilación Release. Las 18
+imágenes son PNG de `1440×860`; se reorganizaron y renombraron sin recomprimirlas.
 
 La biblioteca sirve como fuente para GitHub, Microsoft Store, redes sociales, una
 futura web y el manual. Una imagen puede servir a varios canales: no se deben guardar
@@ -30,18 +30,22 @@ Estas son las capturas más limpias y representativas:
 
 1. [`01-rejilla-modo-claro.png`](windows/es/principal/01-rejilla-modo-claro.png)
    — vista general de la rejilla 5×5, los modos y los medidores. Es la imagen principal.
-2. [`02-rejilla-modo-oscuro.png`](windows/es/principal/02-rejilla-modo-oscuro.png)
-   — demuestra el tema oscuro sin cambiar la organización de trabajo.
-3. [`01-botones-fijos.png`](windows/es/panel/01-botones-fijos.png)
-   — muestra el panel lateral de acceso permanente.
-4. [`01-forma-de-onda-y-cues.png`](windows/es/editor/01-forma-de-onda-y-cues.png)
+2. [`05-rejilla-modo-oscuro-panel-fijo.png`](windows/es/principal/05-rejilla-modo-oscuro-panel-fijo.png)
+   — combina el tema oscuro con el panel fijo derecho en una vista limpia.
+3. [`01-forma-de-onda-y-cues.png`](windows/es/editor/01-forma-de-onda-y-cues.png)
    — presenta el editor, la forma de onda, los cues, la ganancia y la normalización.
+4. [`03-escucha-previa.png`](windows/es/panel/03-escucha-previa.png)
+   — muestra la preescucha con progreso, posición y volumen.
 5. [`01-consola-audio-modo-oscuro.png`](windows/es/consola/01-consola-audio-modo-oscuro.png)
    — enseña los buses, faders y vúmetros. No debe ser la imagen principal porque la
    propia interfaz informa que la consola sigue en fase de prueba.
+6. [`03-tipos-de-boton.png`](windows/es/principal/03-tipos-de-boton.png)
+   — presenta audio, carpeta aleatoria y locuciones dinámicas.
+7. [`05-hora-y-clima-aragua-de-barcelona.png`](windows/es/configuracion/05-hora-y-clima-aragua-de-barcelona.png)
+   — cierra la galería con las locuciones de hora y clima y el origen del proyecto.
 
-Para Microsoft Store ya existe una captura enviada. Esta selección permite mejorar la
-galería en una actualización futura, después de la aprobación inicial.
+Este es el orden acordado para la actualización de la galería de Microsoft Store
+posterior a la aprobación inicial.
 
 ## Catálogo para manual y documentación
 

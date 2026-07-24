@@ -334,7 +334,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (suite actual: 206 passed, 4 ignored)
+# Tests unitarios Rust (suite actual: 209 passed, 4 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -373,8 +373,10 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 - CI/CD con GitHub Actions
 
 **En desarrollo (rama `codex/distribucion-tiendas`):**
-- Publicación prioritaria en Microsoft Store.
-- Preparación común para Flathub y repositorios oficiales de Linux.
+- Microsoft Store completada con la versión 1.2.1.
+- Prueba física prioritaria en Linux y preparación posterior de Flathub.
+- Canales actuales centralizados: `direct` para GitHub Releases y `store` para
+  Microsoft Store; los canales administrados de Linux todavía no están implementados.
 - Plan y evidencia en
   [`Documentación/PLAN_DISTRIBUCION_TIENDAS.md`](Documentación/PLAN_DISTRIBUCION_TIENDAS.md).
 

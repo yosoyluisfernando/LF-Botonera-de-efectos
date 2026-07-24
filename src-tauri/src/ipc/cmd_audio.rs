@@ -1,8 +1,8 @@
 /// Modulo: cmd_audio.rs
 /// Proposito: comandos IPC relacionados con el motor de audio.
 use super::AppState;
-use crate::engine::console::device as audio_device;
 use crate::engine::audio::formats::validate_audio_file;
+use crate::engine::console::device as audio_device;
 use crate::engine::persist::config_io as config;
 use crate::model::fade::FadeConfig;
 use serde::Serialize;
@@ -106,7 +106,7 @@ pub fn play_audio(
         file_gain,
         true, // pre-escucha/previa → bus PRE (con fallback al principal)
         &FadeConfig::default(),
-        crate::engine::audio::button::PlaybackGroup::Main,
+        crate::engine::audio::button::PlaybackGroup::Cue,
     )
 }
 

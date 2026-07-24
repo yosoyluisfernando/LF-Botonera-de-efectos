@@ -78,6 +78,7 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_export::export_profile_by_id,
             ipc::cmd_export::import_profile,
             ipc::cmd_meta::get_app_version,
+            ipc::cmd_meta::get_distribution_info,
             ipc::cmd_meta::toggle_clock_format,
             ipc::cmd_updates::check_for_updates,
             ipc::cmd_startup_prompts::prepare_startup_prompts,

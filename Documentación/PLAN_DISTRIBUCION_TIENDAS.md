@@ -1,12 +1,18 @@
 # Plan de distribución en tiendas y repositorios
 
 Documento rector para publicar **LF Botonera de Efectos** fuera de GitHub Releases.
-La prioridad activa es Microsoft Store. La preparación para Linux se realiza en
-paralelo solo cuando el trabajo sea común y no distraiga de esa publicación.
+Microsoft Store quedó completada con la versión 1.2.1. La prioridad activa es la
+prueba física en Linux y, después, Flathub.
 
 **Estado del documento:** guía inicial basada en la auditoría de la versión 1.2.0.
 **Rama de trabajo:** `codex/distribucion-tiendas`.
 **Fecha de inicio:** 2026-07-20.
+**Última actualización:** 2026-07-23.
+
+Las reglas vigentes de aislamiento entre Windows y Linux están en
+[`ARCHITECTURE.md`](ARCHITECTURE.md#política-para-cambios-específicos-de-windows-o-linux).
+La marca de canal y los comandos de cada build están en
+[`COMPILACION_Y_VERSIONES.md`](COMPILACION_Y_VERSIONES.md#21-plataforma-formato-y-canal-no-son-lo-mismo).
 
 ---
 
@@ -48,6 +54,9 @@ Una tienda complementa ese canal; no lo reemplaza automáticamente.
 
 ### Hallazgos que impiden considerar lista la publicación
 
+> **Registro histórico de la auditoría 1.2.0.** Estos puntos explican las decisiones
+> posteriores; no significan que Microsoft Store continúe pendiente.
+
 - El MSI actual no está firmado digitalmente.
 - El instalador actual puede descargar WebView2 durante la instalación. Microsoft
   exige que los instaladores MSI o EXE enviados a Store sean autónomos, no descarguen
@@ -76,6 +85,10 @@ registrar los suyos.
 ---
 
 ## 3. Microsoft Store: ruta principal
+
+> **Estado histórico:** completada. La versión 1.2.1 y la actualización de su ficha
+> fueron aprobadas. Esta sección conserva las razones y el procedimiento que llevaron
+> a la publicación; no define trabajo activo.
 
 ### 3.1 Cuenta y titular de la publicación
 
@@ -149,9 +162,9 @@ La referencia técnica es
 
 ### 3.5 Adaptaciones de la aplicación
 
-Antes de enviar una compilación se implementará una única noción de canal de
-distribución en Rust, definida al compilar. Como mínimo distinguirá `github` y
-`microsoft-store`. El frontend solo mostrará el estado recibido desde Rust.
+Se implementó una única noción de canal de distribución en Rust, definida al
+compilar. Actualmente distingue `direct` y `store`. El frontend solo muestra el
+estado recibido desde Rust.
 
 En el canal Microsoft Store:
 
@@ -331,7 +344,7 @@ presentarán como repositorios oficiales de la distribución.
 - [x] Corregir metadatos dañados y documentación de versión.
 - [x] Crear un checklist local con estado y evidencia.
 - [x] Verificar pruebas Rust, build Rust, build frontend, i18n y auditoría npm.
-- [ ] Repetir las verificaciones después de cerrar todos los cambios de esta fase.
+- [x] Repetir las verificaciones después de cerrar los cambios de esta fase.
 
 ### Fase 1 — Preparación legal y pública
 
@@ -341,11 +354,11 @@ presentarán como repositorios oficiales de la distribución.
 - [x] Generar los textos completos de licencias Rust y Node de forma reproducible.
 - [x] Revisar y aprobar con el autor privacidad, soporte y ficha base.
 - [x] Redactar la ficha base en español e inglés.
-- [ ] Revisar la ficha con el autor y preparar los recursos gráficos elegidos.
+- [x] Revisar la ficha con el autor y preparar los recursos gráficos elegidos.
 
 ### Fase 2 — Preparación técnica de Windows
 
-- [ ] Definir cómo se incluye WebView2 sin descargas durante la instalación.
+- [x] Resolver WebView2 mediante la ruta MSIX aceptada por Microsoft Store.
 - [x] Instalar o preparar las herramientas MSIX necesarias.
 - [x] Generar una prueba MSIX repetible con una identidad provisional local.
 - [x] Ejecutar la matriz funcional que no dependa de Partner Center.
@@ -356,23 +369,23 @@ presentarán como repositorios oficiales de la distribución.
 - [x] Completar la verificación del titular real.
 - [x] Reservar el nombre del producto.
 - [x] Registrar en este documento la identidad asignada, sin secretos.
-- [ ] Confirmar mercado, precio, visibilidad y público objetivo.
+- [x] Confirmar mercado, precio, visibilidad y público objetivo.
 
 ### Fase 4 — Paquete definitivo y adaptación
 
 - [x] Generar el paquete sin firma con la identidad asignada por Store.
-- [ ] Completar la matriz funcional del MSIX definitivo.
-- [ ] Si falla una capacidad esencial, documentar la causa y evaluar MSI/EXE firmado.
-- [ ] Aprobar una sola ruta de publicación.
-- [ ] Implementar el canal de distribución aprobado.
-- [ ] Incluir licencia, privacidad, soporte y avisos finales.
+- [x] Completar la matriz funcional del MSIX definitivo.
+- [x] Documentar los resultados y conservar MSIX como ruta aprobada.
+- [x] Aprobar una sola ruta de publicación.
+- [x] Implementar el canal de distribución `store`.
+- [x] Incluir licencia, privacidad, soporte y avisos finales.
 
 ### Fase 5 — Certificación y envío Microsoft
 
-- [ ] Crear y verificar el artefacto Release final.
-- [ ] Pasar certificación, instalación, actualización y prueba auditiva.
-- [ ] Completar la ficha de Partner Center y enviar.
-- [ ] Registrar observaciones de certificación y correcciones.
+- [x] Crear y verificar el artefacto Release final.
+- [x] Pasar certificación, instalación, actualización y prueba auditiva.
+- [x] Completar la ficha de Partner Center y enviar.
+- [x] Registrar aprobación y actualización de la ficha pública.
 
 ### Fase 6 — Linux físico y Flathub
 
@@ -393,10 +406,13 @@ presentarán como repositorios oficiales de la distribución.
 
 ## 7. Próximo paso concreto
 
-El trabajo inmediato es cerrar las **Fases 0 y 1**: verificaciones locales,
-documentación legal, textos públicos y avisos de terceros. Después se hará una prueba
-MSIX local con identidad provisional para descubrir incompatibilidades antes de abrir
-la cuenta.
+El trabajo inmediato es la **Fase 6**:
 
-La cuenta y la reserva del nombre comienzan en la Fase 3. Ningún envío, aceptación de
-compromisos o dato de identidad se realizará sin confirmación del autor.
+1. instalar Ubuntu Desktop 26.04 LTS en una máquina física;
+2. probar primero DEB y AppImage Release del canal directo;
+3. registrar audio, dispositivos, Wayland/X11, archivos, atajos, red y persistencia;
+4. corregir hallazgos sin romper la matriz Windows;
+5. diseñar Flatpak y su canal administrado únicamente después de esa evidencia.
+
+Debian, Fedora y otros repositorios oficiales permanecen fuera de alcance hasta
+completar Flathub y evaluar por separado el coste real de mantenimiento.

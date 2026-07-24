@@ -64,7 +64,7 @@ leerse sin conexión, (D) queda descartado como sitio principal y (B) sube de pr
 
 ## 3. El manual NO puede vivir en los `.json` de i18n
 
-Hoy la traducción son 427 claves en 35 secciones por idioma, cuadradas en los cuatro. Ese
+Hoy la traducción son 438 claves en 35 secciones por idioma, cuadradas en los cuatro. Ese
 mecanismo es perfecto para etiquetas de botón y pésimo para prosa:
 
 - El JSON no tiene saltos de línea: un capítulo entero sería una sola cadena ilegible.

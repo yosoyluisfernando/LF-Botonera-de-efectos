@@ -1,5 +1,9 @@
 # Checklist local previo a crear cuentas de tienda
 
+> Microsoft Store está completada desde la versión 1.2.1. Las secciones históricas de
+> Windows se conservan como evidencia; sus alternativas descartadas no son pendientes
+> activos. La prioridad actual comienza en **Linux local**.
+
 Esta lista reúne todo lo que debe quedar comprobado en el equipo de desarrollo antes
 de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 
@@ -57,15 +61,17 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 - [x] Documentar archivos, rutas y metadatos guardados localmente.
 - [x] Crear el canal `store`: no consulta GitHub ni ofrece descargas externas y deja
   las actualizaciones a cargo de Microsoft Store.
+- [x] Centralizar `direct`/`store` en Rust y mostrar en «Acerca de» plataforma, canal
+  y administrador de actualizaciones.
 - [ ] Volver a auditar conexiones justo antes de cada publicación.
 
 ## 4. Calidad del repositorio
 
-- [x] `cargo test --lib`: 207 aprobadas, 4 ignoradas.
+- [x] `cargo test --lib`: 209 aprobadas, 4 ignoradas.
 - [x] `cargo build --lib`: correcto.
 - [x] `npm run build`: correcto.
 - [x] `npm audit`: 0 vulnerabilidades conocidas.
-- [x] Los cuatro idiomas tienen 427 claves.
+- [x] Los cuatro idiomas tienen 438 claves.
 - [x] `git diff --check`: sin errores.
 - [x] Repetir estas verificaciones después del saneamiento documental y de metadatos.
 - [x] `npm run tauri build`: compilación Release completa y generación de MSI y NSIS.
@@ -167,6 +173,9 @@ de crear la cuenta de Microsoft o iniciar solicitudes en catálogos Linux.
 
 - [x] Configuración Tauri presente para DEB, RPM y AppImage.
 - [x] AppImage configurado con `bundleMediaFramework: true`.
+- [x] Los paquetes Linux actuales de GitHub quedan compilados como canal `direct` y
+  conservan GitHub Releases como administrador.
+- [x] Plataforma, formato y canal están documentados como decisiones independientes.
 - [ ] Compilar Release en una base Linux suficientemente antigua.
 - [ ] Probar DEB y AppImage en una máquina Linux real.
 - [ ] Probar PipeWire/PulseAudio, dispositivos, preescucha y cambio en caliente.

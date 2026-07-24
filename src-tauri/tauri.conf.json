@@ -28,9 +28,9 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "publisher": "Luis Fernando VelÃ¡squez",
+    "publisher": "Luis Fernando Velásquez",
     "homepage": "https://github.com/yosoyluisfernando/LF-Botonera-de-efectos",
-    "copyright": "Copyright Â© 2026 Luis Fernando VelÃ¡squez",
+    "copyright": "Copyright © 2026 Luis Fernando Velásquez",
     "license": "GPL-3.0-or-later",
     "licenseFile": "../LICENSE",
     "category": "Music",
@@ -61,6 +61,6 @@
       }
     },
     "shortDescription": "Soundboard for radio broadcasters",
-    "longDescription": "LF Botonera de Efectos â€” a Tauri/Rust soundboard for radio stations and live streaming. Supports unlimited profiles, tabs, keyboard shortcuts, dynamic voice-overs and weather announcements. Compatible with LF Automatizador file formats."
+    "longDescription": "LF Botonera de Efectos — a Tauri/Rust soundboard for radio stations and live streaming. Supports unlimited profiles, tabs, keyboard shortcuts, dynamic voice-overs and weather announcements. Compatible with LF Automatizador file formats."
   }
 }

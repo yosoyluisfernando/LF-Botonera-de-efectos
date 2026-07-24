@@ -47,6 +47,7 @@ pub fn start(
                                 group: match s.group {
                                     PlaybackGroup::Main => "main",
                                     PlaybackGroup::Fixed => "fixed",
+                                    PlaybackGroup::Cue => "cue",
                                 },
                                 progress_percent: if s.duration > 0.0 {
                                     (remaining / s.duration * 100.0).clamp(0.0, 100.0)
@@ -123,7 +124,6 @@ fn compute_display_time(
         .max_by(|a, b| a.0.total_cmp(&b.0))
         .unwrap_or((0.0, 0.0))
 }
-
 
 #[cfg(test)]
 #[path = "monitor_tests.rs"]

@@ -31,8 +31,10 @@ El panel lateral fijo sigue la misma separación: Rust decide qué colección es
 `fixedPanel.js` únicamente la representa y retransmite reproducción y edición por IPC.
 La capacidad limitada y las dimensiones se validan y persisten en Rust; el gesto de
 redimensionado solo refleja inmediatamente el ancho y envía el valor final al soltar.
-Cada fuente activa pertenece a `PlaybackGroup::Main` o `PlaybackGroup::Fixed`. El motor
-filtra Solo, Detener otros y Stop por grupo; el Stop general conserva alcance total.
+Cada fuente activa pertenece a `PlaybackGroup::Main`, `PlaybackGroup::Fixed` o
+`PlaybackGroup::Cue`. El motor filtra Solo, Detener otros y Stop por grupo; las
+pre-escuchas quedan fuera de las reglas de los botones y el Stop general conserva
+alcance total.
 Rust también entrega `progress_percent` en `audio-tick`, y un pintor compartido representa
 el contador y la barra inferior tanto en la rejilla como en el panel fijo.
 
@@ -462,7 +464,7 @@ Detalles de compatibilidad aprendidos del LFA real:
 ## Testing
 
 ```bash
-# Tests unitarios de Rust (suite actual: 101 passed, 1 ignored)
+# Tests unitarios de Rust (suite actual: 209 passed, 4 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -517,3 +519,50 @@ Ver `Documentación/COMPILACION_Y_VERSIONES.md` para el procedimiento completo, 
 - El `upgradeCode` MSI no debe cambiar entre versiones.
 
 Al publicar un tag `v*`, el CI (`release-builds.yml`) compila automáticamente para Windows y Linux y sube los artefactos al release de GitHub.
+
+### Canal de distribución incorporado al ejecutable
+
+`src-tauri/src/domain/distribution.rs` es la fuente única para identificar el canal.
+La compilación de Microsoft Store define `LF_DISTRIBUTION_CHANNEL=store`; las
+compilaciones directas actuales de GitHub no definen esa variable y se identifican
+como `direct`. Esto incluye EXE y MSI en Windows, y DEB, RPM y AppImage en Linux.
+
+El comando IPC `get_distribution_info` entrega a «Acerca de» la versión, el canal,
+el sistema operativo y el administrador de actualizaciones. El comprobador de
+actualizaciones consulta la misma fuente: el canal `store` delega en Microsoft Store
+y el canal `direct` conserva GitHub Releases.
+
+El canal es independiente de la plataforma y del formato. Windows y Linux pueden ser
+`direct`; un DEB de GitHub y un futuro DEB de APT necesitarán canales distintos aunque
+compartan extensión. Por eso el origen se fija al compilar o empaquetar y no se
+adivina después de instalar. El procedimiento exacto vive en
+[`COMPILACION_Y_VERSIONES.md`](COMPILACION_Y_VERSIONES.md).
+
+## Política para cambios específicos de Windows o Linux
+
+El código común es siempre la primera opción. Un problema observado en un solo
+sistema se investiga antes de concluir que es exclusivo de ese sistema. Solo se aísla
+cuando la causa depende realmente de una API, dependencia, permiso, backend gráfico,
+sistema de audio o regla de empaquetado propia de la plataforma.
+
+Reglas:
+
+1. Mantener una sola interfaz y una sola regla de negocio común.
+2. En Rust, aislar implementaciones nativas pequeñas con
+   `#[cfg(target_os = "windows")]` o `#[cfg(target_os = "linux")]`. Si crecen,
+   crear módulos de plataforma que expongan la misma API al resto del programa.
+3. Declarar dependencias exclusivas en secciones `target` de `Cargo.toml`; no cargar
+   una dependencia de Windows en Linux ni al revés.
+4. El frontend no decide lógica por `navigator`, rutas o extensión del paquete. Si
+   necesita conocer una capacidad, Rust la entrega por IPC y la interfaz solo la
+   representa.
+5. Mantener configuración de empaquetado y pasos CI específicos fuera de la lógica
+   de audio y del modelo de datos.
+6. Cada corrección Linux debe volver a pasar tests y builds comunes, además del job
+   Windows. Cada corrección Windows debe conservar el job Linux.
+7. Las pruebas físicas se hacen con compilaciones Release. Un cambio de audio no se
+   declara correcto únicamente porque compile.
+
+No se crearán versiones completas separadas de la aplicación para cada sistema. La
+separación válida es: núcleo común, adaptadores nativos mínimos y empaquetado propio
+de cada destino.

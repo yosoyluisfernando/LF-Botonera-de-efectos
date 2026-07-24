@@ -1,14 +1,14 @@
-use crate::core::AppState;
 /// Módulo: cmd_updates.rs
 /// Propósito: Revisión segura de nuevas versiones publicadas en GitHub Releases.
 /// La UI no consulta GitHub directamente: Rust controla cadencia y comparación.
+use crate::core::AppState;
+use crate::domain::distribution;
 use crate::engine::persist::config_io as config;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::State;
 
 const CHECK_INTERVAL_SECS: i64 = 12 * 60 * 60;
-const STORE_CHANNEL: &str = "store";
 const LATEST_RELEASE_URL: &str =
     "https://api.github.com/repos/yosoyluisfernando/LF-Botonera-de-efectos/releases/latest";
 
@@ -39,7 +39,7 @@ pub fn check_for_updates(
     force: bool,
     startup: Option<bool>,
 ) -> Result<UpdateCheck, String> {
-    if updates_managed_by_store() {
+    if updates_managed_externally() {
         return Ok(store_managed());
     }
 
@@ -107,12 +107,8 @@ fn store_managed() -> UpdateCheck {
     }
 }
 
-fn updates_managed_by_store() -> bool {
-    is_store_channel(option_env!("LF_DISTRIBUTION_CHANNEL"))
-}
-
-fn is_store_channel(value: Option<&str>) -> bool {
-    value.is_some_and(|channel| channel.eq_ignore_ascii_case(STORE_CHANNEL))
+fn updates_managed_externally() -> bool {
+    distribution::current_channel().managed_externally()
 }
 
 fn unix_now() -> i64 {
@@ -135,17 +131,4 @@ fn parse_version(value: &str) -> Vec<u32> {
         .split('.')
         .map(|p| p.parse::<u32>().unwrap_or(0))
         .collect()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::is_store_channel;
-
-    #[test]
-    fn detects_store_distribution_channel() {
-        assert!(is_store_channel(Some("store")));
-        assert!(is_store_channel(Some("STORE")));
-        assert!(!is_store_channel(Some("direct")));
-        assert!(!is_store_channel(None));
-    }
 }

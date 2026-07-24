@@ -55,7 +55,79 @@ Salidas esperadas:
 * `src-tauri/target/release/bundle/rpm/*.rpm`
 * `src-tauri/target/release/bundle/appimage/*.AppImage`
 
+### 2.1 Plataforma, formato y canal no son lo mismo
+
+Estas tres decisiones deben mantenerse separadas:
+
+- **Plataforma:** Windows o Linux. Rust la conoce mediante `target_os`.
+- **Formato:** EXE, MSI, MSIX, DEB, RPM, AppImage o Flatpak.
+- **Canal de distribución:** quién entregó la aplicación y quién administra sus
+  actualizaciones.
+
+El formato no permite deducir el canal. Un DEB descargado desde GitHub es `direct`
+y conserva GitHub Releases; un DEB instalado desde un repositorio APT será un canal
+administrado y no deberá consultar GitHub. Tampoco se debe usar el sistema operativo
+como canal: Windows puede ser `direct` o `store`, y Linux puede ser directo, Flathub
+o un repositorio administrado.
+
+La fuente única actual está en `src-tauri/src/domain/distribution.rs`. El valor se
+incorpora al ejecutable durante la compilación mediante
+`LF_DISTRIBUTION_CHANNEL`:
+
+- `direct`: GitHub Releases administra las actualizaciones.
+- `store`: Microsoft Store administra las actualizaciones y GitHub queda desactivado.
+
+La ausencia de la variable también produce `direct` para conservar compatibilidad
+con los builds existentes. Aun así, en una compilación manual conviene declararla
+explícitamente para evitar heredar por accidente un valor de otra terminal.
+
+Compilación directa en PowerShell:
+
+```powershell
+$env:LF_DISTRIBUTION_CHANNEL = 'direct'
+npm run tauri build
+Remove-Item Env:LF_DISTRIBUTION_CHANNEL
+```
+
+Compilación directa en Linux:
+
+```bash
+LF_DISTRIBUTION_CHANNEL=direct npm run tauri build
+```
+
+GitHub Actions usa `.github/workflows/release-builds.yml` y actualmente obtiene el
+mismo resultado directo por el valor predeterminado. Sus EXE, MSI, DEB, RPM y
+AppImage pertenecen todos a GitHub Releases.
+
+Microsoft Store **no** se compila con el comando genérico. Se usa:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build-store-msix.ps1
+```
+
+Ese script fija temporalmente `LF_DISTRIBUTION_CHANNEL=store`, compila en Release,
+genera el MSIX y restaura la variable previa aunque ocurra un error.
+
+Antes de entregar cualquier paquete se comprueba en «Acerca de»:
+
+1. versión;
+2. sistema;
+3. canal de distribución;
+4. administrador de actualizaciones.
+
+Los futuros canales `flatpak`, `apt` o `dnf` todavía no están implementados. Cuando
+se aprueben deberán añadirse a la misma fuente Rust y a su pipeline de empaquetado.
+No se reutilizará `store` como nombre genérico ni se intentará detectar el origen por
+la extensión, la ruta de instalación o una heurística en tiempo de ejecución.
+
 ## 3. Subida de Version
+
+La versión funcional debe ser una sola para todos los canales disponibles. No se
+mantendrán números distintos para GitHub, Microsoft Store y Linux. Si una tienda
+obliga a corregir y subir el número antes de completar la publicación coordinada, se
+actualizan los archivos fuente una sola vez y los siguientes paquetes de todos los
+canales se generan con ese mismo número. El cuarto componente técnico del MSIX
+(`X.Y.Z.0`) no crea una versión funcional diferente.
 
 Para publicar una version nueva, ejecutar desde la raiz del proyecto:
 

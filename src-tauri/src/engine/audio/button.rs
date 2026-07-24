@@ -13,6 +13,7 @@ pub type ButtonStateMap = HashMap<String, Vec<ButtonState>>;
 pub enum PlaybackGroup {
     Main,
     Fixed,
+    Cue, // Pre-escuchas: ajenas a Solo/Detener otros.
 }
 
 /// Estado de un boton en reproduccion: flags atomicos de control + tiempo real.
@@ -162,7 +163,6 @@ impl Source for ButtonSource {
         None
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::{ButtonState, PlaybackGroup};

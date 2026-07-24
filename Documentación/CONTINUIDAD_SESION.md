@@ -1,214 +1,245 @@
-# Continuidad de sesión — distribución en tiendas
+# Continuidad de sesión — distribución en Linux
 
-Este documento contiene únicamente el estado del trabajo iniciado el 2026-07-20
-para publicar **LF Botonera de Efectos 1.2.1** en Microsoft Store y preparar su
-distribución en Linux.
+Este documento es el punto de entrada para la etapa iniciada después de completar la
+publicación de **LF Botonera de Efectos 1.2.1** en Microsoft Store. Su objetivo es
+permitir que una sesión nueva retome únicamente la distribución en Linux, sin volver
+a reconstruir ni reabrir el trabajo ya terminado de Microsoft.
 
-No usar aquí planes históricos de funciones ya terminadas. Para retomar esta tarea,
-leer solamente:
+No usar aquí planes históricos de funciones ya completadas.
 
-1. [`REGLAS_PROYECTO.md`](REGLAS_PROYECTO.md).
-2. Este documento.
-3. [`PLAN_DISTRIBUCION_TIENDAS.md`](PLAN_DISTRIBUCION_TIENDAS.md).
-4. [`CHECKLIST_PREPUBLICACION_LOCAL.md`](CHECKLIST_PREPUBLICACION_LOCAL.md).
-5. [`FICHA_PUBLICACION.md`](FICHA_PUBLICACION.md).
-6. [`MSIX_LOCAL.md`](MSIX_LOCAL.md).
-7. [`WACK_MSIX.md`](WACK_MSIX.md).
+## 1. Lectura inicial obligatoria
 
----
+Antes de proponer o modificar código:
 
-## 1. Estado actual
+1. Leer `AGENTS.md` en la raíz del repositorio.
+2. Leer [`REGLAS_PROYECTO.md`](REGLAS_PROYECTO.md).
+3. Leer este documento completo.
+4. Leer [`PLAN_DISTRIBUCION_TIENDAS.md`](PLAN_DISTRIBUCION_TIENDAS.md), con atención
+   especial a las fases de Linux, Flathub y repositorios oficiales.
+5. Leer [`CHECKLIST_PREPUBLICACION_LOCAL.md`](CHECKLIST_PREPUBLICACION_LOCAL.md) para
+   reutilizar las verificaciones comunes.
+6. Auditar el código y la configuración actuales antes de decidir la arquitectura de
+   los canales de actualización.
 
-- **Rama:** `codex/distribucion-tiendas`.
-- **Punto de partida:** commit `00cbc17`, `Release 1.2.0`.
-- **Prioridad:** Microsoft Store.
-- **Linux:** preparar ahora lo reutilizable; probar físicamente antes de solicitar
-  entrada en Flathub o en repositorios oficiales.
-- **Cuenta Microsoft:** cuenta individual creada y verificada el 2026-07-20.
-- **Identificador técnico:**
-  `io.github.yosoyluisfernando.LF-Botonera-de-efectos`; se eligió para que corresponda
-  al repositorio verificable y pueda reutilizarse en Tauri y Flatpak.
-- **Punto de restauración:** commit `c72848a`, `Prepara distribución en tiendas`.
-- **Cambios posteriores:** prueba MSIX reproducible y su documentación.
+Los documentos `MSIX_LOCAL.md`, `WACK_MSIX.md` y
+`ACTUALIZAR_MICROSOFT_STORE.md` son referencia histórica o para futuras
+actualizaciones de Microsoft Store. No forman parte de la lectura inicial de Linux.
 
 ---
 
-## 2. Orden de trabajo acordado
+## 2. Estado actual
 
-1. Ejecutar y documentar todas las verificaciones que puedan hacerse localmente.
-2. Corregir textos dañados, versiones antiguas y metadatos inconsistentes.
-3. Preparar privacidad, soporte, licencia, código fuente y avisos de terceros.
-4. Preparar textos y recursos que se reutilizarán en Microsoft Store y Linux.
-5. Definir y probar el paquete de Windows sin publicar nada todavía.
-6. Crear y verificar la cuenta individual de Microsoft.
-7. Reservar el nombre y registrar la identidad asignada por Partner Center.
-8. Certificar y enviar a Microsoft Store.
-9. Probar la aplicación físicamente en Linux.
-10. Preparar Flathub y, después, evaluar repositorios oficiales de distribuciones.
+- **Proyecto:** LF Botonera de Efectos.
+- **Versión en Microsoft Store:** 1.2.1.
+- **Última versión pública en GitHub Releases:** 1.2.0. La publicación 1.2.1 en
+  GitHub sigue pendiente hasta que el autor decida unificar los canales.
+- **Stack:** Tauri v2, backend Rust, frontend Vanilla JS con Vite.
+- **Licencia:** GPL-3.0-or-later.
+- **Repositorio local:** `C:\OVERLAY\BOTONERA`.
+- **Rama de trabajo:** `codex/distribucion-tiendas`.
+- **Último commit al actualizar este documento:** `0fc4795`,
+  `Registra publicación en Microsoft Store`.
+- **Identificador técnico común:**
+  `io.github.yosoyluisfernando.LF-Botonera-de-efectos`.
+- **Prioridad nueva:** distribución en Linux.
+- **Primer destino previsto:** Flathub, después de una prueba física real en Linux.
+- **Destinos posteriores:** evaluar repositorios oficiales de Debian, Fedora u otras
+  distribuciones únicamente cuando el paquete y su mantenimiento sean sostenibles.
+- **Cambios locales todavía no publicados:** «Acerca de» muestra versión, plataforma,
+  canal y administrador de actualizaciones; la preescucha general y la previa del
+  editor ya no son detenidas por Solo ni «Detener otros».
+- **Última verificación local:** 209 pruebas Rust aprobadas, 4 pruebas manuales
+  ignoradas, `cargo build --lib`, `npm run build` y aplicación Windows Release
+  completados correctamente.
 
-No abrir varios procesos de publicación a la vez.
+El árbol de trabajo ya contiene cambios de documentación y capturas que pertenecen
+al autor. Antes de editar, ejecutar `git status` y conservar cualquier cambio ajeno
+a la tarea. No limpiar, descartar ni sobrescribir el árbol de trabajo.
 
 ---
 
-## 3. Evidencia ya comprobada
+## 3. Microsoft Store — hito completamente cerrado
 
-- La versión es 1.2.0 en `package.json`, `Cargo.toml` y `tauri.conf.json`.
-- `cargo test --lib`: 206 pruebas aprobadas y 4 ignoradas deliberadamente.
-- `cargo build --lib`: correcto.
-- `npm run build`: correcto.
-- `npm run tauri build`: correcto; genera MSI y NSIS Release.
-- Los cuatro archivos i18n tienen 427 claves.
-- `npm audit`: ninguna vulnerabilidad conocida.
-- El MSI 1.2.0 se genera, pero no está firmado y su instalación actual puede
-  descargar WebView2. No es todavía un candidato válido para Store.
-- Tauri no genera MSIX directamente. La prueba personalizada ya produce un paquete
-  válido para `MakeAppx`; falta firmarlo e instalarlo para la matriz funcional.
-- `scripts/build-msix.ps1` generó un MSIX provisional de 8.365.091 bytes, versión
-  `1.2.0.0`, con SHA-256
-  `E6480763EC1A60E68E4D8752AD169EE56B6951EB0CABC67376E1243A72FA566D`.
-- Al extraer el MSIX se recuperaron los 12 archivos previstos y el ejecutable incluido
-  conservó exactamente el hash del ejecutable Release original.
-- MSIX virtualiza los archivos nuevos de `%APPDATA%`. En Windows 10 2004 o posterior
-  debería leer y modificar los archivos ya existentes de la instalación MSI. No se
-  añadió `unvirtualizedResources`: su necesidad se decidirá con la prueba instalada.
-- La prueba se firmó con un certificado local autorizado y Windows la instaló como
-  `LF.Botonera.Efectos.Local_1.2.0.0_x64__b7gt2fsps2vdj`, estado `Ok`.
-- El artefacto firmado tiene SHA-256
-  `7782803F64DD2642DF51B18999AACB0585F9E3D2E4A20F94163E979392184EA9`.
-- La confianza temporal activa está en `LocalMachine\TrustedPeople`, huella
-  `618B5F1B2283598D9FC4C6E590531D44ADD5C3BE`. Debe eliminarse al acabar las pruebas.
-- El autor aprobó el primer uso real: inicio, cierre, datos existentes, reproducción,
-  salida principal y preescucha funcionaron correctamente.
-- La comparación comprobó que `botonera_config.json` se leyó y actualizó directamente
-  en `%APPDATA%\LF Botonera`; no se duplicaron la configuración ni `tracks.db` en la
-  zona virtual. Solo se virtualizó `.window-state.json` de Tauri.
-- WACK ejecutó 24 pruebas completas: 22 pasaron, `Blocked executables` falló como prueba
-  opcional y DPI produjo una advertencia; resultado global `WARNING`.
-- Se añadió un manifiesto Win32 con identidad y `PerMonitorV2`. `mt.exe` confirmó que
-  está incrustado, pero WACK continuó indicando que no podía procesar el binario Rust.
-- Las cadenas `cmd.exe` proceden de la biblioteca estándar de Rust; otras coincidencias
-  son bytes accidentales. `ShellExecute` pertenece al abridor de URLs necesario.
-- El permiso Tauri se redujo a apertura de URLs, eliminando el permiso no usado para
-  revelar archivos.
-- La revisión local actual es `1.2.0.2`, estado `Ok`, SHA-256 firmado
-  `D0FF484FCDD0A54BAA93102E3804036E2937C411EAFB6A277CEB582524BE53C7`.
-- El autor revalidó la revisión `1.2.0.2`: audio, salida principal, preescucha, URLs e
-  interfaz funcionan. También cerró y abrió una segunda vez sin perder el estado.
-- El autor completó la matriz funcional local: archivos y carpetas externos, arrastre,
-  atajos globales, editor modal y separado, clima y persistencia funcionan. También
-  exportó una pestaña del perfil 1, la importó en el perfil 2 y verificó su contenido.
-- Los PNG de icono conservan alfa transparente. La placa azul observada en App
-  Installer pertenece a la presentación de Windows del logo de paquete, no al archivo.
-- `scripts/build-msix.ps1` genera desde `icon.png` 14 tamaños para la lista de
-  aplicaciones, con variantes transparentes para tema claro y oscuro, y cinco escalas
-  de `StoreLogo`. La revisión `1.2.0.4` demostró que los PNG solos no bastan.
-- La revisión `1.2.0.5` añade `resources.pri`, con 58 candidatos y calificadores
-  `UNPLATED` y `LIGHTUNPLATED`. La comprobación visual confirmó que eliminó la placa
-  azul de la barra de tareas. App Installer conserva su placa propia esperada.
-- La desinstalación y reinstalación de `1.2.0.5` conservó sin diferencias los 25
-  archivos de datos. El autor abrió después tanto la instalación tradicional como la
-  MSIX y confirmó que ambas funcionan y muestran los mismos perfiles.
-- MSIX no reemplaza automáticamente NSIS: durante la transición Windows muestra dos
-  entradas. La publicación debe incluir instrucciones de migración para evitar confusión.
-- Partner Center publicó `LF Botonera de Efectos` como aplicación MSIX el 2026-07-21.
-  Id. de Store: `9NJ8ST39QP7V`; la ficha pública está disponible en
+No hay trabajo pendiente de publicación en Microsoft Store para esta etapa.
+
+- La aplicación está aprobada y disponible públicamente:
   `https://apps.microsoft.com/detail/9NJ8ST39QP7V`.
-- Identidad Store: paquete `LuisFernandoVelasquez.LFBotoneradeEfectos`, publicador
-  `CN=AD90DE58-447F-47AE-AC1A-3D369955282B` y PFN
-  `LuisFernandoVelasquez.LFBotoneradeEfectos_5cjhmbb3mr2nr`.
-- Partner Center validó el primer MSIX `1.2.0.0`, con la advertencia esperada de
-  `runFullTrust`, y se guardó la justificación técnica de esa capacidad.
-- Microsoft exige que el cuarto componente de versión sea cero y no permite sustituir
-  un paquete por contenido distinto con la misma identidad y versión. Por eso la
-  corrección del canal Store se publica como versión de parche `1.2.1`.
-- El canal `store` deshabilita la consulta a GitHub Releases, oculta su interfaz y deja
-  las actualizaciones a cargo de Microsoft Store; el canal directo conserva GitHub.
-- El MSIX final `LF-Botonera-1.2.1.0-x64-unsigned.msix` mide `9172945` bytes y tiene
-  SHA-256 `AD01DCE29E2191CE2867E6FF2279AFD38B6A64AA9E390CDE82992EEE72B31BF5`.
-- Partner Center sustituyó `1.2.0.0` por `1.2.1.0`; el nuevo paquete aparece validado y
-  la sección Paquetes figura como completada. Se mantiene la advertencia esperada de
-  `runFullTrust` y su justificación técnica.
-- El paquete declara y Partner Center detecta español, inglés, portugués de Brasil y
-  portugués de Portugal. Las cuatro fichas contienen descripción, resumen, autor,
-  copyright, ocho características y la captura obligatoria; la sección figura completada.
-- Precios y disponibilidad quedaron guardados como aplicación gratuita (`0 PEN`),
-  pública, detectable, disponible en los 240 mercados actuales y mercados futuros,
-  con lanzamiento lo antes posible y sin fecha de retirada.
-- IARC quedó guardado con clasificación apta para todo público: Microsoft Store `3+`,
-  PEGI `3`, ESRB `Todos` y equivalentes. El editor marcó personalmente la aceptación
-  de términos y la declaración de mayoría de edad.
-- Se creó fuera del repositorio `C:\LF Botonera - Demo Microsoft Store 5x5` con 25
-  copias numeradas de efectos locales para preparar capturas sin nombres problemáticos.
-- Los 25 efectos se cargaron en una paleta 5×5 y se guardó la captura Release limpia
-  `C:\LF Botonera - Capturas Microsoft Store\01 - Rejilla principal en reproduccion.png`.
-- Se guardaron la publicación automática tras certificar, la justificación de
-  `runFullTrust` y las instrucciones de prueba sin credenciales para los certificadores.
-- La documentación pública necesaria para Microsoft Store se integró en `main`
-  mediante el PR #3, commit de fusión `013e196`: `PRIVACY.md`, `SUPPORT.md`, la guía
-  de migración y los avisos e informes de licencias de terceros. El campo Website del
-  repositorio apunta al sitio oficial `https://lfbotonera.blogspot.com/`.
-- Microsoft aprobó la Submission `1152921505701454351` el 2026-07-21. Partner Center
-  muestra `En Microsoft Store` y la ficha pública permite descargar la versión 1.2.1.
-  La página confirma el editor, la categoría Música, la captura, ocho características,
-  cuatro idiomas, clasificación para todos y un tamaño aproximado de 21 MB.
-- No se encontró telemetría ni publicidad en el código.
-- La aplicación consulta GitHub Releases y, cuando se habilita el clima, Open-Meteo.
-  PayPal solo se abre si el usuario acepta o pulsa el enlace de donación.
+- El identificador de Store es `9NJ8ST39QP7V`.
+- La versión pública es 1.2.1.
+- La actualización de metadatos
+  `1152921505701463690` fue aprobada.
+- La ficha pública ya muestra la descripción definitiva, los enlaces directos al
+  sitio oficial y al soporte, y las siete capturas de pantalla acordadas.
+- La primera publicación y la actualización posterior fueron verificadas por el
+  autor.
+- El canal `store` deshabilita la consulta de actualizaciones en GitHub y deja que
+  Microsoft Store administre las actualizaciones.
+- La rutina de futuras versiones está documentada en
+  [`ACTUALIZAR_MICROSOFT_STORE.md`](ACTUALIZAR_MICROSOFT_STORE.md).
+
+La próxima sesión no debe entrar en Partner Center, modificar la ficha ni reconstruir
+el MSIX, salvo que el autor abra expresamente una nueva tarea de Microsoft Store.
 
 ---
 
-## 4. Correcciones locales aplicadas
+## 4. Decisión cerrada: cada canal administra sus actualizaciones
 
-Se corrigieron los textos dañados encontrados durante la auditoría:
+La experiencia de Microsoft Store deja una regla obligatoria para Linux:
+**una instalación nunca debe quedar administrada a la vez por GitHub y por una
+tienda o repositorio**.
 
-- descripción y autor en `src-tauri/Cargo.toml`;
-- descripción larga en `src-tauri/tauri.conf.json`;
-- dos textos de respaldo en `src/index.html`;
-- un mensaje de cancelación en `src-tauri/src/ipc/cmd_locutions.rs`.
+Comportamiento requerido:
 
-`Âmbito`, en portugués de Portugal, es una palabra correcta y no debe modificarse.
+- **Microsoft Store:** Microsoft Store busca, descarga e instala actualizaciones. El
+  comprobador de GitHub permanece deshabilitado.
+- **Descarga directa desde GitHub Releases:** puede conservar el comprobador de
+  GitHub y dirigir al usuario al canal directo correspondiente.
+- **Flathub o Flatpak administrado por un repositorio:** Flatpak administra las
+  actualizaciones. La aplicación no debe ofrecer ni iniciar actualizaciones desde
+  GitHub.
+- **Paquete instalado desde un repositorio DEB o RPM:** APT, DNF o el gestor propio
+  de la distribución administra las actualizaciones. La aplicación no debe ofrecer
+  ni iniciar actualizaciones desde GitHub.
+- **DEB, RPM o AppImage descargado directamente desde GitHub:** debe tratarse como
+  canal directo, salvo que la auditoría técnica demuestre que un formato necesita
+  otra política explícita.
+
+El canal de distribución debe quedar definido de forma explícita y reproducible
+durante la compilación o el empaquetado. No se debe depender únicamente de
+heurísticas frágiles en tiempo de ejecución ni mantener dos fuentes de verdad.
+
+Para cada futuro canal administrado de Linux, antes de programar:
+
+1. Auditar el pipeline real del destino y quién administra sus actualizaciones.
+2. Revisar todos los puntos de interfaz y backend afectados por ese canal.
+3. Extender la arquitectura existente sin crear otra fuente de verdad.
+4. Explicar qué se decide en compilación, qué metadatos recibe cada paquete y cómo se
+   prueba que dos gestores de actualización no puedan mezclarse.
+5. Si la solución cambia estructura, flujo IPC o arquitectura, presentar el plan y
+   esperar aprobación antes de implementarla.
+
+Los nombres definitivos de Flatpak, APT, DNF u otros canales todavía no están
+cerrados. Deben decidirse al diseñar cada pipeline, no inventarse por adelantado.
+
+### 4.1 Estado real de la implementación
+
+La base `direct`/`store` ya está implementada y no debe volver a duplicarse:
+
+- `src-tauri/src/domain/distribution.rs` decide canal, plataforma y administrador.
+- `get_distribution_info` entrega esos datos a «Acerca de».
+- `cmd_updates.rs` consulta la misma fuente antes de acceder a GitHub.
+- `scripts/build-store-msix.ps1` fija `LF_DISTRIBUTION_CHANNEL=store`.
+- Los builds actuales de GitHub para Windows y Linux son `direct`; la ausencia de la
+  variable conserva ese valor por compatibilidad.
+
+Todavía **no** existen canales administrados para Flatpak, APT o DNF. Se añadirán a
+la misma fuente cuando se prepare cada pipeline, nunca mediante detección de rutas,
+extensiones o archivos instalados.
+
+Decisión fundamental: plataforma, formato y canal son ejes independientes. Un DEB
+de GitHub es directo; un futuro DEB de un repositorio APT será administrado. Linux no
+significa automáticamente Flathub y Windows no significa automáticamente Store.
+
+### 4.2 Cómo mejorar Linux sin dañar Windows
+
+- Investigar primero si la causa es común o realmente exclusiva de Linux.
+- Mantener la lógica de negocio y audio común siempre que sea posible.
+- Aislar código nativo con `cfg(target_os)` y una API común solo cuando haya evidencia.
+- No decidir comportamiento de plataforma en JavaScript.
+- Ejecutar la matriz común y ambos jobs CI después de cada cambio.
+- Probar audio y funciones del sistema en una compilación Release física.
+
+La política completa y sus límites están en
+[`ARCHITECTURE.md`](ARCHITECTURE.md#política-para-cambios-específicos-de-windows-o-linux);
+los comandos y marcas de canal están en
+[`COMPILACION_Y_VERSIONES.md`](COMPILACION_Y_VERSIONES.md#21-plataforma-formato-y-canal-no-son-lo-mismo).
 
 ---
 
-También se declaró explícitamente el publicador `Luis Fernando Velásquez`, el sitio,
-copyright, licencia y categoría. El MSI regenerado ya muestra el fabricante correcto
-e incorpora la página de licencia GPL.
+## 5. Orden de trabajo para Linux
 
-## 5. Documentación preparada
+No iniciar Flathub, Debian y Fedora al mismo tiempo. Trabajar en etapas pequeñas y
+verificables:
 
-- `PRIVACY.md`: política de privacidad en español e inglés.
-- `SUPPORT.md`: soporte, reporte de fallos y canales de contacto.
-- `MIGRACION_MICROSOFT_STORE.md`: transición segura desde MSI o EXE sin perder datos.
-- `THIRD_PARTY_NOTICES.md`: inventario y avisos de dependencias incluidos.
-- `CHECKLIST_PREPUBLICACION_LOCAL.md`: verificaciones locales y evidencia.
-- `FICHA_PUBLICACION.md`: textos comunes y decisiones pendientes de la ficha.
-- `GUIA_CONTENIDOS_PUBLICOS.md`, `POLITICA_REPOSITORIO_PUBLICO.md` y `Capturas/README.md`.
-- `PLAN_DISTRIBUCION_TIENDAS.md`: estrategia, fases y decisiones.
-- `MSIX_LOCAL.md`: manifiesto, script reproducible, identidad y límites de la prueba.
-- `LICENSE`: texto completo de GPL-3.0, ya existente.
-- `README.md`: enlaces visibles a privacidad, soporte, licencia y código fuente.
-
-Las URLs públicas definitivas ya están disponibles en el sitio oficial de Blogger y
-en la rama `main` de GitHub. Los datos privados del titular exigidos por Partner Center
-no se guardan en el repositorio.
+1. **Completado:** auditar soporte Linux, paquetes Tauri, dependencias, rutas,
+   permisos y actualizador.
+2. **Completado para los canales actuales:** implementar una fuente común para
+   `direct` y `store`. Los canales administrados de Linux se añaden al preparar cada
+   pipeline.
+3. Verificar la compilación local común:
+   - `cargo test --lib`;
+   - `cargo build --lib`;
+   - `npm run build`.
+4. Preparar una compilación **Release** en Linux y generar los formatos que realmente
+   soporte el proyecto. No evaluar audio con una compilación debug.
+5. Probar físicamente en Linux antes de anunciar soporte estable:
+   - inicio, cierre y persistencia;
+   - reproducción de efectos y reproductor auxiliar;
+   - salida principal, preescucha y selección de dispositivos;
+   - archivos y carpetas externos;
+   - arrastre, diálogos y rutas con espacios o caracteres no ASCII;
+   - editor de pistas, onda, cue y normalización;
+   - clima y acceso de red;
+   - atajos locales y globales en X11 y Wayland;
+   - importación y exportación de `.bdelf`, `.bdeplf` y `.LFPlay`;
+   - PipeWire, PulseAudio o ALSA según el sistema de prueba.
+6. Corregir las causas reales encontradas y repetir la matriz Release.
+7. Preparar los metadatos Linux reutilizables: archivo `.desktop`, AppStream,
+   iconos, capturas, licencia, privacidad, soporte y descripción en los idiomas que
+   exija el destino.
+8. Preparar Flatpak para Flathub:
+   - compilación desde fuentes y sin descargar dependencias durante el build;
+   - permisos mínimos y portales cuando correspondan;
+   - acceso correcto a audio y archivos elegidos por el usuario;
+   - identificador y metadatos coherentes;
+   - actualización administrada exclusivamente por Flatpak.
+9. Validar el manifiesto y el paquete, realizar prueba física del Flatpak y solo
+   entonces iniciar la solicitud a Flathub.
+10. Después de Flathub, evaluar por separado los requisitos de repositorios oficiales
+    de Debian y Fedora, incluyendo disponibilidad de dependencias, políticas de
+    empaquetado, firma, mantenimiento y canal de actualizaciones.
 
 ---
 
-## 6. Siguiente punto de reanudación
+## 6. Evidencia y decisiones reutilizables
 
-1. Probar la instalación pública desde Microsoft Store en un Windows limpio sin datos
-   previos y, si es posible, sin WebView2 preinstalado.
-2. Preparar una actualización exclusivamente de metadatos para sustituir los enlaces
-   de GitHub de la ficha por el sitio oficial, soporte y privacidad de Blogger. No
-   cambiar el paquete 1.2.1 aprobado para esta corrección.
-3. Actualizar el sitio web para indicar que la aplicación ya está disponible y añadir
-   el enlace público de Microsoft Store.
-4. Retirar el paquete de prueba y el certificado local cuando ya no hagan falta más
-   verificaciones.
-5. Retomar la prueba física en Linux antes de solicitar publicación en Flathub o en
-   repositorios oficiales.
+- El código está planteado como multiplataforma y Tauri tiene previstos paquetes
+  DEB, RPM y AppImage, pero esto no equivale a soporte Linux verificado.
+- Las rutas de datos usan la abstracción del proyecto y SQLite se integra con la
+  aplicación; aun así, deben comprobarse en un sistema Linux real.
+- El acceso a archivos absolutos, el audio, los dispositivos y los atajos globales
+  son los riesgos principales dentro del sandbox de Flatpak.
+- El proyecto es software libre bajo GPL-3.0-or-later y ya dispone de política de
+  privacidad, soporte, avisos de terceros, capturas y sitio oficial.
+- GitHub Releases seguirá siendo un canal válido para descargas directas. Publicar en
+  Flathub o en un repositorio oficial no debe eliminar ese canal; debe separarlo.
+- No hay telemetría ni publicidad. Las conexiones conocidas son GitHub Releases para
+  el canal directo, Open-Meteo cuando el usuario usa el clima y PayPal únicamente
+  mediante una acción consciente del usuario.
+- Las pruebas automáticas no sustituyen la prueba física ni auditiva. El agente
+  realiza compilaciones, tests y auditoría técnica; Luis Fernando valida la experiencia
+  real y el audio.
+- Si Luis Fernando oye cortes, clics, saturación o un ruteo incorrecto aunque los
+  tests pasen, la prueba se considera fallida y se investiga la causa.
 
-Privacidad, soporte y ficha base fueron aprobados por el autor el 2026-07-20.
-Los informes completos de licencias Rust y Node ya se generan con `npm run licenses`.
-MSI y NSIS ya incorporan privacidad, soporte y los tres archivos de avisos dentro de
-su carpeta `legal/`.
+---
+
+## 7. Primer punto de reanudación
+
+La auditoría inicial y la base `direct`/`store` ya están completadas. Una sesión nueva
+debe:
+
+1. Confirmar rama, versión y árbol de trabajo; conservar todos los cambios locales.
+2. No volver a Partner Center ni reconstruir MSIX salvo petición expresa del autor.
+3. Revisar que los cambios de canal y preescucha continúan presentes y verificados.
+4. Preparar la prueba física Release en Linux. La primera distribución recomendada
+   es Ubuntu Desktop 26.04 LTS; comenzar con DEB y AppImage.
+5. Registrar distribución, versión, Wayland/X11, PipeWire/PulseAudio/ALSA, formato
+   instalado, una o dos tarjetas y resultados de la matriz funcional.
+6. Corregir cada hallazgo en el núcleo común o en un adaptador Linux según su causa,
+   repitiendo siempre la verificación Windows.
+7. Solo después de esa prueba diseñar el canal administrado `flatpak` y los permisos
+   de sandbox. Si exige cambios estructurales o IPC, presentar el plan al autor.
+
+El objetivo inmediato no es publicar, sino obtener un paquete Linux Release
+reproducible y físicamente probado sin alterar el comportamiento estable de Windows.
