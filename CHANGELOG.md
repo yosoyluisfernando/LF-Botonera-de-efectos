@@ -24,6 +24,43 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ## [Sin publicar]
 
+### Añadido
+- «Acerca de» indica el canal de distribución, el sistema operativo y quién
+  administra las actualizaciones. Los paquetes directos de Windows y Linux muestran
+  GitHub Releases; la edición de Microsoft Store muestra Microsoft Store.
+
+### Corregido
+- Disparar un botón ya no detiene la escucha previa general ni la reproducción del
+  editor de pistas, incluso con Solo o «Detener otros» activos.
+
+## [1.2.1] — 2026-07-20
+
+Esta versión está dedicada a preparar la llegada de **LF Botonera de Efectos a
+Microsoft Store**. No incorpora funciones nuevas ni mejoras de rendimiento: el motor
+de audio y la experiencia de uso son los mismos de la versión 1.2.0. Los cambios se
+limitan a la distribución mediante Store, la integración correcta con Windows y una
+reducción de permisos innecesarios.
+
+### Distribución
+- Se preparó una edición para Microsoft Store. Cuando la certificación de Microsoft
+  sea aprobada, la aplicación podrá instalarse y actualizarse directamente desde Store.
+- La edición de Microsoft Store recibirá sus actualizaciones mediante la propia tienda.
+  Las instalaciones descargadas directamente desde GitHub conservarán su mecanismo
+  de actualización actual.
+
+### Cambiado
+- La edición de Microsoft Store no consulta GitHub Releases ni abre instaladores
+  externos, evitando dos mecanismos de actualización simultáneos.
+
+### Corregido
+- La compilación de Windows declara explícitamente compatibilidad DPI `PerMonitorV2`
+  para que ventanas y diálogos se adapten correctamente a monitores con escalas
+  diferentes.
+
+### Seguridad
+- El permiso para abrir recursos externos se limita a URLs admitidas; la interfaz ya
+  no recibe el permiso innecesario para revelar archivos en el Explorador.
+
 ## [1.2.0] — 2026-07-17
 
 ### Añadido
@@ -171,7 +208,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ---
 
-[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.0...HEAD
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.1...v1.1.2

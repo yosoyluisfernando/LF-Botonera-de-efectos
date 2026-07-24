@@ -108,7 +108,7 @@ pub fn stop_removed(group: Option<Vec<ButtonState>>) {
 
 #[cfg(test)]
 mod tests {
-    use super::stop_other_ids;
+    use super::{fade_stop_other_ids, stop_other_ids};
     use crate::engine::audio::button::{ButtonState, ButtonStateMap, PlaybackGroup};
     use std::sync::atomic::{AtomicBool, AtomicU32};
     use std::sync::Arc;
@@ -118,12 +118,40 @@ mod tests {
     fn stop_other_isolated_by_playback_group() {
         let mut states = ButtonStateMap::new();
         states.insert("main".into(), vec![state(PlaybackGroup::Main)]);
+        states.insert("cue".into(), vec![state(PlaybackGroup::Cue)]);
         states.insert("fixed-a".into(), vec![state(PlaybackGroup::Fixed)]);
         states.insert("fixed-b".into(), vec![state(PlaybackGroup::Fixed)]);
         stop_other_ids(&mut states, "fixed-a", PlaybackGroup::Fixed);
         assert!(states.contains_key("main"));
+        assert!(states.contains_key("cue"));
         assert!(states.contains_key("fixed-a"));
         assert!(!states.contains_key("fixed-b"));
+    }
+
+    #[test]
+    fn main_stop_other_does_not_stop_cue() {
+        let mut states = ButtonStateMap::new();
+        states.insert("main-a".into(), vec![state(PlaybackGroup::Main)]);
+        states.insert("main-b".into(), vec![state(PlaybackGroup::Main)]);
+        states.insert("cue".into(), vec![state(PlaybackGroup::Cue)]);
+        stop_other_ids(&mut states, "main-b", PlaybackGroup::Main);
+        assert!(!states.contains_key("main-a"));
+        assert!(states.contains_key("main-b"));
+        assert!(states.contains_key("cue"));
+    }
+
+    #[test]
+    fn main_fade_stop_other_does_not_stop_cue() {
+        let mut states = ButtonStateMap::new();
+        states.insert("main".into(), vec![state(PlaybackGroup::Main)]);
+        states.insert("cue".into(), vec![state(PlaybackGroup::Cue)]);
+        fade_stop_other_ids(&mut states, "new-main", PlaybackGroup::Main);
+        assert!(states["main"][0]
+            .stop_flag
+            .load(std::sync::atomic::Ordering::Relaxed));
+        assert!(!states["cue"][0]
+            .stop_flag
+            .load(std::sync::atomic::Ordering::Relaxed));
     }
 
     fn state(group: PlaybackGroup) -> ButtonState {

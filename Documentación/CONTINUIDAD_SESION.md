@@ -1,184 +1,245 @@
-# Continuidad de sesión — dónde estamos y cómo trabajamos
+# Continuidad de sesión — distribución en Linux
 
-Punto de entrada para retomar el trabajo cuando se pierda el hilo de la conversación
-(compactación, sesión nueva, otro agente). **No repite** lo que ya está documentado: apunta a
-dónde está y guarda lo que solo vive en la conversación.
+Este documento es el punto de entrada para la etapa iniciada después de completar la
+publicación de **LF Botonera de Efectos 1.2.1** en Microsoft Store. Su objetivo es
+permitir que una sesión nueva retome únicamente la distribución en Linux, sin volver
+a reconstruir ni reabrir el trabajo ya terminado de Microsoft.
 
-**Léelo en este orden:**
+No usar aquí planes históricos de funciones ya completadas.
 
-1. [`REGLAS_PROYECTO.md`](REGLAS_PROYECTO.md) — las 14 reglas. **Son ley.**
-2. Este archivo — estado, acuerdos y trampas.
-3. [`PLAN_MODO_REPRODUCTOR.md`](PLAN_MODO_REPRODUCTOR.md) — el registro de avance fase a fase.
-4. [`../CLAUDE.md`](../CLAUDE.md) y [`../AGENTS.md`](../AGENTS.md) — mapa técnico y comandos IPC.
-5. [`GLOSARIO.md`](GLOSARIO.md) — cada término, con sus trampas. Búscalo aquí **antes** de
-   deducirlo del código.
+## 1. Lectura inicial obligatoria
 
----
+Antes de proponer o modificar código:
 
-## 0. Cómo arrancar una sesión nueva
+1. Leer `AGENTS.md` en la raíz del repositorio.
+2. Leer [`REGLAS_PROYECTO.md`](REGLAS_PROYECTO.md).
+3. Leer este documento completo.
+4. Leer [`PLAN_DISTRIBUCION_TIENDAS.md`](PLAN_DISTRIBUCION_TIENDAS.md), con atención
+   especial a las fases de Linux, Flathub y repositorios oficiales.
+5. Leer [`CHECKLIST_PREPUBLICACION_LOCAL.md`](CHECKLIST_PREPUBLICACION_LOCAL.md) para
+   reutilizar las verificaciones comunes.
+6. Auditar el código y la configuración actuales antes de decidir la arquitectura de
+   los canales de actualización.
 
-**No pegues un contexto largo al abrir la sesión.** Se hizo durante meses y se caducó: describía
-cuatro modos de avance cuando ya eran tres, daba por pendientes fases terminadas (B.2, C.7, D) y
-hablaba de 68 pruebas cuando iban 137. Un resumen que vive fuera del repo no se actualiza al
-trabajar; este archivo sí. Dos fuentes contando lo mismo acaban discrepando, y la que miente es
-siempre la de fuera.
-
-Pega solo esto, y añade debajo lo que quieras hacer:
-
-```
-Proyecto: LF Botonera de Efectos (C:\OVERLAY\BOTONERA), rama codex/panel-lateral-fijo.
-Lee, en este orden, antes de tocar nada:
-  1. Documentación/REGLAS_PROYECTO.md  — las 14 reglas, son ley.
-  2. Documentación/CONTINUIDAD_SESION.md — estado, acuerdos firmes y trampas.
-  3. Documentación/PLAN_MODO_REPRODUCTOR.md — avance fase a fase.
-No des nada por hecho: audita el código antes de tocarlo. Dime tu plan antes de codificar.
-
-Petición de esta sesión: <lo que toque>
-```
-
-Si el agente contradice a este archivo, gana el archivo; y si el archivo contradice al código,
-gana el código y **hay que corregir el archivo en el mismo cambio** (regla 13).
+Los documentos `MSIX_LOCAL.md`, `WACK_MSIX.md` y
+`ACTUALIZAR_MICROSOFT_STORE.md` son referencia histórica o para futuras
+actualizaciones de Microsoft Store. No forman parte de la lectura inicial de Linux.
 
 ---
 
-## 1. Estado (2026-07-16)
+## 2. Estado actual
 
-- **Rama:** `codex/panel-lateral-fijo`. Último commit: `e41a7c8` "Recupera la duración de canciones
-  con etiquetas corruptas".
-- **Sin commitear:** nada de código. Solo hay dos ficheros sin seguimiento: `Prueba.LFPlay` (se
-  conserva, decisión del autor) y el temporal del panel lateral, ya rescatado (ver §5).
-- **Verificación:** 137 pruebas, `cargo build --lib` sin avisos, `npm run build` correcto,
-  ningún archivo sobre 200 líneas.
-- **El modo reproductor está completo.** Lo que queda son mejoras, no deudas: ver §5.
+- **Proyecto:** LF Botonera de Efectos.
+- **Versión en Microsoft Store:** 1.2.1.
+- **Última versión pública en GitHub Releases:** 1.2.0. La publicación 1.2.1 en
+  GitHub sigue pendiente hasta que el autor decida unificar los canales.
+- **Stack:** Tauri v2, backend Rust, frontend Vanilla JS con Vite.
+- **Licencia:** GPL-3.0-or-later.
+- **Repositorio local:** `C:\OVERLAY\BOTONERA`.
+- **Rama de trabajo:** `codex/distribucion-tiendas`.
+- **Último commit al actualizar este documento:** `0fc4795`,
+  `Registra publicación en Microsoft Store`.
+- **Identificador técnico común:**
+  `io.github.yosoyluisfernando.LF-Botonera-de-efectos`.
+- **Prioridad nueva:** distribución en Linux.
+- **Primer destino previsto:** Flathub, después de una prueba física real en Linux.
+- **Destinos posteriores:** evaluar repositorios oficiales de Debian, Fedora u otras
+  distribuciones únicamente cuando el paquete y su mantenimiento sean sostenibles.
+- **Cambios locales todavía no publicados:** «Acerca de» muestra versión, plataforma,
+  canal y administrador de actualizaciones; la preescucha general y la previa del
+  editor ya no son detenidas por Solo ni «Detener otros».
+- **Última verificación local:** 209 pruebas Rust aprobadas, 4 pruebas manuales
+  ignoradas, `cargo build --lib`, `npm run build` y aplicación Windows Release
+  completados correctamente.
 
----
-
-## 2. Cómo trabaja el autor (esto no está en ninguna regla)
-
-- **Conversar antes de codificar.** En cualquier duda de arquitectura, preguntar. Él responde y
-  decide; varias veces ha corregido el rumbo antes de escribir una línea.
-- **Preguntar cuando el enunciado tenga dos lecturas.** Prefiere aclarar a que se adivine.
-- **Trocear.** Fases verificables, no tandas grandes. Él prueba cada una en su equipo.
-- **Accesibilidad:** visión baja y lector de pantalla. Responder en **prosa limpia, sin tablas**,
-  con lo importante primero.
-- **Al final de cada respuesta: qué se hizo y qué sigue.**
-- **Su consola es una fuente de verdad.** Cuando pega la salida de `tauri dev`, ahí salen avisos
-  que las comprobaciones del agente no ven. Así se descubrió que `cargo test --lib` no basta.
-- **Los errores propios se dicen.** Ha agradecido cada vez que se le ha señalado un fallo del
-  agente en vez de taparlo.
-
----
-
-## 3. Decisiones firmes (NO volver a discutirlas)
-
-Del reproductor (el detalle y el porqué, en `PLAN_MODO_REPRODUCTOR.md` §2):
-
-- Motor propio, cola propia, **un solo** reproductor, alcance global, arranque detenido.
-- **Marcar siguiente es LEY** y sigue a *su canción* (por `id`), no a la posición.
-- **Editar la lista nunca corta la música** (pista huérfana).
-- **Tres modos**: normal, repetir, aleatorio. `manual` se quitó: duplicaba "detener al
-  finalizar" *y* limitaba (forzaba el orden normal, así que no convivía con aleatorio).
-- **Loop** (🔂) repite *una canción*; **modo repetir** (∞) repite *la lista*. Iconos distintos a
-  propósito.
-- **No se persisten**: el Loop ni "detener al finalizar". Sí: modo, volumen, salida, contador.
-- **Salida propia del panel fijo: DESCARTADA** (2026-07-16). No volver a proponerla.
-- Sin fundidos ni segundo reproductor por ahora. Sin emisoras por URL.
-- Iconos: transporte en símbolos monocromos (▶ ⏸ ■ ⏭ ▶■ → ∞ ⇄); Limpiar 🧹, Abrir 📂,
-  Guardar 💾 y volumen 🔊 en emoji, para que destaquen. Orden: Limpiar, Abrir, Guardar, Modo.
-- **Columnas y Filas** no son del reproductor: son la capacidad de la rejilla de botones fijos.
-  No se borran; se ocultan en modo reproductor.
+El árbol de trabajo ya contiene cambios de documentación y capturas que pertenecen
+al autor. Antes de editar, ejecutar `git status` y conservar cualquier cambio ajeno
+a la tarea. No limpiar, descartar ni sobrescribir el árbol de trabajo.
 
 ---
 
-## 4. Trampas que ya costaron caro (verificadas, no suposiciones)
+## 3. Microsoft Store — hito completamente cerrado
 
-- **`cargo test --lib` NO basta.** Compila con las pruebas, y un `use super::*` puede mantener
-  vivo un import muerto. El usuario compila **sin** pruebas. Correr **siempre** también
-  `cargo build --lib`.
-- **`audio-tick` no se emite en reposo.** Por eso el reproductor tiene su propio `player-tick`.
-- **El salto de posición nunca funcionó** hasta `seek_source.rs`: rodio no informa a symphonia
-  del tamaño del archivo. No se notaba porque los efectos están en la caché de RAM.
-- **El `audio_out` de las paletas no enruta nada.** Solo existe por compatibilidad con el LFA.
-- **Las locuciones del LFA no traen carpeta**, traen un *marcador* (`time_locution`): cada app
-  resuelve con las suyas. Eso ES la compatibilidad.
-- **La duración en `.LFPlay`** viene como número o como cadena según la versión del LFA.
-- **Reaplicar el dispositivo del reproductor corta la música**: solo enviarlo si cambió.
-- **No editar los i18n con scripts que reserialicen**: reformatean los 4 archivos enteros. Editar
-  el texto directamente. Los cuatro deben cuadrar en número de claves.
-- **`probe_duration_secs` NO debe leer etiquetas.** Un MP3 con el título mal codificado hacía
-  fallar la lectura entera y se perdía la duración (`TextDecode: Found invalid encoding`). Solo
-  se piden las propiedades. Cuesta ~40 ms por archivo: no llamarlo a la ligera.
-- **Sin duración hay DOS valores, y no son lo mismo:** `0.0` es "aún no se ha mirado" y `-1.0` es
-  "se miró y falló". `get_grid_state` solo reintenta con `0.0`, así que un botón en `-1` no se
-  recuperaba nunca por sí solo: de eso se encarga `recover_missing_durations` al cargar.
-- **`player_set_volume` persiste**: al arrastrar un deslizador, `persist: false`.
+No hay trabajo pendiente de publicación en Microsoft Store para esta etapa.
 
----
+- La aplicación está aprobada y disponible públicamente:
+  `https://apps.microsoft.com/detail/9NJ8ST39QP7V`.
+- El identificador de Store es `9NJ8ST39QP7V`.
+- La versión pública es 1.2.1.
+- La actualización de metadatos
+  `1152921505701463690` fue aprobada.
+- La ficha pública ya muestra la descripción definitiva, los enlaces directos al
+  sitio oficial y al soporte, y las siete capturas de pantalla acordadas.
+- La primera publicación y la actualización posterior fueron verificadas por el
+  autor.
+- El canal `store` deshabilita la consulta de actualizaciones en GitHub y deja que
+  Microsoft Store administre las actualizaciones.
+- La rutina de futuras versiones está documentada en
+  [`ACTUALIZAR_MICROSOFT_STORE.md`](ACTUALIZAR_MICROSOFT_STORE.md).
 
-## 5. Qué queda (nada es obligatorio)
-
-1. **En curso** (lo pedido el 2026-07-16, ver §6).
-2. ~~Política de colores~~ — **DESCARTADA** (2026-07-16): el autor la vio complicada de explicar
-   y de usar. En su lugar hay **selección múltiple** (Ctrl+clic + clic derecho → pintar). No
-   volver a proponerla; `PLAN_POLITICA_COLORES.md` se conserva solo como registro.
-3. Mejoras futuras del reproductor: fundidos/crossfade entre pistas; un segundo reproductor.
-4. Deuda menor: `master_volume` es `f32` y su JSON crece solo (`0.45` → `0.4499999…`).
-5. Prueba física en Linux (`.deb`, `.AppImage`).
-6. `LF_Botonera_conversacion_botones_fijos_TEMPORAL.md`: ya rescatado a documentación; se puede
-   borrar cuando el autor lo confirme. **`Prueba.LFPlay` se conserva** (decisión del autor).
+La próxima sesión no debe entrar en Partner Center, modificar la ficha ni reconstruir
+el MSIX, salvo que el autor abra expresamente una nueva tarea de Microsoft Store.
 
 ---
 
-## 6. Hecho el 2026-07-16 (última tanda)
+## 4. Decisión cerrada: cada canal administra sus actualizaciones
 
-**A — Gris de "detener al finalizar".** Con el interruptor activo Y algo sonando, lo marcado se
-pinta **gris** (`--player-held-bg`, `#3b3f46`) en vez de naranja: se respeta, pero avisa de que
-no sonará solo. **Parado sigue naranja**, porque no hay una "actual" tras la que sonar y ahí el
-naranja es la guía de por dónde se retomaría (duda resuelta en el código, no suposición). El LFA
-ya tenía este concepto y este color: `.row-manual-next`.
+La experiencia de Microsoft Store deja una regla obligatoria para Linux:
+**una instalación nunca debe quedar administrada a la vez por GitHub y por una
+tienda o repositorio**.
 
-**B — Carpetas y multiselección, solo en el reproductor.** `cmd_player_drop.rs`:
-`player_scan_drop` (cuenta y **Rust decide** si preguntar) y `player_add_drop` (añade en
-`spawn_blocking` por lotes de 20, emitiendo `player-drop-progress`; la lista crece a la vista y
-una sola escritura a disco al final). `audio_files_recursive` en `formats.rs` recorre subcarpetas
-con pila explícita (nada de recursión: un árbol hondo desbordaría). La botonera **no cambió**.
+Comportamiento requerido:
 
-**Aviso a partir de 250** (`LARGE_FOLDER_THRESHOLD`), con check "recordar siempre"
-(`appConfirmRemember`, nuevo en el diálogo compartido) y tres estados en
-`PlayerConfig.large_folder_action`: `ask` (por defecto) / `always` / `never`. **Se puede cambiar
-en Ajustes → Panel fijo** (`player_set_large_folder_action`), que era el requisito: poder
-rectificar si se respondió mal.
+- **Microsoft Store:** Microsoft Store busca, descarga e instala actualizaciones. El
+  comprobador de GitHub permanece deshabilitado.
+- **Descarga directa desde GitHub Releases:** puede conservar el comprobador de
+  GitHub y dirigir al usuario al canal directo correspondiente.
+- **Flathub o Flatpak administrado por un repositorio:** Flatpak administra las
+  actualizaciones. La aplicación no debe ofrecer ni iniciar actualizaciones desde
+  GitHub.
+- **Paquete instalado desde un repositorio DEB o RPM:** APT, DNF o el gestor propio
+  de la distribución administra las actualizaciones. La aplicación no debe ofrecer
+  ni iniciar actualizaciones desde GitHub.
+- **DEB, RPM o AppImage descargado directamente desde GitHub:** debe tratarse como
+  canal directo, salvo que la auditoría técnica demuestre que un formato necesita
+  otra política explícita.
 
-Verificación: 124 pruebas, `cargo build --lib` sin avisos, 400 claves i18n cuadradas.
+El canal de distribución debe quedar definido de forma explícita y reproducible
+durante la compilación o el empaquetado. No se debe depender únicamente de
+heurísticas frágiles en tiempo de ejecución ni mantener dos fuentes de verdad.
+
+Para cada futuro canal administrado de Linux, antes de programar:
+
+1. Auditar el pipeline real del destino y quién administra sus actualizaciones.
+2. Revisar todos los puntos de interfaz y backend afectados por ese canal.
+3. Extender la arquitectura existente sin crear otra fuente de verdad.
+4. Explicar qué se decide en compilación, qué metadatos recibe cada paquete y cómo se
+   prueba que dos gestores de actualización no puedan mezclarse.
+5. Si la solución cambia estructura, flujo IPC o arquitectura, presentar el plan y
+   esperar aprobación antes de implementarla.
+
+Los nombres definitivos de Flatpak, APT, DNF u otros canales todavía no están
+cerrados. Deben decidirse al diseñar cada pipeline, no inventarse por adelantado.
+
+### 4.1 Estado real de la implementación
+
+La base `direct`/`store` ya está implementada y no debe volver a duplicarse:
+
+- `src-tauri/src/domain/distribution.rs` decide canal, plataforma y administrador.
+- `get_distribution_info` entrega esos datos a «Acerca de».
+- `cmd_updates.rs` consulta la misma fuente antes de acceder a GitHub.
+- `scripts/build-store-msix.ps1` fija `LF_DISTRIBUTION_CHANNEL=store`.
+- Los builds actuales de GitHub para Windows y Linux son `direct`; la ausencia de la
+  variable conserva ese valor por compatibilidad.
+
+Todavía **no** existen canales administrados para Flatpak, APT o DNF. Se añadirán a
+la misma fuente cuando se prepare cada pipeline, nunca mediante detección de rutas,
+extensiones o archivos instalados.
+
+Decisión fundamental: plataforma, formato y canal son ejes independientes. Un DEB
+de GitHub es directo; un futuro DEB de un repositorio APT será administrado. Linux no
+significa automáticamente Flathub y Windows no significa automáticamente Store.
+
+### 4.2 Cómo mejorar Linux sin dañar Windows
+
+- Investigar primero si la causa es común o realmente exclusiva de Linux.
+- Mantener la lógica de negocio y audio común siempre que sea posible.
+- Aislar código nativo con `cfg(target_os)` y una API común solo cuando haya evidencia.
+- No decidir comportamiento de plataforma en JavaScript.
+- Ejecutar la matriz común y ambos jobs CI después de cada cambio.
+- Probar audio y funciones del sistema en una compilación Release física.
+
+La política completa y sus límites están en
+[`ARCHITECTURE.md`](ARCHITECTURE.md#política-para-cambios-específicos-de-windows-o-linux);
+los comandos y marcas de canal están en
+[`COMPILACION_Y_VERSIONES.md`](COMPILACION_Y_VERSIONES.md#21-plataforma-formato-y-canal-no-son-lo-mismo).
 
 ---
 
-## 7. Hecho después (misma fecha)
+## 5. Orden de trabajo para Linux
 
-**C — Colores.** Paleta de **24** en `domain/palette.rs`, repartidos por el círculo de color; se
-midieron 26 parejas a menos de 12° de tono, y como el tema iguala las intensidades (oscuro L≤0.30,
-claro S≥0.90) los 32 de antes se veían como 16. **Sin marrón ni gris** (decisión del autor).
-`readable_text` elige el que más contrasta en vez de aplicar un umbral fijo de 0.45.
+No iniciar Flathub, Debian y Fedora al mismo tiempo. Trabajar en etapas pequeñas y
+verificables:
 
-**D — Selección múltiple** en vez de la política de colores: `buttonSelection.js` escucha en fase
-de **captura**, para que Ctrl+clic no dispare el sonido. Clic derecho → pintar los seleccionados
-(`set_buttons_color`). Un índice caducado se ignora en vez de abortar la tanda.
+1. **Completado:** auditar soporte Linux, paquetes Tauri, dependencias, rutas,
+   permisos y actualizador.
+2. **Completado para los canales actuales:** implementar una fuente común para
+   `direct` y `store`. Los canales administrados de Linux se añaden al preparar cada
+   pipeline.
+3. Verificar la compilación local común:
+   - `cargo test --lib`;
+   - `cargo build --lib`;
+   - `npm run build`.
+4. Preparar una compilación **Release** en Linux y generar los formatos que realmente
+   soporte el proyecto. No evaluar audio con una compilación debug.
+5. Probar físicamente en Linux antes de anunciar soporte estable:
+   - inicio, cierre y persistencia;
+   - reproducción de efectos y reproductor auxiliar;
+   - salida principal, preescucha y selección de dispositivos;
+   - archivos y carpetas externos;
+   - arrastre, diálogos y rutas con espacios o caracteres no ASCII;
+   - editor de pistas, onda, cue y normalización;
+   - clima y acceso de red;
+   - atajos locales y globales en X11 y Wayland;
+   - importación y exportación de `.bdelf`, `.bdeplf` y `.LFPlay`;
+   - PipeWire, PulseAudio o ALSA según el sistema de prueba.
+6. Corregir las causas reales encontradas y repetir la matriz Release.
+7. Preparar los metadatos Linux reutilizables: archivo `.desktop`, AppStream,
+   iconos, capturas, licencia, privacidad, soporte y descripción en los idiomas que
+   exija el destino.
+8. Preparar Flatpak para Flathub:
+   - compilación desde fuentes y sin descargar dependencias durante el build;
+   - permisos mínimos y portales cuando correspondan;
+   - acceso correcto a audio y archivos elegidos por el usuario;
+   - identificador y metadatos coherentes;
+   - actualización administrada exclusivamente por Flatpak.
+9. Validar el manifiesto y el paquete, realizar prueba física del Flatpak y solo
+   entonces iniciar la solicitud a Flathub.
+10. Después de Flathub, evaluar por separado los requisitos de repositorios oficiales
+    de Debian y Fedora, incluyendo disponibilidad de dependencias, políticas de
+    empaquetado, firma, mantenimiento y canal de actualizaciones.
 
-**E — Tres retoques de interfaz.** En modo reproductor se ocultan los "controles de reproducción"
-(son los modos de los BOTONES fijos, no del reproductor); animación al pasar el ratón por los
-controles de los botones fijos; y rojizo en el Stop del reproductor. Ojo con el ORDEN del CSS: la
-regla de `#player-stop:hover` va **al final**, o la genérica de `.player-transport button:hover`
-la pisa.
+---
 
-**F — La duración que no aparecía.** Eran mixes de ~10 min con la etiqueta mal codificada. Ver la
-trampa de `probe_duration_secs` en §4. El arreglo tiene dos mitades: dejar de leer etiquetas (para
-lo nuevo) y `recover_missing_durations` (para lo ya guardado). **Cubre los cuatro sitios** donde
-hay duración: cola del reproductor, botones globales del panel, botones fijos del perfil y los de
-cada paleta — no solo la cola, que fue el primer intento y se quedó corto.
+## 6. Evidencia y decisiones reutilizables
 
-**Sobre el CHANGELOG:** la duración y el salto van en *Corregido* aunque parezcan del reproductor,
-porque `probe_duration_secs` existe desde la reescritura a Tauri y `cmd_grid.rs` lo usa: afectan a
-la botonera **ya publicada**. El contraste del texto, no: solo toca botones nuevos, así que es
-*Cambiado*.
+- El código está planteado como multiplataforma y Tauri tiene previstos paquetes
+  DEB, RPM y AppImage, pero esto no equivale a soporte Linux verificado.
+- Las rutas de datos usan la abstracción del proyecto y SQLite se integra con la
+  aplicación; aun así, deben comprobarse en un sistema Linux real.
+- El acceso a archivos absolutos, el audio, los dispositivos y los atajos globales
+  son los riesgos principales dentro del sandbox de Flatpak.
+- El proyecto es software libre bajo GPL-3.0-or-later y ya dispone de política de
+  privacidad, soporte, avisos de terceros, capturas y sitio oficial.
+- GitHub Releases seguirá siendo un canal válido para descargas directas. Publicar en
+  Flathub o en un repositorio oficial no debe eliminar ese canal; debe separarlo.
+- No hay telemetría ni publicidad. Las conexiones conocidas son GitHub Releases para
+  el canal directo, Open-Meteo cuando el usuario usa el clima y PayPal únicamente
+  mediante una acción consciente del usuario.
+- Las pruebas automáticas no sustituyen la prueba física ni auditiva. El agente
+  realiza compilaciones, tests y auditoría técnica; Luis Fernando valida la experiencia
+  real y el audio.
+- Si Luis Fernando oye cortes, clics, saturación o un ruteo incorrecto aunque los
+  tests pasen, la prueba se considera fallida y se investiga la causa.
 
-Verificación: 137 pruebas, `cargo build --lib` sin avisos, `npm run build` correcto.
+---
+
+## 7. Primer punto de reanudación
+
+La auditoría inicial y la base `direct`/`store` ya están completadas. Una sesión nueva
+debe:
+
+1. Confirmar rama, versión y árbol de trabajo; conservar todos los cambios locales.
+2. No volver a Partner Center ni reconstruir MSIX salvo petición expresa del autor.
+3. Revisar que los cambios de canal y preescucha continúan presentes y verificados.
+4. Preparar la prueba física Release en Linux. La primera distribución recomendada
+   es Ubuntu Desktop 26.04 LTS; comenzar con DEB y AppImage.
+5. Registrar distribución, versión, Wayland/X11, PipeWire/PulseAudio/ALSA, formato
+   instalado, una o dos tarjetas y resultados de la matriz funcional.
+6. Corregir cada hallazgo en el núcleo común o en un adaptador Linux según su causa,
+   repitiendo siempre la verificación Windows.
+7. Solo después de esa prueba diseñar el canal administrado `flatpak` y los permisos
+   de sandbox. Si exige cambios estructurales o IPC, presentar el plan al autor.
+
+El objetivo inmediato no es publicar, sino obtener un paquete Linux Release
+reproducible y físicamente probado sin alterar el comportamiento estable de Windows.

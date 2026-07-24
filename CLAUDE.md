@@ -15,7 +15,7 @@ Lee todo antes de tocar código.
 
 **El público son cuatro, y no uno:** operadores de radio, locutores, streamers y DJs. Comparten la mecánica —una rejilla de sonidos y las manos ocupadas mientras algo sale al aire— pero no el vocabulario ni el equipo. Conviene tenerlo presente al decidir: las locuciones de hora y clima son de radio y un streamer no las tocará nunca, mientras que mandar la música a una tarjeta distinta de la de los efectos le importa sobre todo a quien emite por internet. No dar por supuesto un estudio de radio.
 
-- **Versión actual:** 1.1.2
+- **Versión actual:** 1.2.0
 - **Repositorio:** `C:\OVERLAY\BOTONERA`
 - **GitHub:** https://github.com/yosoyluisfernando/LF-Botonera-de-efectos
 - **Autor:** Luis Fernando Velásquez
@@ -723,7 +723,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 206 passed, 1 ignored)
+# Backend Rust (suite actual: 209 passed, 4 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
 

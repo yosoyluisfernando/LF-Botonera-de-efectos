@@ -92,6 +92,14 @@ Struct Rust (`engine/audio/button.rs`) que rastrea el estado de reproducción de
 
 ## C
 
+**`canal de distribución`**
+Marca incorporada al ejecutable durante la compilación que indica quién lo distribuye
+y quién debe administrar sus actualizaciones. No es sinónimo de sistema operativo ni
+de formato: un DEB de GitHub es `direct`, mientras que un futuro DEB de APT será
+administrado por el repositorio. La fuente única es
+`domain/distribution.rs`; ver
+[`COMPILACION_Y_VERSIONES.md`](COMPILACION_Y_VERSIONES.md#21-plataforma-formato-y-canal-no-son-lo-mismo).
+
 **`consola` / `ConsoleEngine`**
 El motor `engine/console/`: **dueño de las salidas físicas y de los buses**. No produce audio, lo recibe y lo encamina; por eso no es un motor *al lado* de `audio/` y `player/`, sino *debajo*: ambos son sus clientes.
 

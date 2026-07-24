@@ -13,6 +13,7 @@ pub fn bus_for(to_pre: bool, group: PlaybackGroup) -> BusId {
     match group {
         PlaybackGroup::Main => BusId::Efectos,
         PlaybackGroup::Fixed => BusId::Panel,
+        PlaybackGroup::Cue => BusId::Cue,
     }
 }
 
@@ -35,6 +36,7 @@ mod tests {
     fn cada_grupo_va_a_su_bus() {
         assert_eq!(bus_for(false, PlaybackGroup::Main), BusId::Efectos);
         assert_eq!(bus_for(false, PlaybackGroup::Fixed), BusId::Panel);
+        assert_eq!(bus_for(false, PlaybackGroup::Cue), BusId::Cue);
     }
 
     /// Los dos buses de botones suman en programa: el vumetro principal cuenta

@@ -2,6 +2,7 @@ pub mod button;
 pub mod clock;
 pub mod colors;
 pub mod console;
+pub mod distribution;
 pub mod palette;
 pub mod export;
 pub mod grid;

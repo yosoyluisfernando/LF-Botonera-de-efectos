@@ -1,9 +1,12 @@
 [package]
 name = "tauri-app"
-version = "1.2.0"
-description = "LF Botonera de Efectos Ã¢â‚¬â€ botonera de sonido para locutores y radio"
-authors = ["Luis Fernando VelÃƒÂ¡squez"]
+version = "1.2.1"
+description = "LF Botonera de Efectos — botonera de sonido para locutores y radio"
+authors = ["Luis Fernando Velásquez"]
 license = "GPL-3.0-or-later"
+homepage = "https://github.com/yosoyluisfernando/LF-Botonera-de-efectos"
+repository = "https://github.com/yosoyluisfernando/LF-Botonera-de-efectos"
+publish = false
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

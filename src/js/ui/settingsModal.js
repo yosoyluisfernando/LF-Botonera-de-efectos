@@ -14,6 +14,7 @@ import { initKeyInputs } from '../util/keyInputs.js';
 import { appAlert } from './appDialog.js';
 import { initFixedPanelSettings, loadFixedPanelSettings, saveFixedPanelSettings } from './settingsFixedPanel.js';
 import { loadToolbarButtons, saveToolbarButtons } from './toolbarButtons.js';
+import { loadAboutInfo } from './aboutInfo.js';
 
 let _onSaved         = null;
 let _currentOutMain  = null; // Tarjeta vigente al abrir el modal
@@ -56,12 +57,11 @@ export function initSettingsModal(onSaved) {
 }
 
 async function _openSettings() {
-    const [devices, config, version] = await Promise.all([
+    const [devices, config] = await Promise.all([
         invoke('get_audio_devices').catch(() => ['default']),
         invoke('get_config').catch(() => null),
-        invoke('get_app_version').catch(() => '?'),
+        loadAboutInfo(),
     ]);
-    document.getElementById('app-version-number').textContent = version;
 
     if (!config) return;
     const profile = config.profiles.find(p => p.id === config.active_profile_id);

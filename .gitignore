@@ -10,6 +10,23 @@ Compilados/
 /*.exe
 /*.msi
 
+# Paquetes de distribución generados (se publican como assets de Releases, no en git)
+*.msix
+*.msixbundle
+*.msixupload
+*.appx
+*.appxbundle
+*.appxsym
+
+# Certificados y claves locales de firma (nunca al repositorio)
+*.pfx
+*.p12
+*.pvk
+*.cer
+*.crt
+*.key
+*.pem
+
 # ── Respaldo del prototipo Electron (no forma parte del proyecto publicado) ──
 Respaldo_Electron/
 
@@ -49,6 +66,8 @@ pnpm-debug.log*
 # ── Datos del usuario exportados (no son código) ──
 *.bdelf
 *.bdeplf
+*.LFPlay
+*.lfplay
 
 # ── Variables de entorno / secretos (nunca al repositorio) ──
 .env

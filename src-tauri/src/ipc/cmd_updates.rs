@@ -1,8 +1,9 @@
 /// Módulo: cmd_updates.rs
 /// Propósito: Revisión segura de nuevas versiones publicadas en GitHub Releases.
 /// La UI no consulta GitHub directamente: Rust controla cadencia y comparación.
-use crate::engine::persist::config_io as config;
 use crate::core::AppState;
+use crate::domain::distribution;
+use crate::engine::persist::config_io as config;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::State;
@@ -22,6 +23,7 @@ struct GithubRelease {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateCheck {
     pub checked: bool,
+    pub store_managed: bool,
     pub update_available: bool,
     pub current_version: String,
     pub latest_version: String,
@@ -37,6 +39,10 @@ pub fn check_for_updates(
     force: bool,
     startup: Option<bool>,
 ) -> Result<UpdateCheck, String> {
+    if updates_managed_externally() {
+        return Ok(store_managed());
+    }
+
     let now = unix_now();
     let startup = startup.unwrap_or(false);
     if !force && !startup {
@@ -57,6 +63,7 @@ pub fn check_for_updates(
     let latest = normalize_version(&release.tag_name);
     Ok(UpdateCheck {
         checked: true,
+        store_managed: false,
         update_available: is_newer(&latest, &current),
         current_version: current,
         latest_version: latest,
@@ -79,12 +86,29 @@ fn fetch_latest_release() -> Result<GithubRelease, String> {
 fn no_check() -> UpdateCheck {
     UpdateCheck {
         checked: false,
+        store_managed: false,
         update_available: false,
         current_version: env!("CARGO_PKG_VERSION").to_string(),
         latest_version: String::new(),
         release_url: String::new(),
         notes: String::new(),
     }
+}
+
+fn store_managed() -> UpdateCheck {
+    UpdateCheck {
+        checked: false,
+        store_managed: true,
+        update_available: false,
+        current_version: env!("CARGO_PKG_VERSION").to_string(),
+        latest_version: String::new(),
+        release_url: String::new(),
+        notes: String::new(),
+    }
+}
+
+fn updates_managed_externally() -> bool {
+    distribution::current_channel().managed_externally()
 }
 
 fn unix_now() -> i64 {

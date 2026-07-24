@@ -26,11 +26,11 @@ export function initUpdateNotifier() {
 
 }
 
-export function startUpdateChecks() {
+export async function startUpdateChecks() {
     if (_checksStarted) return;
     _checksStarted = true;
-    _check(false, true);
-    setInterval(() => _check(false), CHECK_EVERY_MS);
+    const storeManaged = await _check(false, true);
+    if (!storeManaged) setInterval(() => _check(false), CHECK_EVERY_MS);
 }
 
 async function _check(force, startup = false) {
@@ -38,6 +38,10 @@ async function _check(force, startup = false) {
     if (force && status) status.textContent = t('updates.checking');
     try {
         const result = await invoke('check_for_updates', { force, startup });
+        if (result.storeManaged) {
+            _disableForStore();
+            return true;
+        }
         if (!result.checked && !force) return;
         _paintStatus(result, force);
         if (result.updateAvailable) _showNotice(result);
@@ -45,6 +49,13 @@ async function _check(force, startup = false) {
         if (force && status) status.textContent = t('updates.error');
         console.error('Error revisando actualizaciones:', e);
     }
+    return false;
+}
+
+function _disableForStore() {
+    document.getElementById('btn-check-updates')?.closest('.update-box')?.classList.add('hidden');
+    document.getElementById('update-reminder-btn')?.classList.add('hidden');
+    document.getElementById('update-notice-modal')?.classList.add('hidden');
 }
 
 function _paintStatus(result, force) {

@@ -803,6 +803,8 @@ Al lanzar la aplicación, ocurre la siguiente secuencia:
 | `src-tauri/build.rs` | Script de build Tauri (no tocar) |
 | `.github/workflows/build.yml` | CI de desarrollo: compila en push/PR |
 | `.github/workflows/release-builds.yml` | CI de release: al publicar tag `v*`, compila y sube artefactos |
+| `src-tauri/src/domain/distribution.rs` | Fuente única del canal, plataforma y administrador de actualizaciones incorporados al build |
+| `scripts/build-store-msix.ps1` | Compila el canal `store` y genera el MSIX con la identidad oficial |
 | `DEV.bat` | Arranca la app en modo desarrollo (`npm run tauri dev`); doble clic para usar |
 | `SET-VERSION.bat` | Sincroniza la versión en `package.json`, `Cargo.toml` y `tauri.conf.json` de una sola vez |
 | `SET-VERSION.ps1` | Lógica PowerShell del script anterior |
@@ -811,3 +813,7 @@ Al lanzar la aplicación, ocurre la siguiente secuencia:
 **Sincronización de versión:** usar `SET-VERSION.bat X.Y.Z` antes de cada release. El script actualiza los tres archivos en un paso y recuerda regenerar `Cargo.lock` con `cargo check`.
 
 > Ver [`COMPILACION_Y_VERSIONES.md`](COMPILACION_Y_VERSIONES.md) para el proceso completo de release.
+
+La plataforma, el formato del paquete y el canal de actualización son decisiones
+independientes. La política multiplataforma y la forma de aislar código específico
+están en [`ARCHITECTURE.md`](ARCHITECTURE.md#política-para-cambios-específicos-de-windows-o-linux).

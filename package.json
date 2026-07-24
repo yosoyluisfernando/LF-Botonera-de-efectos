@@ -1,13 +1,16 @@
 {
   "name": "lf-botonera",
   "private": true,
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "author": "Luis Fernando Velásquez",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "licenses:rust": "cd src-tauri && cargo about generate --frozen --fail -o ../THIRD_PARTY_LICENSES_RUST.html about.hbs",
+    "licenses:node": "node scripts/generate-node-licenses.mjs",
+    "licenses": "npm run licenses:rust && npm run licenses:node",
     "tauri": "tauri"
   },
   "devDependencies": {

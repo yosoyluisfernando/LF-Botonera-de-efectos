@@ -67,7 +67,7 @@ pub fn set_locution_config(
 pub fn pick_named_folder() -> Result<PickedFolder, String> {
     let path = rfd::FileDialog::new()
         .pick_folder()
-        .ok_or("OperaciÃ³n cancelada.".to_string())?;
+        .ok_or("Operación cancelada.".to_string())?;
     let name = path
         .file_name()
         .unwrap_or_default()
