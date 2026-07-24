@@ -1,11 +1,49 @@
-# Continuidad de sesión — distribución en Linux
+# Continuidad de sesión — buscador interno y distribución
 
-Este documento es el punto de entrada para la etapa iniciada después de completar la
-publicación de **LF Botonera de Efectos 1.2.1** en Microsoft Store. Su objetivo es
-permitir que una sesión nueva retome únicamente la distribución en Linux, sin volver
-a reconstruir ni reabrir el trabajo ya terminado de Microsoft.
+Este documento es el punto de entrada para retomar el trabajo después de completar la
+publicación de **LF Botonera de Efectos 1.2.1** en Microsoft Store y fusionar la rama
+de distribución con `main`.
 
 No usar aquí planes históricos de funciones ya completadas.
+
+## 0. Etapa activa — buscador interno
+
+- **Rama:** `codex/buscador-interno`.
+- **Base inicial:** `771adf7`, `Integra distribución en tiendas y prepara la etapa
+  Linux (#6)`.
+- **Inicio:** 2026-07-24.
+- **Estado:** planificación y documentación; no hay código funcional autorizado.
+- **Documento rector:** [`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).
+
+El objetivo es añadir al panel fijo una búsqueda rápida sobre una o varias carpetas
+de audio elegidas por el usuario. Debe admitir más de 100.000 canciones además de
+efectos, búsqueda difusa, índice persistente y actualización incremental sin bloquear
+la interfaz ni los motores de audio.
+
+La propuesta pendiente de aprobación es una tercera presentación
+`fixed_panel.view = "search"` con un motor Rust propio integrado en el `tracks.db`
+existente. No se creará otra base que duplique rutas, tamaño, `mtime` o duración.
+Primero se descubrirán las rutas para hacerlas buscables y después se enriquecerán en
+segundo plano con duración y etiquetas. LUFS, onda y PCM seguirán siendo análisis
+explícitos y no parte de la catalogación.
+
+Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
+`C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que
+no deben copiarse quedaron registrados en `PLAN_BUSCADOR_INTERNO.md`.
+
+Antes de escribir código:
+
+1. Leer completo `PLAN_BUSCADOR_INTERNO.md`.
+2. Acordar con el autor la experiencia de uso, especialmente Enter y doble clic.
+3. Aprobar presupuestos de rendimiento y corpus de errores de escritura.
+4. Ejecutar una prueba aislada de ranking e índice con 100.000 y 250.000 filas, y
+   medir `lofty` con duración y etiquetas en archivos reales.
+5. Aprobar dependencias, esquema SQLite, módulos, comandos IPC y eventos.
+6. Solo después actualizar las reglas y documentos arquitectónicos definitivos.
+
+La prueba física en Linux y Flathub siguen pendientes, pero quedan pausados mientras
+se diseña esta actualización. La documentación histórica de distribución permanece
+vigente más abajo.
 
 ## 1. Lectura inicial obligatoria
 
@@ -14,12 +52,12 @@ Antes de proponer o modificar código:
 1. Leer `AGENTS.md` en la raíz del repositorio.
 2. Leer [`REGLAS_PROYECTO.md`](REGLAS_PROYECTO.md).
 3. Leer este documento completo.
-4. Leer [`PLAN_DISTRIBUCION_TIENDAS.md`](PLAN_DISTRIBUCION_TIENDAS.md), con atención
-   especial a las fases de Linux, Flathub y repositorios oficiales.
-5. Leer [`CHECKLIST_PREPUBLICACION_LOCAL.md`](CHECKLIST_PREPUBLICACION_LOCAL.md) para
-   reutilizar las verificaciones comunes.
-6. Auditar el código y la configuración actuales antes de decidir la arquitectura de
-   los canales de actualización.
+4. Para la etapa activa, leer
+   [`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).
+5. Para retomar Linux, leer
+   [`PLAN_DISTRIBUCION_TIENDAS.md`](PLAN_DISTRIBUCION_TIENDAS.md) y
+   [`CHECKLIST_PREPUBLICACION_LOCAL.md`](CHECKLIST_PREPUBLICACION_LOCAL.md).
+6. Auditar el código y la configuración actuales antes de decidir arquitectura.
 
 Los documentos `MSIX_LOCAL.md`, `WACK_MSIX.md` y
 `ACTUALIZAR_MICROSOFT_STORE.md` son referencia histórica o para futuras
@@ -36,25 +74,23 @@ actualizaciones de Microsoft Store. No forman parte de la lectura inicial de Lin
 - **Stack:** Tauri v2, backend Rust, frontend Vanilla JS con Vite.
 - **Licencia:** GPL-3.0-or-later.
 - **Repositorio local:** `C:\OVERLAY\BOTONERA`.
-- **Rama de trabajo:** `codex/distribucion-tiendas`.
-- **Último commit al actualizar este documento:** `0fc4795`,
-  `Registra publicación en Microsoft Store`.
+- **Rama de trabajo:** `codex/buscador-interno`.
+- **Base de la rama:** `771adf7`,
+  `Integra distribución en tiendas y prepara la etapa Linux (#6)`.
 - **Identificador técnico común:**
   `io.github.yosoyluisfernando.LF-Botonera-de-efectos`.
-- **Prioridad nueva:** distribución en Linux.
+- **Prioridad activa:** planificar el buscador interno sin tocar código funcional.
+- **Prioridad pausada:** prueba física en Linux y después Flathub.
 - **Primer destino previsto:** Flathub, después de una prueba física real en Linux.
 - **Destinos posteriores:** evaluar repositorios oficiales de Debian, Fedora u otras
   distribuciones únicamente cuando el paquete y su mantenimiento sean sostenibles.
-- **Cambios locales todavía no publicados:** «Acerca de» muestra versión, plataforma,
-  canal y administrador de actualizaciones; la preescucha general y la previa del
-  editor ya no son detenidas por Solo ni «Detener otros».
+- **Cambios de distribución:** ya fusionados en `main` mediante el PR #6.
 - **Última verificación local:** 209 pruebas Rust aprobadas, 4 pruebas manuales
   ignoradas, `cargo build --lib`, `npm run build` y aplicación Windows Release
   completados correctamente.
 
-El árbol de trabajo ya contiene cambios de documentación y capturas que pertenecen
-al autor. Antes de editar, ejecutar `git status` y conservar cualquier cambio ajeno
-a la tarea. No limpiar, descartar ni sobrescribir el árbol de trabajo.
+Antes de editar, ejecutar `git status` y conservar cualquier cambio ajeno a la tarea.
+No limpiar, descartar ni sobrescribir el árbol de trabajo.
 
 ---
 
