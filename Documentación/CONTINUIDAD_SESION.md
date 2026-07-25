@@ -58,7 +58,7 @@ se decidirá al construir la UI.
 La Biblioteca será una ventana independiente y tendrá su propio acceso cuando se
 diseñe; no añadir un botón `Abrir Biblioteca` dentro del buscador. Sus listas no
 mostrarán páginas. Usarán carga perezosa y virtualización: conservarán en el DOM lo
-visible y un margen inicial de 30 resultados por encima y 30 por debajo. El mismo
+visible y un margen de 50 resultados por encima y 50 por debajo. El mismo
 flujo debe responder al ratón, scroll y teclado con controles nativos y nombres
 accesibles desde el principio. La auditoría integral de lector de pantalla puede ser
 una etapa separada.
@@ -160,7 +160,7 @@ Quinta base técnica completada el 2026-07-25:
 - en Release, con 100.000 pistas, los bloques de 100 tardaron 494 µs hacia delante,
   438 µs para el siguiente y 490 µs hacia atrás;
 - con 250.000 pistas tardaron 449 µs, 451 µs y 472 µs respectivamente;
-- la UI mantendrá solo las filas visibles más un margen inicial de 30 arriba y 30
+- la UI mantendrá solo las filas visibles más un margen de 50 arriba y 50
   abajo; este margen es una decisión de presentación ajustable, no una página.
 - verificación actual: 249 pruebas automáticas aprobadas, 14 pruebas físicas
   ignoradas por defecto, `cargo build --lib` y `npm run build` correctos.

@@ -397,7 +397,7 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
   archivo. Al iniciar se reconcilia en segundo plano; los eventos de directorio o
   errores también reconcilian porque el observador no es la única garantía.
 - `library_browse` ofrece bloques bidireccionales internos para una lista virtual sin
-  páginas visibles. La UI conservará lo visible más 30 filas arriba y 30 abajo.
+  páginas visibles. La UI conservará lo visible más 50 filas arriba y 50 abajo.
 - Pendiente inmediato: lista virtual, ventana Biblioteca y tercera vista del panel.
 - Enter, doble clic y reproducción al aire se decidirán al implementar la interfaz.
 - Documento rector:

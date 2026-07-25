@@ -161,8 +161,8 @@ La Biblioteca tendrá un acceso propio que se diseñará con su ventana. No colo
 `Abrir Biblioteca` dentro de la vista Buscador del panel fijo.
 
 Las listas extensas no tendrán paginación visible. Usarán una lista virtual con carga
-perezosa: se renderizan las filas visibles y, como margen inicial, 30 resultados por
-encima y 30 por debajo. Al desplazarse con rueda, barra de scroll o teclado, la UI
+perezosa: se renderizan las filas visibles y un margen de 50 resultados por
+encima y 50 por debajo. Al desplazarse con rueda, barra de scroll o teclado, la UI
 pedirá el siguiente bloque en la dirección necesaria y retirará del DOM las filas
 lejanas. El cursor y los bloques pertenecen al protocolo interno Rust; el usuario
 percibe una lista continua.
@@ -729,7 +729,7 @@ Carga perezosa bidireccional completada el 2026-07-25:
 - 100.000 pistas: 494 µs primer bloque, 438 µs siguiente y 490 µs anterior;
 - 250.000 pistas: 449 µs primer bloque, 451 µs siguiente y 472 µs anterior.
 
-Siguiente paso: diseñar la interfaz virtual con 30 filas de margen arriba y abajo;
+Siguiente paso: diseñar la interfaz virtual con 50 filas de margen arriba y abajo;
 las acciones de reproducción siguen aplazadas hasta acordarlas con el autor.
 
 ---
