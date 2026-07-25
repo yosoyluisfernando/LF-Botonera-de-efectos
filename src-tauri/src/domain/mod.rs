@@ -6,6 +6,7 @@ pub mod distribution;
 pub mod palette;
 pub mod export;
 pub mod grid;
+pub mod library;
 pub mod locution;
 pub mod playback;
 pub mod player;

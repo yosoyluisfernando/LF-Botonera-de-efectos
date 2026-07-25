@@ -12,7 +12,7 @@ No usar aquí planes históricos de funciones ya completadas.
 - **Base inicial:** `771adf7`, `Integra distribución en tiendas y prepara la etapa
   Linux (#6)`.
 - **Inicio:** 2026-07-24.
-- **Estado:** planificación y documentación; no hay código funcional autorizado.
+- **Estado:** arquitectura base aprobada; implementación por etapas autorizada.
 - **Documento rector:** [`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).
 
 Excepción completada por petición expresa del autor: mejora pequeña del reproductor
@@ -30,26 +30,48 @@ de audio elegidas por el usuario. Debe admitir más de 100.000 canciones además
 efectos, búsqueda difusa, índice persistente y actualización incremental sin bloquear
 la interfaz ni los motores de audio.
 
-La propuesta pendiente de aprobación es una tercera presentación
-`fixed_panel.view = "search"` con un motor Rust propio integrado en el `tracks.db`
-existente. No se creará otra base que duplique rutas, tamaño, `mtime` o duración.
-Primero se descubrirán las rutas para hacerlas buscables y después se enriquecerán en
-segundo plano con duración y etiquetas. LUFS, onda y PCM seguirán siendo análisis
-explícitos y no parte de la catalogación.
+Decisiones aprobadas el 2026-07-25:
+
+- tercera presentación `fixed_panel.view = "search"` para búsqueda rápida;
+- ventana independiente Biblioteca para administrar todo el catálogo;
+- un solo motor Rust y el `tracks.db` existente para ambas superficies;
+- dos colecciones explícitas, Música y Efectos;
+- descubrimiento rápido y enriquecimiento posterior con duración y etiquetas;
+- actualización automática, reconciliación al iniciar y prueba con 100.000/250.000;
+- detección y unificación de raíces solapadas sin duplicar archivos.
+
+La categoría la elige el usuario al añadir la carpeta. Si raíz y subcarpeta tienen la
+misma categoría se unifican con aviso. Si son distintas, la subcarpeta específica se
+conserva como excepción y manda dentro de su árbol.
+
+Siguen sin decidirse Enter, doble clic y reproducción al aire. No implementarlos hasta
+diseñar la interfaz con el autor.
+
+Primera base técnica completada el 2026-07-25:
+
+- `tracks.db` migra del esquema 1 al 2 conservando las pistas;
+- `library_root` guarda una ruta única y su colección Música/Efectos;
+- `domain/library/root_plan.rs` decide duplicado, cobertura, unificación, excepción
+  y reclasificación; manda siempre la raíz más específica;
+- 221 pruebas Rust aprobadas, 4 manuales ignoradas;
+- `cargo build --lib` y `npm run build` correctos.
+
+Siguiente paso: almacén persistente de raíces y normalización de rutas reales. Después,
+prueba de índice y ranking con 100.000 y 250.000 registros.
 
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que
 no deben copiarse quedaron registrados en `PLAN_BUSCADOR_INTERNO.md`.
 
-Antes de escribir código:
+Antes de continuar con código:
 
 1. Leer completo `PLAN_BUSCADOR_INTERNO.md`.
-2. Acordar con el autor la experiencia de uso, especialmente Enter y doble clic.
-3. Aprobar presupuestos de rendimiento y corpus de errores de escritura.
+2. Respetar las decisiones aprobadas y no cerrar las acciones gráficas aplazadas.
+3. Implementar primero raíces, categorías y unificación con pruebas.
 4. Ejecutar una prueba aislada de ranking e índice con 100.000 y 250.000 filas, y
    medir `lofty` con duración y etiquetas en archivos reales.
-5. Aprobar dependencias, esquema SQLite, módulos, comandos IPC y eventos.
-6. Solo después actualizar las reglas y documentos arquitectónicos definitivos.
+5. Justificar cualquier dependencia antes de añadirla.
+6. Mantener actualizados arquitectura, reglas y evidencia junto a cada etapa.
 
 La prueba física en Linux y Flathub siguen pendientes, pero quedan pausados mientras
 se diseña esta actualización. La documentación histórica de distribución permanece

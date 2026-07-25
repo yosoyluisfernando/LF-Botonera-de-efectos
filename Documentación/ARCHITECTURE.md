@@ -100,6 +100,7 @@ Los motores actuales son:
 | `engine/console/` | La consola de audio: **dueña de las salidas físicas y de los buses**. Los demás motores de audio son sus clientes: le piden un bus y le entregan fuentes |
 | `engine/audio/` | Reproducción de efectos: botones, fades, estados, hilo de audio. Pide sus buses a la consola |
 | `engine/player/` | Reproductor auxiliar (música de fondo): motor **independiente** en cola, avance y transporte, con su hilo y sus dos decks. Ya no tiene tarjeta propia: entrega al bus `Reproductor` de la consola |
+| `domain/library/` | Reglas puras de Biblioteca: colecciones Música/Efectos y planificación de raíces solapadas sin duplicación |
 | `engine/dsp/` | Análisis de audio, LUFS, cue, fade, waveform y análisis del editor |
 | `engine/cache/` | Precarga RAM, caché de análisis, caché persistente de waveforms |
 | `engine/persist/` | `botonera_config.json`, `tracks.db`, historial y últimos reproducidos |
@@ -234,6 +235,29 @@ y su `Arc` es `Send + Sync`, así que cada motor añade fuentes a su bus desde s
 El hilo guardián solo atiende cambios de ruteo.
 
 Plan y fases: [`PLAN_CONSOLA_VIRTUAL.md`](PLAN_CONSOLA_VIRTUAL.md).
+
+---
+
+## Biblioteca y buscador interno
+
+La Biblioteca tendrá dos superficies sobre un solo estado: búsqueda rápida como
+tercera vista del panel fijo y una ventana independiente para administrar el catálogo
+completo. Ninguna superficie recorre carpetas ni calcula similitud; ambas consultarán
+el mismo motor Rust.
+
+`tracks.db` continúa como única base. La versión 2 del esquema añade `library_root`,
+con una ruta normalizada y una colección explícita `music` o `effects`. La ruta es
+única: una carpeta no puede registrarse dos veces.
+
+`domain/library/root_plan.rs` decide el resultado antes de mutar:
+
+- una raíz ya cubierta no vuelve a añadirse;
+- una raíz más general absorbe las subcarpetas de su misma colección tras avisar;
+- una subcarpeta de otra colección se conserva como excepción;
+- cuando varias reglas cubren una ruta, manda la más específica.
+
+Esta etapa todavía no fija Enter, doble clic ni reproducción al aire. El documento
+rector es [`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).
 
 ---
 

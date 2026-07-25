@@ -373,13 +373,23 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 - i18n en 4 idiomas (es, en, pt-BR, pt-PT)
 - CI/CD con GitHub Actions
 
-**En desarrollo (rama `codex/distribucion-tiendas`):**
+**Distribución (fusionada en `main`; Linux pendiente):**
 - Microsoft Store completada con la versión 1.2.1.
 - Prueba física prioritaria en Linux y preparación posterior de Flathub.
 - Canales actuales centralizados: `direct` para GitHub Releases y `store` para
   Microsoft Store; los canales administrados de Linux todavía no están implementados.
 - Plan y evidencia en
-  [`Documentación/PLAN_DISTRIBUCION_TIENDAS.md`](Documentación/PLAN_DISTRIBUCION_TIENDAS.md).
+[`Documentación/PLAN_DISTRIBUCION_TIENDAS.md`](Documentación/PLAN_DISTRIBUCION_TIENDAS.md).
+
+**En desarrollo (rama `codex/buscador-interno`):**
+- Buscador rápido como tercera vista del panel fijo y ventana Biblioteca completa.
+- Un solo catálogo en `tracks.db`, dividido en Música y Efectos por elección del
+  usuario.
+- Las raíces solapadas se unifican sin duplicar; una subcarpeta de otra colección se
+  conserva como excepción y manda por ser más específica.
+- Enter, doble clic y reproducción al aire se decidirán al implementar la interfaz.
+- Documento rector:
+  [`Documentación/PLAN_BUSCADOR_INTERNO.md`](Documentación/PLAN_BUSCADOR_INTERNO.md).
 
 **Pendientes conocidos:**
 

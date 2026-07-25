@@ -7,7 +7,7 @@ use rusqlite::Connection;
 use std::path::{Path, PathBuf};
 
 /// Versión actual del esquema. Subir este número al añadir una migración.
-const SCHEMA_VERSION: i64 = 1;
+const SCHEMA_VERSION: i64 = 2;
 
 /// Ruta del fichero de base de datos, junto al config (multiplataforma).
 pub fn db_path() -> PathBuf {
@@ -43,7 +43,13 @@ pub fn migrate(conn: &Connection) -> Result<(), String> {
     if version < 1 {
         conn.execute_batch(SCHEMA_V1).map_err(|e| e.to_string())?;
     }
-    if version != SCHEMA_VERSION {
+    if version < 2 {
+        conn.execute_batch(SCHEMA_V2).map_err(|e| e.to_string())?;
+    }
+    if version > SCHEMA_VERSION {
+        return Err("database_schema_newer".into());
+    }
+    if version < SCHEMA_VERSION {
         conn.pragma_update(None, "user_version", SCHEMA_VERSION)
             .map_err(|e| e.to_string())?;
     }
@@ -83,6 +89,23 @@ CREATE TABLE IF NOT EXISTS track (
 );
 ";
 
+const SCHEMA_V2: &str = "
+CREATE TABLE IF NOT EXISTS library_root (
+  id              INTEGER PRIMARY KEY,
+  path            TEXT    NOT NULL,
+  path_key        TEXT    NOT NULL UNIQUE,
+  collection      TEXT    NOT NULL CHECK(collection IN ('music', 'effects')),
+  recursive       INTEGER NOT NULL DEFAULT 1,
+  enabled         INTEGER NOT NULL DEFAULT 1,
+  state           TEXT    NOT NULL DEFAULT 'pending',
+  scan_generation INTEGER NOT NULL DEFAULT 0,
+  last_scan_at    INTEGER,
+  created_at      INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS library_root_collection
+  ON library_root(collection, enabled);
+";
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -99,6 +122,10 @@ mod tests {
             .query_row("SELECT COUNT(*) FROM track", [], |r| r.get(0))
             .unwrap();
         assert_eq!(count, 0);
+        let roots: i64 = conn
+            .query_row("SELECT COUNT(*) FROM library_root", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(roots, 0);
     }
 
     #[test]
@@ -115,5 +142,41 @@ mod tests {
         let a = normalize_key("C:/Audio/Risa.mp3");
         let b = normalize_key(&a);
         assert_eq!(a, b);
+    }
+
+    #[test]
+    fn v1_migration_preserves_track_rows_and_adds_library_roots() {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch(SCHEMA_V1).unwrap();
+        conn.pragma_update(None, "user_version", 1).unwrap();
+        conn.execute(
+            "INSERT INTO track(path,mtime,size,duration_s,sample_rate,channels)
+             VALUES('c:/audio/a.mp3',1,2,3,44100,2)",
+            [],
+        )
+        .unwrap();
+
+        migrate(&conn).unwrap();
+
+        let tracks: i64 = conn
+            .query_row("SELECT COUNT(*) FROM track", [], |r| r.get(0))
+            .unwrap();
+        let roots: i64 = conn
+            .query_row("SELECT COUNT(*) FROM library_root", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(tracks, 1);
+        assert_eq!(roots, 0);
+    }
+
+    #[test]
+    fn a_newer_schema_is_never_downgraded() {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.pragma_update(None, "user_version", SCHEMA_VERSION + 1)
+            .unwrap();
+        assert_eq!(migrate(&conn).unwrap_err(), "database_schema_newer");
+        let version: i64 = conn
+            .pragma_query_value(None, "user_version", |r| r.get(0))
+            .unwrap();
+        assert_eq!(version, SCHEMA_VERSION + 1);
     }
 }

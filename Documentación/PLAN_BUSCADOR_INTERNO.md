@@ -1,16 +1,46 @@
 # Plan — buscador interno e índice de archivos de audio
 
-Documento de análisis previo para la nueva actualización de LF Botonera de Efectos.
-No autoriza todavía cambios de código. La arquitectura, el alcance de la primera fase
-y las acciones de cada resultado deben aprobarse con el autor antes de implementar.
+Documento rector para la nueva actualización de LF Botonera de Efectos. Conserva el
+análisis, las decisiones aprobadas y las cuestiones que siguen abiertas. Toda sesión
+debe leerlo antes de modificar el buscador o la Biblioteca.
 
-**Estado:** propuesta técnica para conversación.
+**Estado:** arquitectura base aprobada; implementación por etapas autorizada.
 
 **Rama:** `codex/buscador-interno`.
 
 **Base:** `main` en `771adf7`, después de integrar la distribución en tiendas.
 
 **Inicio:** 2026-07-24.
+
+---
+
+## 0. Decisiones aprobadas por el autor
+
+Decisiones cerradas el 2026-07-25:
+
+1. El buscador rápido será una tercera vista del panel fijo.
+2. Existirá además una ventana independiente llamada **Biblioteca** para recorrer y
+   administrar todo lo indexado.
+3. Panel y Biblioteca compartirán el mismo motor Rust, el mismo estado y el mismo
+   catálogo. No habrá dos buscadores ni dos bibliotecas.
+4. `tracks.db` seguirá siendo la única base. No se creará `search_index.db`.
+5. La indexación será progresiva: primero rutas buscables; después duración y
+   etiquetas en segundo plano.
+6. Desde la primera versión se leerán título, artista, álbum, género, año y número
+   de pista cuando existan.
+7. El catálogo se dividirá en dos colecciones: **Música** y **Efectos**.
+8. El usuario asignará la colección al añadir una carpeta. No se intentará adivinar
+   por duración, nombre o contenido si un audio es música o efecto.
+9. Los solapamientos entre raíces se detectarán y resolverán sin duplicar archivos.
+10. Se mantendrán la observación automática mientras la app esté abierta, la
+    reconciliación al iniciar y la prueba previa con 100.000 y 250.000 registros.
+
+Decisión aplazada hasta construir la interfaz:
+
+- qué hacen Enter, doble clic y la acción explícita de reproducir al aire;
+- cuáles acciones aparecen primero en el menú contextual.
+
+No se debe fijar ese comportamiento por adelantado ni interpretarlo como aprobado.
 
 ---
 
@@ -36,6 +66,9 @@ arbitrarias. En directo importan tanto la rapidez como la confianza en el result
   o a la derecha.
 - Permitir una o varias carpetas raíz y, si el usuario lo decide expresamente, una
   unidad completa.
+- Clasificar cada carpeta como Música o Efectos.
+- Ofrecer búsqueda rápida en el panel fijo y administración completa en una ventana
+  Biblioteca.
 - Indexar catálogos de 100.000 canciones más efectos de sonido.
 - Mantener la interfaz, el audio y el reloj fluidos mientras se indexa.
 - Conseguir la primera indexación en pocos segundos en condiciones normales; llegar
@@ -99,10 +132,10 @@ audio.
 
 ## 4. Propuesta independiente anterior a revisar LF Automatizador
 
-### 4.1 Tercera presentación del panel fijo
+### 4.1 Panel fijo y ventana Biblioteca
 
-`fixed_panel.view` tiene hoy dos valores: `buttons` y `player`. La propuesta es añadir
-`search` como tercera presentación. La posición, el ancho, la visibilidad y el botón de
+`fixed_panel.view` tiene hoy dos valores: `buttons` y `player`. Se añadirá `search`
+como tercera presentación. La posición, el ancho, la visibilidad y el botón de
 mostrar/ocultar siguen perteneciendo al mismo panel fijo.
 
 La vista de búsqueda tendrá su propio encabezado, entrada, estado del índice y lista
@@ -111,6 +144,18 @@ almacén: compartir superficie visual no significa mezclar estados.
 
 El valor predeterminado seguirá siendo `player`. Cualquier campo nuevo del modelo
 llevará `#[serde(default)]`.
+
+La ventana **Biblioteca** mostrará todo el catálogo y permitirá:
+
+- cambiar entre Música y Efectos;
+- buscar y ordenar;
+- revisar duración, etiquetas, carpeta y estado;
+- añadir, unificar, reclasificar, actualizar o quitar raíces;
+- ver el progreso y los errores de indexación.
+
+La ventana no tendrá una base ni un proceso de indexación propios. Consultará el mismo
+motor de `AppState` que el panel. Cerrar la ventana no detendrá el catálogo ni el audio.
+Las acciones de reproducción se decidirán al implementar su experiencia gráfica.
 
 ### 4.2 Motor Rust propio
 
@@ -140,11 +185,13 @@ track
   datos técnicos existentes: path, mtime, size, duration_s, sample_rate, channels
   ediciones existentes: cue, ganancia, normalización, análisis, last_played
 
-search_root
-  carpeta elegida, recursive, enabled, state, generación y último escaneo
+library_root
+  carpeta elegida, colección Música/Efectos, recursive, enabled
+  state, generación y último escaneo
 
 track_catalog
-  relación con track y search_root
+  relación con track y library_root
+  colección efectiva Música/Efectos
   nombre visible, carpeta relativa, extensión
   título, artista, álbum, género, año, número de pista
   estado de metadatos y generación vista
@@ -161,6 +208,7 @@ debe respetar estas reglas:
 - las etiquetas viven una sola vez, en el registro de catálogo;
 - cue, ganancia, normalización, LUFS y `last_played` no se copian;
 - las raíces viven en SQLite, no también en `botonera_config.json`;
+- cada archivo tiene una sola fila y una sola colección efectiva;
 - FTS contiene una representación derivada necesaria para buscar, no una segunda
   fuente editable;
 - quitar una raíz del buscador no puede borrar cue, ganancia ni análisis de una pista.
@@ -214,9 +262,31 @@ con `read_tags(false)`. Los errores de una pista se registrarán sin abortar la 
 - Los lotes descubiertos serán buscables mientras continúa el enriquecimiento.
 - No habrá un límite duro de 100.000 archivos. Las pruebas cubrirán al menos 250.000.
 
-Las raíces duplicadas o contenidas unas dentro de otras deben detectarse. La primera
-recomendación es rechazarlas con una explicación, porque indexar `D:\` y
-`D:\Música` produciría trabajo redundante y ambigüedad al eliminar una raíz.
+### 4.5.1 Colecciones y unificación de raíces
+
+Cada raíz se añade como `music` o `effects`. Esta elección es explícita porque una
+duración corta no demuestra que algo sea un efecto y una duración larga no demuestra
+que sea música.
+
+Antes de guardar una raíz se normalizan y comparan todas las rutas:
+
+- **La misma ruta ya existe:** no se añade otra fila; se informa que ya está
+  indexada.
+- **Se añade una subcarpeta ya cubierta por una raíz de la misma colección:** se
+  informa que ya está incluida y no se crea otra raíz.
+- **Se añade una raíz que contiene subcarpetas existentes de la misma colección:**
+  se avisa que se unificarán; la raíz nueva sustituye esas entradas específicas sin
+  volver a crear los archivos.
+- **Raíz y subcarpeta pertenecen a colecciones distintas:** ambas reglas se conservan.
+  La ruta más específica manda dentro de su árbol y actúa como excepción. La raíz
+  general no duplica ni reclasifica esos archivos.
+
+Ejemplo: `D:\Audio` puede ser Música y `D:\Audio\Efectos` puede ser Efectos. Los
+archivos de la subcarpeta pertenecen solo a Efectos; el resto de `D:\Audio`, solo a
+Música.
+
+Si se cambia la colección de una raíz, se reclasifican sus archivos sin volver a leer
+duración o etiquetas cuando tamaño y `mtime` no cambiaron.
 
 ### 4.6 Actualización incremental
 
@@ -299,9 +369,8 @@ Al ejecutar una acción se reutilizarán los caminos existentes:
 - asignar a una rejilla o al panel fijo: modelo `ButtonData` y comandos existentes;
 - editor: `tracks.db` y análisis diferido.
 
-La acción principal de Enter o doble clic todavía debe decidirse con el autor. En un
-entorno de radio, reproducir al aire por accidente y obligar a demasiados pasos son
-riesgos opuestos.
+La acción principal de Enter, doble clic y reproducción al aire se decidirá con el
+autor durante la implementación gráfica. No forma parte de la autorización actual.
 
 ---
 
@@ -455,34 +524,29 @@ Cada caso debe fijar qué resultado gana y qué falsos positivos son inaceptable
 
 ---
 
-## 8. Decisiones que requieren conversación con el autor
+## 8. Decisiones todavía abiertas
 
-1. Nombre visible: «Buscador», «Biblioteca» u otro.
-2. Tercera presentación del panel o acceso adicional dentro del reproductor.
-3. Acción principal de Enter y doble clic:
+1. Acción principal de Enter y doble clic:
    - preescuchar;
    - reproducir al aire;
    - añadir a la cola.
-4. Acciones secundarias que entran en la primera versión:
+2. Acciones secundarias que entran en la primera versión:
    - añadir al reproductor;
    - asignar a la pestaña activa;
    - asignar al panel fijo;
    - abrir editor;
    - mostrar en el explorador.
-5. Etiquetas incluidas desde la primera versión; queda por decidir cuáles se muestran
+3. Las etiquetas están incluidas; queda por decidir cuáles se muestran
    en cada fila y cuáles solo participan en la búsqueda.
-6. Si la vigilancia se activa siempre o puede deshabilitarse por raíz.
-7. Política ante raíces anidadas.
-8. Cuándo ejecutar reconciliación completa: solo manual, al iniciar en segundo plano o
-   con una cadencia configurable.
-9. Presupuestos definitivos de tiempo, memoria y tamaño.
-10. Dependencia de observación y estrategia final de fuzzy después del benchmark.
+4. Si la vigilancia puede deshabilitarse por raíz.
+5. Presupuestos definitivos de tiempo, memoria y tamaño tras las mediciones.
+6. Dependencia de observación y estrategia final de fuzzy después del benchmark.
 
 ---
 
 ## 9. Orden recomendado de trabajo
 
-1. Acordar experiencia de uso y acciones de los resultados.
+1. Crear y probar el modelo de raíces, colecciones y unificación.
 2. Cerrar presupuestos y corpus de ranking.
 3. Hacer una prueba técnica aislada de SQLite FTS5, ranking y 250.000 filas, más un
    corpus real para medir lectura de duración y etiquetas con `lofty`.
@@ -496,8 +560,23 @@ Cada caso debe fijar qué resultado gana y qué falsos positivos son inaceptable
 11. Conectar las acciones a los flujos de audio ya existentes.
 12. Ejecutar tests, builds y prueba física Release.
 
-No se escribirá código funcional antes de completar y aprobar como mínimo los pasos
-1 a 5.
+La arquitectura base está aprobada. Se puede implementar persistencia, raíces,
+colecciones, indexación y búsqueda. Las acciones de reproducción de la interfaz
+permanecen bloqueadas hasta la conversación correspondiente.
+
+### Avance registrado
+
+Completado el 2026-07-25:
+
+- migración segura de `tracks.db` del esquema 1 al 2;
+- tabla `library_root` con ruta única y colección Música/Efectos;
+- protección contra rebajar una base creada por una versión futura;
+- regla pura y probada para detectar cobertura, unificación, excepciones y cambio de
+  colección;
+- prioridad de la raíz más específica en árboles con categorías alternadas.
+
+Siguiente paso: persistir y confirmar los planes de alta de raíces, normalizar rutas
+reales de Windows/Linux y después iniciar la prueba de escala del catálogo.
 
 ---
 
