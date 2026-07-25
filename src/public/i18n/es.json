@@ -146,6 +146,7 @@
   },
   "context_menu": {
     "color_selected": "Cambiar el color de los botones seleccionados…",
+    "remove_player": "Eliminar del reproductor",
     "edit": "Editar...",
     "clear": "Limpiar",
     "loop": "Bucle",
@@ -489,6 +490,7 @@
   },
   "errors": {
     "no_buttons_selected": "No hay botones seleccionados.",
+    "no_player_tracks_selected": "No hay elementos seleccionados en el reproductor.",
     "player_no_audio_found": "No se encontró ningún audio en lo que soltaste.",
     "fatal_ipc": "Error fatal de comunicación con el motor nativo.",
     "only_profile": "No se puede eliminar el único perfil.",

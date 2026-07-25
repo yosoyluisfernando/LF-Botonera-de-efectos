@@ -27,6 +27,7 @@ pub mod cmd_player_file;
 pub mod cmd_player_config;
 pub mod cmd_player_drop;
 pub mod cmd_player_queue;
+pub mod cmd_player_remove;
 pub mod cmd_preload;
 pub mod cmd_profiles;
 pub mod cmd_startup_prompts;

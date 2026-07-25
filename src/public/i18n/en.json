@@ -146,6 +146,7 @@
   },
   "context_menu": {
     "color_selected": "Change the colour of the selected buttons…",
+    "remove_player": "Remove from player",
     "edit": "Edit...",
     "clear": "Clear",
     "loop": "Loop",
@@ -489,6 +490,7 @@
   },
   "errors": {
     "no_buttons_selected": "No buttons are selected.",
+    "no_player_tracks_selected": "No player items are selected.",
     "player_no_audio_found": "No audio was found in what you dropped.",
     "fatal_ipc": "Fatal communication error with the native engine.",
     "only_profile": "The only profile cannot be deleted.",

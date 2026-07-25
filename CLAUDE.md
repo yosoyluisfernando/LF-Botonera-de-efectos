@@ -584,7 +584,8 @@ Los índices son POSICIONES 0-based en la cola. Ver `Documentación/PLAN_MODO_RE
 - `player_set_volume(volume, persist?)` — 0.0–1.5 (la UI expone 0–100 %). `persist: false` mientras se arrastra: aplicar es un atómico, guardar en cada píxel sería una tormenta de escrituras
 - `player_set_device(device)` — "" = el mismo de los efectos. **Reaplicarlo reabre la salida y corta la música**
 - `player_add_track(path, index?)` / `player_add_button(buttonId, index?)`
-- `player_remove_track(index)` / `player_reorder_tracks(fromIndex, toIndex)` / `player_clear_queue`
+- `player_remove_track(index)` / `player_remove_tracks(indexes)` /
+  `player_reorder_tracks(fromIndex, toIndex)` / `player_clear_queue`
 - `player_save_playlist` / `player_open_playlist` — formato `.LFPlay` (compatible con LFA)
 - `player_scan_drop(paths)` → `DropScan` — cuenta lo soltado (carpetas incluidas, recursivo) y **Rust decide** si hay que preguntar (umbral `LARGE_FOLDER_THRESHOLD` = 250)
 - `player_add_drop(paths)` — añade en `spawn_blocking` por lotes de 20 emitiendo `player-drop-progress`; una sola escritura a disco al final

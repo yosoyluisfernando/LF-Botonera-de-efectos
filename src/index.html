@@ -81,7 +81,7 @@
             </div>
             <div class="player-cols"><span data-i18n="player.col_title">Título</span>
               <span data-i18n="player.col_duration">Duración</span></div>
-            <div id="player-rows" class="player-rows"></div>
+            <div id="player-rows" class="player-rows" role="listbox" aria-multiselectable="true"></div>
             <!-- Progreso: el tiempo vive aquí (no en el transporte) porque con
                  los controles nuevos no cabía todo en una fila de 243 px. -->
             <div class="player-progress-row">
@@ -179,6 +179,7 @@
       <ul>
         <!-- Solo con selección múltiple (Ctrl+clic); entonces oculta al resto. -->
         <li id="menu-color-selected" class="hidden"><span class="menu-icon">🎨</span><span data-i18n="context_menu.color_selected">Cambiar el color de los botones seleccionados…</span></li>
+        <li id="menu-player-remove" class="hidden"><span class="menu-icon">🗑️</span><span data-i18n="context_menu.remove_player">Eliminar del reproductor</span></li>
         <li id="menu-editar"><span class="menu-icon">✏️</span><span data-i18n="context_menu.edit">Editar...</span></li>
         <li id="menu-limpiar"><span class="menu-icon">🗑️</span><span data-i18n="context_menu.clear">Limpiar</span></li>
         <hr>

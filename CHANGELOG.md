@@ -28,6 +28,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - «Acerca de» indica el canal de distribución, el sistema operativo y quién
   administra las actualizaciones. Los paquetes directos de Windows y Linux muestran
   GitHub Releases; la edición de Microsoft Store muestra Microsoft Store.
+- El reproductor auxiliar permite seleccionar varias filas con `Ctrl` o `Shift` y
+  eliminarlas juntas desde el menú contextual.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del

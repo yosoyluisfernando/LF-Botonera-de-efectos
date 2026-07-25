@@ -55,7 +55,7 @@ pub(crate) fn sync_queue(state: &AppState) {
 
 /// Renumera solo la posicion visible. El id permanece estable para que el motor
 /// pueda conservar current/next al reordenar o quitar otras filas.
-fn reindex(tracks: &mut [ButtonData]) {
+pub(super) fn reindex(tracks: &mut [ButtonData]) {
     for (position, track) in tracks.iter_mut().enumerate() {
         track.index = position as u32 + 1;
     }
@@ -142,22 +142,6 @@ fn find_button(cfg: &AppConfig, id: &str) -> Option<ButtonData> {
         .chain(cfg.profiles.iter().flat_map(|p| &p.paletas).flat_map(|p| &p.botones))
         .find(|b| b.id == id)
         .cloned()
-}
-
-#[tauri::command]
-pub fn player_remove_track(index: u32, state: tauri::State<AppState>) -> Result<PlayerView, String> {
-    {
-        let mut cfg = state.config.lock().unwrap();
-        let position = index as usize;
-        if position >= cfg.player.tracks.len() {
-            return Err("button_not_found".into());
-        }
-        cfg.player.tracks.remove(position);
-        reindex(&mut cfg.player.tracks);
-        config_io::save_config(&cfg)?;
-    }
-    sync_queue(&state);
-    Ok(player_view(&state))
 }
 
 #[tauri::command]

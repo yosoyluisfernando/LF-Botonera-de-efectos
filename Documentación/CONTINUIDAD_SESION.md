@@ -15,6 +15,16 @@ No usar aquí planes históricos de funciones ya completadas.
 - **Estado:** planificación y documentación; no hay código funcional autorizado.
 - **Documento rector:** [`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).
 
+Excepción completada por petición expresa del autor: mejora pequeña del reproductor
+auxiliar para seleccionar filas con `Ctrl`/`Shift` y eliminarlas juntas. No forma
+parte de la arquitectura del buscador ni la autoriza implícitamente.
+
+La selección usa ids estables en `playerSelection.js`; Rust valida y elimina el lote
+mediante `domain/player/queue_remove.rs` y `player_remove_tracks(indexes)`, con una
+sola persistencia y sincronización. Verificación: 212 pruebas Rust aprobadas, 4
+manuales ignoradas, `cargo build --lib` y `npm run build` correctos. La prueba de uso
+real con ratón y lector de pantalla queda para el autor.
+
 El objetivo es añadir al panel fijo una búsqueda rápida sobre una o varias carpetas
 de audio elegidas por el usuario. Debe admitir más de 100.000 canciones además de
 efectos, búsqueda difusa, índice persistente y actualización incremental sin bloquear

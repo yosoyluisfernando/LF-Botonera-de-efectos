@@ -246,7 +246,8 @@ Para la lista completa ver [`CLAUDE.md §9`](CLAUDE.md).
 - `player_set_stop_after(enabled)` → al acabar la actual, no arranca sola
 - `player_set_volume(volume)` / `player_set_device(device)` → salida propia ("" = la de los efectos)
 - `player_add_track(path, index?)` / `player_add_button(buttonId, index?)` → sin `index`, al final
-- `player_remove_track(index)` / `player_reorder_tracks(from, to)` / `player_clear_queue`
+- `player_remove_track(index)` / `player_remove_tracks(indexes)` /
+  `player_reorder_tracks(from, to)` / `player_clear_queue`
 - `player_save_playlist` / `player_open_playlist` → formato `.LFPlay` (compatible con LFA)
 
 ---

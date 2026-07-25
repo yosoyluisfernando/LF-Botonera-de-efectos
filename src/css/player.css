@@ -51,6 +51,8 @@
 .player-row.next { background:var(--player-next-bg); color:var(--player-state-text); font-weight:bold; }
 .player-row.next-held { background:var(--player-held-bg); color:var(--player-state-text); font-weight:bold; }
 .player-row.playing { background:var(--player-playing-bg); color:var(--player-state-text); font-weight:bold; }
+/* Selección para acciones por lote. El aro no tapa los colores de reproducción. */
+.player-row.queue-selected { outline:3px solid var(--accent-color); outline-offset:-3px; }
 /* Arrastre: origen atenuado, destino marcado. */
 .player-row.drag-source { opacity:.45; }
 .player-row.drag-over { outline:2px dashed var(--accent-color); outline-offset:-2px; }

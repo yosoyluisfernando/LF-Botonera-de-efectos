@@ -287,6 +287,13 @@ cuyo `clearList` vacía las filas sin tocar la reproducción.
 sonando marca como siguiente (`player_activate_index` → `QueueState::activate(index, is_playing)`).
 El `is_playing` lo aporta el hilo, que conoce los decks: una huérfana suena sin estar en la cola.
 
+**La selección múltiple solo prepara acciones sobre la lista.** `Ctrl+clic` alterna filas,
+`Shift+clic` marca un intervalo y el clic normal conserva el comportamiento anterior. Los ids
+estables sostienen la selección en la UI; al eliminar, Rust recibe las posiciones, las valida
+todas, borra de mayor a menor, reindexa, persiste y sincroniza una sola vez. Con varias filas,
+escucha previa y editor quedan deshabilitados porque son acciones de una sola pista. Quitar de
+la cola la canción actual no corta su audio: se aplica la misma regla de pista huérfana.
+
 **Si la resolución falla** (carpeta vacía, sin clima, archivo ilegible) el deck queda `Failed`,
 que `poll_finished` trata como terminado: el motor releva y la música sigue.
 
