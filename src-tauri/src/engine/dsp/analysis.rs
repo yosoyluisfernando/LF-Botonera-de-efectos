@@ -7,7 +7,6 @@ use crate::model::norm::{CueDetectConfig, NormConfig};
 use crate::model::track::TrackMeta;
 use ebur128::{EbuR128, Mode};
 use rodio::Source;
-use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 const MAX_ENVELOPE_POINTS: usize = 120_000;
@@ -124,18 +123,7 @@ pub fn suggest_gain(lufs: Option<f64>, peak_db: f64, norm: &NormConfig) -> f64 {
 }
 
 pub fn file_stamp(path: &str) -> (i64, i64) {
-    match fs::metadata(path) {
-        Ok(m) => {
-            let mtime = m
-                .modified()
-                .ok()
-                .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
-                .map(|d| d.as_secs() as i64)
-                .unwrap_or(0);
-            (mtime, m.len() as i64)
-        }
-        Err(_) => (0, 0),
-    }
+    crate::engine::audio::formats::file_stamp(std::path::Path::new(path))
 }
 
 fn now_epoch() -> i64 {

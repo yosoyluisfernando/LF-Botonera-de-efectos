@@ -56,8 +56,31 @@ Primera base técnica completada el 2026-07-25:
 - 221 pruebas Rust aprobadas, 4 manuales ignoradas;
 - `cargo build --lib` y `npm run build` correctos.
 
-Siguiente paso: almacén persistente de raíces y normalización de rutas reales. Después,
-prueba de índice y ranking con 100.000 y 250.000 registros.
+Segunda base técnica y mediciones completadas el 2026-07-25:
+
+- las cinco raíces reales autorizadas suman 18.201 audios y unos 77,75 GiB;
+- el recorrido Rust compartido tarda 4.483 ms frío y 956-1.050 ms caliente;
+- la lectura inicial secuencial de duración y tags tardó 480.976 ms;
+- cuatro trabajadores son el punto óptimo medido: 2.809-2.907 ms con caché caliente;
+- la reconciliación sin cambios tarda 623 ms y no abre el contenido;
+- 476 archivos recuperan propiedades aunque sus tags fallen; 96 no entregan
+  propiedades, incluidos los 78 WMA;
+- el motor Release real de LF Automatizador se probó dos veces con bases temporales:
+  primera indexación 11.963-12.905 ms y segunda sin cambios 10.224-11.689 ms;
+- LF Automatizador omite WMA y vuelve a leer metadatos en la segunda sincronización;
+  no copiar esa condición;
+- el recorrido, el sello de archivo, la lectura robusta y el lote concurrente ya
+  tienen una sola implementación Rust en la Botonera.
+- verificación actual: 226 pruebas automáticas aprobadas, 10 pruebas manuales de
+  archivos reales ignoradas por defecto, `cargo build --lib` y `npm run build`
+  correctos.
+
+Los detalles y la cobertura de etiquetas por Música/Efectos están en
+`PLAN_BUSCADOR_INTERNO.md`, secciones 5.5 y 5.6.
+
+Siguiente paso: almacén persistente de raíces y normalización de rutas reales;
+después, conectar el catálogo SQLite y probar búsqueda/ranking con 100.000 y 250.000
+registros.
 
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que

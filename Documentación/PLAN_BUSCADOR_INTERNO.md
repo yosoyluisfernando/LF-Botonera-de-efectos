@@ -450,6 +450,84 @@ El Automatizador refuerza la necesidad de medir el tiempo real y de no bloquear 
 También demuestra que leer etiquetas tiene un coste apreciable; no es razón para
 eliminarlas, sino para enriquecer por lotes y comunicar el progreso con honestidad.
 
+### 5.5 Pruebas reales con las colecciones autorizadas
+
+Pruebas ejecutadas el 2026-07-25 en modo Release y en solo lectura:
+
+- Música: `D:\Music` y `D:\Mis musicas`.
+- Efectos: `C:\Efectos Stream`, `C:\Efectos` y
+  `D:\Documentos\Efectos para Radio`.
+- Total Botonera: 18.201 audios, 435 carpetas y aproximadamente 77,75 GiB.
+- Formatos: 17.847 MP3, 246 WAV, 78 WMA, 26 M4A y 4 FLAC.
+
+El recorrido Rust compartido, que no abre el contenido, obtuvo:
+
+- primera ronda con caché fría: 4.483 ms;
+- seis rondas posteriores: entre 956 y 1.050 ms;
+- cero carpetas o entradas inaccesibles.
+
+La lectura secuencial inicial de duración y etiquetas tardó 480.976 ms. Leyó 18.105
+archivos; 476 necesitaron la recuperación sin etiquetas y 96 no entregaron
+propiedades. La causa por formato quedó acotada: 78 WMA, 9 MP3 y 9 WAV. Los archivos
+fallidos seguirán indexados por nombre y ruta, con estado de metadatos no disponibles.
+No se elimina WMA de la lista compartida solo porque `lofty` no lo interprete.
+
+Cobertura total de etiquetas:
+
+- título: 10.638;
+- artista: 9.917;
+- álbum: 7.035;
+- género: 8.882;
+- año: 4.150;
+- número de pista: 6.116.
+
+Comparación caliente de lectura, sobre los mismos 18.201 archivos:
+
+- 1 trabajador: 6.399 ms;
+- 2 trabajadores: 3.665 ms;
+- 4 trabajadores: 2.907 ms;
+- 8 trabajadores: 3.118 ms;
+- segunda ronda con 4 trabajadores: 2.809 ms.
+
+Se adopta un máximo de cuatro trabajadores, reducido si el equipo ofrece menos
+paralelismo. Ocho no mejora: aumenta la competencia por disco y CPU. No se atribuye
+la diferencia entre 480.976 ms y 2.809 ms solo a los trabajadores, porque la primera
+lectura partió con caché fría y las posteriores con cabeceras calientes.
+
+La reconciliación sin cambios, comparando únicamente ruta normalizada, tamaño y
+`mtime`, tardó 623 ms y no abrió el contenido de ningún audio.
+
+La separación real por colección mostró:
+
+- Música: 17.240 archivos; mediana 220,317 s; percentil 95 de 396,382 s; 87 errores
+  de propiedades.
+- Efectos: 961 archivos; mediana 5,016 s; percentil 95 de 85,499 s; 9 errores de
+  propiedades.
+
+Esto confirma que la categoría no debe deducirse por duración: existen efectos largos
+y al menos una pista musical excepcionalmente larga.
+
+### 5.6 Ejecución comparativa del motor real de LF Automatizador
+
+Se ejecutó directamente
+`C:\LF Automatizador v1.0\audio-engine-rust\target\release\lf-audio-engine.exe`.
+Cada ronda usó una base SQLite temporal nueva, registró las cinco raíces mediante el
+protocolo real y ejecutó dos `syncAllRoots`. Las bases y sus archivos WAL/SHM se
+eliminaron y se verificó su ausencia al terminar.
+
+Resultados:
+
+- ronda A: primera indexación 12.905 ms; segunda sin cambios 11.689 ms;
+- ronda B: primera indexación 11.963 ms; segunda sin cambios 10.224 ms;
+- 18.123 archivos, cero errores informados y base de 15.060.992 bytes en ambas
+  rondas.
+
+El Automatizador omite los 78 WMA porque su lista de formatos no los incluye. Su
+segunda sincronización vuelve a abrir metadatos cuando la pista ya existe: deja de
+ingerir filas, pero conserva casi todo el coste. Por eso no se copiará esa condición.
+La Botonera decidirá primero por tamaño y `mtime`; solo los archivos nuevos o
+modificados pasarán a los trabajadores de metadatos.
+
 ---
 
 ## 6. Presupuestos de rendimiento que deben aprobarse
@@ -574,9 +652,15 @@ Completado el 2026-07-25:
 - regla pura y probada para detectar cobertura, unificación, excepciones y cambio de
   colección;
 - prioridad de la raíz más específica en árboles con categorías alternadas.
+- recorrido único compartido entre la importación existente y el indexador;
+- sello de archivo centralizado, sin una segunda implementación;
+- lector único de duración y etiquetas con recuperación ante tags defectuosos;
+- lotes de metadatos con concurrencia acotada y orden estable;
+- benchmarks reales detallados en las secciones 5.5 y 5.6.
 
-Siguiente paso: persistir y confirmar los planes de alta de raíces, normalizar rutas
-reales de Windows/Linux y después iniciar la prueba de escala del catálogo.
+Siguiente paso: persistir y confirmar los planes de alta de raíces, conectar el
+descubrimiento y el enriquecimiento por lotes al catálogo SQLite, y después ejecutar
+la prueba sintética de búsqueda con 100.000 y 250.000 filas.
 
 ---
 
