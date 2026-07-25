@@ -274,8 +274,17 @@ CREATE TABLE IF NOT EXISTS track (
 ```
 
 - WAL habilitado (`PRAGMA journal_mode=WAL`) para escrituras frecuentes baratas.
-- Versión del esquema en `PRAGMA user_version` (actualmente 1).
+- Versión del esquema en `PRAGMA user_version` (actualmente 3).
 - `last_played` se vuelca desde memoria a disco cada 30 s (debounce) y al cerrar.
+
+El esquema 3 conserva `track` como única fuente de los datos técnicos y añade:
+
+- `library_root`: cualquier cantidad de raíces Música/Efectos;
+- `library_track`: pertenencia, ruta relativa, etiquetas y estado de indexación;
+- `library_track_search`: índice FTS5 derivado para el panel y la Biblioteca.
+
+No crear otra base. El catálogo referencia `track(path)` y retirar una raíz no borra
+cue, ganancia, normalización ni historial.
 
 ---
 
@@ -536,6 +545,17 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `play_time_locution(id?, vol?, folder?)`
 - `play_climate_locution(id?, climate_type, vol?, folder?)`
 
+### Biblioteca y buscador
+- `library_list_roots`
+- `library_add_root(path, collection)` — `collection` = `"music"` | `"effects"`
+- `library_remove_root(root_id)`
+- `library_sync_root(root_id)` / `library_sync_all`
+- `library_search(query, collection?, limit?)`
+- `library_status`
+
+La sincronización emite `library-index-progress`. Toda la lógica está en
+`engine/library/`; estos comandos solo ejecutan trabajo bloqueante fuera del hilo UI.
+
 ### Export / Import
 - `export_tab(paleta_id, path?)` — abre diálogo si no se pasa path
 - `export_tab_by_id(paleta_id)` → JSON string
@@ -724,7 +744,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 209 passed, 4 ignored)
+# Backend Rust (suite actual: 243 passed, 12 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
 

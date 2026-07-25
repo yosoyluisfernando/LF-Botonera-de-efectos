@@ -102,6 +102,7 @@ src-tauri/src/
 │   ├── player/              ← Reproductor auxiliar: motor propio e independiente
 │   ├── dsp/                 ← symphonia, ebur128, cue, fade, waveform
 │   ├── cache/               ← LRU RAM, preloader, calentamiento
+│   ├── library/             ← Raíces, catálogo incremental y búsqueda difusa
 │   ├── persist/             ← SQLite, config JSON, undo/redo
 │   ├── weather/             ← open-meteo, geocoding
 │   └── input/               ← Atajos globales de SO, reglas de dispatch
@@ -266,6 +267,18 @@ Base de datos SQLite. **Una fila por archivo de audio.** Guarda:
 | `last_played` | Epoch de la última reproducción (para la precarga OnPlay) |
 
 > Ver glosario: [AppConfig](#), [TrackMeta](#), [LUFS](#), [cue](#), [WAL](#)
+
+La Biblioteca no crea otra base. El esquema 3 añade al mismo `tracks.db`:
+
+- `library_root`, con múltiples carpetas independientes por colección;
+- `library_track`, con ruta relativa, Música/Efectos, duración y etiquetas;
+- `library_track_search`, índice FTS5 derivado y reconstruible.
+
+`track` sigue siendo la única fuente de cue, ganancia, normalización, duración técnica
+y sello del archivo. El motor `engine/library/` descubre nombres por lotes, enriquece
+metadatos fuera de los hilos de UI y audio, y omite esa lectura cuando tamaño y
+`mtime` no cambiaron. El panel fijo y la ventana Biblioteca consultarán el mismo
+`LibraryService`.
 
 ---
 

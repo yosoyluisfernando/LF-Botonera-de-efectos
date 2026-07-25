@@ -78,9 +78,43 @@ Segunda base técnica y mediciones completadas el 2026-07-25:
 Los detalles y la cobertura de etiquetas por Música/Efectos están en
 `PLAN_BUSCADOR_INTERNO.md`, secciones 5.5 y 5.6.
 
-Siguiente paso: almacén persistente de raíces y normalización de rutas reales;
-después, conectar el catálogo SQLite y probar búsqueda/ranking con 100.000 y 250.000
-registros.
+Tercera base técnica completada el 2026-07-25:
+
+- `tracks.db` migra al esquema 3: `library_root`, `library_track` y el índice derivado
+  `library_track_search` FTS5; no existe una segunda base de biblioteca;
+- cada colección admite cualquier cantidad de raíces independientes;
+- las raíces solapadas de la misma colección se unifican y una subcarpeta de la otra
+  colección se conserva como excepción, sin filas duplicadas;
+- el catálogo inicial guarda nombres y rutas por lotes antes de enriquecer duración y
+  etiquetas con cuatro trabajadores;
+- una segunda sincronización compara tamaño y `mtime`: no reabre archivos sin cambios;
+- retirar una raíz quita sus resultados, pero conserva cue, ganancia, normalización y
+  demás datos técnicos de `track`;
+- búsqueda compartida para panel y Biblioteca: acentos equivalentes, exacto, prefijo,
+  subcadena y distancia Damerau acotada sobre candidatos FTS5;
+- siete comandos IPC y el evento `library-index-progress` exponen el motor sin poner
+  lógica de negocio en JavaScript;
+- la dependencia `unicode-normalization` se usa únicamente para hacer equivalentes
+  búsquedas con y sin diacríticos.
+
+Evidencia Release con base descartable, nunca con la base actual:
+
+- 100.000 filas: construcción 4.178 ms; consulta difusa media 11,5 ms;
+- 250.000 filas: construcción 10.984 ms; consulta difusa media 29,4 ms y p95 34,5 ms;
+- cinco raíces reales: 18.201 audios, 17.240 Música y 961 Efectos;
+- primera lectura completa de duración y etiquetas: 257.471 ms, con 18.105 archivos
+  enriquecidos y 96 formatos no legibles;
+- segunda y tercera reconciliación: 2.805 y 2.792 ms, cero reaperturas de metadatos.
+- verificación automática: 243 pruebas aprobadas y 12 manuales ignoradas; `cargo
+  build --lib` y `npm run build` correctos.
+
+El tiempo inicial alto pertenece a la lectura fría del contenido de miles de archivos.
+Los nombres quedan consultables por lotes antes de terminar el enriquecimiento. No
+presentar los 257 segundos como tiempo de descubrimiento.
+
+Siguiente paso: observación incremental y reconciliación al iniciar; después, diseñar
+la interfaz de Biblioteca y la tercera vista del panel con el autor. Enter, doble clic
+y reproducción al aire continúan sin decidirse.
 
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que
@@ -90,9 +124,8 @@ Antes de continuar con código:
 
 1. Leer completo `PLAN_BUSCADOR_INTERNO.md`.
 2. Respetar las decisiones aprobadas y no cerrar las acciones gráficas aplazadas.
-3. Implementar primero raíces, categorías y unificación con pruebas.
-4. Ejecutar una prueba aislada de ranking e índice con 100.000 y 250.000 filas, y
-   medir `lofty` con duración y etiquetas en archivos reales.
+3. Conservar una sola implementación para raíces, catálogo y búsqueda.
+4. Al tocar rendimiento, repetir las pruebas sintéticas y la base real descartable.
 5. Justificar cualquier dependencia antes de añadirla.
 6. Mantener actualizados arquitectura, reglas y evidencia junto a cada etapa.
 

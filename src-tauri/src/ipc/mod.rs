@@ -14,6 +14,7 @@ pub mod cmd_fixed_playback;
 pub mod cmd_grid;
 pub mod cmd_history;
 pub mod cmd_keys;
+pub mod cmd_library;
 pub mod cmd_local_shortcuts;
 pub mod cmd_locutions;
 pub mod cmd_master_volume;

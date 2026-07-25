@@ -30,6 +30,9 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
   GitHub Releases; la edición de Microsoft Store muestra Microsoft Store.
 - El reproductor auxiliar permite seleccionar varias filas con `Ctrl` o `Shift` y
   eliminarlas juntas desde el menú contextual.
+- Motor compartido de Biblioteca y buscador con múltiples carpetas de Música y
+  Efectos, catálogo incremental, metadatos persistentes y búsqueda difusa sin
+  duplicar la base de pistas.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del

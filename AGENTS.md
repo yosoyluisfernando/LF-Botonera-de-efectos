@@ -335,7 +335,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (suite actual: 209 passed, 4 ignored)
+# Tests unitarios Rust (suite actual: 243 passed, 12 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -387,6 +387,12 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
   usuario.
 - Las raíces solapadas se unifican sin duplicar; una subcarpeta de otra colección se
   conserva como excepción y manda por ser más específica.
+- El backend de raíces, catálogo incremental y búsqueda difusa ya está implementado
+  en `engine/library/`. El esquema 3 añade `library_root`, `library_track` y FTS5 al
+  mismo `tracks.db`; no crear otra base ni otro buscador para la Biblioteca.
+- Cada colección admite múltiples raíces independientes. Retirar una raíz conserva
+  los datos técnicos y ajustes del archivo en `track`.
+- Pendiente inmediato: observación incremental y reconciliación al iniciar; luego UI.
 - Enter, doble clic y reproducción al aire se decidirán al implementar la interfaz.
 - Documento rector:
   [`Documentación/PLAN_BUSCADOR_INTERNO.md`](Documentación/PLAN_BUSCADOR_INTERNO.md).

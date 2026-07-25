@@ -3,11 +3,15 @@
 /// `PRAGMA user_version`. Punto ÚNICO donde vive la diferencia de SO en la
 /// clave de archivo (Windows no distingue mayúsculas; Linux sí).
 use crate::engine::persist::config_io::get_data_dir;
+use db_schema::{SCHEMA_V1, SCHEMA_V2, SCHEMA_V3};
 use rusqlite::Connection;
 use std::path::{Path, PathBuf};
 
+#[path = "db_schema.rs"]
+mod db_schema;
+
 /// Versión actual del esquema. Subir este número al añadir una migración.
-const SCHEMA_VERSION: i64 = 2;
+const SCHEMA_VERSION: i64 = 3;
 
 /// Ruta del fichero de base de datos, junto al config (multiplataforma).
 pub fn db_path() -> PathBuf {
@@ -31,6 +35,8 @@ pub fn open(path: Option<&Path>) -> Result<Connection, String> {
     let _: String = conn
         .query_row("PRAGMA journal_mode=WAL;", [], |row| row.get(0))
         .map_err(|e| e.to_string())?;
+    conn.execute_batch("PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;")
+        .map_err(|e| e.to_string())?;
     migrate(&conn)?;
     Ok(conn)
 }
@@ -45,6 +51,9 @@ pub fn migrate(conn: &Connection) -> Result<(), String> {
     }
     if version < 2 {
         conn.execute_batch(SCHEMA_V2).map_err(|e| e.to_string())?;
+    }
+    if version < 3 {
+        conn.execute_batch(SCHEMA_V3).map_err(|e| e.to_string())?;
     }
     if version > SCHEMA_VERSION {
         return Err("database_schema_newer".into());
@@ -69,114 +78,6 @@ pub fn normalize_key(path: &str) -> String {
     }
 }
 
-const SCHEMA_V1: &str = "
-CREATE TABLE IF NOT EXISTS track (
-  path             TEXT PRIMARY KEY,
-  mtime            INTEGER NOT NULL,
-  size             INTEGER NOT NULL,
-  duration_s       REAL    NOT NULL,
-  sample_rate      INTEGER NOT NULL,
-  channels         INTEGER NOT NULL,
-  cue_start_s      REAL    NOT NULL DEFAULT 0,
-  cue_end_s        REAL,
-  gain_db          REAL    NOT NULL DEFAULT 0,
-  norm_enabled     INTEGER NOT NULL DEFAULT 0,
-  norm_gain_db     REAL    NOT NULL DEFAULT 0,
-  measured_peak_db REAL,
-  measured_lufs    REAL,
-  analyzed_at      INTEGER,
-  last_played      INTEGER
-);
-";
-
-const SCHEMA_V2: &str = "
-CREATE TABLE IF NOT EXISTS library_root (
-  id              INTEGER PRIMARY KEY,
-  path            TEXT    NOT NULL,
-  path_key        TEXT    NOT NULL UNIQUE,
-  collection      TEXT    NOT NULL CHECK(collection IN ('music', 'effects')),
-  recursive       INTEGER NOT NULL DEFAULT 1,
-  enabled         INTEGER NOT NULL DEFAULT 1,
-  state           TEXT    NOT NULL DEFAULT 'pending',
-  scan_generation INTEGER NOT NULL DEFAULT 0,
-  last_scan_at    INTEGER,
-  created_at      INTEGER NOT NULL
-);
-CREATE INDEX IF NOT EXISTS library_root_collection
-  ON library_root(collection, enabled);
-";
-
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn migrate_sets_user_version_and_table() {
-        let conn = open(None).unwrap();
-        let version: i64 = conn
-            .pragma_query_value(None, "user_version", |r| r.get(0))
-            .unwrap();
-        assert_eq!(version, SCHEMA_VERSION);
-        // La tabla debe existir y poder consultarse.
-        let count: i64 = conn
-            .query_row("SELECT COUNT(*) FROM track", [], |r| r.get(0))
-            .unwrap();
-        assert_eq!(count, 0);
-        let roots: i64 = conn
-            .query_row("SELECT COUNT(*) FROM library_root", [], |r| r.get(0))
-            .unwrap();
-        assert_eq!(roots, 0);
-    }
-
-    #[test]
-    fn migrate_is_idempotent() {
-        let conn = open(None).unwrap();
-        // Volver a migrar no debe fallar ni duplicar nada.
-        migrate(&conn).unwrap();
-        migrate(&conn).unwrap();
-    }
-
-    #[test]
-    fn normalize_key_is_consistent() {
-        // En cualquier SO, normalizar dos veces da lo mismo (idempotente).
-        let a = normalize_key("C:/Audio/Risa.mp3");
-        let b = normalize_key(&a);
-        assert_eq!(a, b);
-    }
-
-    #[test]
-    fn v1_migration_preserves_track_rows_and_adds_library_roots() {
-        let conn = Connection::open_in_memory().unwrap();
-        conn.execute_batch(SCHEMA_V1).unwrap();
-        conn.pragma_update(None, "user_version", 1).unwrap();
-        conn.execute(
-            "INSERT INTO track(path,mtime,size,duration_s,sample_rate,channels)
-             VALUES('c:/audio/a.mp3',1,2,3,44100,2)",
-            [],
-        )
-        .unwrap();
-
-        migrate(&conn).unwrap();
-
-        let tracks: i64 = conn
-            .query_row("SELECT COUNT(*) FROM track", [], |r| r.get(0))
-            .unwrap();
-        let roots: i64 = conn
-            .query_row("SELECT COUNT(*) FROM library_root", [], |r| r.get(0))
-            .unwrap();
-        assert_eq!(tracks, 1);
-        assert_eq!(roots, 0);
-    }
-
-    #[test]
-    fn a_newer_schema_is_never_downgraded() {
-        let conn = Connection::open_in_memory().unwrap();
-        conn.pragma_update(None, "user_version", SCHEMA_VERSION + 1)
-            .unwrap();
-        assert_eq!(migrate(&conn).unwrap_err(), "database_schema_newer");
-        let version: i64 = conn
-            .pragma_query_value(None, "user_version", |r| r.get(0))
-            .unwrap();
-        assert_eq!(version, SCHEMA_VERSION + 1);
-    }
-}
+#[path = "db_tests.rs"]
+mod db_tests;

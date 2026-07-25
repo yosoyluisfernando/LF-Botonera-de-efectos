@@ -48,6 +48,11 @@ Fachada pública del motor de efectos en `engine/audio/engine.rs`. Posee el `Sen
 
 ## B
 
+**Biblioteca**
+Ventana prevista para explorar y administrar todo el catálogo indexado. No tiene un
+motor ni una base propios: comparte `LibraryService`, `tracks.db` y el ranking Rust
+con la vista rápida del panel fijo.
+
 **`bdelf`**
 Extensión de archivo para exportar una paleta (pestaña) de la Botonera. JSON compatible con el LF Automatizador. Puede contener el campo opcional `bdelf_tracks` con metadatos de cue y dB que el LFA ignora.
 
@@ -99,6 +104,12 @@ de formato: un DEB de GitHub es `direct`, mientras que un futuro DEB de APT ser�
 administrado por el repositorio. La fuente única es
 `domain/distribution.rs`; ver
 [`COMPILACION_Y_VERSIONES.md`](COMPILACION_Y_VERSIONES.md#21-plataforma-formato-y-canal-no-son-lo-mismo).
+
+**Colección de biblioteca**
+Clasificación explícita elegida al añadir una raíz: `music` o `effects`. Cada
+colección admite cualquier cantidad de carpetas. Una raíz y una subcarpeta de la misma
+colección se unifican; si son de colecciones distintas, la subcarpeta más específica
+manda y no se duplica el archivo.
 
 **`consola` / `ConsoleEngine`**
 El motor `engine/console/`: **dueño de las salidas físicas y de los buses**. No produce audio, lo recibe y lo encamina; por eso no es un motor *al lado* de `audio/` y `player/`, sino *debajo*: ambos son sus clientes.

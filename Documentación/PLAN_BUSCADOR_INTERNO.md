@@ -658,9 +658,34 @@ Completado el 2026-07-25:
 - lotes de metadatos con concurrencia acotada y orden estable;
 - benchmarks reales detallados en las secciones 5.5 y 5.6.
 
-Siguiente paso: persistir y confirmar los planes de alta de raíces, conectar el
-descubrimiento y el enriquecimiento por lotes al catálogo SQLite, y después ejecutar
-la prueba sintética de búsqueda con 100.000 y 250.000 filas.
+Completado en la siguiente etapa del 2026-07-25:
+
+- esquema 3 con catálogo persistente y FTS5 dentro del mismo `tracks.db`;
+- altas, reclasificación, unificación y retirada de múltiples raíces por colección;
+- descubrimiento y enriquecimiento incremental por lotes;
+- búsqueda normalizada y difusa con candidatos acotados y ranking estable;
+- servicio único reutilizable por panel fijo y Biblioteca;
+- IPC de raíces, sincronización, estado y consulta, más progreso por evento;
+- pruebas de 100.000 y 250.000 filas y prueba integral con las cinco raíces reales.
+
+Resultados Release del índice sintético:
+
+- 100.000 pistas: 4.178 ms para construir; búsqueda con error, 11,5 ms de media;
+- 250.000 pistas: 10.984 ms para construir; búsqueda con error, 29,4 ms de media y
+  34,5 ms en p95.
+
+La primera prueba integral sobre 18.201 audios tardó 257.471 ms porque leyó duración y
+etiquetas desde disco. Las dos reconciliaciones posteriores tardaron 2.805 y 2.792 ms,
+con cero reaperturas de metadatos. La base fue temporal y se eliminó al terminar.
+
+Se añadió `unicode-normalization` 0.1 para NFD y eliminación de diacríticos. Es una
+dependencia pequeña, mantenida, con licencias MIT/Apache-2.0 compatibles; evita una
+normalización parcial hecha a mano. No se añadió un segundo motor fuzzy ni una base
+separada.
+
+Siguiente paso: implementar el observador incremental con debounce y la reconciliación
+de inicio. Después se diseña la interfaz; las acciones de reproducción siguen
+aplazadas hasta acordarlas con el autor.
 
 ---
 

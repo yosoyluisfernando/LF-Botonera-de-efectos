@@ -4,6 +4,7 @@ use crate::engine::cache::track_analysis::TrackAnalysisCache;
 use crate::engine::console::ConsoleEngine;
 use crate::engine::player::{PlayerEngine, QueueResolver};
 use crate::engine::dsp::waveform::WaveformCache;
+use crate::engine::library::service::LibraryService;
 use crate::engine::persist::config_io;
 use crate::engine::persist::history::ConfigHistory;
 use crate::engine::persist::last_played::LastPlayed;
@@ -23,6 +24,7 @@ pub struct AppState {
     /// aleatorios son las mismas para los botones y para la cola.
     pub random_folders: Arc<Mutex<RandomFolderState>>,
     pub tracks: Arc<Mutex<TrackStore>>,
+    pub library: Arc<LibraryService>,
     pub waveforms: Mutex<WaveformCache>,
     pub track_analysis: Mutex<TrackAnalysisCache>,
     pub last_played: LastPlayed,
@@ -43,6 +45,7 @@ impl AppState {
         let config = Arc::new(Mutex::new(config_io::load_config()));
         let random_folders = Arc::new(Mutex::new(RandomFolderState::default()));
         let tracks = Arc::new(Mutex::new(TrackStore::open()));
+        let library = Arc::new(LibraryService::open_default());
         let resolver = QueueResolver::new(
             Arc::clone(&config),
             Arc::clone(&random_folders),
@@ -61,6 +64,7 @@ impl AppState {
             history: Mutex::new(ConfigHistory::default()),
             random_folders,
             tracks,
+            library,
             waveforms: Mutex::new(WaveformCache::default()),
             track_analysis: Mutex::new(TrackAnalysisCache::default()),
             last_played: LastPlayed::new(),
