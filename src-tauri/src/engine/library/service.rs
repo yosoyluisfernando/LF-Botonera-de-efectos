@@ -159,7 +159,7 @@ impl LibraryService {
         Ok(status)
     }
 
-    fn connection(&self) -> Result<Connection, String> {
+    pub(super) fn connection(&self) -> Result<Connection, String> {
         db::open(Some(&self.database_path))
     }
 

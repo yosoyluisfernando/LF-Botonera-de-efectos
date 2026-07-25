@@ -157,6 +157,20 @@ La ventana no tendrá una base ni un proceso de indexación propios. Consultará
 motor de `AppState` que el panel. Cerrar la ventana no detendrá el catálogo ni el audio.
 Las acciones de reproducción se decidirán al implementar su experiencia gráfica.
 
+La Biblioteca tendrá un acceso propio que se diseñará con su ventana. No colocar
+`Abrir Biblioteca` dentro de la vista Buscador del panel fijo.
+
+Las listas extensas no tendrán paginación visible. Usarán una lista virtual con carga
+perezosa: se renderizan las filas visibles y, como margen inicial, 30 resultados por
+encima y 30 por debajo. Al desplazarse con rueda, barra de scroll o teclado, la UI
+pedirá el siguiente bloque en la dirección necesaria y retirará del DOM las filas
+lejanas. El cursor y los bloques pertenecen al protocolo interno Rust; el usuario
+percibe una lista continua.
+
+La navegación básica usará controles y semántica nativos, foco visible y nombres
+accesibles. Esto permite una base útil con lector de pantalla sin declarar terminada
+la auditoría de accesibilidad de toda la aplicación.
+
 ### 4.2 Motor Rust propio
 
 La propuesta es un `SearchEngine` o `LibraryEngine` dentro de `engine/`, compartido
@@ -375,6 +389,11 @@ autor durante la implementación gráfica. No forma parte de la autorización ac
 El encabezado visible del panel fijo será también el acceso directo para alternar
 `Botones fijos`, `Reproductor` y `Buscador`. Los Ajustes podrán conservar la
 preferencia persistente, pero no serán el único camino para cambiar de vista.
+
+Para anchos reducidos, cada idioma definirá una etiqueta normal y una compacta
+comprensible. La interfaz elegirá la variante según el ancho disponible medido; no
+truncará texto de forma arbitraria. En español, la referencia aprobada es `Botones
+fijos` / `B. fijos`.
 
 ---
 
@@ -702,8 +721,16 @@ nativos por plataforma. No sustituye la reconciliación porque su documentación
 advierte limitaciones y pérdidas posibles en árboles grandes o ciertos sistemas de
 archivos.
 
-Siguiente paso: diseñar la interfaz; las acciones de reproducción siguen aplazadas
-hasta acordarlas con el autor.
+Carga perezosa bidireccional completada el 2026-07-25:
+
+- esquema 4 con índices de recorrido por colección, presencia, nombre y ruta;
+- comando `library_browse` con cursor estable y dirección adelante/atrás;
+- bloques internos para una lista continua, sin controles de páginas;
+- 100.000 pistas: 494 µs primer bloque, 438 µs siguiente y 490 µs anterior;
+- 250.000 pistas: 449 µs primer bloque, 451 µs siguiente y 472 µs anterior.
+
+Siguiente paso: diseñar la interfaz virtual con 30 filas de margen arriba y abajo;
+las acciones de reproducción siguen aplazadas hasta acordarlas con el autor.
 
 ---
 

@@ -274,7 +274,7 @@ CREATE TABLE IF NOT EXISTS track (
 ```
 
 - WAL habilitado (`PRAGMA journal_mode=WAL`) para escrituras frecuentes baratas.
-- Versión del esquema en `PRAGMA user_version` (actualmente 3).
+- Versión del esquema en `PRAGMA user_version` (actualmente 4).
 - `last_played` se vuelca desde memoria a disco cada 30 s (debounce) y al cerrar.
 
 El esquema 3 conserva `track` como única fuente de los datos técnicos y añade:
@@ -285,6 +285,11 @@ El esquema 3 conserva `track` como única fuente de los datos técnicos y añade
 
 No crear otra base. El catálogo referencia `track(path)` y retirar una raíz no borra
 cue, ganancia, normalización ni historial.
+
+El esquema 4 añade solamente índices derivados para recorrer `library_track` por
+colección, presencia, nombre y ruta. `library_browse` usa esos índices y cursores
+bidireccionales; son la fuente interna de la futura lista virtual, no paginación
+visible.
 
 ---
 
@@ -551,6 +556,8 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `library_remove_root(root_id)`
 - `library_sync_root(root_id)` / `library_sync_all`
 - `library_search(query, collection?, limit?)`
+- `library_browse(collection?, limit?, cursor?, direction?)` — bloques internos
+  `"forward"` / `"backward"` para scroll continuo
 - `library_status`
 
 La sincronización emite `library-index-progress`. Toda la lógica está en

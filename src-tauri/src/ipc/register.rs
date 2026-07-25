@@ -77,6 +77,7 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_library::library_sync_root,
             ipc::cmd_library::library_sync_all,
             ipc::cmd_library::library_search,
+            ipc::cmd_library::library_browse,
             ipc::cmd_library::library_status,
             ipc::cmd_export::export_tab,
             ipc::cmd_export::export_tab_by_id,

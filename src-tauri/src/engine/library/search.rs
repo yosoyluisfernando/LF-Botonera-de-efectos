@@ -18,11 +18,12 @@ pub struct SearchResult {
     pub metadata_state: String,
 }
 
-struct Candidate {
-    root_path: String,
-    relative_path: String,
-    result: SearchResult,
-    search_text: String,
+pub(super) struct Candidate {
+    pub root_path: String,
+    pub relative_path: String,
+    pub path_key: String,
+    pub result: SearchResult,
+    pub search_text: String,
 }
 
 pub fn search(
@@ -139,7 +140,7 @@ fn query_candidates(
     let sql = format!(
         "SELECT lr.path,lt.relative_path,lt.collection,lt.file_name,lt.title,lt.artist,
          lt.album,lt.genre,lt.year,lt.track_number,t.duration_s,lt.metadata_state,
-         s.search_text FROM library_track_search s
+         s.search_text,s.path_key FROM library_track_search s
          JOIN library_track lt ON lt.path_key=s.path_key
          JOIN library_root lr ON lr.id=lt.root_id
          JOIN track t ON t.path=lt.path_key {clause}"
@@ -152,7 +153,7 @@ fn query_candidates(
         .map_err(|error| error.to_string())
 }
 
-fn map_candidate(row: &Row) -> rusqlite::Result<Candidate> {
+pub(super) fn map_candidate(row: &Row) -> rusqlite::Result<Candidate> {
     Ok(Candidate {
         root_path: row.get(0)?,
         relative_path: row.get(1)?,
@@ -170,10 +171,11 @@ fn map_candidate(row: &Row) -> rusqlite::Result<Candidate> {
             metadata_state: row.get(11)?,
         },
         search_text: row.get(12)?,
+        path_key: row.get(13)?,
     })
 }
 
-fn into_result(mut candidate: Candidate) -> SearchResult {
+pub(super) fn into_result(mut candidate: Candidate) -> SearchResult {
     candidate.result.path = PathBuf::from(candidate.root_path)
         .join(candidate.relative_path)
         .to_string_lossy()

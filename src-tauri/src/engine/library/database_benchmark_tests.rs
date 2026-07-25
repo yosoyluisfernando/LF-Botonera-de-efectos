@@ -1,5 +1,5 @@
 //! Perfiles manuales de la base nueva. Nunca abren `tracks.db` de la aplicación.
-use super::{incremental, root_store, search, service::LibraryService};
+use super::{browse, incremental, root_store, search, service::LibraryService};
 use crate::domain::library::LibraryCollection;
 use crate::engine::persist::db;
 use rusqlite::{params, Connection};
@@ -63,9 +63,41 @@ fn synthetic_search_scale() {
             assert!(!found.is_empty());
             elapsed.push(started.elapsed().as_micros());
         }
+        let browse_started = Instant::now();
+        let first_page = browse::browse(
+            &connection,
+            None,
+            100,
+            None,
+            browse::BrowseDirection::Forward,
+        )
+        .unwrap();
+        let first_page_us = browse_started.elapsed().as_micros();
+        let next_started = Instant::now();
+        let second_page = browse::browse(
+            &connection,
+            None,
+            100,
+            first_page.next_cursor.as_ref(),
+            browse::BrowseDirection::Forward,
+        )
+        .unwrap();
+        let next_page_us = next_started.elapsed().as_micros();
+        let previous_started = Instant::now();
+        let _ = browse::browse(
+            &connection,
+            None,
+            100,
+            second_page.previous_cursor.as_ref(),
+            browse::BrowseDirection::Backward,
+        )
+        .unwrap();
+        let previous_page_us = previous_started.elapsed().as_micros();
         elapsed.sort_unstable();
         println!(
-            "synthetic rows={count} build_ms={build_ms} search_avg_us={} search_p95_us={}",
+            "synthetic rows={count} build_ms={build_ms} search_avg_us={} \
+             search_p95_us={} browse_first_us={first_page_us} browse_next_us={next_page_us} \
+             browse_previous_us={previous_page_us}",
             elapsed.iter().sum::<u128>() / elapsed.len() as u128,
             elapsed[18]
         );

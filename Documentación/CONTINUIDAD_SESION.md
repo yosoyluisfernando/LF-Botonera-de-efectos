@@ -50,7 +50,18 @@ diseñar la interfaz con el autor.
 Decisión de navegación para la futura interfaz, anotada el 2026-07-25: el encabezado
 que muestra `Botones fijos`, `Reproductor` o `Buscador` debe permitir cambiar
 directamente entre las tres vistas al activarlo. No obligar al usuario a entrar en
-Ajustes para cada cambio. La presentación concreta se decidirá al construir la UI.
+Ajustes para cada cambio. Cada idioma tendrá un nombre normal y otro compacto
+comprensible —por ejemplo, `Botones fijos` y `B. fijos` en español—; la interfaz
+elegirá según el espacio medido, no mediante recorte ciego. La presentación concreta
+se decidirá al construir la UI.
+
+La Biblioteca será una ventana independiente y tendrá su propio acceso cuando se
+diseñe; no añadir un botón `Abrir Biblioteca` dentro del buscador. Sus listas no
+mostrarán páginas. Usarán carga perezosa y virtualización: conservarán en el DOM lo
+visible y un margen inicial de 30 resultados por encima y 30 por debajo. El mismo
+flujo debe responder al ratón, scroll y teclado con controles nativos y nombres
+accesibles desde el principio. La auditoría integral de lector de pantalla puede ser
+una etapa separada.
 
 Primera base técnica completada el 2026-07-25:
 
@@ -139,8 +150,24 @@ Cuarta base técnica completada el 2026-07-25:
 - verificación actual: 245 pruebas automáticas aprobadas, 14 manuales ignoradas,
   `cargo build --lib` y `npm run build` correctos.
 
-Siguiente paso: diseñar e implementar la ventana Biblioteca y la tercera vista del
-panel. Antes de programar las acciones de resultados hay que decidirlas con el autor.
+Quinta base técnica completada el 2026-07-25:
+
+- `tracks.db` migra al esquema 4 con índices de recorrido estable por nombre y ruta;
+- `library_browse` entrega bloques en ambas direcciones para scroll continuo sin
+  cargar el catálogo completo en memoria ni exponer páginas al usuario;
+- cursores estables permiten retirar o añadir pistas entre solicitudes sin depender
+  de posiciones numéricas frágiles;
+- en Release, con 100.000 pistas, los bloques de 100 tardaron 494 µs hacia delante,
+  438 µs para el siguiente y 490 µs hacia atrás;
+- con 250.000 pistas tardaron 449 µs, 451 µs y 472 µs respectivamente;
+- la UI mantendrá solo las filas visibles más un margen inicial de 30 arriba y 30
+  abajo; este margen es una decisión de presentación ajustable, no una página.
+- verificación actual: 249 pruebas automáticas aprobadas, 14 pruebas físicas
+  ignoradas por defecto, `cargo build --lib` y `npm run build` correctos.
+
+Siguiente paso: diseñar e implementar la lista virtual y la tercera vista del panel
+sobre `library_browse`. Antes de programar las acciones de resultados hay que
+decidirlas con el autor.
 
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que

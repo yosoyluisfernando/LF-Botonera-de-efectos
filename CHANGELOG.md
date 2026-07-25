@@ -35,6 +35,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
   duplicar la base de pistas.
 - Actualización automática del catálogo al crear, modificar, mover o borrar archivos,
   con reconciliación de seguridad al iniciar.
+- Recorrido continuo y carga perezosa del catálogo para manejar bibliotecas grandes
+  sin páginas visibles ni cargar todas las filas en memoria.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del

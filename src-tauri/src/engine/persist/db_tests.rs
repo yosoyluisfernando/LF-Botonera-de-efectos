@@ -73,6 +73,25 @@ fn v2_migration_adds_catalog_without_changing_roots() {
 }
 
 #[test]
+fn v3_migration_adds_browse_indexes() {
+    let conn = Connection::open_in_memory().unwrap();
+    conn.execute_batch(SCHEMA_V1).unwrap();
+    conn.execute_batch(SCHEMA_V2).unwrap();
+    conn.execute_batch(SCHEMA_V3).unwrap();
+    conn.pragma_update(None, "user_version", 3).unwrap();
+    migrate(&conn).unwrap();
+    let count: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM sqlite_master
+             WHERE type='index' AND name LIKE 'library_track_browse_%'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(count, 2);
+}
+
+#[test]
 fn a_newer_schema_is_never_downgraded() {
     let conn = Connection::open_in_memory().unwrap();
     conn.pragma_update(None, "user_version", SCHEMA_VERSION + 1)

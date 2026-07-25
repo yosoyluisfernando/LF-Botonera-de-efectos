@@ -1,3 +1,4 @@
+use crate::engine::library::browse::{BrowseCursor, BrowsePage};
 use crate::engine::library::indexer::{SyncProgress, SyncReport};
 use crate::engine::library::root_store::{AddOutcome, LibraryRoot};
 use crate::engine::library::search::SearchResult;
@@ -70,6 +71,27 @@ pub async fn library_search(
     let service = state.library.clone();
     tauri::async_runtime::spawn_blocking(move || {
         service.search(&query, collection.as_deref(), limit.unwrap_or(100))
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+pub async fn library_browse(
+    collection: Option<String>,
+    limit: Option<usize>,
+    cursor: Option<BrowseCursor>,
+    direction: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<BrowsePage, String> {
+    let service = state.library.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        service.browse(
+            collection.as_deref(),
+            limit.unwrap_or(100),
+            cursor.as_ref(),
+            direction.as_deref().unwrap_or("forward"),
+        )
     })
     .await
     .map_err(|error| error.to_string())?

@@ -285,6 +285,12 @@ durante 250 ms y delega cada archivo en `incremental.rs`; un directorio o un err
 activa reconciliación. Al iniciar, la reconciliación completa corre en segundo plano.
 El observador acelera lo normal, pero nunca reemplaza esa garantía de consistencia.
 
+El esquema 4 añade índices derivados de recorrido por colección, presencia, nombre y
+ruta. `library_browse` devuelve bloques estables hacia delante o atrás para que panel
+y Biblioteca implementen scroll continuo. Los bloques y cursores son internos: la
+interfaz no muestra páginas y conserva solo las filas visibles más un margen de 30
+por encima y 30 por debajo.
+
 ---
 
 ## 8. Cómo se conectan los módulos Rust

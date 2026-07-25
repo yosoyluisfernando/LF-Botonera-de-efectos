@@ -1,3 +1,4 @@
+pub mod browse;
 pub mod catalog_store;
 pub mod incremental;
 pub mod indexer;

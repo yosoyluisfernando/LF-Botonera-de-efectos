@@ -38,3 +38,9 @@ CREATE INDEX IF NOT EXISTS library_track_collection
 CREATE VIRTUAL TABLE IF NOT EXISTS library_track_search USING fts5(
   path_key UNINDEXED, search_text, tokenize='trigram'
 );";
+
+pub(super) const SCHEMA_V4: &str = "
+CREATE INDEX IF NOT EXISTS library_track_browse_all
+  ON library_track(present,file_name COLLATE NOCASE,path_key);
+CREATE INDEX IF NOT EXISTS library_track_browse_collection
+  ON library_track(collection,present,file_name COLLATE NOCASE,path_key);";

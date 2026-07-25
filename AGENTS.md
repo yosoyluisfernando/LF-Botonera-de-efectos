@@ -389,13 +389,16 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
   conserva como excepción y manda por ser más específica.
 - El backend de raíces, catálogo incremental y búsqueda difusa ya está implementado
   en `engine/library/`. El esquema 3 añade `library_root`, `library_track` y FTS5 al
-  mismo `tracks.db`; no crear otra base ni otro buscador para la Biblioteca.
+  mismo `tracks.db`; el esquema 4 añade índices de recorrido para carga perezosa. No
+  crear otra base ni otro buscador para la Biblioteca.
 - Cada colección admite múltiples raíces independientes. Retirar una raíz conserva
   los datos técnicos y ajustes del archivo en `track`.
 - La observación incremental usa `notify` con debounce de 250 ms y actualización por
   archivo. Al iniciar se reconcilia en segundo plano; los eventos de directorio o
   errores también reconcilian porque el observador no es la única garantía.
-- Pendiente inmediato: ventana Biblioteca y tercera vista del panel.
+- `library_browse` ofrece bloques bidireccionales internos para una lista virtual sin
+  páginas visibles. La UI conservará lo visible más 30 filas arriba y 30 abajo.
+- Pendiente inmediato: lista virtual, ventana Biblioteca y tercera vista del panel.
 - Enter, doble clic y reproducción al aire se decidirán al implementar la interfaz.
 - Documento rector:
   [`Documentación/PLAN_BUSCADOR_INTERNO.md`](Documentación/PLAN_BUSCADOR_INTERNO.md).
