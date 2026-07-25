@@ -555,6 +555,9 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 
 La sincronización emite `library-index-progress`. Toda la lógica está en
 `engine/library/`; estos comandos solo ejecutan trabajo bloqueante fuera del hilo UI.
+`LibraryService` inicia `notify` y una reconciliación de seguridad en segundo plano.
+Los eventos se agrupan 250 ms y actualizan únicamente las rutas afectadas; búsquedas y
+lecturas continúan usando conexiones SQLite independientes.
 
 ### Export / Import
 - `export_tab(paleta_id, path?)` — abre diálogo si no se pasa path
@@ -744,7 +747,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 243 passed, 12 ignored)
+# Backend Rust (suite actual: 245 passed, 14 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
 

@@ -1,8 +1,10 @@
 //! Perfiles manuales de la base nueva. Nunca abren `tracks.db` de la aplicación.
-use super::{search, service::LibraryService};
+use super::{incremental, root_store, search, service::LibraryService};
+use crate::domain::library::LibraryCollection;
 use crate::engine::persist::db;
 use rusqlite::{params, Connection};
 use std::fs;
+use std::path::PathBuf;
 use std::time::Instant;
 
 fn roots(variable: &str) -> Vec<String> {
@@ -68,6 +70,32 @@ fn synthetic_search_scale() {
             elapsed[18]
         );
     }
+}
+
+#[test]
+#[ignore = "requiere LF_LIBRARY_BENCH_FILE y LF_LIBRARY_BENCH_ROOT"]
+fn real_single_file_incremental_profile() {
+    let file = PathBuf::from(std::env::var("LF_LIBRARY_BENCH_FILE").expect("falta archivo"));
+    let root = PathBuf::from(std::env::var("LF_LIBRARY_BENCH_ROOT").expect("falta raíz"));
+    let directory = super::test_support::tree("incremental_real");
+    let database = directory.join("incremental.sqlite");
+    let mut connection = db::open(Some(&database)).unwrap();
+    root_store::add(&mut connection, &root, LibraryCollection::Music).unwrap();
+
+    let first_started = Instant::now();
+    let first = incremental::apply_paths(&mut connection, std::slice::from_ref(&file)).unwrap();
+    let first_us = first_started.elapsed().as_micros();
+    let second_started = Instant::now();
+    let second = incremental::apply_paths(&mut connection, &[file]).unwrap();
+    let second_us = second_started.elapsed().as_micros();
+
+    println!(
+        "incremental_real first_us={first_us} second_us={second_us} \
+         first_updated={} second_updated={}",
+        first.updated, second.updated
+    );
+    drop(connection);
+    fs::remove_dir_all(directory).unwrap();
 }
 
 fn populate(connection: &mut Connection, count: usize) -> u128 {

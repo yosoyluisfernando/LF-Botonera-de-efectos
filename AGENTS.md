@@ -335,7 +335,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (suite actual: 243 passed, 12 ignored)
+# Tests unitarios Rust (suite actual: 245 passed, 14 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -392,7 +392,10 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
   mismo `tracks.db`; no crear otra base ni otro buscador para la Biblioteca.
 - Cada colección admite múltiples raíces independientes. Retirar una raíz conserva
   los datos técnicos y ajustes del archivo en `track`.
-- Pendiente inmediato: observación incremental y reconciliación al iniciar; luego UI.
+- La observación incremental usa `notify` con debounce de 250 ms y actualización por
+  archivo. Al iniciar se reconcilia en segundo plano; los eventos de directorio o
+  errores también reconcilian porque el observador no es la única garantía.
+- Pendiente inmediato: ventana Biblioteca y tercera vista del panel.
 - Enter, doble clic y reproducción al aire se decidirán al implementar la interfaz.
 - Documento rector:
   [`Documentación/PLAN_BUSCADOR_INTERNO.md`](Documentación/PLAN_BUSCADOR_INTERNO.md).

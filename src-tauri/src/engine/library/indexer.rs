@@ -162,7 +162,7 @@ fn exclusion_paths(conn: &Connection, current: &LibraryRoot) -> Vec<PathBuf> {
         .collect()
 }
 
-fn path_fields(root: &Path, full_path: &str) -> (String, String, String) {
+pub(super) fn path_fields(root: &Path, full_path: &str) -> (String, String, String) {
     let path = Path::new(full_path);
     let relative = path.strip_prefix(root).unwrap_or(path);
     let relative_path = relative.to_string_lossy().to_string();

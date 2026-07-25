@@ -372,6 +372,10 @@ Al ejecutar una acción se reutilizarán los caminos existentes:
 La acción principal de Enter, doble clic y reproducción al aire se decidirá con el
 autor durante la implementación gráfica. No forma parte de la autorización actual.
 
+El encabezado visible del panel fijo será también el acceso directo para alternar
+`Botones fijos`, `Reproductor` y `Buscador`. Los Ajustes podrán conservar la
+preferencia persistente, pero no serán el único camino para cambiar de vista.
+
 ---
 
 ## 5. Auditoría de LF Automatizador v1.0
@@ -683,9 +687,23 @@ dependencia pequeña, mantenida, con licencias MIT/Apache-2.0 compatibles; evita
 normalización parcial hecha a mano. No se añadió un segundo motor fuzzy ni una base
 separada.
 
-Siguiente paso: implementar el observador incremental con debounce y la reconciliación
-de inicio. Después se diseña la interfaz; las acciones de reproducción siguen
-aplazadas hasta acordarlas con el autor.
+Observación incremental completada el 2026-07-25:
+
+- `notify` 8.2 con observación recursiva nativa y debounce propio de 250 ms;
+- actualización puntual para archivos creados, modificados, movidos o borrados;
+- reconciliación de la raíz ante eventos de directorio o errores del observador;
+- reconciliación completa en segundo plano al iniciar;
+- refresco de las rutas observadas al añadir, unificar o retirar raíces;
+- prueba real temporal de crear/modificar/borrar aprobada;
+- actualización Release de un archivo real: 9,6 ms fría y 3,3 ms caliente.
+
+`notify` 8.2 requiere Rust 1.77, usa licencia CC0-1.0 compatible y añade los adaptadores
+nativos por plataforma. No sustituye la reconciliación porque su documentación
+advierte limitaciones y pérdidas posibles en árboles grandes o ciertos sistemas de
+archivos.
+
+Siguiente paso: diseñar la interfaz; las acciones de reproducción siguen aplazadas
+hasta acordarlas con el autor.
 
 ---
 

@@ -1,7 +1,9 @@
 pub mod catalog_store;
+pub mod incremental;
 pub mod indexer;
 pub mod metadata;
 pub mod metadata_batch;
+pub mod monitor;
 pub mod root_store;
 pub mod scanner;
 pub mod search;

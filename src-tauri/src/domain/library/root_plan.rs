@@ -45,6 +45,13 @@ pub struct RootAddPlan {
     pub exception_root_ids: Vec<i64>,
 }
 
+pub fn owner_for_path<'a>(roots: &'a [RootSpec], path_key: &str) -> Option<&'a RootSpec> {
+    roots
+        .iter()
+        .filter(|root| Path::new(path_key).starts_with(Path::new(&root.path_key)))
+        .max_by_key(|root| Path::new(&root.path_key).components().count())
+}
+
 pub fn plan_root_add(
     existing: &[RootSpec],
     path_key: &str,
@@ -173,5 +180,9 @@ mod tests {
         ];
         let plan = plan_root_add(&roots, "d:/audio/fx/jingles", LibraryCollection::Music);
         assert_eq!(plan.kind, RootAddKind::Add);
+        assert_eq!(
+            owner_for_path(&roots, "d:/audio/fx/sirena.wav").unwrap().id,
+            2
+        );
     }
 }

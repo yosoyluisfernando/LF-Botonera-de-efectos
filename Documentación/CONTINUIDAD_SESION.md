@@ -47,6 +47,11 @@ conserva como excepción y manda dentro de su árbol.
 Siguen sin decidirse Enter, doble clic y reproducción al aire. No implementarlos hasta
 diseñar la interfaz con el autor.
 
+Decisión de navegación para la futura interfaz, anotada el 2026-07-25: el encabezado
+que muestra `Botones fijos`, `Reproductor` o `Buscador` debe permitir cambiar
+directamente entre las tres vistas al activarlo. No obligar al usuario a entrar en
+Ajustes para cada cambio. La presentación concreta se decidirá al construir la UI.
+
 Primera base técnica completada el 2026-07-25:
 
 - `tracks.db` migra del esquema 1 al 2 conservando las pistas;
@@ -115,6 +120,27 @@ presentar los 257 segundos como tiempo de descubrimiento.
 Siguiente paso: observación incremental y reconciliación al iniciar; después, diseñar
 la interfaz de Biblioteca y la tercera vista del panel con el autor. Enter, doble clic
 y reproducción al aire continúan sin decidirse.
+
+Cuarta base técnica completada el 2026-07-25:
+
+- `notify` 8.2 observa las raíces mediante el mecanismo nativo de cada sistema;
+- ráfagas de crear, modificar, mover y borrar se agrupan durante 250 ms;
+- un archivo afectado se invalida y relee de forma puntual, aunque tamaño y `mtime`
+  coincidan, para no perder cambios dentro de la resolución del sistema de archivos;
+- los eventos de directorio y errores del observador solicitan reconciliación de
+  seguridad; `notify` no se considera una fuente infalible;
+- al iniciar se lanza una reconciliación en segundo plano sin bloquear UI ni audio;
+- altas y retiradas de raíces actualizan también las carpetas observadas;
+- las operaciones de catálogo se serializan, mientras las búsquedas usan conexiones
+  SQLite independientes;
+- prueba física temporal: crear, modificar y borrar un WAV fue reflejado
+  automáticamente; actualización Release de un archivo real, 9,6 ms fría y 3,3 ms
+  caliente.
+- verificación actual: 245 pruebas automáticas aprobadas, 14 manuales ignoradas,
+  `cargo build --lib` y `npm run build` correctos.
+
+Siguiente paso: diseñar e implementar la ventana Biblioteca y la tercera vista del
+panel. Antes de programar las acciones de resultados hay que decidirlas con el autor.
 
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que

@@ -33,6 +33,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - Motor compartido de Biblioteca y buscador con múltiples carpetas de Música y
   Efectos, catálogo incremental, metadatos persistentes y búsqueda difusa sin
   duplicar la base de pistas.
+- Actualización automática del catálogo al crear, modificar, mover o borrar archivos,
+  con reconciliación de seguridad al iniciar.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del

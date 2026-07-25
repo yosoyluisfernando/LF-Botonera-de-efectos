@@ -280,6 +280,11 @@ metadatos fuera de los hilos de UI y audio, y omite esa lectura cuando tamaño y
 `mtime` no cambiaron. El panel fijo y la ventana Biblioteca consultarán el mismo
 `LibraryService`.
 
+`engine/library/monitor.rs` mantiene la observación recursiva nativa. Agrupa ráfagas
+durante 250 ms y delega cada archivo en `incremental.rs`; un directorio o un error
+activa reconciliación. Al iniciar, la reconciliación completa corre en segundo plano.
+El observador acelera lo normal, pero nunca reemplaza esa garantía de consistencia.
+
 ---
 
 ## 8. Cómo se conectan los módulos Rust

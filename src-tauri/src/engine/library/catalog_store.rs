@@ -112,6 +112,16 @@ pub fn mark_root_error(conn: &Connection, root_id: i64) {
     );
 }
 
+pub fn mark_path_missing(conn: &Connection, path_key: &str) -> Result<usize, String> {
+    let prefix = format!("{path_key}{}", std::path::MAIN_SEPARATOR);
+    conn.execute(
+        "UPDATE library_track SET present=0
+         WHERE path_key=?1 OR substr(path_key,1,length(?2))=?2",
+        params![path_key, prefix],
+    )
+    .map_err(|error| error.to_string())
+}
+
 pub fn finish_scan(conn: &mut Connection, root_id: i64, generation: i64) -> Result<usize, String> {
     let transaction = conn.transaction().map_err(|error| error.to_string())?;
     let missing = transaction

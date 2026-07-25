@@ -46,6 +46,9 @@ impl AppState {
         let random_folders = Arc::new(Mutex::new(RandomFolderState::default()));
         let tracks = Arc::new(Mutex::new(TrackStore::open()));
         let library = Arc::new(LibraryService::open_default());
+        if let Err(error) = library.start_monitoring() {
+            eprintln!("library monitor unavailable: {error}");
+        }
         let resolver = QueueResolver::new(
             Arc::clone(&config),
             Arc::clone(&random_folders),
