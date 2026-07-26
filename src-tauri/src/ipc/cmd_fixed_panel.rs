@@ -100,8 +100,26 @@ pub fn set_fixed_panel_settings(
     Ok(state(&cfg))
 }
 
+#[tauri::command]
+pub fn set_library_display_mode(
+    mode: String,
+    state_: tauri::State<AppState>,
+) -> Result<FixedPanelState, String> {
+    if !valid_library_display(&mode) {
+        return Err("invalid_library_display_mode".into());
+    }
+    let mut cfg = state_.config.lock().unwrap();
+    cfg.fixed_panel.library_display = mode;
+    config_io::save_config(&cfg)?;
+    Ok(state(&cfg))
+}
+
 fn valid_view(view: &str) -> bool {
     matches!(view, "player" | "buttons" | "search")
+}
+
+fn valid_library_display(mode: &str) -> bool {
+    matches!(mode, "filename" | "metadata")
 }
 
 /// Indice para anexar al final del panel fijo del alcance activo (max+1).

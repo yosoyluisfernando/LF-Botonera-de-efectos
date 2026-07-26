@@ -39,7 +39,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
   sin páginas visibles ni cargar todas las filas en memoria.
 - Buscador en el panel fijo con filtro Música/Efectos, selección múltiple accesible,
   menú contextual, arrastre a botones o pestañas y reproducción directa identificada
-  como LIVE, independiente de la escucha previa.
+  como LIVE, independiente de la escucha previa; permite elegir y conservar los modos
+  de presentación «Nombre del archivo» o «Título y artista».
 - Menú directo para elegir las tres vistas del panel fijo y administrador de carpetas
   con borrador cancelable, categorías Música/Efectos, progreso real y opción de
   ocultarlo sin detener una indexación.
@@ -49,7 +50,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
   etiquetas, para que el catálogo comience a estar disponible y la interfaz conserve
   capacidad de respuesta durante bibliotecas grandes.
 - El vúmetro principal y todos los vúmetros de la consola virtual se actualizan a
-  50 FPS mediante telemetría ligera, sin acelerar innecesariamente el resto de la UI.
+  50 FPS mediante telemetría ligera, con caída activa suavizada y sin acelerar
+  innecesariamente el resto de la UI.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del

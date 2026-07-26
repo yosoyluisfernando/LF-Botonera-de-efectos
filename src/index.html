@@ -130,6 +130,23 @@
                 <option value="music" data-i18n="library.music">Música</option>
                 <option value="effects" data-i18n="library.effects">Efectos</option>
               </select>
+              <span class="library-display-selector">
+                <button id="library-display-switch" class="library-display-switch"
+                        type="button" aria-haspopup="menu" aria-expanded="false"
+                        aria-controls="library-display-menu">
+                  <span id="library-display-label">Etiquetas</span>
+                  <span aria-hidden="true">▾</span>
+                </button>
+                <span id="library-display-menu"
+                      class="fixed-view-menu library-display-menu hidden" role="menu">
+                  <button type="button" role="menuitemradio"
+                          data-library-display="filename"
+                          data-i18n="library.display_filename">Nombre del archivo</button>
+                  <button type="button" role="menuitemradio"
+                          data-library-display="metadata"
+                          data-i18n="library.display_metadata">Título y artista</button>
+                </span>
+              </span>
             </div>
             <div id="library-search-index-progress"
                  class="library-index-progress hidden"

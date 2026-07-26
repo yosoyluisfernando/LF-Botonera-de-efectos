@@ -22,7 +22,7 @@ export function initFixedPanel(state, onRefresh) {
     initFixedPanelResize();
     initPlayerView();
     initFixedPanelViews(drawFixedPanel);
-    initLibrarySearch(onRefresh);
+    initLibrarySearch(onRefresh, drawFixedPanel);
     initLibraryRootsModal();
     document.getElementById('fixed-panel-add').addEventListener('click', async () => {
         const current = await invoke('get_fixed_panel');
@@ -63,7 +63,7 @@ export function drawFixedPanel(state) {
     refreshFixedPanelView(settings);
     // El modo reproductor tiene cola propia: se dibuja aparte de los botones fijos.
     if (settings.view === 'player') drawPlayerView().catch(console.error);
-    if (settings.view === 'search') drawLibrarySearch().catch(console.error);
+    if (settings.view === 'search') drawLibrarySearch(settings).catch(console.error);
 }
 
 export function paintFixedAudioTick(payload) {

@@ -1,5 +1,6 @@
 use super::search::{into_result, map_candidate, Candidate, SearchResult};
 use super::service::LibraryService;
+use super::tag_roles;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 
@@ -112,6 +113,7 @@ pub fn browse(
     if direction == BrowseDirection::Backward {
         candidates.reverse();
     }
+    tag_roles::correct(&mut candidates);
     let previous_cursor = candidates.first().map(candidate_cursor);
     let next_cursor = candidates.last().map(candidate_cursor);
     Ok(BrowsePage {

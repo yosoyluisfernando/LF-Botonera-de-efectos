@@ -17,6 +17,7 @@ mod search_score;
 pub mod search_text;
 pub mod service;
 mod status;
+mod tag_roles;
 #[cfg(test)]
 mod test_support;
 mod time;

@@ -289,9 +289,32 @@ Actualización de vúmetros registrada el 2026-07-26:
   repinta toda la aplicación cinco veces más rápido;
 - al entrar en reposo, el monitor VU emite un cero final y calla, por lo que no
   mantiene 50 eventos por segundo sin audio;
-- las transiciones activas CSS se ajustaron de 70 a 20 ms; el decaimiento final de
-  800 ms del vúmetro principal se conserva;
+- la subida activa conserva 20 ms y la caída activa usa 50 ms en ambas superficies:
+  mantiene la respuesta de 50 FPS, pero evita una caída visual demasiado agresiva;
+  el decaimiento final de 800 ms del vúmetro principal se conserva;
 - verificación: 255 pruebas automáticas aprobadas y 14 físicas ignoradas,
+  `cargo build --lib`, `npm run build` y
+  `npm run tauri build -- --no-bundle` correctos.
+
+Presentación del buscador actualizada el 2026-07-26:
+
+- el usuario elige directamente entre `Nombre del archivo` y `Título y artista`
+  mediante un menú desplegable accesible, traducido a los cuatro idiomas;
+- la elección vive en `FixedPanelConfig.library_display`, usa `metadata` como valor
+  compatible predeterminado y se conserva al reiniciar. No existe una preferencia
+  paralela en JavaScript;
+- `Nombre del archivo` muestra el nombre literal como línea principal y conserva
+  título y artista solo como referencia secundaria;
+- `Título y artista` muestra el título en grande y artista/álbum en la línea pequeña;
+- ciertos archivos reales traen los campos ID3 título y artista invertidos. La base
+  conserva sus etiquetas originales; una corrección de presentación compartida por
+  búsqueda y recorrido solo invierte los roles cuando hay evidencia: título repetido
+  al menos tres veces con artistas variables en la misma carpeta, o un nombre
+  estructurado que confirma ambos valores;
+- los álbumes correctamente etiquetados no se alteran. Tres pruebas específicas
+  cubren grupo invertido, grupo correcto y resultado individual confirmado por el
+  nombre del archivo;
+- verificación: 260 pruebas automáticas aprobadas, 14 físicas ignoradas,
   `cargo build --lib`, `npm run build` y
   `npm run tauri build -- --no-bundle` correctos.
 

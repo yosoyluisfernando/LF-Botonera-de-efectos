@@ -10,6 +10,7 @@ import '../../css/consoleMeter.css';
 import '../../css/consoleFader.css';
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
+import { activeMeterTransition } from './meterBallistics.js';
 
 /** Los faders vivos, por bus, para no rehacer el DOM en cada tick. */
 const _strips = new Map();
@@ -121,7 +122,10 @@ function _paint(bus, level) {
 function _mask(el, ch, level) {
     const mask = el.querySelector(`.meter-mask[data-ch="${ch}"]`);
     // La máscara tapa desde arriba: cuanto más baja, más escala se ve.
-    if (mask) mask.style.height = `${((1 - Math.min(level, 1)) * 100).toFixed(1)}%`;
+    if (mask) {
+        mask.style.transitionDuration = `${activeMeterTransition(mask, level)}ms`;
+        mask.style.height = `${((1 - Math.min(level, 1)) * 100).toFixed(1)}%`;
+    }
 }
 
 /**

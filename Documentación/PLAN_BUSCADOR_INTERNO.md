@@ -783,6 +783,9 @@ Interfaz del panel implementada el 2026-07-25:
   Botones fijos, Reproductor y Buscador;
 - nombres normales y compactos localizados según el ancho real;
 - campo de búsqueda, filtro Todo/Música/Efectos y lista virtual con margen 50/50;
+- menú persistente y accesible para elegir `Nombre del archivo` o
+  `Título y artista`; el primer modo prioriza el nombre literal y el segundo muestra
+  título grande con artista/álbum pequeños;
 - selección estable con ratón y teclado y menú contextual accesible;
 - adición múltiple al reproductor con una sola persistencia;
 - arrastre individual a celdas y por lote a pestañas, con capacidad atómica;
@@ -801,6 +804,10 @@ Interfaz del panel implementada el 2026-07-25:
 - el arrastre interno del buscador no usa HTML5 `draggable`, porque compite con los
   eventos nativos de archivos de Tauri en Windows. Sigue el ratón igual que
   `gridDnd.js` y reutiliza `fileDrop.js::dropFileOnGrid` para soltar en una celda.
+- la base conserva las etiquetas originales. Cuando algunos archivos entregan
+  título/artista invertidos, búsqueda y recorrido comparten una corrección exclusiva
+  de presentación que exige evidencia de carpeta o del nombre estructurado; no se
+  intercambian globalmente todos los metadatos.
 
 La prueba funcional debe generarse con `npm run tauri build -- --no-bundle`. Un
 `cargo build --release` aislado no sustituye el empaquetado Tauri y puede dejar el

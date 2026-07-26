@@ -33,6 +33,7 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_grid::clear_button,
             ipc::cmd_fixed_panel::get_fixed_panel,
             ipc::cmd_fixed_panel::set_fixed_panel_settings,
+            ipc::cmd_fixed_panel::set_library_display_mode,
             ipc::cmd_fixed_buttons::assign_file_to_fixed_button,
             ipc::cmd_fixed_buttons::clear_fixed_button,
             ipc::cmd_fixed_buttons::update_fixed_button,

@@ -1,4 +1,4 @@
-use super::{search_expression, search_score, search_text};
+use super::{search_expression, search_score, search_text, tag_roles};
 use rusqlite::{params, Connection, Row};
 use serde::Serialize;
 use std::path::PathBuf;
@@ -38,13 +38,14 @@ pub fn search(
         return Err("invalid_library_collection".into());
     }
     let safe_limit = limit.clamp(1, 500);
-    let candidates = if query.is_empty() {
+    let mut candidates = if query.is_empty() {
         browse_candidates(conn, collection, safe_limit)?
     } else if query.chars().count() <= 4 {
         prefix_candidates(conn, &query, collection, 5_000)?
     } else {
         fts_candidates(conn, &query, collection, 5_000)?
     };
+    tag_roles::correct(&mut candidates);
     let mut scored = candidates
         .into_iter()
         .filter_map(|candidate| {

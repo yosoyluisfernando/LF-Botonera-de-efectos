@@ -6,6 +6,8 @@
  * La transición CSS maneja el decaimiento visual cuando Rust deja de emitir (Regla 4).
  */
 
+import { activeMeterTransition } from './meterBallistics.js';
+
 /** Actualiza los dos canales VU. Llamar desde el handler común de `meter-tick`. */
 export function updateVuMeter(payload) {
     // `idle` lo decide Rust: es el último tick antes del silencio. NO se deduce
@@ -22,6 +24,7 @@ export function updateVuMeter(payload) {
 function _setLevel(id, level, isFinal) {
     const el = document.getElementById(id);
     if (!el) return;
-    el.style.transition = isFinal ? 'clip-path 0.8s ease-out' : 'clip-path 0.02s linear';
+    const duration = isFinal ? 800 : activeMeterTransition(el, level);
+    el.style.transition = `clip-path ${duration}ms ${isFinal ? 'ease-out' : 'linear'}`;
     el.style.clipPath   = `inset(0 ${((1 - Math.min(level, 1)) * 100).toFixed(1)}% 0 0)`;
 }

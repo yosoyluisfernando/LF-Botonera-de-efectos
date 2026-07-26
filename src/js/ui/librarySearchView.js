@@ -11,6 +11,9 @@ import { showLibraryContextMenu } from './libraryContextMenu.js';
 import { initLibraryDnd, startLibraryDrag } from './libraryDnd.js';
 import { createLibraryResultSource } from './libraryResultSource.js';
 import { createLibraryResultRow } from './libraryResultRow.js';
+import {
+    initLibraryDisplayMode, libraryDisplayMode, refreshLibraryDisplayMode,
+} from './libraryDisplayMode.js';
 let items = [];
 const source = createLibraryResultSource();
 let virtual = null;
@@ -19,20 +22,22 @@ let loading = false;
 let generation = 0;
 let refreshApp = null;
 let debounce = null;
-export function initLibrarySearch(onRefresh) {
+export function initLibrarySearch(onRefresh, onPanelChange) {
     refreshApp = onRefresh;
     if (wired) return;
     wired = true;
     const rows = element('rows');
     virtual = createLibraryVirtualList(rows, createRow);
     initLibraryDnd(onRefresh);
+    initLibraryDisplayMode(onPanelChange);
     element('input').addEventListener('input', scheduleFresh);
     element('collection').addEventListener('change', loadFresh);
     element('input').addEventListener('keydown', focusResults);
     rows.addEventListener('keydown', navigate);
     rows.addEventListener('scroll', maybeLoad);
 }
-export async function drawLibrarySearch() {
+export async function drawLibrarySearch(settings) {
+    refreshLibraryDisplayMode(settings);
     if (!items.length) await loadFresh();
     else virtual.render();
 }
@@ -70,6 +75,7 @@ function createRow(item, index) {
     return createLibraryResultRow(item, index, {
         selected: isLibrarySelected(item.path),
         active: activeLibraryPath() === item.path,
+        displayMode: libraryDisplayMode(),
     }, {
         click: event => {
             selectLibraryClick(event, item, items);
@@ -122,7 +128,6 @@ async function ensureDirection(delta) {
         await extend('backward');
     }
 }
-
 function openKeyboardContext() {
     const item = items.find(value => value.path === activeLibraryPath()) ?? items[0];
     if (!item) return;
@@ -141,12 +146,10 @@ function focusResults(event) {
         virtual.ensureVisible(0);
     }
 }
-
 function scheduleFresh() {
     clearTimeout(debounce);
     debounce = setTimeout(loadFresh, 160);
 }
-
 async function maybeLoad() {
     if (loading || element('input').value.trim()) return;
     const rows = element('rows');
