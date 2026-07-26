@@ -318,6 +318,38 @@ Presentación del buscador actualizada el 2026-07-26:
   `cargo build --lib`, `npm run build` y
   `npm run tauri build -- --no-bundle` correctos.
 
+Selección del reproductor corregida el 2026-07-26:
+
+- buscador y reproductor usan ahora el mismo controlador de selección por identidad
+  estable; los adaptadores solo traducen ruta o id de pista;
+- el reproductor admite clic normal, `Ctrl+clic`, `Shift+clic`,
+  `Ctrl+Shift+clic`, flechas, `Shift+flechas`, Page Up/Down, Escape, tecla Menú y
+  `Shift+F10`;
+- `Ctrl` y `Shift` quedan reservados para seleccionar y no inician un arrastre;
+- la lista expone foco y fila activa mediante atributos accesibles;
+- seis escenarios puros de selección fueron comprobados;
+- verificación: 260 pruebas Rust aprobadas, 14 físicas ignoradas,
+  `cargo build --lib`, `npm run build` y
+  `npm run tauri build -- --no-bundle` correctos.
+
+Diagnóstico de memoria del 2026-07-26:
+
+- se midió el ejecutable Release recién compilado, no una sesión debug;
+- primer arranque: máximo de 49,7 MiB de conjunto de trabajo y 31,4 MiB privados
+  durante la reconciliación; al séptimo segundo bajó a 43,6 MiB y 25,1 MiB;
+- durante 30 segundos en reposo y otros 10 con la ventana visible no hubo crecimiento:
+  quedó estable entre 24,3 y 25,1 MiB privados;
+- la precarga configurada es `full_profile`, con presupuesto de 256 MiB, pero el
+  perfil activo solo reúne 21 efectos elegibles, 58,4 segundos y aproximadamente
+  9,8 MiB PCM estéreo a 44,1 kHz;
+- WebView2 usa procesos separados de navegador, GPU, red, almacenamiento y
+  renderizador. Su conjunto de trabajo incluye páginas compartidas y no equivale a
+  memoria privada retenida por el núcleo Rust;
+- no se reprodujo una fuga ni una retención de 90 MiB en el proceso principal. No
+  aplicar flags agresivos de WebView2 ni reducir la precarga sin una medición que
+  identifique crecimiento sostenido;
+- la instancia Release iniciada para la medición se cerró al terminar.
+
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que
 no deben copiarse quedaron registrados en `PLAN_BUSCADOR_INTERNO.md`.

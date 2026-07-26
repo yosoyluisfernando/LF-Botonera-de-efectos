@@ -18,6 +18,7 @@ import {
     clearPlayerSelection, handlePlayerSelectionClick, initPlayerSelection,
     isPlayerSelected, prunePlayerSelection, selectionForContext,
 } from './playerSelection.js';
+import { initPlayerListKeyboard } from './playerListKeyboard.js';
 
 let _wired = false;
 let _tracks = [];
@@ -29,6 +30,7 @@ export function initPlayerView() {
     initPlayerModes();
     initPlayerVolume();
     initPlayerSelection();
+    initPlayerListKeyboard(() => _tracks, _openTrackContext);
     _on('player-play', () => invoke('player_resume'));
     _on('player-pause', () => invoke('player_pause'));
     _on('player-stop', () => invoke('player_stop'));
@@ -134,6 +136,7 @@ function _emptyHint() {
 function _row(track, position) {
     const el = document.createElement('div');
     el.className = 'player-row';
+    el.id = `player-row-${position}`;
     el.dataset.index = position;
     el.dataset.trackId = track.id;
     el.setAttribute('role', 'option');
@@ -149,20 +152,16 @@ function _row(track, position) {
         <span class="player-row-dur">${dur}</span>`;
     // Doble clic: Rust decide segun suene o no (reproducir / marcar siguiente).
     // Un clic no hace nada: marcar sin querer al rozar una fila era problematico.
-    el.addEventListener('click', e => handlePlayerSelectionClick(e, track, _tracks));
+    el.addEventListener('click', e => {
+        handlePlayerSelectionClick(e, track, _tracks);
+        document.getElementById('player-rows')
+            .setAttribute('aria-activedescendant', el.id);
+    });
     el.addEventListener('dblclick', e => {
         if (!e.ctrlKey && !e.shiftKey) invoke('player_activate_index', { index: position });
     });
     // Clic derecho: acciones individuales o eliminación de la selección.
-    el.addEventListener('contextmenu', e => {
-        e.preventDefault();
-        const selection = selectionForContext(track, _tracks);
-        import('./contextMenu.js').then(m =>
-            m.showTrackContextMenu(
-                e.clientX, e.clientY, track, _afterTrackEdit,
-                selection.count, () => _removeTracks(selection.indexes),
-            ));
-    });
+    el.addEventListener('contextmenu', e => _openTrackContext(e, track));
     el.title = t('player.row_hint');
     return el;
 }
@@ -172,6 +171,16 @@ function _row(track, position) {
 async function _afterTrackEdit() {
     try { await invoke('player_resync'); } catch (e) { console.error(e); }
     await drawPlayerView();
+}
+
+function _openTrackContext(event, track) {
+    event.preventDefault();
+    const selection = selectionForContext(track, _tracks);
+    import('./contextMenu.js').then(module =>
+        module.showTrackContextMenu(
+            event.clientX, event.clientY, track, _afterTrackEdit,
+            selection.count, () => _removeTracks(selection.indexes),
+        ));
 }
 
 async function _removeTracks(indexes) {

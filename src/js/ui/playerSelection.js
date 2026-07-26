@@ -1,91 +1,62 @@
-/**
- * Selección múltiple de filas del reproductor.
- * Ctrl alterna filas; Shift selecciona un intervalo desde el último ancla.
- * La identidad se guarda por id estable, nunca por posición mutable.
- */
+/** Adaptador de la selección común para pistas con id estable. */
+import { createListSelection } from './listSelection.js';
 
-let _selected = new Set();
-let _anchorId = null;
-let _wired = false;
+const selection = createListSelection(track => track.id);
+let wired = false;
 
 export function initPlayerSelection() {
-    if (_wired) return;
-    _wired = true;
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && _selected.size) clearPlayerSelection();
+    if (wired) return;
+    wired = true;
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && selection.size()) clearPlayerSelection();
     });
-    document.addEventListener('click', e => {
-        if (!_selected.size || e.target.closest('#player-rows, #context-menu')) return;
+    document.addEventListener('click', event => {
+        if (!selection.size() || event.target.closest('#player-rows, #context-menu')) return;
         clearPlayerSelection();
     }, true);
 }
 
-export function handlePlayerSelectionClick(e, track, tracks) {
-    if (!e.ctrlKey && !e.shiftKey) {
-        if (_selected.size) clearPlayerSelection();
-        return;
-    }
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.shiftKey) {
-        _selectRange(track.id, tracks, e.ctrlKey);
-    } else {
-        _toggle(track.id);
-        _anchorId = track.id;
-    }
+export function handlePlayerSelectionClick(event, track, tracks) {
+    selection.click(event, track, tracks);
     paintPlayerSelection();
 }
 
-/** El clic derecho conserva el grupo si la fila ya pertenece a él. */
+export function movePlayerSelection(tracks, delta, extend) {
+    const index = selection.move(tracks, delta, extend);
+    paintPlayerSelection();
+    return index;
+}
+
 export function selectionForContext(track, tracks) {
-    if (!_selected.has(track.id)) {
-        _selected.clear();
-        _selected.add(track.id);
-        _anchorId = track.id;
-        paintPlayerSelection();
-    }
+    const chosen = selection.forContext(track, tracks);
+    paintPlayerSelection();
+    const selectedIds = new Set(chosen.map(item => item.id));
     const indexes = tracks
-        .map((item, index) => _selected.has(item.id) ? index : -1)
+        .map((item, index) => selectedIds.has(item.id) ? index : -1)
         .filter(index => index >= 0);
     return { count: indexes.length, indexes };
 }
 
 export function isPlayerSelected(id) {
-    return _selected.has(id);
+    return selection.has(id);
+}
+
+export function activePlayerId() {
+    return selection.active();
 }
 
 export function clearPlayerSelection() {
-    _selected.clear();
-    _anchorId = null;
+    selection.clear();
     paintPlayerSelection();
 }
 
 export function prunePlayerSelection(tracks) {
-    const valid = new Set(tracks.map(track => track.id));
-    _selected = new Set([..._selected].filter(id => valid.has(id)));
-    if (_anchorId && !valid.has(_anchorId)) _anchorId = null;
-}
-
-function _toggle(id) {
-    if (_selected.has(id)) _selected.delete(id);
-    else _selected.add(id);
-}
-
-function _selectRange(targetId, tracks, additive) {
-    const target = tracks.findIndex(track => track.id === targetId);
-    let anchor = tracks.findIndex(track => track.id === _anchorId);
-    if (anchor < 0) anchor = target;
-    if (!additive) _selected.clear();
-    const [start, end] = anchor <= target ? [anchor, target] : [target, anchor];
-    for (let index = start; index <= end; index += 1) {
-        _selected.add(tracks[index].id);
-    }
-    if (!_anchorId) _anchorId = targetId;
+    selection.prune(tracks);
 }
 
 function paintPlayerSelection() {
     document.querySelectorAll('#player-rows .player-row').forEach(row => {
-        const selected = _selected.has(row.dataset.trackId);
+        const selected = selection.has(row.dataset.trackId);
         row.classList.toggle('queue-selected', selected);
         row.setAttribute('aria-selected', String(selected));
     });

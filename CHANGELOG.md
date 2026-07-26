@@ -28,8 +28,9 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - «Acerca de» indica el canal de distribución, el sistema operativo y quién
   administra las actualizaciones. Los paquetes directos de Windows y Linux muestran
   GitHub Releases; la edición de Microsoft Store muestra Microsoft Store.
-- El reproductor auxiliar permite seleccionar varias filas con `Ctrl` o `Shift` y
-  eliminarlas juntas desde el menú contextual.
+- El reproductor auxiliar comparte con el buscador la selección mediante clic,
+  `Ctrl`, `Shift`, flechas, Page Up/Down y menú contextual por teclado, y permite
+  eliminar juntas las filas seleccionadas.
 - Motor compartido de Biblioteca y buscador con múltiples carpetas de Música y
   Efectos, catálogo incremental, metadatos persistentes y búsqueda difusa sin
   duplicar la base de pistas.
