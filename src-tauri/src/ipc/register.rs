@@ -73,6 +73,7 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_locutions::play_climate_locution,
             ipc::cmd_library::library_list_roots,
             ipc::cmd_library::library_add_root,
+            ipc::cmd_library::library_add_roots,
             ipc::cmd_library::library_remove_root,
             ipc::cmd_library::library_sync_root,
             ipc::cmd_library::library_sync_all,

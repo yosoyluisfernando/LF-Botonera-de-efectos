@@ -40,6 +40,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - Buscador en el panel fijo con filtro Música/Efectos, selección múltiple accesible,
   menú contextual, arrastre a botones o pestañas y reproducción directa identificada
   como LIVE, independiente de la escucha previa.
+- Menú directo para elegir las tres vistas del panel fijo y administrador de carpetas
+  con borrador cancelable, categorías Música/Efectos y progreso real de indexación.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del

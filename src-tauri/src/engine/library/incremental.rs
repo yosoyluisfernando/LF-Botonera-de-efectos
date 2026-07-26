@@ -38,7 +38,7 @@ pub fn apply_paths(conn: &mut Connection, paths: &[PathBuf]) -> Result<UpdateRep
     let mut seen = HashSet::new();
     let mut reconcile = BTreeSet::new();
     for path in paths {
-        let Ok((display, path_key)) = root_store::normalize_path(path) else {
+        let Ok((display, path_key)) = super::root_path::normalize_path(path) else {
             continue;
         };
         if !seen.insert(path_key.clone()) {

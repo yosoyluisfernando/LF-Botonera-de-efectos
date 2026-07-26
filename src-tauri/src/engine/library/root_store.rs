@@ -1,8 +1,7 @@
 use crate::domain::library::root_plan::{plan_root_add, LibraryCollection, RootAddKind, RootSpec};
-use crate::engine::library::search_text;
 use crate::engine::library::time::now_epoch;
-use crate::engine::persist::db::normalize_key;
-use rusqlite::{params, Connection};
+use crate::engine::library::{root_merge, root_path};
+use rusqlite::{params, Connection, Transaction};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
@@ -59,15 +58,43 @@ pub fn add(
     path: &Path,
     collection: LibraryCollection,
 ) -> Result<AddOutcome, String> {
-    let (display_path, path_key) = normalize_root(path)?;
-    let existing = specs(conn)?;
-    let plan = plan_root_add(&existing, &path_key, collection);
+    add_batch(conn, &[(path.to_path_buf(), collection)])?
+        .into_iter()
+        .next()
+        .ok_or_else(|| "library_root_batch_empty".into())
+}
+
+pub fn add_batch(
+    conn: &mut Connection,
+    roots: &[(PathBuf, LibraryCollection)],
+) -> Result<Vec<AddOutcome>, String> {
+    let normalized = roots
+        .iter()
+        .map(|(path, collection)| {
+            root_path::normalize_root(path).map(|normalized| (normalized, *collection))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let transaction = conn.transaction().map_err(|error| error.to_string())?;
+    let outcomes = normalized
+        .into_iter()
+        .map(|((display, key), collection)| add_normalized(&transaction, display, key, collection))
+        .collect::<Result<Vec<_>, _>>()?;
+    transaction.commit().map_err(|error| error.to_string())?;
+    Ok(outcomes)
+}
+
+fn add_normalized(
+    transaction: &Transaction<'_>,
+    display_path: String,
+    path_key: String,
+    collection: LibraryCollection,
+) -> Result<AddOutcome, String> {
+    let plan = plan_root_add(&specs(transaction)?, &path_key, collection);
     match plan.kind {
         RootAddKind::AlreadyCovered { root_id } => {
             return Ok(AddOutcome::AlreadyCovered { root_id });
         }
         RootAddKind::ChangeCollection { root_id } => {
-            let transaction = conn.transaction().map_err(|error| error.to_string())?;
             transaction
                 .execute(
                     "UPDATE library_root SET collection=?1,state='pending' WHERE id=?2",
@@ -80,12 +107,10 @@ pub fn add(
                     params![collection.as_str(), root_id],
                 )
                 .map_err(|error| error.to_string())?;
-            transaction.commit().map_err(|error| error.to_string())?;
             return Ok(AddOutcome::Reclassified { root_id });
         }
         RootAddKind::Add => {}
     }
-    let transaction = conn.transaction().map_err(|error| error.to_string())?;
     transaction
         .execute(
             "INSERT INTO library_root(path,path_key,collection,created_at)
@@ -94,44 +119,13 @@ pub fn add(
         )
         .map_err(|error| error.to_string())?;
     let root_id = transaction.last_insert_rowid();
-    for merged in &plan.merge_root_ids {
-        let child_path = transaction
-            .query_row(
-                "SELECT path FROM library_root WHERE id=?1",
-                params![merged],
-                |row| row.get::<_, String>(0),
-            )
-            .map_err(|error| error.to_string())?;
-        let relative = Path::new(&child_path)
-            .strip_prefix(Path::new(&display_path))
-            .map_err(|_| "library_root_merge_path")?;
-        let prefix = format!(
-            "{}{}",
-            relative.to_string_lossy(),
-            std::path::MAIN_SEPARATOR
-        );
-        let search_prefix = search_text::normalize(&relative.to_string_lossy());
-        transaction
-            .execute(
-                "UPDATE library_track_search SET search_text=?1 || ' ' || search_text
-                 WHERE path_key IN (
-                   SELECT path_key FROM library_track WHERE root_id=?2
-                 )",
-                params![search_prefix, merged],
-            )
-            .map_err(|error| error.to_string())?;
-        transaction
-            .execute(
-                "UPDATE library_track SET root_id=?1,collection=?2,
-                 relative_path=?4 || relative_path WHERE root_id=?3",
-                params![root_id, collection.as_str(), merged, prefix],
-            )
-            .map_err(|error| error.to_string())?;
-        transaction
-            .execute("DELETE FROM library_root WHERE id=?1", params![merged])
-            .map_err(|error| error.to_string())?;
-    }
-    transaction.commit().map_err(|error| error.to_string())?;
+    root_merge::merge_children(
+        transaction,
+        root_id,
+        &display_path,
+        collection,
+        &plan.merge_root_ids,
+    )?;
     Ok(AddOutcome::Added {
         root_id,
         merged: plan.merge_root_ids,
@@ -174,34 +168,6 @@ fn specs(conn: &Connection) -> Result<Vec<RootSpec>, String> {
             })
         })
         .collect()
-}
-
-fn normalize_root(path: &Path) -> Result<(String, String), String> {
-    if !path.is_dir() {
-        return Err("library_root_not_directory".into());
-    }
-    normalize_path(path)
-}
-
-pub(crate) fn normalize_path(path: &Path) -> Result<(String, String), String> {
-    let canonical = std::fs::canonicalize(path)
-        .or_else(|_| {
-            let parent = path.parent().ok_or(std::io::ErrorKind::NotFound)?;
-            let name = path.file_name().ok_or(std::io::ErrorKind::NotFound)?;
-            std::fs::canonicalize(parent).map(|canonical_parent| canonical_parent.join(name))
-        })
-        .map_err(|_| "library_path_unavailable")?;
-    let display = clean_windows_prefix(&canonical);
-    let text = display.to_string_lossy().to_string();
-    Ok((text.clone(), normalize_key(&text)))
-}
-
-fn clean_windows_prefix(path: &Path) -> PathBuf {
-    let text = path.to_string_lossy();
-    if let Some(rest) = text.strip_prefix(r"\\?\UNC\") {
-        return PathBuf::from(format!(r"\\{rest}"));
-    }
-    PathBuf::from(text.strip_prefix(r"\\?\").unwrap_or(&text))
 }
 
 #[cfg(test)]

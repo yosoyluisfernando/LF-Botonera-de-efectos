@@ -2,10 +2,10 @@ use super::indexer::{self, SyncProgress, SyncReport};
 use super::monitor::{self, LibraryMonitor};
 use super::root_store::{self, AddOutcome, LibraryRoot};
 use super::search::{self, SearchResult};
+use super::status;
 use crate::domain::library::root_plan::LibraryCollection;
 use crate::engine::persist::db;
-use rusqlite::{Connection, Row};
-use serde::Serialize;
+use rusqlite::Connection;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
@@ -17,18 +17,7 @@ pub struct LibraryService {
     monitor_error: Arc<Mutex<Option<String>>>,
 }
 
-#[derive(Debug, Clone, Serialize)]
-pub struct LibraryStatus {
-    pub roots: usize,
-    pub present: usize,
-    pub music: usize,
-    pub effects: usize,
-    pub pending: usize,
-    pub failed: usize,
-    pub missing: usize,
-    pub monitoring: bool,
-    pub monitor_error: Option<String>,
-}
+pub use super::status::LibraryStatus;
 
 impl LibraryService {
     pub fn open_default() -> Self {
@@ -78,6 +67,24 @@ impl LibraryService {
         };
         self.refresh_monitor();
         Ok(outcome)
+    }
+
+    pub fn add_roots(&self, roots: &[(String, String)]) -> Result<Vec<AddOutcome>, String> {
+        let requests = roots
+            .iter()
+            .map(|(path, collection)| {
+                Ok((PathBuf::from(path), LibraryCollection::parse(collection)?))
+            })
+            .collect::<Result<Vec<_>, String>>()?;
+        let outcomes = {
+            let _guard = self
+                .operation
+                .lock()
+                .map_err(|_| "library_operation_lock")?;
+            root_store::add_batch(&mut self.connection()?, &requests)?
+        };
+        self.refresh_monitor();
+        Ok(outcomes)
     }
 
     pub fn remove_root(&self, root_id: i64) -> Result<(), String> {
@@ -130,33 +137,17 @@ impl LibraryService {
     }
 
     pub fn status(&self) -> Result<LibraryStatus, String> {
-        let connection = self.connection()?;
-        let mut status = connection
-            .query_row(
-                "SELECT
-                 (SELECT COUNT(*) FROM library_root),
-                 SUM(CASE WHEN present=1 THEN 1 ELSE 0 END),
-                 SUM(CASE WHEN present=1 AND collection='music' THEN 1 ELSE 0 END),
-                 SUM(CASE WHEN present=1 AND collection='effects' THEN 1 ELSE 0 END),
-                 SUM(CASE WHEN present=1 AND metadata_state='pending' THEN 1 ELSE 0 END),
-                 SUM(CASE WHEN present=1 AND metadata_state='failed' THEN 1 ELSE 0 END),
-                 SUM(CASE WHEN present=0 THEN 1 ELSE 0 END)
-                 FROM library_track",
-                [],
-                map_status,
-            )
-            .map_err(|error| error.to_string())?;
-        status.monitoring = self
+        let monitoring = self
             .monitor
             .lock()
             .map(|monitor| monitor.is_some())
             .unwrap_or(false);
-        status.monitor_error = self
+        let monitor_error = self
             .monitor_error
             .lock()
             .ok()
             .and_then(|error| error.clone());
-        Ok(status)
+        status::read(&self.connection()?, monitoring, monitor_error)
     }
 
     pub(super) fn connection(&self) -> Result<Connection, String> {
@@ -179,18 +170,4 @@ impl LibraryService {
             *target = error;
         }
     }
-}
-
-fn map_status(row: &Row) -> rusqlite::Result<LibraryStatus> {
-    Ok(LibraryStatus {
-        roots: row.get::<_, i64>(0)? as usize,
-        present: row.get::<_, Option<i64>>(1)?.unwrap_or(0) as usize,
-        music: row.get::<_, Option<i64>>(2)?.unwrap_or(0) as usize,
-        effects: row.get::<_, Option<i64>>(3)?.unwrap_or(0) as usize,
-        pending: row.get::<_, Option<i64>>(4)?.unwrap_or(0) as usize,
-        failed: row.get::<_, Option<i64>>(5)?.unwrap_or(0) as usize,
-        missing: row.get::<_, Option<i64>>(6)?.unwrap_or(0) as usize,
-        monitoring: false,
-        monitor_error: None,
-    })
 }

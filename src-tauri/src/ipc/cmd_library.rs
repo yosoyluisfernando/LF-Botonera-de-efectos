@@ -4,7 +4,14 @@ use crate::engine::library::root_store::{AddOutcome, LibraryRoot};
 use crate::engine::library::search::SearchResult;
 use crate::engine::library::service::LibraryStatus;
 use crate::ipc::AppState;
+use serde::Deserialize;
 use tauri::{AppHandle, Emitter, State};
+
+#[derive(Deserialize)]
+pub struct LibraryRootRequest {
+    pub path: String,
+    pub collection: String,
+}
 
 #[tauri::command]
 pub async fn library_list_roots(state: State<'_, AppState>) -> Result<Vec<LibraryRoot>, String> {
@@ -22,6 +29,21 @@ pub async fn library_add_root(
 ) -> Result<AddOutcome, String> {
     let service = state.library.clone();
     tauri::async_runtime::spawn_blocking(move || service.add_root(&path, &collection))
+        .await
+        .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+pub async fn library_add_roots(
+    roots: Vec<LibraryRootRequest>,
+    state: State<'_, AppState>,
+) -> Result<Vec<AddOutcome>, String> {
+    let requests = roots
+        .into_iter()
+        .map(|root| (root.path, root.collection))
+        .collect::<Vec<_>>();
+    let service = state.library.clone();
+    tauri::async_runtime::spawn_blocking(move || service.add_roots(&requests))
         .await
         .map_err(|error| error.to_string())?
 }

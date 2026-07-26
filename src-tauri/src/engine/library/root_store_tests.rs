@@ -20,6 +20,41 @@ fn multiple_independent_roots_can_share_collection() {
 }
 
 #[test]
+fn batch_is_atomic_when_any_folder_is_invalid() {
+    let mut conn = db::open(None).unwrap();
+    let valid = tree("batch_atomic");
+    let missing = valid.join("does-not-exist");
+    let roots = vec![
+        (valid.clone(), LibraryCollection::Music),
+        (missing, LibraryCollection::Effects),
+    ];
+
+    assert!(add_batch(&mut conn, &roots).is_err());
+    assert!(list(&conn).unwrap().is_empty());
+    let _ = fs::remove_dir_all(valid);
+}
+
+#[test]
+fn batch_unifies_nested_folders_without_duplicates() {
+    let mut conn = db::open(None).unwrap();
+    let parent = tree("batch_merge");
+    let child = parent.join("child");
+    fs::create_dir_all(&child).unwrap();
+    let outcomes = add_batch(
+        &mut conn,
+        &[
+            (child, LibraryCollection::Music),
+            (parent.clone(), LibraryCollection::Music),
+        ],
+    )
+    .unwrap();
+
+    assert_eq!(outcomes.len(), 2);
+    assert_eq!(list(&conn).unwrap().len(), 1);
+    let _ = fs::remove_dir_all(parent);
+}
+
+#[test]
 fn parent_merges_same_collection_child() {
     let mut conn = db::open(None).unwrap();
     let parent = tree("merge");

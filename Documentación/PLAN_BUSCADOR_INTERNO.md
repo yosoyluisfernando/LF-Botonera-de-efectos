@@ -760,7 +760,8 @@ Carga perezosa bidireccional completada el 2026-07-25:
 
 Interfaz del panel implementada el 2026-07-25:
 
-- tercera vista `search` con selector directo en el encabezado;
+- tercera vista `search` con menú directo en el encabezado para elegir entre
+  Botones fijos, Reproductor y Buscador;
 - nombres normales y compactos localizados según el ancho real;
 - campo de búsqueda, filtro Todo/Música/Efectos y lista virtual con margen 50/50;
 - selección estable con ratón y teclado y menú contextual accesible;
@@ -768,6 +769,16 @@ Interfaz del panel implementada el 2026-07-25:
 - arrastre individual a celdas y por lote a pestañas, con capacidad atómica;
 - controles CUE abajo a la derecha y LIVE abajo a la izquierda;
 - textos profesionales en los cuatro idiomas.
+- un alfiler abre el administrador de carpetas: admite cualquier cantidad en Música
+  y Efectos, mantiene un borrador sin persistir y solo guarda al pulsar Iniciar;
+- el alta completa de carpetas es una transacción Rust: si una ruta falla, no se
+  guarda ninguna; la unificación de raíces solapadas sigue siendo la única regla;
+- el progreso Descubrimiento/Catálogo/Duración y etiquetas se presenta tanto en el
+  modal como en el panel fijo.
+
+La prueba funcional debe generarse con `npm run tauri build -- --no-bundle`. Un
+`cargo build --release` aislado no sustituye el empaquetado Tauri y puede dejar el
+ejecutable intentando abrir la URL de desarrollo.
 
 Siguiente paso: prueba funcional Release y, después, ventana independiente Biblioteca.
 Enter y doble clic siguen sin acción hasta una decisión posterior.

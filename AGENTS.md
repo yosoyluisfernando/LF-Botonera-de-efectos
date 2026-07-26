@@ -335,7 +335,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (suite actual: 245 passed, 14 ignored)
+# Tests unitarios Rust (suite actual: 253 passed, 14 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -401,6 +401,9 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 - La tercera vista del panel, selección accesible, menú contextual, arrastre a
   botones/pestañas y reproductor LIVE ya están implementados. LIVE y CUE comparten
   componente visual, nunca id ni bus.
+- El encabezado abre un menú directo para elegir vista. El alfiler del Buscador
+  permite preparar múltiples carpetas por categoría; Cancelar no guarda y el alta
+  completa se confirma atómicamente al pulsar Iniciar.
 - Pendiente inmediato: prueba funcional Release y ventana Biblioteca independiente.
 - Enter y doble clic siguen sin acción hasta una decisión posterior.
 - Documento rector:

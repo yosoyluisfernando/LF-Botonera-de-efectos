@@ -36,6 +36,9 @@ export async function drawLibrarySearch() {
     if (!items.length) await loadFresh();
     else virtual.render();
 }
+export async function refreshLibrarySearch() {
+    await loadFresh();
+}
 async function loadFresh() {
     const ownGeneration = ++generation;
     loading = true;

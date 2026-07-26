@@ -207,6 +207,29 @@ Siguiente paso: prueba funcional Release por el autor. Después se corregirá cu
 hallazgo y se construirá la ventana independiente Biblioteca sobre los mismos módulos,
 sin duplicarlos.
 
+Séptima etapa implementada el 2026-07-25 a partir de la primera prueba funcional:
+
+- el encabezado ya no rota vistas por cada clic: abre un menú accesible para elegir
+  directamente Botones fijos, Reproductor o Buscador;
+- el alfiler del Buscador abre un modal con listas separadas para Música y Efectos;
+- se pueden preparar todas las carpetas necesarias; Cancelar descarta el borrador sin
+  escribir y solo Iniciar confirma;
+- `library_add_roots` valida primero todas las rutas y guarda el lote completo dentro
+  de una sola transacción. Una ruta inválida revierte todo el lote;
+- la regla existente unifica raíz/subcarpeta sin duplicar y conserva excepciones de
+  otra categoría;
+- el evento `library-index-progress` muestra descubrimiento, alta de nombres y lectura
+  de duración/etiquetas tanto en el modal como en el panel fijo;
+- causa del ejecutable defectuoso: se entregó un `cargo build --release` directo, que
+  no sustituye el flujo de producción de Tauri y conservó la URL
+  `http://localhost:1420`. Las pruebas entregables se generan con
+  `npm run tauri build -- --no-bundle`.
+
+Verificación de esta corrección: 253 pruebas aprobadas, 14 pruebas físicas ignoradas,
+prueba específica de lote atómico correcta, `cargo build --lib`, `npm run build` y
+`npm run tauri build -- --no-bundle` correctos. El ejecutable entregable quedó en
+`src-tauri/target/release/tauri-app.exe`.
+
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que
 no deben copiarse quedaron registrados en `PLAN_BUSCADOR_INTERNO.md`.

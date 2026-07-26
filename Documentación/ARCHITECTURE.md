@@ -256,6 +256,12 @@ con una ruta normalizada y una colección explícita `music` o `effects`. La rut
 - una subcarpeta de otra colección se conserva como excepción;
 - cuando varias reglas cubren una ruta, manda la más específica.
 
+El alfiler del Buscador administra altas sin crear otra configuración: el frontend
+mantiene únicamente un borrador y `library_add_roots` confirma todas las rutas en una
+transacción Rust. La validación completa ocurre antes de escribir; Cancelar no invoca
+ninguna mutación. Después, `library_sync_all` usa el indexador compartido y
+`library-index-progress` alimenta el modal y el panel.
+
 Enter y doble clic todavía no tienen acción. `Reproducir al aire` ya usa el id
 `__library_live__` por el bus Programa, separado del CUE. El documento rector es
 [`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).

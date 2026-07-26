@@ -58,12 +58,28 @@
         <aside id="fixed-panel" class="fixed-panel">
           <div id="fixed-panel-resize" class="fixed-panel-resize" aria-hidden="true"></div>
           <div class="fixed-panel-header">
-            <button id="fixed-view-switch" class="fixed-view-switch"
-                    data-i18n-title="fixed_panel.change_view">
-              <span id="fixed-view-label">Botones fijos</span>
-            </button>
+            <span class="fixed-view-selector">
+              <button id="fixed-view-switch" class="fixed-view-switch"
+                      aria-haspopup="menu" aria-expanded="false"
+                      aria-controls="fixed-view-menu"
+                      data-i18n-title="fixed_panel.change_view">
+                <span id="fixed-view-label">Botones fijos</span>
+                <span class="fixed-view-arrow" aria-hidden="true">▾</span>
+              </button>
+              <span id="fixed-view-menu" class="fixed-view-menu hidden" role="menu">
+                <button type="button" role="menuitemradio" data-fixed-view="buttons"
+                        data-i18n="fixed_panel.buttons">Botones fijos</button>
+                <button type="button" role="menuitemradio" data-fixed-view="player"
+                        data-i18n="fixed_panel.player">Reproductor</button>
+                <button type="button" role="menuitemradio" data-fixed-view="search"
+                        data-i18n="fixed_panel.search">Buscador</button>
+              </span>
+            </span>
             <span class="fixed-header-actions">
               <button id="fixed-panel-add" class="fixed-panel-add" data-i18n-title="fixed_panel.add">+</button>
+              <button id="library-roots-open" class="library-roots-open"
+                      data-i18n-title="library.roots_open"
+                      data-i18n-aria-label="library.roots_open">&#128204;</button>
               <span id="player-drop-progress" class="player-drop-progress hidden"></span>
               <span class="player-actions">
                 <button id="player-clear" data-i18n-title="player.clear">🧹</button>
@@ -115,6 +131,9 @@
                 <option value="effects" data-i18n="library.effects">Efectos</option>
               </select>
             </div>
+            <div id="library-search-index-progress"
+                 class="library-index-progress hidden"
+                 data-library-progress role="status" aria-live="polite"></div>
             <div id="library-search-status" class="library-search-status"
                  role="status" aria-live="polite"></div>
             <div id="library-search-rows" class="library-search-rows" role="listbox"
@@ -375,6 +394,47 @@
         <div class="modal-footer">
           <button id="preload-dialog-skip" class="btn-dark" data-i18n="preload.dialog_skip">Ahora no</button>
           <button id="preload-dialog-save" class="btn-blue" data-i18n="preload.dialog_save">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Las carpetas quedan como borrador hasta pulsar Iniciar. -->
+    <div id="library-roots-modal" class="hidden modal-overlay" style="z-index:4660">
+      <div class="modal-content modal-lg library-roots-content"
+           role="dialog" aria-modal="true" aria-labelledby="library-roots-title">
+        <div class="modal-header">
+          <h3 id="library-roots-title" data-i18n="library.roots_title">Carpetas del buscador</h3>
+          <button class="close-btn" data-close="library-roots-modal"
+                  data-i18n-aria-label="library.roots_close">✕</button>
+        </div>
+        <div class="modal-body library-roots-body">
+          <p class="library-roots-help" data-i18n="library.roots_help"></p>
+          <section class="library-root-section" aria-labelledby="library-music-title">
+            <div class="library-root-heading">
+              <h4 id="library-music-title" data-i18n="library.music">Música</h4>
+              <button id="library-add-music" type="button" class="btn-dark"
+                      data-i18n="library.add_music">Añadir carpeta de música</button>
+            </div>
+            <div id="library-music-roots" class="library-root-list"></div>
+          </section>
+          <section class="library-root-section" aria-labelledby="library-effects-title">
+            <div class="library-root-heading">
+              <h4 id="library-effects-title" data-i18n="library.effects">Efectos</h4>
+              <button id="library-add-effects" type="button" class="btn-dark"
+                      data-i18n="library.add_effects">Añadir carpeta de efectos</button>
+            </div>
+            <div id="library-effects-roots" class="library-root-list"></div>
+          </section>
+          <div id="library-roots-notice" class="library-roots-notice"
+               role="status" aria-live="polite"></div>
+          <div class="library-index-progress hidden"
+               data-library-progress role="status" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="library-roots-start" type="button" class="btn-blue"
+                  data-i18n="library.start_indexing">Iniciar</button>
+          <button id="library-roots-cancel" type="button" class="btn-dark"
+                  data-i18n="edit_modal.cancel">Cancelar</button>
         </div>
       </div>
     </div>

@@ -553,6 +553,8 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 ### Biblioteca y buscador
 - `library_list_roots`
 - `library_add_root(path, collection)` — `collection` = `"music"` | `"effects"`
+- `library_add_roots(roots)` — alta atómica de todas las carpetas preparadas en el
+  modal; si una falla, no se guarda ninguna
 - `library_remove_root(root_id)`
 - `library_sync_root(root_id)` / `library_sync_all`
 - `library_search(query, collection?, limit?)`
@@ -570,7 +572,11 @@ La sincronización emite `library-index-progress`. Toda la lógica está en
 Los eventos se agrupan 250 ms y actualizan únicamente las rutas afectadas; búsquedas y
 lecturas continúan usando conexiones SQLite independientes.
 
-El panel usa `fixed_panel.view = "search"`. `librarySearchView.js` orquesta la vista;
+El panel usa `fixed_panel.view = "search"`. El encabezado abre un menú para elegir
+directamente `buttons`, `player` o `search`; no rota las vistas. El alfiler abre un
+modal cuyo borrador vive solo en JavaScript hasta pulsar Iniciar. La confirmación usa
+`library_add_roots` y luego `library_sync_all`; Cancelar no escribe nada.
+`librarySearchView.js` orquesta la vista;
 `libraryResultSource.js` mantiene la ventana bidireccional acotada y
 `libraryVirtualList.js` limita el DOM a lo visible más 50 filas por lado. CUE y LIVE
 comparten `miniAudioPlayer.js`, pero tienen ids, buses y posiciones opuestas.

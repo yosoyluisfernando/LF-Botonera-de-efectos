@@ -291,6 +291,13 @@ y Biblioteca implementen scroll continuo. Los bloques y cursores son internos: l
 interfaz no muestra páginas y conserva solo las filas visibles más un margen de 50
 por encima y 50 por debajo.
 
+El administrador accesible desde el alfiler del Buscador permite preparar cualquier
+cantidad de carpetas de Música y Efectos. El borrador no sale del frontend hasta
+Iniciar; entonces `library_add_roots` valida todas las rutas y las confirma en una
+sola transacción. Esto evita estados parciales y conserva en un único lugar las reglas
+de solapamiento y unificación. El progreso real del indexador se muestra tanto en el
+modal como en el panel.
+
 La tercera vista `search` del panel fijo consume esa fuente mediante una ventana de
 datos acotada. La selección se conserva por ruta aunque una fila salga del DOM.
 `Ctrl`, `Shift`, flechas, Page Up/Down y el menú por teclado comparten el mismo estado
