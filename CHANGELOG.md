@@ -37,6 +37,9 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
   con reconciliación de seguridad al iniciar.
 - Recorrido continuo y carga perezosa del catálogo para manejar bibliotecas grandes
   sin páginas visibles ni cargar todas las filas en memoria.
+- Buscador en el panel fijo con filtro Música/Efectos, selección múltiple accesible,
+  menú contextual, arrastre a botones o pestañas y reproducción directa identificada
+  como LIVE, independiente de la escucha previa.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del

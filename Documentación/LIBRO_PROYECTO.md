@@ -291,6 +291,17 @@ y Biblioteca implementen scroll continuo. Los bloques y cursores son internos: l
 interfaz no muestra páginas y conserva solo las filas visibles más un margen de 50
 por encima y 50 por debajo.
 
+La tercera vista `search` del panel fijo consume esa fuente mediante una ventana de
+datos acotada. La selección se conserva por ruta aunque una fila salga del DOM.
+`Ctrl`, `Shift`, flechas, Page Up/Down y el menú por teclado comparten el mismo estado
+que el ratón. El encabezado común cambia de vista sin abrir Ajustes.
+
+Las acciones de resultados reutilizan los dueños existentes: CUE usa `play_audio`,
+el editor abre `trackEditor`, la cola recibe un lote mediante `player_add_tracks` y
+los botones se construyen con `domain/button/audio_file.rs`. LIVE comparte el control
+visual compacto de CUE, pero usa `__library_live__` en el bus Programa. Por eso CUE
+abajo a la derecha y LIVE abajo a la izquierda pueden sonar y controlarse a la vez.
+
 ---
 
 ## 8. Cómo se conectan los módulos Rust

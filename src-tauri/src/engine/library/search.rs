@@ -6,6 +6,7 @@ use std::path::PathBuf;
 #[derive(Debug, Clone, Serialize)]
 pub struct SearchResult {
     pub path: String,
+    pub path_key: String,
     pub collection: String,
     pub file_name: String,
     pub title: Option<String>,
@@ -21,7 +22,6 @@ pub struct SearchResult {
 pub(super) struct Candidate {
     pub root_path: String,
     pub relative_path: String,
-    pub path_key: String,
     pub result: SearchResult,
     pub search_text: String,
 }
@@ -159,6 +159,7 @@ pub(super) fn map_candidate(row: &Row) -> rusqlite::Result<Candidate> {
         relative_path: row.get(1)?,
         result: SearchResult {
             path: String::new(),
+            path_key: row.get(13)?,
             collection: row.get(2)?,
             file_name: row.get(3)?,
             title: row.get(4)?,
@@ -171,7 +172,6 @@ pub(super) fn map_candidate(row: &Row) -> rusqlite::Result<Candidate> {
             metadata_state: row.get(11)?,
         },
         search_text: row.get(12)?,
-        path_key: row.get(13)?,
     })
 }
 

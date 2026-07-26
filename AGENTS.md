@@ -101,7 +101,7 @@ AppConfig
   ├── theme, language, button_text_size, editor_mode
   ├── preload: PreloadConfig
   ├── locutions: LocutionConfig
-  ├── fixed_panel: FixedPanelConfig {scope, view: "player"|"buttons", side, columns, rows, width, ...}
+  ├── fixed_panel: FixedPanelConfig {scope, view: "player"|"buttons"|"search", side, columns, rows, width, ...}
   ├── player: PlayerConfig          ← reproductor auxiliar, global (uno solo)
   │     ├── tracks: Vec<ButtonData>   (la cola; reutiliza ButtonData, admite todos los tipos)
   │     ├── playback_mode: "normal"|"repeat"|"random"
@@ -398,8 +398,11 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
   errores también reconcilian porque el observador no es la única garantía.
 - `library_browse` ofrece bloques bidireccionales internos para una lista virtual sin
   páginas visibles. La UI conservará lo visible más 50 filas arriba y 50 abajo.
-- Pendiente inmediato: lista virtual, ventana Biblioteca y tercera vista del panel.
-- Enter, doble clic y reproducción al aire se decidirán al implementar la interfaz.
+- La tercera vista del panel, selección accesible, menú contextual, arrastre a
+  botones/pestañas y reproductor LIVE ya están implementados. LIVE y CUE comparten
+  componente visual, nunca id ni bus.
+- Pendiente inmediato: prueba funcional Release y ventana Biblioteca independiente.
+- Enter y doble clic siguen sin acción hasta una decisión posterior.
 - Documento rector:
   [`Documentación/PLAN_BUSCADOR_INTERNO.md`](Documentación/PLAN_BUSCADOR_INTERNO.md).
 

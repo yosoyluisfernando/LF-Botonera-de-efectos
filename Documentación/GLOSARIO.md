@@ -296,6 +296,12 @@ Los valores `time_locution`, `temperature_locution` y `humidity_locution` que el
 **`listen`**
 Función de `api.js` que suscribe un handler a un evento emitido por Rust. Equivale a `window.__TAURI__.event.listen(event, handler)`.
 
+**`LIVE` / Reproducir al aire**
+Reproducción directa de una pista del Buscador por el bus Programa, identificada por
+`__library_live__`. Aplica cue, ganancia, normalización, máster y Stop general. Su
+mini reproductor aparece abajo a la izquierda. Comparte el componente visual
+`miniAudioPlayer.js` con CUE, pero nunca su id, su estado ni su bus.
+
 **`locución`**
 Archivo de audio que representa un valor de texto (una hora, una temperatura, un número). Los botones de tipo `time`, `temperature` y `humidity` construyen una secuencia de locuciones y la reproducen en orden. Qué archivo dice qué lo decide `domain/locution.rs` —puro y probado sin disco—; `engine/weather/resolver.rs` solo lee la carpeta y obedece. El formato es el de **ZaraRadio**, y se aceptan además las variantes de Salamandra y RadioBOSS: ver el capítulo 12 del [Libro del proyecto](LIBRO_PROYECTO.md).
 
@@ -329,7 +335,10 @@ Cómo recorre la cola el reproductor auxiliar. Es un modo **de lista**, no de un
 **Hubo un cuarto modo, `manual`**, que no avanzaba solo. Se quitó porque duplicaba el interruptor **y además limitaba**: para elegir la siguiente forzaba el orden normal, así que "manual + aleatorio" era imposible. Con el interruptor, cualquier combinación funciona (por ejemplo, pararse en cada pista y que la siguiente salga al azar). Una configuración antigua con `manual` se migra a `normal` al cargar (`config_io::normalize_playback_modes`); lo de "no avanzar solo" lo da ahora el botón, que **no** se persiste, igual que el Loop.
 
 **`modo reproductor`**
-Una de las dos presentaciones del panel lateral (`fixed_panel.view = "player"`); la otra es `"buttons"`. Muestra el reproductor auxiliar con su lista. Sustituyó a la antigua vista `"list"`, que enseñaba los botones fijos en lista compacta; las configuraciones antiguas se migran solas en `cmd_fixed_panel::state`.
+Una de las tres presentaciones del panel lateral (`fixed_panel.view = "player"`); las
+otras son `"buttons"` y `"search"`. Muestra el reproductor auxiliar con su lista.
+Sustituyó a la antigua vista `"list"`, que enseñaba los botones fijos en lista
+compacta; las configuraciones antiguas se migran solas en `cmd_fixed_panel::state`.
 
 **`mtime`**
 *Modification time*. Fecha de modificación del archivo en época Unix (segundos). La Botonera usa `mtime` junto con `size` para detectar si un archivo fue reemplazado y así invalidar la fila correspondiente en `tracks.db`.
@@ -384,7 +393,12 @@ Struct Rust (`model/content.rs`) que representa una paleta. Su id tiene el forma
 Configuración raíz que agrupa una o más paletas. Un perfil tiene nombre, colores, ajustes de audio (dispositivos, atajos, modo de reproducción) y una lista de paletas. Representado por `ProfileData`.
 
 **`panel fijo`**
-Panel lateral persistente e independiente de la pestaña activa. Puede mostrar una colección global compartida por todos los perfiles o una colección propia de cada perfil. Su presentación es **`buttons`** (botones fijos) o **`player`** ([modo reproductor](#m)); se coloca a izquierda o derecha. Los botones específicos de perfil viajan en `.bdeplf`; los globales permanecen en la configuración de la aplicación, porque no pertenecen a ningún perfil.
+Panel lateral persistente e independiente de la pestaña activa. Puede mostrar una
+colección global compartida por todos los perfiles o una colección propia de cada
+perfil. Sus presentaciones son **`buttons`** (botones fijos), **`player`** ([modo
+reproductor](#m)) y **`search`** (Buscador); se coloca a izquierda o derecha. Los
+botones específicos de perfil viajan en `.bdeplf`; los globales permanecen en la
+configuración de la aplicación, porque no pertenecen a ningún perfil.
 Tiene sus propios modos Normal, Loop, Multi, Reset y Solo. Las operaciones Solo,
 Detener otros y Stop del panel no detienen fuentes de la botonera principal.
 Puede usar filas ilimitadas con desplazamiento o limitar su capacidad a

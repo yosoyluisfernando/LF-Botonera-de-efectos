@@ -44,8 +44,26 @@ La categoría la elige el usuario al añadir la carpeta. Si raíz y subcarpeta t
 misma categoría se unifican con aviso. Si son distintas, la subcarpeta específica se
 conserva como excepción y manda dentro de su árbol.
 
-Siguen sin decidirse Enter, doble clic y reproducción al aire. No implementarlos hasta
-diseñar la interfaz con el autor.
+Enter y doble clic siguen sin decidirse. El menú contextual sí queda aprobado, en
+este orden: `Reproducir al aire`, `Escucha previa`, `Añadir al reproductor` y
+`Editor de pista`.
+
+`Reproducir al aire` usará el motor de efectos y el bus Programa, con cue, ganancia,
+normalización, máster y Stop general. Compartirá el componente visual de escucha
+previa, pero no su id ni su bus: CUE y LIVE deben poder sonar y controlarse a la vez.
+La mini ventana CUE permanece abajo a la derecha y la mini ventana `LIVE` aparecerá
+abajo a la izquierda, sin cubrirse. Traducciones aprobadas: `Play on air` en inglés
+y `Reproduzir no ar` en portugués de Brasil y Portugal.
+
+Selección aprobada: clic único, `Ctrl+clic`, `Shift+clic`, flechas, `Shift+flechas`,
+Page Up/Down, Escape y menú contextual por tecla Menú o `Shift+F10`. Con varias
+pistas, solo `Añadir al reproductor` estará habilitado y añadirá el lote completo en
+orden mediante una sola operación Rust. La selección se identifica por ruta estable,
+no por posiciones ni nodos visibles.
+
+Arrastre aprobado: una pista sobre una celda la asigna y confirma antes de reemplazar;
+una o varias pistas sobre una pestaña ocupan en orden sus primeros espacios vacíos.
+Si no caben todas, la operación completa se rechaza sin inserción parcial.
 
 Decisión de navegación para la futura interfaz, anotada el 2026-07-25: el encabezado
 que muestra `Botones fijos`, `Reproductor` o `Buscador` debe permitir cambiar
@@ -165,9 +183,29 @@ Quinta base técnica completada el 2026-07-25:
 - verificación actual: 249 pruebas automáticas aprobadas, 14 pruebas físicas
   ignoradas por defecto, `cargo build --lib` y `npm run build` correctos.
 
-Siguiente paso: diseñar e implementar la lista virtual y la tercera vista del panel
-sobre `library_browse`. Antes de programar las acciones de resultados hay que
-decidirlas con el autor.
+Sexta etapa implementada el 2026-07-25:
+
+- `fixed_panel.view = "search"` funciona como tercera vista y el encabezado común
+  alterna directamente Botones fijos, Reproductor y Buscador;
+- las etiquetas normal/compacta se eligen según el ancho disponible y existen en los
+  cuatro idiomas;
+- la lista virtual conserva hasta 50 filas de margen arriba y abajo y una ventana de
+  datos bidireccional acotada; la selección vive por ruta estable;
+- clic, `Ctrl`, `Shift`, flechas, Page Up/Down, Escape, tecla Menú y `Shift+F10`
+  están conectados sin asignar todavía una acción a Enter ni doble clic;
+- el menú contextual respeta el orden aprobado y permite añadir un lote completo al
+  reproductor mediante una sola persistencia;
+- LIVE reutiliza el control visual de CUE, pero sale por Programa con id propio;
+  ambas mini ventanas pueden coexistir abajo a izquierda/derecha;
+- arrastrar una pista a una celda reutiliza la asignación existente; arrastrar una o
+  varias a una pestaña usa una operación Rust atómica, sin inserciones parciales.
+- verificación automática: 251 pruebas aprobadas y 14 pruebas físicas ignoradas;
+  `cargo build --lib`, `npm run build` y `cargo build --release` correctos. El
+  ejecutable Release resultante es `src-tauri/target/release/tauri-app.exe`.
+
+Siguiente paso: prueba funcional Release por el autor. Después se corregirá cualquier
+hallazgo y se construirá la ventana independiente Biblioteca sobre los mismos módulos,
+sin duplicarlos.
 
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que
@@ -176,7 +214,7 @@ no deben copiarse quedaron registrados en `PLAN_BUSCADOR_INTERNO.md`.
 Antes de continuar con código:
 
 1. Leer completo `PLAN_BUSCADOR_INTERNO.md`.
-2. Respetar las decisiones aprobadas y no cerrar las acciones gráficas aplazadas.
+2. Respetar las decisiones aprobadas; Enter y doble clic siguen aplazados.
 3. Conservar una sola implementación para raíces, catálogo y búsqueda.
 4. Al tocar rendimiento, repetir las pruebas sintéticas y la base real descartable.
 5. Justificar cualquier dependencia antes de añadirla.

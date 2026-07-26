@@ -4,10 +4,9 @@
 //! sincronizacion de la cola resuelta con el motor. Reutiliza `resolve_edit`
 //! (cue/gain) y los helpers de botones ya existentes. Indices = POSICION 0-based.
 use super::cmd_player::{player_view, PlayerView};
-use crate::domain::playback::edit::resolve_edit;
 use super::AppState;
-use crate::domain::button::defaults::new_button;
-use crate::engine::audio::formats::{probe_duration_secs, validate_audio_file};
+use crate::domain::playback::edit::resolve_edit;
+use crate::engine::audio::formats::validate_audio_file;
 use crate::engine::persist::config_io;
 use crate::engine::player::QueueEntry;
 use crate::model::{AppConfig, ButtonData};
@@ -34,7 +33,10 @@ fn entry_for(state: &AppState, btn: &ButtonData) -> QueueEntry {
         return base;
     }
     if btn.path.is_empty() || validate_audio_file(&btn.path).is_err() {
-        return QueueEntry { id: btn.id.clone(), ..Default::default() };
+        return QueueEntry {
+            id: btn.id.clone(),
+            ..Default::default()
+        };
     }
     let edit = resolve_edit(&state.tracks, &btn.path, btn.duration);
     QueueEntry {
@@ -83,33 +85,7 @@ pub fn player_add_track(
     index: Option<u32>,
     state: tauri::State<AppState>,
 ) -> Result<PlayerView, String> {
-    if path.is_empty() {
-        return Err("player_empty_path".into());
-    }
-    validate_audio_file(&path)?;
-    let name = std::path::Path::new(&path)
-        .file_stem()
-        .unwrap_or_default()
-        .to_string_lossy()
-        .to_uppercase();
-    {
-        let mut cfg = state.config.lock().unwrap();
-        let bg = crate::domain::colors::random_color();
-        let text = crate::domain::colors::text_for_theme(&bg, &cfg.theme, "button");
-        let mut btn = new_button("player", 1, &name, &bg, &text);
-        btn.id = next_id(&cfg.player.tracks);
-        btn.duration = probe_duration_secs(&path);
-        btn.duration_str = if btn.duration > 0.0 {
-            format!("{:.1}s", btn.duration)
-        } else {
-            String::new()
-        };
-        btn.path = path;
-        insert_track(&mut cfg.player.tracks, btn, index);
-        config_io::save_config(&cfg)?;
-    }
-    sync_queue(&state);
-    Ok(player_view(&state))
+    super::cmd_player_batch::add_paths(&state, vec![path], index)
 }
 
 /// Anade una copia de un boton existente (arrastrado desde la botonera principal
@@ -120,7 +96,8 @@ pub fn player_add_button(
     index: Option<u32>,
     state: tauri::State<AppState>,
 ) -> Result<PlayerView, String> {
-    let mut btn = find_button(&state.config.lock().unwrap(), &button_id).ok_or("button_not_found")?;
+    let mut btn =
+        find_button(&state.config.lock().unwrap(), &button_id).ok_or("button_not_found")?;
     {
         let mut cfg = state.config.lock().unwrap();
         btn.id = next_id(&cfg.player.tracks);
@@ -133,19 +110,30 @@ pub fn player_add_button(
 
 fn find_button(cfg: &AppConfig, id: &str) -> Option<ButtonData> {
     let fixed = if cfg.fixed_panel.scope == "profile" {
-        cfg.active_profile().map(|p| p.fixed_buttons.as_slice()).unwrap_or(&[])
+        cfg.active_profile()
+            .map(|p| p.fixed_buttons.as_slice())
+            .unwrap_or(&[])
     } else {
         cfg.fixed_panel.global_buttons.as_slice()
     };
     fixed
         .iter()
-        .chain(cfg.profiles.iter().flat_map(|p| &p.paletas).flat_map(|p| &p.botones))
+        .chain(
+            cfg.profiles
+                .iter()
+                .flat_map(|p| &p.paletas)
+                .flat_map(|p| &p.botones),
+        )
         .find(|b| b.id == id)
         .cloned()
 }
 
 #[tauri::command]
-pub fn player_reorder_tracks(from_index: u32, to_index: u32, state: tauri::State<AppState>) -> Result<PlayerView, String> {
+pub fn player_reorder_tracks(
+    from_index: u32,
+    to_index: u32,
+    state: tauri::State<AppState>,
+) -> Result<PlayerView, String> {
     {
         let mut cfg = state.config.lock().unwrap();
         let tracks = &mut cfg.player.tracks;

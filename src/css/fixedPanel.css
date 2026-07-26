@@ -7,8 +7,18 @@
 .workspace-shell[data-fixed-side="left"] .fixed-panel-resize { left:auto; right:0; }
 .fixed-panel-header { display:flex; align-items:center; justify-content:space-between; padding:7px 8px;
   color:var(--text-primary); font-size:12px; font-weight:bold; border-bottom:1px solid var(--border-color); }
+.fixed-view-switch { min-width:0; overflow:hidden; border:0; padding:2px 4px; cursor:pointer;
+  background:transparent; color:inherit; font:inherit; text-align:left; border-radius:3px; }
+.fixed-view-switch:hover, .fixed-view-switch:focus-visible { background:var(--playback-hover-bg); }
+#fixed-view-label { display:block; overflow:hidden; white-space:nowrap; }
+.fixed-header-actions { display:flex; align-items:center; gap:4px; flex:none; }
 .fixed-panel-add { border:0; border-radius:4px; padding:2px 8px; cursor:pointer;
   color:#fff; background:var(--action-accent); font-weight:bold; }
+.fixed-panel:not([data-view="buttons"]) .fixed-panel-add { display:none; }
+.fixed-panel:not([data-view="player"]) .player-actions,
+.fixed-panel:not([data-view="player"]) .player-drop-progress { display:none; }
+.fixed-panel:not([data-view="buttons"]) .fixed-playback-modes,
+.fixed-panel:not([data-view="buttons"]) .fixed-panel-items { display:none; }
 .fixed-panel-items { display:grid; gap:3px; padding:4px; overflow-y:auto; align-content:start; flex:1; min-height:0; }
 .fixed-panel-item { position:relative; border:1px solid var(--border-color); border-radius:4px; min-height:48px;
   padding:8px 6px 15px; cursor:pointer; overflow:hidden; color:var(--text-primary); font-weight:bold; }

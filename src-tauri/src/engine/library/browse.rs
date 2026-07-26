@@ -125,7 +125,7 @@ pub fn browse(
 fn candidate_cursor(candidate: &Candidate) -> BrowseCursor {
     BrowseCursor {
         file_name: candidate.result.file_name.clone(),
-        path_key: candidate.path_key.clone(),
+        path_key: candidate.result.path_key.clone(),
     }
 }
 

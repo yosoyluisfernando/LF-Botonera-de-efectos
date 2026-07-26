@@ -144,6 +144,21 @@
     "stop": "Stop",
     "default_name": "AUDIO"
   },
+  "library": {
+    "search_title": "Search",
+    "search_title_compact": "Search",
+    "search_placeholder": "Search audio…",
+    "collection": "Collection",
+    "all": "All",
+    "music": "Music",
+    "effects": "Effects",
+    "searching": "Searching…",
+    "catalog_count": "{count} indexed files",
+    "results_count": "{count} results",
+    "play_on_air": "Play on air",
+    "add_to_player": "Add to player",
+    "single_track_for_button": "To assign directly to a button, drag a single track. You can drag multiple tracks onto a tab."
+  },
   "context_menu": {
     "color_selected": "Change the colour of the selected buttons…",
     "remove_player": "Remove from player",
@@ -398,7 +413,9 @@
   },
   "fixed_panel": {
     "title": "Fixed buttons",
-    "toggle": "Show or hide fixed buttons",
+    "title_compact": "Fixed",
+    "change_view": "Change fixed panel view",
+    "toggle": "Show or hide the fixed panel",
     "add": "Add fixed button",
     "stop": "Stop fixed panel",
     "edit_hint": "Right-click for options",
@@ -412,6 +429,7 @@
     "view": "Layout:",
     "player": "Player",
     "buttons": "Buttons",
+    "search": "Search",
     "columns": "Columns:",
     "visible": "Show panel now",
     "row_mode": "Rows:",
@@ -448,6 +466,7 @@
   },
   "player": {
     "title": "Player",
+    "title_compact": "Player",
     "col_title": "Title",
     "col_duration": "Duration",
     "total": "Total",
@@ -513,6 +532,8 @@
     "player_empty_queue": "The player list is empty.",
     "player_invalid_playlist": "The file does not contain a valid playlist.",
     "player_empty_path": "The track has no audio path.",
+    "library_empty_selection": "No tracks are selected.",
+    "not_enough_empty_buttons": "The tab does not have enough empty buttons for all selected tracks.",
     "invalid_player_mode": "Invalid player mode."
   }
 }

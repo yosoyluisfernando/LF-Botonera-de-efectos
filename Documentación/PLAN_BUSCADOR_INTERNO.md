@@ -155,7 +155,6 @@ La ventana **Biblioteca** mostrará todo el catálogo y permitirá:
 
 La ventana no tendrá una base ni un proceso de indexación propios. Consultará el mismo
 motor de `AppState` que el panel. Cerrar la ventana no detendrá el catálogo ni el audio.
-Las acciones de reproducción se decidirán al implementar su experiencia gráfica.
 
 La Biblioteca tendrá un acceso propio que se diseñará con su ventana. No colocar
 `Abrir Biblioteca` dentro de la vista Buscador del panel fijo.
@@ -383,8 +382,38 @@ Al ejecutar una acción se reutilizarán los caminos existentes:
 - asignar a una rejilla o al panel fijo: modelo `ButtonData` y comandos existentes;
 - editor: `tracks.db` y análisis diferido.
 
-La acción principal de Enter, doble clic y reproducción al aire se decidirá con el
-autor durante la implementación gráfica. No forma parte de la autorización actual.
+El menú contextual queda aprobado en este orden:
+
+1. `Reproducir al aire`.
+2. `Escucha previa`.
+3. `Añadir al reproductor`.
+4. `Editor de pista`.
+
+`Reproducir al aire` tendrá un reproductor compacto identificado visualmente como
+`LIVE`. Reutilizará la estructura y los controles visuales de la escucha previa, pero
+no su estado ni su ruta de audio. LIVE sale por Programa, obedece al máster y al Stop
+general y aplica cue, ganancia y normalización. CUE permanece abajo a la derecha y
+LIVE aparece abajo a la izquierda; pueden coexistir sin cubrirse ni detenerse.
+
+Traducciones profesionales aprobadas:
+
+- español: `Reproducir al aire`;
+- inglés: `Play on air`;
+- portugués de Brasil: `Reproduzir no ar`;
+- portugués de Portugal: `Reproduzir no ar`.
+
+Enter y doble clic continúan aplazados.
+
+La lista admite clic único, `Ctrl+clic`, `Shift+clic`, flechas, `Shift+flechas`,
+Page Up/Down, Escape y apertura del menú mediante la tecla Menú o `Shift+F10`. La
+selección vive por ruta estable aunque la virtualización retire sus filas del DOM.
+Con una selección múltiple, LIVE, CUE y editor se deshabilitan; `Añadir al
+reproductor` añade todas las pistas en orden con una sola persistencia.
+
+Al arrastrar, una pista sobre una celda se copia como botón y pide confirmación si la
+celda está ocupada. Una o varias pistas sobre una pestaña se copian en orden a los
+primeros espacios vacíos. Si no hay capacidad para todo el lote, Rust rechaza la
+operación completa sin dejar una importación parcial.
 
 El encabezado visible del panel fijo será también el acceso directo para alternar
 `Botones fijos`, `Reproductor` y `Buscador`. Los Ajustes podrán conservar la
@@ -729,8 +758,19 @@ Carga perezosa bidireccional completada el 2026-07-25:
 - 100.000 pistas: 494 µs primer bloque, 438 µs siguiente y 490 µs anterior;
 - 250.000 pistas: 449 µs primer bloque, 451 µs siguiente y 472 µs anterior.
 
-Siguiente paso: diseñar la interfaz virtual con 50 filas de margen arriba y abajo;
-las acciones de reproducción siguen aplazadas hasta acordarlas con el autor.
+Interfaz del panel implementada el 2026-07-25:
+
+- tercera vista `search` con selector directo en el encabezado;
+- nombres normales y compactos localizados según el ancho real;
+- campo de búsqueda, filtro Todo/Música/Efectos y lista virtual con margen 50/50;
+- selección estable con ratón y teclado y menú contextual accesible;
+- adición múltiple al reproductor con una sola persistencia;
+- arrastre individual a celdas y por lote a pestañas, con capacidad atómica;
+- controles CUE abajo a la derecha y LIVE abajo a la izquierda;
+- textos profesionales en los cuatro idiomas.
+
+Siguiente paso: prueba funcional Release y, después, ventana independiente Biblioteca.
+Enter y doble clic siguen sin acción hasta una decisión posterior.
 
 ---
 

@@ -2,13 +2,6 @@
    Verde = pista sonando. Naranja = pista marcada como siguiente. */
 .player-view { display:flex; flex-direction:column; flex:1; min-height:0; }
 .fixed-panel:not([data-view="player"]) .player-view { display:none; }
-.fixed-panel[data-view="player"] .fixed-panel-header,
-.fixed-panel[data-view="player"] .fixed-playback-modes,
-.fixed-panel[data-view="player"] .fixed-panel-items { display:none; }
-
-.player-header { display:flex; align-items:center; justify-content:space-between; gap:6px;
-  padding:7px 8px; color:var(--text-primary); font-size:12px; font-weight:bold;
-  border-bottom:1px solid var(--border-color); }
 .player-actions { display:flex; gap:4px; }
 .player-actions button, .player-transport button { border:1px solid var(--border-color);
   background:var(--bg-secondary); color:var(--text-primary); border-radius:3px;

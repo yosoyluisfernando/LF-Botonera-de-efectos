@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="/css/fade.css" />
     <link rel="stylesheet" href="/css/fixedPanel.css" />
     <link rel="stylesheet" href="/css/player.css" />
+    <link rel="stylesheet" href="/css/librarySearch.css" />
   </head>
   <body>
 
@@ -56,8 +57,22 @@
       <div id="workspace-shell" class="workspace-shell">
         <aside id="fixed-panel" class="fixed-panel">
           <div id="fixed-panel-resize" class="fixed-panel-resize" aria-hidden="true"></div>
-          <div class="fixed-panel-header"><span data-i18n="fixed_panel.title">Botones fijos</span>
-            <button id="fixed-panel-add" class="fixed-panel-add" data-i18n-title="fixed_panel.add">+</button></div>
+          <div class="fixed-panel-header">
+            <button id="fixed-view-switch" class="fixed-view-switch"
+                    data-i18n-title="fixed_panel.change_view">
+              <span id="fixed-view-label">Botones fijos</span>
+            </button>
+            <span class="fixed-header-actions">
+              <button id="fixed-panel-add" class="fixed-panel-add" data-i18n-title="fixed_panel.add">+</button>
+              <span id="player-drop-progress" class="player-drop-progress hidden"></span>
+              <span class="player-actions">
+                <button id="player-clear" data-i18n-title="player.clear">🧹</button>
+                <button id="player-open" data-i18n-title="player.open">📂</button>
+                <button id="player-save" data-i18n-title="player.save">💾</button>
+                <button id="player-modes">→</button>
+              </span>
+            </span>
+          </div>
           <div class="fixed-playback-modes">
             <button data-fixed-mode="normal" data-i18n-title="playback.mode_normal">▶</button>
             <button data-fixed-mode="loop" data-i18n-title="playback.mode_loop">↻</button>
@@ -69,16 +84,6 @@
           <div id="fixed-panel-items" class="fixed-panel-items"></div>
           <!-- Modo reproductor: cola propia + transporte (motor independiente) -->
           <div id="player-view" class="player-view">
-            <div class="player-header"><span data-i18n="player.title">Reproductor</span>
-              <span id="player-drop-progress" class="player-drop-progress hidden"></span>
-              <span class="player-actions">
-                <button id="player-clear" data-i18n-title="player.clear">🧹</button>
-                <button id="player-open" data-i18n-title="player.open">📂</button>
-                <button id="player-save" data-i18n-title="player.save">💾</button>
-                <!-- El icono ES el modo activo; se pinta desde el tick. -->
-                <button id="player-modes">→</button>
-              </span>
-            </div>
             <div class="player-cols"><span data-i18n="player.col_title">Título</span>
               <span data-i18n="player.col_duration">Duración</span></div>
             <div id="player-rows" class="player-rows" role="listbox" aria-multiselectable="true"></div>
@@ -99,6 +104,21 @@
               <!-- Volumen propio: el panel se abre ENCIMA (el panel es estrecho). -->
               <button id="player-volume-btn">🔊</button>
             </div>
+          </div>
+          <div id="library-search-view" class="library-search-view">
+            <div class="library-search-controls">
+              <input id="library-search-input" type="search" autocomplete="off"
+                     data-i18n-placeholder="library.search_placeholder">
+              <select id="library-search-collection" data-i18n-title="library.collection">
+                <option value="" data-i18n="library.all">Todo</option>
+                <option value="music" data-i18n="library.music">Música</option>
+                <option value="effects" data-i18n="library.effects">Efectos</option>
+              </select>
+            </div>
+            <div id="library-search-status" class="library-search-status"
+                 role="status" aria-live="polite"></div>
+            <div id="library-search-rows" class="library-search-rows" role="listbox"
+                 aria-multiselectable="true" tabindex="0"></div>
           </div>
         </aside>
         <main class="workspace-main">
@@ -568,7 +588,7 @@
               <select id="fixed-side"><option value="left" data-i18n="fixed_panel.left">Izquierda</option><option value="right" data-i18n="fixed_panel.right">Derecha</option></select>
             </div></div>
             <div class="row"><div class="col"><label data-i18n="fixed_panel.view">Presentación:</label>
-              <select id="fixed-view"><option value="player" data-i18n="fixed_panel.player">Reproductor</option><option value="buttons" data-i18n="fixed_panel.buttons">Botones</option></select>
+              <select id="fixed-view"><option value="player" data-i18n="fixed_panel.player">Reproductor</option><option value="buttons" data-i18n="fixed_panel.buttons">Botones</option><option value="search" data-i18n="fixed_panel.search">Buscador</option></select>
             </div><div id="fixed-columns-row" class="col"><label data-i18n="fixed_panel.columns">Columnas:</label><input id="fixed-columns" type="number" min="1" max="5" value="1"></div></div>
             <div class="row"><div id="fixed-row-mode-row" class="col"><label data-i18n="fixed_panel.row_mode">Filas:</label>
               <select id="fixed-row-mode"><option value="unlimited" data-i18n="fixed_panel.unlimited">Ilimitadas</option><option value="limited" data-i18n="fixed_panel.limited">Limitadas</option></select>
@@ -752,7 +772,8 @@
     <div id="prelisten-player" class="hidden prelisten-panel">
       <div class="prelisten-header">
         <span data-i18n="prelisten.title">Escucha previa</span>
-        <button id="close-prelisten" class="close-btn">✕</button>
+        <button id="close-prelisten" class="close-btn"
+                data-i18n-aria-label="titlebar.close">✕</button>
       </div>
       <div class="prelisten-body">
         <div id="prelisten-name" class="prelisten-name" data-i18n="prelisten.default_name">AUDIO</div>
@@ -767,6 +788,39 @@
           <button id="btn-stop-prelisten" class="btn-dark" data-i18n="prelisten.stop">Stop</button>
         </div>
       </div>
+    </div>
+
+    <!-- Reproducción directa al programa; comparte diseño con CUE, no su bus. -->
+    <div id="live-player" class="hidden prelisten-panel live-panel">
+      <div class="prelisten-header live-header">
+        <span><span class="live-badge">LIVE</span>
+          <span data-i18n="library.play_on_air">Reproducir al aire</span></span>
+        <button id="close-live" class="close-btn"
+                data-i18n-aria-label="titlebar.close">✕</button>
+      </div>
+      <div class="prelisten-body">
+        <div id="live-name" class="prelisten-name"
+             data-i18n="prelisten.default_name">AUDIO</div>
+        <div id="live-progress-bg" class="prelisten-progress-bg">
+          <div id="live-progress" class="prelisten-progress-fill"></div>
+        </div>
+        <div class="prelisten-controls">
+          <input type="range" id="live-volume" min="0" max="1.5" step="0.01" value="1">
+          <span id="live-time">00:00 / 00:00</span>
+        </div>
+        <div class="prelisten-footer">
+          <button id="btn-stop-live" class="btn-dark" data-i18n="prelisten.stop">Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="library-context-menu" class="hidden context-style" role="menu">
+      <ul>
+        <li id="library-menu-live" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">📡</span><span data-i18n="library.play_on_air">Reproducir al aire</span></li>
+        <li id="library-menu-preview" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">🎧</span><span data-i18n="context_menu.preview">Escucha previa</span></li>
+        <li id="library-menu-add-player" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">➕</span><span data-i18n="library.add_to_player">Añadir al reproductor</span></li>
+        <li id="library-menu-editor" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">🎚️</span><span data-i18n="context_menu.edit_track">Editor de pista (onda)…</span></li>
+      </ul>
     </div>
 
     <script type="module" src="/js/ui/main.js"></script>

@@ -559,12 +559,21 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `library_browse(collection?, limit?, cursor?, direction?)` — bloques internos
   `"forward"` / `"backward"` para scroll continuo
 - `library_status`
+- `library_play_live(path, duration_s?, position_s?, volume?)` — reproducción por
+  Programa con el id reservado `__library_live__`
+- `library_assign_to_paleta(paths, paleta_id)` — lote atómico a espacios vacíos
+- `player_add_tracks(paths, index?)` — lote con una sola persistencia
 
 La sincronización emite `library-index-progress`. Toda la lógica está en
 `engine/library/`; estos comandos solo ejecutan trabajo bloqueante fuera del hilo UI.
 `LibraryService` inicia `notify` y una reconciliación de seguridad en segundo plano.
 Los eventos se agrupan 250 ms y actualizan únicamente las rutas afectadas; búsquedas y
 lecturas continúan usando conexiones SQLite independientes.
+
+El panel usa `fixed_panel.view = "search"`. `librarySearchView.js` orquesta la vista;
+`libraryResultSource.js` mantiene la ventana bidireccional acotada y
+`libraryVirtualList.js` limita el DOM a lo visible más 50 filas por lado. CUE y LIVE
+comparten `miniAudioPlayer.js`, pero tienen ids, buses y posiciones opuestas.
 
 ### Export / Import
 - `export_tab(paleta_id, path?)` — abre diálogo si no se pasa path

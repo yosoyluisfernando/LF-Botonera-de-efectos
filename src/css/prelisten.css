@@ -15,6 +15,13 @@
   border-radius: 4px;
   overflow: hidden;
 }
+.live-panel { left:20px; right:auto; }
+.live-header { color:var(--text-primary); }
+.live-badge { display:inline-block; margin-right:6px; padding:1px 5px; border-radius:3px;
+  background:var(--error-color); color:#fff; letter-spacing:.08em; font-weight:800; }
+@media (max-width:760px) {
+  .prelisten-panel { width:calc(50vw - 30px); }
+}
 .prelisten-header {
   background: var(--bg-tertiary);
   padding: 8px 12px;

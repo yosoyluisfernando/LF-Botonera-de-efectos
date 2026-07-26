@@ -256,15 +256,17 @@ con una ruta normalizada y una colección explícita `music` o `effects`. La rut
 - una subcarpeta de otra colección se conserva como excepción;
 - cuando varias reglas cubren una ruta, manda la más específica.
 
-Esta etapa todavía no fija Enter, doble clic ni reproducción al aire. El documento
-rector es [`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).
+Enter y doble clic todavía no tienen acción. `Reproducir al aire` ya usa el id
+`__library_live__` por el bus Programa, separado del CUE. El documento rector es
+[`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).
 
 ---
 
 ## El reproductor auxiliar (modo reproductor del panel fijo)
 
-El panel lateral tiene dos presentaciones: `buttons` (botones fijos) y `player` (una lista de
-reproducción). El reproductor existe para dejar **música de fondo** sonando mientras se
+El panel lateral tiene tres presentaciones: `buttons` (botones fijos), `player` (una
+lista de reproducción) y `search` (Buscador). El reproductor existe para dejar
+**música de fondo** sonando mientras se
 disparan los efectos, así que es un **motor propio**, no un grupo dentro del motor de efectos:
 tiene su hilo, su `OutputStream`, su dispositivo y su volumen. Por eso el Stop general y el
 Solo de los efectos no lo cortan; el reproductor tiene su propio Stop.

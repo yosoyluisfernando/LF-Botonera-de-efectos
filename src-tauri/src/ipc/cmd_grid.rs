@@ -1,11 +1,12 @@
 /// Modulo: cmd_grid.rs
 /// Proposito: comandos IPC para gestionar botones de la pestana activa.
 use super::AppState;
+use crate::domain::button::audio_file;
 use crate::domain::button::defaults::new_button;
 use crate::domain::button::random_folder;
 use crate::domain::colors::{color_palette, random_color, text_for_theme, ColorOption};
 use crate::domain::grid::view::paleta_to_grid;
-use crate::engine::audio::formats::{probe_duration_secs, validate_audio_file, AUDIO_EXTENSIONS};
+use crate::engine::audio::formats::{probe_duration_secs, AUDIO_EXTENSIONS};
 use crate::engine::persist::config_io as config;
 use crate::model::grid::GridState;
 use crate::model::{AppConfig, PaletaData};
@@ -57,19 +58,12 @@ pub fn assign_file_to_button(
     if std::path::Path::new(&file_path).is_dir() {
         return assign_folder(index, file_path, state);
     }
-    validate_audio_file(&file_path)?;
-    let stem = file_stem_upper(&file_path);
-    let (duration, duration_str) = read_duration(&file_path);
+    let theme = state.config.lock().unwrap().theme.clone();
+    let mut btn = audio_file::from_audio_file("pending", index, file_path, &theme)?;
     let mut cfg = state.config.lock().unwrap();
-    let theme = cfg.theme.clone();
     let paleta = active_paleta(&mut cfg)?;
     paleta.botones.retain(|b| b.index != index);
-    let bg = random_color();
-    let text = text_for_theme(&bg, &theme, "button");
-    let mut btn = new_button(&paleta.id, index, &stem, &bg, &text);
-    btn.path = file_path;
-    btn.duration = duration;
-    btn.duration_str = duration_str;
+    btn.id = format!("{}_btn_{index}", paleta.id);
     paleta.botones.push(btn);
     save_grid(&mut cfg)
 }
@@ -167,15 +161,6 @@ fn file_stem_upper(path: &str) -> String {
         .unwrap_or_default()
         .to_string_lossy()
         .to_uppercase()
-}
-
-fn read_duration(path: &str) -> (f64, String) {
-    let secs = probe_duration_secs(path);
-    if secs > 0.0 {
-        (secs, format!("{secs:.1}s"))
-    } else {
-        (-1.0, String::new())
-    }
 }
 
 pub(crate) fn save_grid(cfg: &mut AppConfig) -> Result<GridState, String> {

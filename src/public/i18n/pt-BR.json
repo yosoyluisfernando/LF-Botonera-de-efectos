@@ -144,6 +144,21 @@
     "stop": "Stop",
     "default_name": "AUDIO"
   },
+  "library": {
+    "search_title": "Busca",
+    "search_title_compact": "Busca",
+    "search_placeholder": "Buscar áudio…",
+    "collection": "Coleção",
+    "all": "Tudo",
+    "music": "Música",
+    "effects": "Efeitos",
+    "searching": "Buscando…",
+    "catalog_count": "{count} arquivos indexados",
+    "results_count": "{count} resultados",
+    "play_on_air": "Reproduzir no ar",
+    "add_to_player": "Adicionar ao reprodutor",
+    "single_track_for_button": "Para atribuir diretamente a um botão, arraste uma única faixa. Você pode arrastar várias faixas para uma aba."
+  },
   "context_menu": {
     "color_selected": "Mudar a cor dos botões selecionados…",
     "remove_player": "Remover do reprodutor",
@@ -398,7 +413,9 @@
   },
   "fixed_panel": {
     "title": "Botões fixos",
-    "toggle": "Mostrar ou ocultar botões fixos",
+    "title_compact": "B. fixos",
+    "change_view": "Alterar visualização do painel fixo",
+    "toggle": "Mostrar ou ocultar o painel fixo",
     "add": "Adicionar botão fixo",
     "stop": "Parar painel fixo",
     "edit_hint": "Clique direito para opções",
@@ -412,6 +429,7 @@
     "view": "Apresentação:",
     "player": "Reprodutor",
     "buttons": "Botões",
+    "search": "Busca",
     "columns": "Colunas:",
     "visible": "Mostrar painel agora",
     "row_mode": "Linhas:",
@@ -448,6 +466,7 @@
   },
   "player": {
     "title": "Reprodutor",
+    "title_compact": "Reprod.",
     "col_title": "Título",
     "col_duration": "Duração",
     "total": "Total",
@@ -513,6 +532,8 @@
     "player_empty_queue": "A lista do reprodutor está vazia.",
     "player_invalid_playlist": "O arquivo não contém uma lista de reprodução válida.",
     "player_empty_path": "A faixa não tem caminho de áudio.",
+    "library_empty_selection": "Nenhuma faixa está selecionada.",
+    "not_enough_empty_buttons": "A aba não tem botões vazios suficientes para todas as faixas selecionadas.",
     "invalid_player_mode": "Modo do reprodutor inválido."
   }
 }
