@@ -30,7 +30,16 @@ Lo que hace el **doble clic** sobre una canción de la cola del reproductor: si 
 Comando IPC (`cmd_tracks.rs`) que analiza una pista para el editor y devuelve: envolvente de onda, LUFS, pico en dBFS, ganancia sugerida, duración y metadatos de cue ya guardados. Delega en `engine::dsp::editor_analysis` mediante `spawn_blocking`, emite `track-analysis-progress`, reutiliza `TrackAnalysisCache`, `tracks.db` y caché persistente de waveform antes de decodificar el audio completo. Nunca corre en el hilo de audio.
 
 **`audio-tick`**
-Evento Tauri emitido por `engine/audio/monitor.rs` cada ~100 ms mientras hay audio reproduciéndose. Payload: `{buttons[], display_remaining, display_duration, master_level_l, master_level_r}`. Startup.js lo re-emite como `CustomEvent('lf-audio-tick')` en el DOM (distinto al evento Tauri).
+Evento Tauri emitido por `engine/audio/monitor.rs` cada ~100 ms mientras hay audio
+reproduciéndose. Lleva estado de botones, progreso y tiempos. `runtimeEvents.js` lo
+reemite como `CustomEvent('lf-audio-tick')` en el DOM. Los vúmetros ya no dependen de
+su frecuencia: usan [`meter-tick`](#meter-tick).
+
+**`meter-tick`**
+Evento Tauri ligero emitido por `engine/audio/meter_monitor.rs` cada 20 ms, es decir,
+50 FPS. Lleva exclusivamente los niveles L/R de Programa y de cada bus, más `idle`.
+La barra principal y la consola virtual consumen la misma medición. Al entrar en
+reposo emite un último nivel cero y deja de emitir hasta que vuelve a existir audio.
 
 **`AudioCommand`**
 Enum Rust en `engine/audio/command.rs`. Variantes: `Play`, `Stop`, `StopAll`, `SetDevice`, `SetPreDevice`, `SetVolume`, `PlaySequence`. Se envía por un canal `mpsc` desde `AudioEngine` al hilo de audio (`engine/audio/thread.rs`).

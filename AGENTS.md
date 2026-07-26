@@ -206,7 +206,8 @@ el CUE a `Program` aunque se pida.
 
 | Evento Tauri | Payload | Quién lo consume |
 |---|---|---|
-| `"audio-tick"` | `{buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r}` | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js |
+| `"audio-tick"` | `{buttons[{group, progress_percent, ...}], display_remaining, display_duration, ...}` a 10 Hz | gridPlayback.js, fixedPanel.js, clockWidget.js, tabs.js |
+| `"meter-tick"` | `{master_level_l, master_level_r, buses, idle}` a 50 FPS | vuMeter.js y consoleView.js |
 | `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
 | `"weather-updated"` | datos de clima | settingsLocutions.js |

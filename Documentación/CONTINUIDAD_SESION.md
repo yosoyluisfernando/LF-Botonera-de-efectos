@@ -276,6 +276,25 @@ Corrección de arrastre registrada el 2026-07-26:
   `cargo build --lib` y `npm run tauri build -- --no-bundle` correctos. La prueba
   física del gesto queda para el autor porque no existe un harness del WebView.
 
+Actualización de vúmetros registrada el 2026-07-26:
+
+- antes, la medición Rust por ventanas de 1024 muestras se entregaba a ambas
+  interfaces únicamente mediante `audio-tick` cada 100 ms: 10 actualizaciones
+  visuales por segundo;
+- el nuevo `meter-tick` contiene solo Programa, niveles de buses e `idle`, y se emite
+  cada 20 ms: 50 FPS;
+- el vúmetro principal y la consola virtual, en modal o ventana independiente,
+  consumen esa misma telemetría. No existe un segundo cálculo de nivel;
+- `audio-tick` conserva sus 100 ms para progreso, reloj, botones y pestañas. No se
+  repinta toda la aplicación cinco veces más rápido;
+- al entrar en reposo, el monitor VU emite un cero final y calla, por lo que no
+  mantiene 50 eventos por segundo sin audio;
+- las transiciones activas CSS se ajustaron de 70 a 20 ms; el decaimiento final de
+  800 ms del vúmetro principal se conserva;
+- verificación: 255 pruebas automáticas aprobadas y 14 físicas ignoradas,
+  `cargo build --lib`, `npm run build` y
+  `npm run tauri build -- --no-bundle` correctos.
+
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que
 no deben copiarse quedaron registrados en `PLAN_BUSCADOR_INTERNO.md`.

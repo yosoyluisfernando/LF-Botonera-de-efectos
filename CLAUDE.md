@@ -453,7 +453,8 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 |---|---|---|
 | Consola | `engine/console/thread.rs` | Hilo guardián: **único dueño de las tarjetas abiertas** (`OutputStream` no es Send). Solo atiende ruteo; reproducir no pasa por aquí |
 | Audio | `engine/audio/thread.rs` | Motor de efectos: comandos, estados de botón y fades |
-| Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con progreso + VU. **En reposo calla**; reposo = ni efectos ni reproductor, porque los dos suman en el bus que mide el vúmetro |
+| Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con estado y progreso. **En reposo calla** |
+| Monitor VU | `engine/audio/meter_monitor.rs` | Emite el payload ligero `"meter-tick"` cada 20 ms (50 FPS). En reposo manda un cero final y calla |
 | Monitor reproductor | `engine/player/monitor.rs` | Emite `"player-tick"` cada 100 ms. Propio, porque el reproductor tiene su cola y su transporte y suena sin efectos |
 | Reloj | `cmd_meta` | Emite `"clock-tick"` cada 1 s con hora y fecha localizadas |
 | Historial | `last_played` | Vuelca buffer en memoria a tracks.db cada 30 s (debounce) |
@@ -466,7 +467,8 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 
 | Evento | Payload | Quién escucha |
 |---|---|---|
-| `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r, buses{efectos,panel,reproductor,cue}, idle}` (en `engine/audio/tick.rs`) | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
+| `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, ...}` a 10 Hz | gridPlayback.js, fixedPanel.js, clockWidget.js y tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
+| `"meter-tick"` | `MeterTickPayload {master_level_l, master_level_r, buses{efectos,panel,reproductor,cue}, idle}` a 50 FPS | vuMeter.js y consoleView.js, tanto modal como ventana independiente |
 | `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, loop_current, can_seek, volume, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"player-drop-progress"` | progreso al añadir una carpeta grande a la cola (lotes de 20) | playerDrop.js |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |

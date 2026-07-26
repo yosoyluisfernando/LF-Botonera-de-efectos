@@ -725,6 +725,13 @@ consola.
 último pico. También el CUE, y no es un descuido — la pre-escucha suena por el motor de efectos y
 cuenta como botón, así que si estuviera sonando no habría reposo.
 
+**Actualización 2026-07-26 — presentación a 50 FPS.** Los campos de nivel se conservan
+compatibles en `audio-tick`, pero la interfaz ya no espera su pulso de 100 ms. El
+evento ligero `meter-tick` lee los mismos atómicos mediante `LevelTaps` cada 20 ms y
+alimenta tanto el vúmetro principal como todas las tiras de la consola. Estado,
+progreso y reloj permanecen a 10 Hz para no quintuplicar el trabajo ajeno a los
+medidores. En reposo se entrega un cero final y el evento calla.
+
 **Verificación contra las tarjetas reales**, a petición del autor y antes de tocar la interfaz. Las
 pruebas se repartieron por tema, con el rig común en `tests/common/mod.rs`:
 

@@ -2,11 +2,11 @@
  * Archivo: vuMeter.js
  * Propósito: Pinta el vúmetro estéreo de la barra inferior.
  * Técnica visual: clip-path revela el gradiente proporcional al nivel recibido de Rust.
- * No registra listeners — main.js es el único punto de escucha de audio-tick.
+ * No registra listeners: runtimeEvents.js reparte el `meter-tick` de 50 FPS.
  * La transición CSS maneja el decaimiento visual cuando Rust deja de emitir (Regla 4).
  */
 
-/** Actualiza los dos canales VU. Llamar desde el handler de audio-tick en main.js. */
+/** Actualiza los dos canales VU. Llamar desde el handler común de `meter-tick`. */
 export function updateVuMeter(payload) {
     // `idle` lo decide Rust: es el último tick antes del silencio. NO se deduce
     // de que no haya botones — la música del reproductor suma en el mismo bus y
@@ -22,6 +22,6 @@ export function updateVuMeter(payload) {
 function _setLevel(id, level, isFinal) {
     const el = document.getElementById(id);
     if (!el) return;
-    el.style.transition = isFinal ? 'clip-path 0.8s ease-out' : 'clip-path 0.07s linear';
+    el.style.transition = isFinal ? 'clip-path 0.8s ease-out' : 'clip-path 0.02s linear';
     el.style.clipPath   = `inset(0 ${((1 - Math.min(level, 1)) * 100).toFixed(1)}% 0 0)`;
 }

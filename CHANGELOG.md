@@ -48,6 +48,8 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 - La primera indexación guarda nombres progresivamente antes de completar duración y
   etiquetas, para que el catálogo comience a estar disponible y la interfaz conserve
   capacidad de respuesta durante bibliotecas grandes.
+- El vúmetro principal y todos los vúmetros de la consola virtual se actualizan a
+  50 FPS mediante telemetría ligera, sin acelerar innecesariamente el resto de la UI.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del

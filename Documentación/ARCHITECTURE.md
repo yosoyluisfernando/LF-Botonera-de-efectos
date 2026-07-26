@@ -119,7 +119,8 @@ El frontend está organizado en 3 capas:
 
 - Renderizar la rejilla de botones, pestañas y perfiles con datos que vienen de Rust.
 - Capturar clics, drag & drop y teclado; llamar al IPC Rust correspondiente.
-- Suscribirse a eventos Rust (`audio-tick`, `player-tick`, `clock-tick`, `weather-updated`, `track-analysis-progress`) y actualizar la pantalla.
+- Suscribirse a eventos Rust (`audio-tick`, `meter-tick`, `player-tick`,
+  `clock-tick`, `weather-updated`, `track-analysis-progress`) y actualizar la pantalla.
 - Mostrar modales de edición, configuración y el editor de pistas.
 
 ### Lo que hace Rust
@@ -152,7 +153,8 @@ El frontend está organizado en 3 capas:
    b. build_play_source: cache hit → O(1) seek; cache miss → decode + skip O(n)
    c. attach_button → ButtonSource dentro del bus de la consola
 5. engine/audio/monitor.rs detecta el nuevo ButtonState → emite "audio-tick" cada 100ms
-6. gridPlayback.js pinta el botón en verde + barra de progreso roja
+6. engine/audio/meter_monitor.rs emite niveles por "meter-tick" cada 20ms
+7. gridPlayback.js pinta el botón y vuMeter.js/consoleView.js pintan los niveles
 ```
 
 ---

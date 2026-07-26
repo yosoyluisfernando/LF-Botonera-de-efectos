@@ -210,12 +210,14 @@ Este es el flujo más importante del sistema. Entenderlo explica por qué existe
              └─► play_raw → OutputEndpoint → dispositivo CPAL → altavoces
                  (la tarjeta se abre UNA vez; varios buses en ella se suman en el conector)
 
-6. MIENTRAS SUENA — engine/audio/monitor.rs (hilo 100 ms)
-   └─► emite "audio-tick" → Frontend:
-        ├─ gridPlayback.js: botón en verde + barra roja de progreso
-        ├─ tabs.js: pestaña con indicador de audio
-        ├─ clockWidget.js: cuenta regresiva en la barra inferior
-        └─ vuMeter.js: vúmetro L/R con balística
+6. MIENTRAS SUENA — dos pulsos independientes:
+   ├─ engine/audio/monitor.rs, 100 ms → "audio-tick":
+   │    ├─ gridPlayback.js: botón en verde + barra roja de progreso
+   │    ├─ tabs.js: pestaña con indicador de audio
+   │    └─ clockWidget.js: cuenta regresiva en la barra inferior
+   └─ engine/audio/meter_monitor.rs, 20 ms → "meter-tick":
+        ├─ vuMeter.js: vúmetro L/R principal a 50 FPS
+        └─ consoleView.js: todos los vúmetros de la consola a 50 FPS
 ```
 
 > Ver glosario: [AudioEngine](#), [AudioCommand](#), [consola](#), [Bus](#), [OutputEndpoint](#), [ButtonSource](#), [file_gain](#), [ButtonState](#), [CachedSource](#)
@@ -410,8 +412,9 @@ main.js
                                                                            │
         Eventos Rust que llegan en runtime:                                │
         ├── 'clock-tick'    → clockWidget.js                               │
-        ├── 'audio-tick'    → gridPlayback.js + clockWidget.js + vuMeter.js + tabs.js
+        ├── 'audio-tick'    → gridPlayback.js + clockWidget.js + tabs.js
         │                  → también dispara CustomEvent('lf-audio-tick') en el DOM
+        ├── 'meter-tick'    → vuMeter.js + consoleView.js
         ├── 'weather-updated' → settingsLocutions.js                      │
         ├── 'global-shortcut-refresh' → _refresh()                        │
         ├── 'track-editor-dock' → trackEditor.js (lazy import)            │
