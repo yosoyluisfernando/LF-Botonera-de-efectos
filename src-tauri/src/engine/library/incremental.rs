@@ -97,6 +97,8 @@ fn update_file(
     )?;
     let update = MetadataUpdate {
         path_key: path_key.to_owned(),
+        mtime,
+        size,
         result: metadata::read(display),
     };
     report.failed += usize::from(update.result.is_err());

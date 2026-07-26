@@ -85,3 +85,37 @@ fn nested_category_owns_its_files_once() {
 
     assert_eq!((music, effects, total), (1, 1, 2));
 }
+
+#[test]
+fn all_roots_are_catalogued_before_metadata_enrichment_starts() {
+    let music = tree("all_names_music");
+    let effects = tree("all_names_effects");
+    write_wav(&music.join("song.wav"), 1);
+    write_wav(&effects.join("effect.wav"), 1);
+    let mut conn = db::open(None).unwrap();
+    let music_id = add_root(&mut conn, &music, LibraryCollection::Music);
+    let effects_id = add_root(&mut conn, &effects, LibraryCollection::Effects);
+    let mut events = Vec::new();
+
+    sync_roots(&mut conn, &[music_id, effects_id], |progress| {
+        events.push((progress.root_id, progress.phase));
+    })
+    .unwrap();
+
+    let effects_catalogued = events
+        .iter()
+        .position(|event| *event == (effects_id, "cataloging"))
+        .unwrap();
+    let catalogue_ready = events
+        .iter()
+        .position(|event| event.1 == "catalog_ready")
+        .unwrap();
+    let first_enrichment = events
+        .iter()
+        .position(|event| event.1 == "enriching")
+        .unwrap();
+    assert!(effects_catalogued < catalogue_ready);
+    assert!(catalogue_ready < first_enrichment);
+    let _ = fs::remove_dir_all(music);
+    let _ = fs::remove_dir_all(effects);
+}

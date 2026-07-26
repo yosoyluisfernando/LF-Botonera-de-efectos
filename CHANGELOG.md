@@ -41,7 +41,13 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
   menú contextual, arrastre a botones o pestañas y reproducción directa identificada
   como LIVE, independiente de la escucha previa.
 - Menú directo para elegir las tres vistas del panel fijo y administrador de carpetas
-  con borrador cancelable, categorías Música/Efectos y progreso real de indexación.
+  con borrador cancelable, categorías Música/Efectos, progreso real y opción de
+  ocultarlo sin detener una indexación.
+
+### Cambiado
+- La primera indexación guarda nombres progresivamente antes de completar duración y
+  etiquetas, para que el catálogo comience a estar disponible y la interfaz conserve
+  capacidad de respuesta durante bibliotecas grandes.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del

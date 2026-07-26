@@ -33,14 +33,22 @@ fn real_roots_use_disposable_database() {
     }
     for round in 1..=3 {
         let started = Instant::now();
-        let reports = service.sync_all(|_| {}).unwrap();
+        let mut catalog_ms = None;
+        let reports = service
+            .sync_all(|progress| {
+                if progress.phase == "catalog_ready" {
+                    catalog_ms = Some(started.elapsed().as_millis());
+                }
+            })
+            .unwrap();
         let discovered: usize = reports.iter().map(|report| report.discovered).sum();
         let enriched: usize = reports.iter().map(|report| report.enriched).sum();
         let unchanged: usize = reports.iter().map(|report| report.unchanged).sum();
         let failed: usize = reports.iter().map(|report| report.failed).sum();
         println!(
             "real_db round={round} discovered={discovered} enriched={enriched} \
-             unchanged={unchanged} failed={failed} ms={}",
+             unchanged={unchanged} failed={failed} catalog_ms={} total_ms={}",
+            catalog_ms.unwrap_or_default(),
             started.elapsed().as_millis()
         );
     }

@@ -576,10 +576,17 @@ El panel usa `fixed_panel.view = "search"`. El encabezado abre un menú para ele
 directamente `buttons`, `player` o `search`; no rota las vistas. El alfiler abre un
 modal cuyo borrador vive solo en JavaScript hasta pulsar Iniciar. La confirmación usa
 `library_add_roots` y luego `library_sync_all`; Cancelar no escribe nada.
+Durante la sincronización, el modal muestra únicamente `Ocultar ventana`: ocultarlo no
+cancela el trabajo. Al reabrirlo se presenta antes de consultar las raíces.
 `librarySearchView.js` orquesta la vista;
 `libraryResultSource.js` mantiene la ventana bidireccional acotada y
 `libraryVirtualList.js` limita el DOM a lo visible más 50 filas por lado. CUE y LIVE
 comparten `miniAudioPlayer.js`, pero tienen ids, buses y posiciones opuestas.
+
+La primera sincronización tiene dos fases. `index_discovery.rs` guarda nombres y rutas
+en lotes de 500 durante el recorrido; `index_enrichment.rs` completa después duración
+y etiquetas con hasta cuatro trabajadores. No esperar a reunir todas las rutas para
+guardar nombres ni volver a unir ambas fases en una sola lectura monolítica.
 
 ### Export / Import
 - `export_tab(paleta_id, path?)` — abre diálogo si no se pasa path

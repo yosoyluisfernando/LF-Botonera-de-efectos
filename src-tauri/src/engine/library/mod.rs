@@ -1,6 +1,8 @@
 pub mod browse;
 pub mod catalog_store;
 pub mod incremental;
+mod index_discovery;
+mod index_enrichment;
 pub mod indexer;
 pub mod metadata;
 pub mod metadata_batch;

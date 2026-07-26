@@ -23,17 +23,23 @@ export function initLibraryRootsModal() {
         .addEventListener('click', () => pickFolder('effects'));
     document.getElementById('library-roots-start').addEventListener('click', startIndexing);
     document.getElementById('library-roots-cancel').addEventListener('click', closeModal);
+    document.getElementById('library-roots-hide').addEventListener('click', hideModal);
 }
 
 async function openModal() {
-    drafts = [];
-    running = false;
-    notice('');
-    clearLibraryIndexProgress();
-    configured = await invoke('library_list_roots');
+    if (!running) {
+        drafts = [];
+        notice('');
+        clearLibraryIndexProgress();
+    }
     render();
     document.getElementById('library-roots-modal').classList.remove('hidden');
-    document.getElementById('library-add-music').focus();
+    setControlsDisabled(running);
+    (running
+        ? document.getElementById('library-roots-hide')
+        : document.getElementById('library-add-music')).focus();
+    configured = await invoke('library_list_roots');
+    render();
 }
 
 async function pickFolder(collection) {
@@ -131,15 +137,22 @@ function rootRow(root) {
 }
 
 function setControlsDisabled(disabled) {
-    ['library-add-music', 'library-add-effects', 'library-roots-cancel']
+    ['library-add-music', 'library-add-effects']
         .forEach(id => { document.getElementById(id).disabled = disabled; });
     document.querySelector('#library-roots-modal .close-btn').disabled = disabled;
+    document.getElementById('library-roots-cancel').classList.toggle('hidden', disabled);
+    document.getElementById('library-roots-hide').classList.toggle('hidden', !disabled);
     document.getElementById('library-roots-start').disabled = disabled || !drafts.length;
 }
 
 function closeModal() {
     if (running) return;
     drafts = [];
+    document.getElementById('library-roots-modal').classList.add('hidden');
+}
+
+function hideModal() {
+    if (!running) return;
     document.getElementById('library-roots-modal').classList.add('hidden');
 }
 

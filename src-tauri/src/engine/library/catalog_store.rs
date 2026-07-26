@@ -29,6 +29,8 @@ pub struct CatalogInput {
 #[derive(Debug)]
 pub struct MetadataUpdate {
     pub path_key: String,
+    pub mtime: i64,
+    pub size: i64,
     pub result: Result<LibraryMetadata, String>,
 }
 
@@ -122,7 +124,11 @@ pub fn mark_path_missing(conn: &Connection, path_key: &str) -> Result<usize, Str
     .map_err(|error| error.to_string())
 }
 
-pub fn finish_scan(conn: &mut Connection, root_id: i64, generation: i64) -> Result<usize, String> {
+pub fn finish_discovery(
+    conn: &mut Connection,
+    root_id: i64,
+    generation: i64,
+) -> Result<usize, String> {
     let transaction = conn.transaction().map_err(|error| error.to_string())?;
     let missing = transaction
         .execute(
@@ -133,12 +139,21 @@ pub fn finish_scan(conn: &mut Connection, root_id: i64, generation: i64) -> Resu
         .map_err(|error| error.to_string())?;
     transaction
         .execute(
-            "UPDATE library_root SET state='ready',last_scan_at=?2 WHERE id=?1",
-            params![root_id, now_epoch()],
+            "UPDATE library_root SET state='enriching' WHERE id=?1",
+            params![root_id],
         )
         .map_err(|error| error.to_string())?;
     transaction.commit().map_err(|error| error.to_string())?;
     Ok(missing)
+}
+
+pub fn finish_enrichment(conn: &Connection, root_id: i64) -> Result<(), String> {
+    conn.execute(
+        "UPDATE library_root SET state='ready',last_scan_at=?2 WHERE id=?1",
+        params![root_id, now_epoch()],
+    )
+    .map_err(|error| error.to_string())?;
+    Ok(())
 }
 
 impl CatalogInput {

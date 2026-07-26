@@ -10,6 +10,12 @@ pub struct DiscoveredAudio {
     pub size: i64,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DiscoveredPath {
+    pub path: String,
+    pub path_key: String,
+}
+
 #[derive(Debug, Default)]
 pub struct Discovery {
     pub files: Vec<DiscoveredAudio>,
@@ -17,28 +23,62 @@ pub struct Discovery {
     pub metadata_errors: usize,
 }
 
+#[derive(Debug, Default)]
+pub struct PathDiscovery {
+    pub files: Vec<DiscoveredPath>,
+    pub walk: AudioWalkStats,
+}
+
 /// Descubre archivos sin abrir su contenido. `excluded_roots` permite que una
 /// raiz mas especifica de otra categoria gane sin producir filas duplicadas.
 pub fn discover(root: &Path, excluded_roots: &[PathBuf]) -> Discovery {
-    let mut discovery = Discovery::default();
-    discovery.walk = visit_audio_files(
-        root,
-        |dir| !excluded_roots.iter().any(|excluded| dir == excluded),
-        |path| match std::fs::metadata(path) {
+    let paths = discover_paths(root, excluded_roots);
+    let mut discovery = Discovery {
+        walk: paths.walk,
+        ..Discovery::default()
+    };
+    for file in paths.files {
+        match std::fs::metadata(&file.path) {
             Ok(metadata) => {
-                let text = path.to_string_lossy().to_string();
                 let (mtime, size) = stamp_from_metadata(&metadata);
                 discovery.files.push(DiscoveredAudio {
-                    path_key: normalize_key(&text),
-                    path: text,
+                    path_key: file.path_key,
+                    path: file.path,
                     mtime,
                     size,
                 });
             }
             Err(_) => discovery.metadata_errors += 1,
-        },
-    );
+        }
+    }
     discovery
+}
+
+pub fn discover_paths(root: &Path, excluded_roots: &[PathBuf]) -> PathDiscovery {
+    let mut discovery = PathDiscovery::default();
+    let walk = discover_each(root, excluded_roots, |file| {
+        discovery.files.push(file);
+    });
+    discovery.walk = walk;
+    discovery
+}
+
+pub fn discover_each(
+    root: &Path,
+    excluded_roots: &[PathBuf],
+    mut visit: impl FnMut(DiscoveredPath),
+) -> AudioWalkStats {
+    visit_audio_files(
+        root,
+        |dir| !excluded_roots.iter().any(|excluded| dir == excluded),
+        |path| {
+            let text = path.to_string_lossy().to_string();
+            visit(DiscoveredPath {
+                path_key: normalize_key(&text),
+                path: text,
+            });
+        },
+    )
 }
 
 #[cfg(test)]

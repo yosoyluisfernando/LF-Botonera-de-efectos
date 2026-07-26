@@ -73,6 +73,11 @@ pub(super) fn rebuild_search(tx: &Transaction, path_key: &str) -> Result<(), Str
 
 pub(super) fn apply_metadata(tx: &Transaction, update: &MetadataUpdate) -> Result<(), String> {
     let path_key = &update.path_key;
+    tx.execute(
+        "UPDATE track SET mtime=?2,size=?3 WHERE path=?1",
+        params![path_key, update.mtime, update.size],
+    )
+    .map_err(|error| error.to_string())?;
     match &update.result {
         Ok(metadata) => {
             tx.execute(

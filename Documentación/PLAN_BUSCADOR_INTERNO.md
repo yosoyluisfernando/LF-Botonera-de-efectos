@@ -605,6 +605,25 @@ Discos mecánicos, USB, red, antivirus y unidades completas se informarán por s
 La aplicación mostrará archivos recorridos, encontrados, omitidos, fallidos y tiempo
 real, sin simular porcentajes.
 
+### 6.1 Corrección tras la primera prueba funcional
+
+Las mediciones sintéticas y con caché caliente no representan la primera lectura de
+un árbol real. En dos ejecuciones Release con base descartable sobre las cinco raíces
+autorizadas, catalogar 18.201 nombres desde almacenamiento frío tardó 115.750 ms y
+122.536 ms. Completar también duración y etiquetas tardó 357.357 ms y 385.020 ms.
+Las rondas posteriores, ya sin cambios, tardaron entre 6.577 y 8.020 ms.
+
+Por tanto, «pocos segundos» se conserva como aspiración condicionada para un recorrido
+en SSD y no como promesa general. El comportamiento obligatorio es:
+
+- guardar nombres y rutas en SQLite cada 500 archivos durante el recorrido;
+- permitir búsquedas con esos nombres sin esperar los metadatos;
+- descubrir todas las raíces antes de comenzar la segunda fase global;
+- completar duración y etiquetas en bloques con cuatro trabajadores;
+- ceder ejecución entre bloques y emitir progreso real;
+- mostrar el administrador inmediatamente y dejar que se oculte sin cancelar;
+- no volver a abrir metadatos en las reconciliaciones de archivos sin cambios.
+
 ---
 
 ## 7. Pruebas necesarias antes de declarar la arquitectura cerrada
@@ -775,6 +794,10 @@ Interfaz del panel implementada el 2026-07-25:
   guarda ninguna; la unificación de raíces solapadas sigue siendo la única regla;
 - el progreso Descubrimiento/Catálogo/Duración y etiquetas se presenta tanto en el
   modal como en el panel fijo.
+- los nombres se guardan durante el recorrido en lotes de 500 y quedan disponibles
+  antes de que finalice la lectura de duración y etiquetas;
+- mientras se procesa, el administrador sustituye Cancelar por `Ocultar ventana`;
+  reabrirlo no espera a la consulta de raíces y ocultarlo no detiene el motor.
 
 La prueba funcional debe generarse con `npm run tauri build -- --no-bundle`. Un
 `cargo build --release` aislado no sustituye el empaquetado Tauri y puede dejar el

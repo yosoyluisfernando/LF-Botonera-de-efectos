@@ -35,17 +35,18 @@ function paintProgress(progress) {
     const phase = progress?.phase ?? 'discovering';
     const total = Number(progress?.total ?? 0);
     const processed = Number(progress?.processed ?? 0);
-    const key = phase === 'enriching'
+    const key = phase === 'catalog_ready'
+        ? 'library.index_catalog_ready'
+        : phase === 'enriching'
         ? 'library.index_enriching'
         : phase === 'cataloging'
-            ? 'library.index_cataloging'
+            ? total > 0
+                ? 'library.index_cataloging'
+                : 'library.index_cataloging_progress'
             : 'library.index_discovering';
-    let message = t(key);
-    if (total > 0) {
-        message = message
-            .replace('{processed}', processed)
-            .replace('{total}', total);
-    }
+    const message = t(key)
+        .replace('{processed}', processed)
+        .replace('{total}', total);
     paint(message);
 }
 

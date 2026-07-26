@@ -119,12 +119,12 @@ impl LibraryService {
             .lock()
             .map_err(|_| "library_operation_lock")?;
         let mut connection = self.connection()?;
-        let roots = root_store::list(&connection)?;
-        let mut reports = Vec::new();
-        for root in roots.into_iter().filter(|root| root.enabled) {
-            reports.push(indexer::sync_root(&mut connection, root.id, &mut progress)?);
-        }
-        Ok(reports)
+        let root_ids = root_store::list(&connection)?
+            .into_iter()
+            .filter(|root| root.enabled)
+            .map(|root| root.id)
+            .collect::<Vec<_>>();
+        indexer::sync_roots(&mut connection, &root_ids, &mut progress)
     }
 
     pub fn search(

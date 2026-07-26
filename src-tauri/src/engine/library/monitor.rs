@@ -166,10 +166,13 @@ fn reconcile_all(database_path: &std::path::Path, operation: &Mutex<()>) {
 }
 
 fn reconcile_connection(connection: &mut rusqlite::Connection) {
-    let roots = root_store::list(connection).unwrap_or_default();
-    for root in roots.into_iter().filter(|root| root.enabled) {
-        let _ = indexer::sync_root(connection, root.id, |_| {});
-    }
+    let root_ids = root_store::list(connection)
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|root| root.enabled)
+        .map(|root| root.id)
+        .collect::<Vec<_>>();
+    let _ = indexer::sync_roots(connection, &root_ids, |_| {});
 }
 
 #[cfg(test)]

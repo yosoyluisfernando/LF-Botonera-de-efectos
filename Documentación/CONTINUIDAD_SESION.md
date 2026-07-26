@@ -230,6 +230,35 @@ prueba específica de lote atómico correcta, `cargo build --lib`, `npm run buil
 `npm run tauri build -- --no-bundle` correctos. El ejecutable entregable quedó en
 `src-tauri/target/release/tauri-app.exe`.
 
+Octava etapa implementada el 2026-07-25 después de medir la primera prueba del autor:
+
+- la afirmación anterior de «pocos segundos» no describe la primera carga completa;
+  mezclaba recorridos calientes y bases sintéticas con la lectura real de archivos;
+- dos repeticiones Release con base descartable y las cinco raíces reales tardaron
+  357.357 ms y 385.020 ms en frío para completar nombres, duración y etiquetas;
+- en esas repeticiones, solo recorrer el almacenamiento frío y catalogar 18.201
+  nombres tardó 115.750 ms y 122.536 ms. Las reconciliaciones calientes posteriores
+  tardaron entre 6.577 y 8.020 ms;
+- el indexador ahora guarda nombres en lotes de 500 durante el propio recorrido. No
+  espera a terminar todas las carpetas ni a leer duración y etiquetas para hacerlos
+  buscables;
+- duración y etiquetas se ejecutan como una segunda fase global con cuatro
+  trabajadores, el límite óptimo ya medido. Ambas fases ceden ejecución entre lotes;
+- abrir de nuevo el administrador muestra primero la ventana y consulta después las
+  raíces, evitando que una lectura de SQLite retrase su aparición;
+- mientras existe una indexación, Cancelar desaparece y se muestra únicamente
+  `Ocultar ventana`. Ocultarla no cancela ni detiene el trabajo;
+- el progreso diferencia archivos que van apareciendo en el catálogo de la fase que
+  completa duración y etiquetas;
+- verificación técnica: 254 pruebas automáticas aprobadas y 14 físicas ignoradas,
+  `cargo build --lib`, `npm run build` y `npm run tauri build -- --no-bundle`
+  correctos. La prueba perceptiva de fluidez queda para el autor.
+
+El objetivo verificable ya no es prometer una primera indexación completa en segundos
+en cualquier disco. Es mostrar progreso verdadero, mantener utilizable la interfaz,
+hacer buscables los nombres progresivamente y conseguir reconciliaciones posteriores
+rápidas sin releer archivos sin cambios.
+
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que
 no deben copiarse quedaron registrados en `PLAN_BUSCADOR_INTERNO.md`.
@@ -281,7 +310,8 @@ actualizaciones de Microsoft Store. No forman parte de la lectura inicial de Lin
   `Integra distribución en tiendas y prepara la etapa Linux (#6)`.
 - **Identificador técnico común:**
   `io.github.yosoyluisfernando.LF-Botonera-de-efectos`.
-- **Prioridad activa:** planificar el buscador interno sin tocar código funcional.
+- **Prioridad activa:** prueba funcional Release de la indexación progresiva y su
+  respuesta visual; después, ventana Biblioteca independiente.
 - **Prioridad pausada:** prueba física en Linux y después Flathub.
 - **Primer destino previsto:** Flathub, después de una prueba física real en Linux.
 - **Destinos posteriores:** evaluar repositorios oficiales de Debian, Fedora u otras
