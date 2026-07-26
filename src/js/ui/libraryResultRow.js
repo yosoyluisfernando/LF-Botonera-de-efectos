@@ -10,7 +10,6 @@ export function createLibraryResultRow(item, index, state, handlers) {
     row.setAttribute('aria-selected', String(state.selected));
     row.classList.toggle('selected', state.selected);
     row.classList.toggle('active', state.active);
-    row.draggable = true;
     const metadata = [item.artist, item.album].filter(Boolean).join(' — ');
     row.innerHTML = `<span class="library-row-main">
         <span class="library-row-title"></span><span class="library-row-meta"></span>
@@ -19,6 +18,6 @@ export function createLibraryResultRow(item, index, state, handlers) {
     row.querySelector('.library-row-meta').textContent = metadata || item.file_name;
     row.addEventListener('click', event => handlers.click(event, item, index));
     row.addEventListener('contextmenu', event => handlers.context(event, item, index));
-    row.addEventListener('dragstart', event => handlers.drag(event, item, index));
+    row.addEventListener('mousedown', event => handlers.drag(event, item, index));
     return row;
 }

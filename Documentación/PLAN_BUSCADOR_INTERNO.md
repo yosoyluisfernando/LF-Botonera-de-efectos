@@ -798,6 +798,9 @@ Interfaz del panel implementada el 2026-07-25:
   antes de que finalice la lectura de duración y etiquetas;
 - mientras se procesa, el administrador sustituye Cancelar por `Ocultar ventana`;
   reabrirlo no espera a la consulta de raíces y ocultarlo no detiene el motor.
+- el arrastre interno del buscador no usa HTML5 `draggable`, porque compite con los
+  eventos nativos de archivos de Tauri en Windows. Sigue el ratón igual que
+  `gridDnd.js` y reutiliza `fileDrop.js::dropFileOnGrid` para soltar en una celda.
 
 La prueba funcional debe generarse con `npm run tauri build -- --no-bundle`. Un
 `cargo build --release` aislado no sustituye el empaquetado Tauri y puede dejar el

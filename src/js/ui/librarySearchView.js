@@ -72,12 +72,13 @@ function createRow(item, index) {
         active: activeLibraryPath() === item.path,
     }, {
         click: event => {
-        selectLibraryClick(event, item, items);
-        element('rows').setAttribute('aria-activedescendant', `library-result-${index}`);
-        virtual.render();
+            selectLibraryClick(event, item, items);
+            element('rows').setAttribute('aria-activedescendant', `library-result-${index}`);
+            virtual.render();
         },
         context: event => openContext(event, item),
         drag: event => {
+            if (event.button !== 0 || event.ctrlKey || event.shiftKey) return;
             const selection = selectionForLibraryContext(item, items);
             startLibraryDrag(event, selection);
         },

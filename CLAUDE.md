@@ -583,6 +583,12 @@ cancela el trabajo. Al reabrirlo se presenta antes de consultar las raíces.
 `libraryVirtualList.js` limita el DOM a lo visible más 50 filas por lado. CUE y LIVE
 comparten `miniAudioPlayer.js`, pero tienen ids, buses y posiciones opuestas.
 
+El arrastre del buscador usa seguimiento interno de ratón, igual que `gridDnd.js`.
+No volver a usar HTML5 `draggable`/`dataTransfer`: en Windows compite con
+`tauri://drag-*`, necesario para recibir archivos del Explorador. Soltar una pista en
+la rejilla debe reutilizar `fileDrop.js::dropFileOnGrid`; los lotes sobre pestañas
+siguen pasando una sola vez por `library_assign_to_paleta`.
+
 La primera sincronización tiene dos fases. `index_discovery.rs` guarda nombres y rutas
 en lotes de 500 durante el recorrido; `index_enrichment.rs` completa después duración
 y etiquetas con hasta cuatro trabajadores. No esperar a reunir todas las rutas para

@@ -259,6 +259,23 @@ en cualquier disco. Es mostrar progreso verdadero, mantener utilizable la interf
 hacer buscables los nombres progresivamente y conseguir reconciliaciones posteriores
 rápidas sin releer archivos sin cambios.
 
+Corrección de arrastre registrada el 2026-07-26:
+
+- el arrastre HTML5 del buscador competía en Windows/WebView2 con el receptor nativo
+  de archivos de Tauri utilizado por el Explorador y no llegaba a los destinos;
+- `libraryDnd.js` usa ahora el mismo patrón interno comprobado de `mousedown`,
+  `mousemove` y `mouseup` que los botones existentes;
+- al soltar una pista sobre una celda llama a `fileDrop.js::dropFileOnGrid`, la misma
+  función del Explorador, por lo que no duplica asignación ni confirmación de
+  reemplazo;
+- varias pistas seleccionadas siguen usando una sola orden Rust atómica al soltarse
+  sobre una pestaña;
+- `Ctrl` y `Shift` continúan reservados para modificar la selección. Después se
+  arrastra normalmente cualquiera de las filas seleccionadas;
+- verificación: 254 pruebas Rust aprobadas, 14 físicas ignoradas, `npm run build`,
+  `cargo build --lib` y `npm run tauri build -- --no-bundle` correctos. La prueba
+  física del gesto queda para el autor porque no existe un harness del WebView.
+
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que
 no deben copiarse quedaron registrados en `PLAN_BUSCADOR_INTERNO.md`.

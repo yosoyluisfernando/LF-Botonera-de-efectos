@@ -1,10 +1,14 @@
-/** Arrastre de resultados hacia celdas o pestañas; Rust hace la mutación real. */
+/** Arrastre interno con ratón; evita competir con el receptor de archivos de Tauri. */
 import { invoke } from '../bridge/api.js';
-import { appAlert, appConfirm } from './appDialog.js';
+import { appAlert } from './appDialog.js';
 import { alertIpcError } from './ipcError.js';
+import { dropFileOnGrid } from './fileDrop.js';
 import { t } from '../util/i18n.js';
 
+const DRAG_THRESHOLD = 6;
 let paths = [];
+let candidate = null;
+let dragging = false;
 let onRefresh = null;
 let wired = false;
 
@@ -12,64 +16,63 @@ export function initLibraryDnd(callback) {
     onRefresh = callback;
     if (wired) return;
     wired = true;
-    document.addEventListener('dragover', markTarget);
-    document.addEventListener('dragleave', clearIfOutside);
-    document.addEventListener('drop', drop);
-    document.addEventListener('dragend', clear);
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', finish);
+    window.addEventListener('blur', clear);
 }
 
 export function startLibraryDrag(event, selection) {
-    paths = selection.map(item => item.path);
-    event.dataTransfer.effectAllowed = 'copy';
-    event.dataTransfer.setData('text/plain', paths.join('\n'));
-    event.currentTarget.classList.add('drag-source');
+    if (event.button !== 0 || event.ctrlKey || event.shiftKey) return;
+    candidate = {
+        x: event.clientX,
+        y: event.clientY,
+        paths: selection.map(item => item.path),
+        source: event.currentTarget,
+    };
 }
 
-function markTarget(event) {
-    if (!paths.length) return;
+function move(event) {
+    if (!candidate) return;
+    if (!dragging && distanceFromStart(event) < DRAG_THRESHOLD) return;
+    if (!dragging) {
+        dragging = true;
+        paths = candidate.paths;
+        candidate.source.classList.add('drag-source');
+    }
     const target = destination(event.target);
     clearTargets();
-    if (!target) return;
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
-    target.classList.add('library-drag-over');
+    target?.classList.add('library-drag-over');
 }
 
-async function drop(event) {
-    if (!paths.length) return;
-    const target = destination(event.target);
-    if (!target) return clear();
-    event.preventDefault();
+async function finish(event) {
+    if (!candidate) return;
+    const target = dragging ? destination(event.target) : null;
     const selected = [...paths];
+    const wasDragging = dragging;
     clear();
+    if (!wasDragging || !target) return;
     try {
         if (target.matches('.grid-item[data-index]')) {
-            await dropOnCell(target, selected);
+            if (selected.length !== 1) {
+                await appAlert(t('library.single_track_for_button'));
+                return;
+            }
+            await dropFileOnGrid(target, selected[0]);
         } else {
             await invoke('library_assign_to_paleta', {
                 paths: selected,
                 paletaId: target.dataset.paletaId,
             });
+            await onRefresh?.();
         }
-        await onRefresh?.();
     } catch (error) {
         await alertIpcError(error);
     }
 }
 
-async function dropOnCell(cell, selected) {
-    if (selected.length !== 1) {
-        await appAlert(t('library.single_track_for_button'));
-        return;
-    }
-    if (cell.dataset.id && !await appConfirm(t('app.button_has_content'), {
-        ok: t('app.replace'),
-        cancel: t('app.dont_add'),
-    }, { ok: 1, cancel: 2 })) return;
-    await invoke('assign_file_to_button', {
-        index: Number(cell.dataset.index),
-        path: selected[0],
-    });
+function distanceFromStart(event) {
+    return Math.hypot(event.clientX - candidate.x, event.clientY - candidate.y);
 }
 
 function destination(node) {
@@ -78,14 +81,12 @@ function destination(node) {
     ) ?? null;
 }
 
-function clearIfOutside(event) {
-    if (!event.relatedTarget) clear();
-}
-
 function clear() {
     document.querySelectorAll('.library-drag-over, .library-row.drag-source')
         .forEach(element => element.classList.remove('library-drag-over', 'drag-source'));
     paths = [];
+    candidate = null;
+    dragging = false;
 }
 
 function clearTargets() {
