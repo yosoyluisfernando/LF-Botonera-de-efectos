@@ -1,29 +1,42 @@
 import { invoke, listen } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
-import { createWaveform } from './waveformCanvas.js';
 import { bindTransport, play, playInicio, stop, halt, onCursorMark, refreshPreviewGain } from './trackTransport.js';
 import { dockIn, openPreferred, popOut, syncButton } from './trackEditorWindow.js';
+import * as loading from './trackEditorLoading.js';
+import { createEditorWave } from './trackEditorWave.js';
 import * as normConfig from './normConfig.js';
 
 const BUCKETS = 4000;
 
 let _wave = null, _path = '', _name = '', _meta = null, _onSaved = null, _wired = false;
+let _analysisVersion = 0, _loading = false;
 
 export async function openTrackEditor(path, name, onSaved, options = {}) {
     if (!path) return;
+    const version = ++_analysisVersion;
+    _loading = true;
+    halt();
     _path = path; _name = name || ''; _onSaved = onSaved;
     _wireOnce();
     const initialZoom = _zoomValue(options.zoom);
     document.getElementById('te-zoom').value = initialZoom;
     document.getElementById('te-name').textContent = _name ? `${t('track_editor.title_separator')}${_name}` : '';
     document.getElementById('track-editor-modal').classList.remove('hidden');
-    _setStatus(t('track_editor.loading'));
+    _meta = null;
+    _wave = _wave || createEditorWave({
+        onCursorChange: onCursorMark,
+        onMarkerChange: (s, e) => {
+            if (!_meta) return;
+            _meta.cue_start_s = s; _meta.cue_end_s = e; _updateCueReadout();
+        },
+        onZoom: dir => _stepZoom(dir),
+    });
+    loading.begin(_wave, initialZoom, t('track_editor.loading'));
     try {
         const r = await invoke('analyze_track', { path, buckets: BUCKETS });
+        if (version !== _analysisVersion) return;
         _meta = r.meta;
         _meta.norm_enabled = true;
-        _wave = _wave || _makeWave();
-        _wave.setZoom(initialZoom);
         _sanitizeCue(r.duration_s);
         bindTransport(_wave, _meta, _path);
         _wave.setData({ duration: r.duration_s, peaks: r.waveform });
@@ -32,32 +45,21 @@ export async function openTrackEditor(path, name, onSaved, options = {}) {
         _fillControls(r);
         _applyDetectedCue(r);
         syncButton();
-        _setStatus(null);
+        _loading = false;
+        loading.complete();
         const cfg = await invoke('get_config');
+        if (version !== _analysisVersion) return;
         if (!cfg.norm_prompted) normConfig.open(cfg.norm || {}, cfg.cue_detect || {}, { firstTime: true, waveformCache: cfg.waveform_cache || {} });
     } catch (e) {
+        if (version !== _analysisVersion) return;
+        _loading = false;
         console.error('Error al analizar pista:', e);
-        _setStatus(t('track_editor.error'));
+        loading.failed(t('track_editor.error'));
     }
 }
 
 export async function openPreferredTrackEditor(path, name, onSaved) {
     return openPreferred(path, name, onSaved, openTrackEditor);
-}
-
-function _makeWave() {
-    const els = {
-        container: document.getElementById('te-wave-container'),
-        inner: document.getElementById('te-wave-inner'),
-        canvas: document.getElementById('te-canvas'),
-        cursor: document.getElementById('te-cursor'),
-        timeText: document.getElementById('te-time-text'),
-    };
-    return createWaveform(els, {
-        onCursorChange: onCursorMark,
-        onMarkerChange: (s, e) => { _meta.cue_start_s = s; _meta.cue_end_s = e; _updateCueReadout(); },
-        onZoom: dir => _stepZoom(dir),
-    });
 }
 
 function _gainLinear() { return Math.pow(10, _effectiveGainDb() / 20); }
@@ -128,8 +130,9 @@ function _wireOnce() {
     if (_wired) return;
     _wired = true;
     listen('track-analysis-progress', e => {
-        const p = e.payload || {}; if (p.path !== _path) return;
-        _setStatus(t(`track_editor.analysis_${p.stage}`) || t('track_editor.loading'));
+        const p = e.payload || {};
+        if (!_loading || p.path !== _path || p.stage === 'ready') return;
+        loading.progress(t(`track_editor.analysis_${p.stage}`) || t('track_editor.loading'));
     }).catch(console.error);
     const on = (id, ev, fn) => document.getElementById(id).addEventListener(ev, fn);
     on('te-gain', 'input', _applyGainToWave);
@@ -182,6 +185,9 @@ async function _save() {
 }
 
 async function _close() {
+    ++_analysisVersion;
+    _loading = false;
+    loading.dismiss();
     halt();
     if (document.body.classList.contains('editor-window-mode')) {
         await invoke('set_editor_mode', { mode: 'window' }).catch(console.error);
@@ -190,11 +196,4 @@ async function _close() {
         await invoke('set_editor_mode', { mode: 'modal' }).catch(console.error);
         document.getElementById('track-editor-modal').classList.add('hidden');
     }
-}
-
-function _setStatus(text) {
-    const el = document.getElementById('te-status');
-    if (!text) return el.classList.add('hidden');
-    el.textContent = text;
-    el.classList.remove('hidden');
 }

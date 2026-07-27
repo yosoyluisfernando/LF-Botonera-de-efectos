@@ -44,7 +44,10 @@ function paintProgress(progress) {
                 ? 'library.index_cataloging'
                 : 'library.index_cataloging_progress'
             : 'library.index_discovering';
-    const message = t(key)
+    const percentage = phase === 'enriching' && total > 0
+        ? `${Math.min(100, Math.round((processed / total) * 100))}% — `
+        : '';
+    const message = percentage + t(key)
         .replace('{processed}', processed)
         .replace('{total}', total);
     paint(message);

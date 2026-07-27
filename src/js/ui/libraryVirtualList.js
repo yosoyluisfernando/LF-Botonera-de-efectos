@@ -4,27 +4,32 @@ const OVERSCAN = 50;
 
 export function createLibraryVirtualList(container, createRow) {
     let items = [];
+    let offset = 0;
+    let total = 0;
 
-    function setItems(next) {
+    function setItems(next, metrics = {}) {
         items = next;
+        offset = Math.max(0, metrics.offset ?? 0);
+        total = Math.max(items.length, metrics.total ?? items.length);
         render();
     }
 
     function render() {
-        const firstVisible = Math.floor(container.scrollTop / ROW_HEIGHT);
+        const firstVisible = Math.floor(container.scrollTop / ROW_HEIGHT) - offset;
         const visible = Math.ceil(container.clientHeight / ROW_HEIGHT) || 1;
-        const start = Math.max(0, firstVisible - OVERSCAN);
-        const end = Math.min(items.length, firstVisible + visible + OVERSCAN);
+        const start = Math.min(items.length, Math.max(0, firstVisible - OVERSCAN));
+        const end = Math.min(
+            items.length, Math.max(start, firstVisible + visible + OVERSCAN));
         container.replaceChildren(
-            spacer(start * ROW_HEIGHT),
+            spacer((offset + start) * ROW_HEIGHT),
             ...items.slice(start, end).map((item, offset) =>
                 createRow(item, start + offset)),
-            spacer((items.length - end) * ROW_HEIGHT),
+            spacer(Math.max(0, total - offset - end) * ROW_HEIGHT),
         );
     }
 
     function ensureVisible(index) {
-        const top = index * ROW_HEIGHT;
+        const top = (offset + index) * ROW_HEIGHT;
         const bottom = top + ROW_HEIGHT;
         if (top < container.scrollTop) container.scrollTop = top;
         else if (bottom > container.scrollTop + container.clientHeight) {

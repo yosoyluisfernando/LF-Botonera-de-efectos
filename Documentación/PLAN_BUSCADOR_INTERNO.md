@@ -675,10 +675,8 @@ Cada caso debe fijar qué resultado gana y qué falsos positivos son inaceptable
 
 ## 8. Decisiones todavía abiertas
 
-1. Acción principal de Enter y doble clic:
-   - preescuchar;
-   - reproducir al aire;
-   - añadir a la cola.
+1. Enter y doble clic quedan sin acción por decisión del autor. Las acciones de
+   reproducción se ofrecen únicamente en el menú contextual.
 2. Acciones secundarias que entran en la primera versión:
    - añadir al reproductor;
    - asignar a la pestaña activa;
@@ -813,8 +811,38 @@ La prueba funcional debe generarse con `npm run tauri build -- --no-bundle`. Un
 `cargo build --release` aislado no sustituye el empaquetado Tauri y puede dejar el
 ejecutable intentando abrir la URL de desarrollo.
 
-Siguiente paso: prueba funcional Release y, después, ventana independiente Biblioteca.
-Enter y doble clic siguen sin acción hasta una decisión posterior.
+Siguiente paso: ventana independiente Biblioteca. Enter y doble clic quedan sin
+acción; el menú contextual es la única puerta a las acciones de pista.
+
+### Diseño aprobado de la ventana Biblioteca — 2026-07-27
+
+- La Biblioteca copia deliberadamente la distribución visual de
+  `C:\LF Automatizador v1.0\frontend\libreria.html`: barra superior, navegador local
+  oscuro a la izquierda, tabla amplia a la derecha y estado inferior. No copia su
+  implementación Electron ni consulta `LF Automatizador 2.0`.
+- Es una ventana independiente de instancia única y se abre desde un botón propio en
+  la barra superior. Su atajo será opcional y configurable en el apartado de atajos
+  existente cuando se implemente.
+- Arriba incluye el buscador compartido, `Actualizar`, `Mostrar todo` y un único botón
+  `Centro de procesamiento` con engranaje.
+- El navegador muestra primero Efectos y Música, cada categoría con cualquier cantidad
+  de raíces y subcarpetas indexadas, y después las unidades de almacenamiento.
+- Explorar una unidad muestra carpetas y archivos de audio compatibles, pero nunca
+  guarda ni indexa contenido. Añadir raíces ocurre exclusivamente en el Centro de
+  procesamiento.
+- El alfiler y el acceso al administrador desaparecen del panel fijo. El progreso de
+  indexación sí permanece visible allí.
+- El modal existente se traslada a la Biblioteca. No incluye el editor de pista ni
+  herramientas de modificación: esas acciones continúan en el menú contextual.
+- El avance de duración y etiquetas muestra porcentaje global cuando el total ya es
+  conocido, además de procesados y total.
+- La tabla omite intro, outro, BPM y dB. Conserva los modos `Título y artista` y
+  `Nombre del archivo`, seleccionables abajo a la derecha.
+- Enter y doble clic no ejecutan acciones. El menú contextual sigue siendo la única
+  puerta a LIVE, CUE, reproductor y editor de pista.
+- El transporte del arrastre entre dos WebView se probará de forma aislada. Se
+  reutilizarán los destinos y órdenes existentes; no se creará otra lógica de
+  asignación.
 
 ---
 

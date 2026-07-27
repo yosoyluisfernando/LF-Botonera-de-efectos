@@ -110,6 +110,35 @@ fn backward_cursor_supports_lazy_scrolling_up() {
     let _ = fs::remove_dir_all(root);
 }
 
+#[test]
+fn root_and_folder_scope_only_returns_descendants() {
+    let (connection, root) = catalog(12);
+    let root_id = connection
+        .query_row("SELECT id FROM library_root LIMIT 1", [], |row| row.get(0))
+        .unwrap();
+    connection
+        .execute(
+            "UPDATE library_track SET relative_path='Rock/' || file_name
+             WHERE file_name<'Pista 000006'",
+            [],
+        )
+        .unwrap();
+    let page = browse_scoped(
+        &connection,
+        Some("music"),
+        Some(root_id),
+        Some("Rock"),
+        20,
+        None,
+        BrowseDirection::Forward,
+    )
+    .unwrap();
+    assert_eq!(page.items.len(), 6);
+    assert!(page.items.iter().all(|item| item.path.contains("Rock")));
+    drop(connection);
+    let _ = fs::remove_dir_all(root);
+}
+
 fn catalog(count: usize) -> (rusqlite::Connection, std::path::PathBuf) {
     let root = tree("browse");
     let mut connection = db::open(None).unwrap();

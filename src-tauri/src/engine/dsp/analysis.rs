@@ -1,7 +1,7 @@
 /// Analisis DSP de pistas fuera del hilo de audio.
 use crate::engine::audio::decode as audio_decode;
 use crate::engine::cache::cached_source::CachedPcm;
-use crate::engine::dsp::cue_detect;
+use crate::engine::dsp::{block_decode, cue_detect};
 use crate::engine::dsp::waveform::WaveEnvelope;
 use crate::model::norm::{CueDetectConfig, NormConfig};
 use crate::model::track::TrackMeta;
@@ -30,10 +30,7 @@ pub fn analyze(
     norm: &NormConfig,
     cue: &CueDetectConfig,
 ) -> Result<AnalysisResult, String> {
-    let src = audio_decode::source_from_path(path, false).ok_or("unsupported_audio_format")?;
-    let channels = src.channels().max(1);
-    let rate = src.sample_rate().max(1);
-    let samples: Vec<f32> = src.collect();
+    let (samples, channels, rate) = decode_samples(path)?;
     if samples.is_empty() {
         return Err("empty_audio".to_string());
     }
@@ -78,10 +75,7 @@ pub fn analyze_waveform_only(
     path: &str,
     cue: &CueDetectConfig,
 ) -> Result<WaveformOnlyResult, String> {
-    let src = audio_decode::source_from_path(path, false).ok_or("unsupported_audio_format")?;
-    let channels = src.channels().max(1);
-    let rate = src.sample_rate().max(1);
-    let samples: Vec<f32> = src.collect();
+    let (samples, channels, rate) = decode_samples(path)?;
     if samples.is_empty() {
         return Err("empty_audio".to_string());
     }
@@ -97,6 +91,17 @@ pub fn analyze_waveform_only(
         auto_cue_start_s,
         auto_cue_end_s,
     })
+}
+
+fn decode_samples(path: &str) -> Result<(Vec<f32>, u16, u32), String> {
+    if let Some(decoded) = block_decode::decode(path) {
+        return Ok((decoded.samples, decoded.channels, decoded.sample_rate));
+    }
+    let source =
+        audio_decode::source_from_path(path, false).ok_or("unsupported_audio_format")?;
+    let channels = source.channels().max(1);
+    let sample_rate = source.sample_rate().max(1);
+    Ok((source.collect(), channels, sample_rate))
 }
 
 fn measure_lufs(interleaved: &[f32], channels: u16, rate: u32) -> Option<f64> {
@@ -172,3 +177,7 @@ mod tests {
         assert!((suggest_gain(Some(-14.0), -6.0, &norm_peak()) - 5.0).abs() < 1e-9);
     }
 }
+
+#[cfg(test)]
+#[path = "analysis_benchmark_tests.rs"]
+mod benchmark_tests;

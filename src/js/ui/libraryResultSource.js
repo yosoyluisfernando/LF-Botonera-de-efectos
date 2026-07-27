@@ -13,7 +13,7 @@ export function createLibraryResultSource() {
     let loading = false;
     let version = 0;
 
-    async function fresh(query, collection) {
+    async function fresh(query, collection, scope = {}) {
         const ownVersion = ++version;
         if (query) {
             const found = await invoke('library_search', { query, collection, limit: 500 });
@@ -24,7 +24,8 @@ export function createLibraryResultSource() {
             return { items, searchCount: items.length, scrollRows: 0 };
         }
         const page = await invoke('library_browse', {
-            collection, limit: CHUNK, direction: 'forward',
+            collection, rootId: scope.rootId, relativePrefix: scope.relativePrefix,
+            limit: CHUNK, direction: 'forward',
         });
         if (ownVersion !== version) return { stale: true };
         items = page.items;
@@ -35,13 +36,14 @@ export function createLibraryResultSource() {
         return { items, searchCount: null, scrollRows: 0 };
     }
 
-    async function extend(direction, collection) {
+    async function extend(direction, collection, scope = {}) {
         const cursor = direction === 'forward' ? nextCursor : previousCursor;
         if (loading || !cursor) return null;
         loading = true;
         try {
             const page = await invoke('library_browse', {
-                collection, limit: CHUNK, cursor, direction,
+                collection, rootId: scope.rootId, relativePrefix: scope.relativePrefix,
+                limit: CHUNK, cursor, direction,
             });
             return direction === 'forward' ? append(page) : prepend(page);
         } finally {

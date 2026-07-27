@@ -1,5 +1,9 @@
 pub mod browse;
+pub mod browse_window;
+pub mod catalog_count;
+pub mod catalog_tree;
 pub mod catalog_store;
+pub mod filesystem;
 pub mod incremental;
 mod index_discovery;
 mod index_enrichment;

@@ -1,5 +1,94 @@
 # Continuidad de sesión — buscador interno y distribución
 
+## Preparación de la próxima publicación — 2026-07-27
+
+- Microsoft Store publica actualmente 1.2.1 mediante la Submission 2
+  (`1152921505701463690`) en 240 mercados.
+- La actualización 1.3.0.0 se envió el 2026-07-27 mediante la Submission 3
+  (`1152921505701501616`). Partner Center la muestra como `Update in certification`,
+  en `Pre-processing` (paso 2 de 4).
+- La Submission 3 está configurada para publicarse automáticamente apenas apruebe la
+  certificación, sin fecha ni hora programada.
+- GitHub Releases continúa en 1.2.0; no existe todavía el tag 1.2.1.
+- La próxima versión propuesta es 1.3.0 (`1.3.0.0` en MSIX), por la incorporación de
+  Biblioteca y buscador sin ruptura de compatibilidad.
+- La versión fuente ya está sincronizada a 1.3.0 y Partner Center validó el paquete
+  MSIX 1.3.0.0.
+- El CHANGELOG contiene un anuncio principal de disponibilidad en Microsoft Store y
+  un resumen limpio de cambios visibles.
+- Notas extensas de GitHub:
+  [`NOTAS_RELEASE_GITHUB_SIGUIENTE.md`](NOTAS_RELEASE_GITHUB_SIGUIENTE.md).
+- Textos localizados para Store:
+  [`store/NOTAS_VERSION_SIGUIENTE.md`](store/NOTAS_VERSION_SIGUIENTE.md).
+- Versión fuente sincronizada a 1.3.0 y MSIX Store 1.3.0.0 generado y auditado:
+  `src-tauri/target/msix/LF-Botonera-1.3.0.0-x64-unsigned.msix`.
+- SHA-256 del MSIX:
+  `56E2D70AC832B36AB1A005B734DB948FB0CB0F19B2886EBEA5705E5FFCD2AD8E`.
+- Pendiente inmediato: subir el código a GitHub, verificar la compilación manual sin
+  crear el tag ni publicar el release y esperar la certificación de Microsoft.
+
+## Biblioteca independiente autorizada — 2026-07-27
+
+El autor aprobó comenzar la ventana Biblioteca y pidió conservar de forma reconocible
+el estilo visual de la Biblioteca de `C:\LF Automatizador v1.0`. Ignorar por completo
+`C:\LF Automatizador v1.0\LF Automatizador 2.0`.
+
+Decisiones cerradas:
+
+- ventana de instancia única abierta desde un botón propio de la barra superior;
+- buscador compartido arriba a la izquierda;
+- navegador izquierdo: Efectos, Música y después unidades de almacenamiento;
+- tabla grande a la derecha, sin intro, outro, BPM ni dB;
+- `Actualizar`, `Mostrar todo` y `Centro de procesamiento` en la barra superior;
+- selector `Título y artista` / `Nombre del archivo` abajo a la derecha;
+- explorar discos no indexa ni persiste nada;
+- el administrador de raíces se traslada a la Biblioteca y se retira el alfiler del
+  panel fijo; el progreso sí continúa visible en el panel;
+- el Centro de procesamiento no duplica el editor de pista ni añade modificación de
+  etiquetas;
+- duración y etiquetas presentan porcentaje global cuando el total se conoce;
+- Enter y doble clic quedan sin acción; usar exclusivamente el menú contextual;
+- el atajo para abrir la Biblioteca será opcional desde el sistema de atajos existente;
+- el arrastre entre Biblioteca y ventana principal necesita una prueba técnica
+  multiplataforma, pero sus operaciones finales deben reutilizar las actuales.
+
+La referencia aporta presentación, no arquitectura. No copiar su catálogo completo en
+JavaScript, almacenamiento de sesión, escaneo al refrescar ni acceso Node al disco.
+
+Primera etapa implementada:
+
+- `library.html` es una entrada real de Vite y la ventana Tauri `library` es de
+  instancia única;
+- botón propio con icono de Biblioteca en la barra superior;
+- distribución visual equivalente al LF Automatizador, adaptada a los temas;
+- árbol de Efectos/Música derivado del catálogo y navegación por raíz/subcarpeta;
+- iconos con color en el navegador para distinguir Música, Efectos, carpetas y
+  unidades de almacenamiento;
+- detección y exploración de unidades desde Rust, sin persistencia;
+- el panel derecho muestra exclusivamente archivos de audio; las carpetas existen
+  únicamente en el árbol izquierdo para navegar;
+- tabla virtual, selección compartida, menú contextual y modos de presentación;
+- doble clic en las carpetas del navegador para desplegar u ocultar sus subcarpetas;
+- contador inferior con el total real del alcance seleccionado, no con el tamaño del
+  bloque cargado;
+- selector de presentación superpuesto hacia arriba, sin reducir la altura de la tabla;
+- barra vertical de tamaño estable desde el primer dibujo: Rust entrega total y
+  posición absoluta, y la lista pide directamente el bloque correspondiente al
+  arrastrar la barra, sin recorrer ni cargar los bloques intermedios;
+- Centro de procesamiento trasladado y alfiler retirado del panel fijo;
+- porcentaje de duración/etiquetas cuando el total de enriquecimiento es conocido;
+- textos añadidos en español, inglés, portugués de Brasil y portugués de Portugal.
+
+Evidencia: `cargo test --lib` aprobó 265 pruebas y dejó 16 ignoradas;
+`cargo build --lib`, `npm run build` y `rustfmt --check` de los módulos modificados
+aprobaron. Vite generó tanto `dist/index.html` como `dist/library.html`.
+`npm run tauri build -- --no-bundle` también aprobó. El ejecutable Release actualizado
+está en `src-tauri/target/release/tauri-app.exe`.
+
+Siguiente paso: prueba funcional Release de apertura, árbol, totales, desplazamiento
+directo, unidades, Centro y menú contextual. Después, prueba técnica aislada del
+arrastre entre ventanas. No afirmar que el arrastre ya está resuelto.
+
 Este documento es el punto de entrada para retomar el trabajo después de completar la
 publicación de **LF Botonera de Efectos 1.2.1** en Microsoft Store y fusionar la rama
 de distribución con `main`.
@@ -349,6 +438,32 @@ Diagnóstico de memoria del 2026-07-26:
   aplicar flags agresivos de WebView2 ni reducir la precarga sin una medición que
   identifique crecimiento sostenido;
 - la instancia Release iniciada para la medición se cerró al terminar.
+
+Rendimiento del editor de pistas actualizado el 2026-07-27:
+
+- se reprodujeron los 20–30 segundos informados por el autor: la misma canción
+  tardó 32,32 s en Debug y 2,22 s en Release antes de optimizar;
+- `engine/dsp/block_decode.rs` entrega paquetes completos desde Symphonia y conserva
+  el decodificador central como fallback para formatos especiales como Ogg/Opus;
+- la caché `.wfc` mantiene su versión y formato, pero usa `BufReader`/`BufWriter`:
+  en pistas reales, escribir bajó de unos 700 ms a 2 ms y leer de unos 560 ms a
+  10–11 ms;
+- tres canciones de `D:\Music\Vallenato` sin LUFS/pico ni entrada previa `.wfc`
+  tardaron 1.025, 841 y 921 ms en su primera lectura Release completa, incluida una
+  escritura y lectura temporal de la forma de onda;
+- la compatibilidad de tiempo y cantidad de muestras frente al decodificador
+  compartido está cubierta por una prueba física ignorada por defecto;
+- verificación final: 261 pruebas automáticas aprobadas, 16 físicas ignoradas,
+  `cargo build --lib`, `npm run build` y
+  `npm run tauri build -- --no-bundle` correctos; el ejecutable Release quedó en
+  `src-tauri/target/release/tauri-app.exe`;
+- el refuerzo visual se completó después de la prueba funcional: Rust ya no emite
+  `ready`; la respuesta IPC es la única finalización, la UI limpia onda y mediciones
+  anteriores, bloquea controles durante la carga e ignora eventos o respuestas
+  tardíos después de cerrar o cambiar de pista;
+- la ventana `track-editor` es una instancia única reutilizable: una nueva orden
+  `track-editor-open` cambia su pista y después la restaura, muestra y enfoca. Así,
+  volver a elegir «Editor de pista» no la deja detrás de la ventana principal.
 
 Se auditó `C:\LF Automatizador v1.0` como referencia, excluyendo completamente
 `C:\LF Automatizador v1.0\LF Automatizador 2.0`. Los hallazgos útiles y los límites que

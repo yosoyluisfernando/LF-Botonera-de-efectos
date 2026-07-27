@@ -9,7 +9,7 @@ export async function openPreferred(path, name, onSaved, openModal) {
     if (!path) return;
     const cfg = await invoke('get_config').catch(() => ({}));
     if (cfg.editor_mode === 'window' && !document.body.classList.contains('editor-window-mode')) {
-        if (openWindow(path, name || '')) return;
+        if (await openWindow(path, name || '')) return;
     }
     return openModal(path, name, onSaved);
 }
@@ -22,7 +22,7 @@ export function syncButton() {
 }
 
 export async function popOut(path, name, onClose, zoom = 1) {
-    if (openWindow(path, name, zoom)) {
+    if (await openWindow(path, name, zoom)) {
         await invoke('set_editor_mode', { mode: 'window' }).catch(console.error);
         onClose();
     }
@@ -39,10 +39,20 @@ export async function dockIn(path, name, onClose, zoom = 1) {
     window.__TAURI__?.window?.getCurrentWindow?.().close();
 }
 
-function openWindow(path, name, zoom = 1) {
+async function openWindow(path, name, zoom = 1) {
     const url = `index.html?editor=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}&zoom=${encodeURIComponent(zoom)}`;
     try {
-        new window.__TAURI__.webviewWindow.WebviewWindow('track-editor', {
+        const api = window.__TAURI__;
+        const WindowClass = api.webviewWindow.WebviewWindow;
+        const existing = await WindowClass.getByLabel('track-editor');
+        if (existing) {
+            await api.event.emitTo('track-editor', 'track-editor-open', { path, name, zoom });
+            await existing.unminimize();
+            await existing.show();
+            await existing.setFocus();
+            return true;
+        }
+        new WindowClass('track-editor', {
             url, title: t('track_editor.title'), width: 1100, height: 720, center: true, resizable: true,
         });
         return true;

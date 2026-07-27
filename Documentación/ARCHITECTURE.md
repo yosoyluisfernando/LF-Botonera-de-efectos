@@ -242,10 +242,14 @@ Plan y fases: [`PLAN_CONSOLA_VIRTUAL.md`](PLAN_CONSOLA_VIRTUAL.md).
 
 ## Biblioteca y buscador interno
 
-La Biblioteca tendrá dos superficies sobre un solo estado: búsqueda rápida como
-tercera vista del panel fijo y una ventana independiente para administrar el catálogo
-completo. Ninguna superficie recorre carpetas ni calcula similitud; ambas consultarán
-el mismo motor Rust.
+La Biblioteca tiene dos superficies sobre un solo estado: búsqueda rápida como
+tercera vista del panel fijo y la ventana independiente `library.html` para administrar
+el catálogo completo. Ninguna superficie calcula similitud; ambas consultan el mismo
+motor Rust. El panel usa `library_browse` para su carga continua. La ventana completa
+usa `library_browse_window`, que devuelve un bloque por posición absoluta junto con
+`total` y `offset`: así la barra vertical representa el catálogo entero desde el
+principio y puede saltar a cualquier zona sin cargar los bloques anteriores.
+`library_folder_children` deriva el árbol sin volver a indexar.
 
 `tracks.db` continúa como única base. La versión 2 del esquema añade `library_root`,
 con una ruta normalizada y una colección explícita `music` o `effects`. La ruta es
@@ -258,11 +262,18 @@ con una ruta normalizada y una colección explícita `music` o `effects`. La rut
 - una subcarpeta de otra colección se conserva como excepción;
 - cuando varias reglas cubren una ruta, manda la más específica.
 
-El alfiler del Buscador administra altas sin crear otra configuración: el frontend
-mantiene únicamente un borrador y `library_add_roots` confirma todas las rutas en una
-transacción Rust. La validación completa ocurre antes de escribir; Cancelar no invoca
-ninguna mutación. Después, `library_sync_all` usa el indexador compartido y
-`library-index-progress` alimenta el modal y el panel.
+El Centro de procesamiento de la ventana Biblioteca administra altas sin crear otra
+configuración: el frontend mantiene únicamente un borrador y `library_add_roots`
+confirma todas las rutas en una transacción Rust. La validación completa ocurre antes
+de escribir; Cancelar no invoca ninguna mutación. Después, `library_sync_all` usa el
+indexador compartido y `library-index-progress` alimenta el modal y el panel.
+
+La exploración de almacenamiento es deliberadamente distinta del catálogo:
+`library_storage_roots` detecta unidades y `library_read_directory` devuelve carpetas
+y archivos de audio compatibles mediante trabajo bloqueante fuera del hilo UI.
+Explorar nunca añade raíces ni escribe en `tracks.db`. La ventana separa esas dos
+clases de resultado: las carpetas alimentan únicamente el árbol izquierdo y el panel
+derecho presenta exclusivamente los archivos de audio de la ubicación seleccionada.
 
 Enter y doble clic todavía no tienen acción. `Reproducir al aire` ya usa el id
 `__library_live__` por el bus Programa, separado del CUE. El documento rector es
@@ -372,20 +383,22 @@ trackEditor.js → invoke('analyze_track', { path })
     ▼
 cmd_tracks::analyze_track (Rust)
     ├── spawn_blocking → engine::dsp::editor_analysis::analyze_track()
-    ├── Emite "track-analysis-progress" por etapas: cache, decode, analyze, save, cleanup
+    ├── Emite progreso intermedio: cache, decode, waveform, save, cleanup
+    │     └── La única señal de finalización es la respuesta IPC, no otro evento
     ├── Comprueba TrackAnalysisCache en memoria (mtime/size)
     ├── Si tracks.db sigue válido + waveform_disk hit:
     │     └── Devuelve resultado sin decodificar el audio completo
     ├── Si tracks.db sigue válido + falta waveform:
     │     └── Reconstruye solo WaveEnvelope, guarda caché persistente y devuelve
     ├── Si no hay caché válida:
-    │     ├── Decodifica PCM completo (symphonia)
+    │     ├── Decodifica PCM completo por paquetes (symphonia)
+    │     │     └── fallback al decodificador compartido para formatos especiales
     │     ├── Mide LUFS integrado (ebur128)
     │     ├── Mide pico dBFS
     │     ├── Calcula ganancia sugerida según configuración global
     │     └── Construye WaveEnvelope (min/max por bucket, hasta 120k puntos)
     ├── Upsert en tracks.db (preserva cue/dB del usuario si ya había fila)
-    ├── Guarda WaveEnvelope en caché persistente de disco
+    ├── Guarda WaveEnvelope en caché persistente con E/S binaria agrupada
     ├── Inserta PCM en PreloadCache solo si la precarga está activa y el archivo cabe
     └── Devuelve AnalysisResult al frontend
     │
@@ -398,6 +411,12 @@ trackTransport.js: cursor de reproducción con requestAnimationFrame
     ├── Al pulsar Play: registra startClock = performance.now() - playOrigin
     └── Loop rAF: t = performance.now() - startClock; actualiza posición del cursor
 ```
+
+En modo ventana solo existe una instancia con la etiqueta `track-editor`. Si ya está
+abierta, `trackEditorWindow.js` le envía `track-editor-open` con la pista solicitada,
+la restaura si estaba minimizada, la muestra y solicita foco. La ventana recibe la
+orden y reutiliza `openTrackEditor`; no se crea un segundo editor ni se conserva una
+pista anterior en primer plano.
 
 ---
 

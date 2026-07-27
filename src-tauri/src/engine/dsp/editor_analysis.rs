@@ -52,7 +52,6 @@ pub fn analyze_track(
             hit.pcm.channels,
             &cue,
         );
-        emit(&app, &path, "ready");
         return Ok(response_from(&hit, merged, buckets, detected));
     }
     if let Some(row) = valid_track_row(&state, &path, mtime, size)? {
@@ -60,7 +59,6 @@ pub fn analyze_track(
             let env = Arc::new(env);
             state.waveforms.lock().unwrap().put(&key, Arc::clone(&env));
             let _ = waveform_disk::cleanup(&wave_cfg);
-            emit(&app, &path, "ready");
             return Ok(response_from_envelope(
                 &env,
                 &row,
@@ -75,7 +73,6 @@ pub fn analyze_track(
         let env = Arc::new(wf.envelope);
         state.waveforms.lock().unwrap().put(&key, Arc::clone(&env));
         let _ = waveform_disk::cleanup(&wave_cfg);
-        emit(&app, &path, "ready");
         return Ok(response_from_envelope(
             &env,
             &row,
@@ -128,7 +125,6 @@ pub fn analyze_track(
         .put(&key, Arc::clone(&item.envelope));
     emit(&app, &path, "cleanup");
     let _ = waveform_disk::cleanup(&wave_cfg);
-    emit(&app, &path, "ready");
     Ok(response_from(&item, merged, buckets, detected))
 }
 

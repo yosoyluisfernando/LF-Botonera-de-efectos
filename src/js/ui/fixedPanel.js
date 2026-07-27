@@ -10,7 +10,7 @@ import { initFixedPanelResize } from './fixedPanelResize.js';
 import { initPlayerView, drawPlayerView } from './playerView.js';
 import { initFixedPanelViews, refreshFixedPanelView } from './fixedPanelViews.js';
 import { initLibrarySearch, drawLibrarySearch } from './librarySearchView.js';
-import { initLibraryRootsModal } from './libraryRootsModal.js';
+import { initLibraryIndexProgress } from './libraryIndexProgress.js';
 
 let _refresh = null;
 let _buttons = {};
@@ -23,7 +23,7 @@ export function initFixedPanel(state, onRefresh) {
     initPlayerView();
     initFixedPanelViews(drawFixedPanel);
     initLibrarySearch(onRefresh, drawFixedPanel);
-    initLibraryRootsModal();
+    initLibraryIndexProgress();
     document.getElementById('fixed-panel-add').addEventListener('click', async () => {
         const current = await invoke('get_fixed_panel');
         const next = Math.max(0, ...current.buttons.map(b => b.index)) + 1;

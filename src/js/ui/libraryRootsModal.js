@@ -1,7 +1,6 @@
 /** Modal transaccional para preparar raíces y comenzar su indexación. */
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
-import { refreshLibrarySearch } from './librarySearchView.js';
 import {
     clearLibraryIndexProgress, initLibraryIndexProgress, setLibraryIndexError,
     setLibraryIndexFinished, setLibraryIndexStarting,
@@ -11,8 +10,10 @@ let configured = [];
 let drafts = [];
 let running = false;
 let wired = false;
+let onComplete = null;
 
-export function initLibraryRootsModal() {
+export function initLibraryRootsModal(options = {}) {
+    onComplete = options.onComplete ?? null;
     if (wired) return;
     wired = true;
     initLibraryIndexProgress();
@@ -72,7 +73,7 @@ async function startIndexing() {
         await invoke('library_sync_all');
         const status = await invoke('library_status');
         setLibraryIndexFinished(status.present);
-        await refreshLibrarySearch();
+        await onComplete?.();
         configured = await invoke('library_list_roots');
         render();
     } catch (error) {

@@ -1,8 +1,7 @@
 /** Menú contextual específico de resultados de Biblioteca. */
-import { invoke } from '../bridge/api.js';
 import { placeMenu } from '../util/menuPosition.js';
-import { drawPlayerView } from './playerView.js';
 import { alertIpcError } from './ipcError.js';
+import { dispatchLibraryAction } from './libraryActionDispatch.js';
 
 let cleanup = null;
 let returnFocus = null;
@@ -28,25 +27,14 @@ function wire(selection, single, onEdited) {
     const preview = document.getElementById('library-menu-preview');
     const add = document.getElementById('library-menu-add-player');
     const editor = document.getElementById('library-menu-editor');
-    const item = selection[0];
-    const onLive = () => single && action(async () => {
-        const module = await import('./libraryLivePlayer.js');
-        await module.openLivePlayer(item);
-    });
-    const onPreview = () => single && action(async () => {
-        const module = await import('./prelisten.js');
-        await module.openPrelisten(
-            item.path, item.title || item.file_name, 1, item.duration_s);
-    });
-    const onAdd = () => action(async () => {
-        await invoke('player_add_tracks', { paths: selection.map(value => value.path) });
-        await drawPlayerView();
-    });
-    const onEditor = () => single && action(async () => {
-        const module = await import('./trackEditor.js');
-        await module.openPreferredTrackEditor(
-            item.path, item.title || item.file_name, onEdited);
-    });
+    const onLive = () => single && action(
+        () => dispatchLibraryAction('live', selection, onEdited));
+    const onPreview = () => single && action(
+        () => dispatchLibraryAction('preview', selection, onEdited));
+    const onAdd = () => action(
+        () => dispatchLibraryAction('player', selection, onEdited));
+    const onEditor = () => single && action(
+        () => dispatchLibraryAction('editor', selection, onEdited));
     live.addEventListener('click', onLive);
     preview.addEventListener('click', onPreview);
     add.addEventListener('click', onAdd);

@@ -27,7 +27,7 @@ Patrón Rust para compartir estado entre hilos. `Arc` es un contador de referenc
 Lo que hace el **doble clic** sobre una canción de la cola del reproductor: si está detenido, la reproduce; si algo está sonando, la **marca como siguiente** sin cortar la música. **La decisión la toma el motor, no la interfaz** (regla 4): el IPC es `player_activate_index` y la lógica, `QueueState::activate(index, is_playing)`. El `is_playing` lo aporta el hilo, que es quien conoce los decks, porque una [pista huérfana](#p) puede sonar sin estar ya en la cola. Un **clic simple no marca nada**: marcar sin querer al rozar una fila era problemático en directo.
 
 **`analyze_track`**
-Comando IPC (`cmd_tracks.rs`) que analiza una pista para el editor y devuelve: envolvente de onda, LUFS, pico en dBFS, ganancia sugerida, duración y metadatos de cue ya guardados. Delega en `engine::dsp::editor_analysis` mediante `spawn_blocking`, emite `track-analysis-progress`, reutiliza `TrackAnalysisCache`, `tracks.db` y caché persistente de waveform antes de decodificar el audio completo. Nunca corre en el hilo de audio.
+Comando IPC (`cmd_tracks.rs`) que analiza una pista para el editor y devuelve: envolvente de onda, LUFS, pico en dBFS, ganancia sugerida, duración y metadatos de cue ya guardados. Delega en `engine::dsp::editor_analysis` mediante `spawn_blocking`, emite `track-analysis-progress` solo para etapas intermedias y usa la respuesta IPC como única señal de finalización. Reutiliza `TrackAnalysisCache`, `tracks.db` y caché persistente de waveform antes de decodificar el audio completo. La primera decodificación usa Symphonia por bloques y conserva el decodificador compartido como fallback para formatos especiales; nunca corre en el hilo de audio.
 
 **`audio-tick`**
 Evento Tauri emitido por `engine/audio/monitor.rs` cada ~100 ms mientras hay audio
@@ -58,9 +58,10 @@ Fachada pública del motor de efectos en `engine/audio/engine.rs`. Posee el `Sen
 ## B
 
 **Biblioteca**
-Ventana prevista para explorar y administrar todo el catálogo indexado. No tiene un
-motor ni una base propios: comparte `LibraryService`, `tracks.db` y el ranking Rust
-con la vista rápida del panel fijo.
+Ventana independiente para explorar y administrar todo el catálogo indexado. No tiene
+un motor ni una base propios: comparte `LibraryService`, `tracks.db`, lista virtual,
+selección y acciones con la vista rápida del panel fijo. También permite recorrer
+unidades sin indexarlas.
 
 **`bdelf`**
 Extensión de archivo para exportar una paleta (pestaña) de la Botonera. JSON compatible con el LF Automatizador. Puede contener el campo opcional `bdelf_tracks` con metadatos de cue y dB que el LFA ignora.

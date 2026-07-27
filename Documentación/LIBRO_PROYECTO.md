@@ -293,12 +293,18 @@ y Biblioteca implementen scroll continuo. Los bloques y cursores son internos: l
 interfaz no muestra páginas y conserva solo las filas visibles más un margen de 50
 por encima y 50 por debajo.
 
-El administrador accesible desde el alfiler del Buscador permite preparar cualquier
+El Centro de procesamiento de la ventana Biblioteca permite preparar cualquier
 cantidad de carpetas de Música y Efectos. El borrador no sale del frontend hasta
 Iniciar; entonces `library_add_roots` valida todas las rutas y las confirma en una
 sola transacción. Esto evita estados parciales y conserva en un único lugar las reglas
 de solapamiento y unificación. El progreso real del indexador se muestra tanto en el
 modal como en el panel.
+
+`library.html` conserva la distribución visual de la Biblioteca del LF Automatizador:
+barra superior, navegador local izquierdo, tabla principal y estado inferior. Su árbol
+indexado se deriva de `library_track`; las unidades se exploran en vivo mediante Rust
+sin indexarlas. La página comparte lista virtual, selección, modos de presentación y
+acciones con el Buscador en lugar de mantener otro catálogo en JavaScript.
 
 La tercera vista `search` del panel fijo consume esa fuente mediante una ventana de
 datos acotada. La selección se conserva por ruta aunque una fila salga del DOM.
@@ -434,17 +440,25 @@ El editor de pistas es la función más compleja del sistema. Permite al usuario
 | Módulo | Rol |
 |---|---|
 | `trackEditor.js` | Orquestador: abre el modal o la ventana pop-out, pide análisis a Rust, conecta todos los sub-módulos |
+| `trackEditorLoading.js` | Limpia el resultado anterior, bloquea controles durante el análisis y presenta solo progreso vigente |
+| `trackEditorWave.js` | Construye el componente de onda con sus referencias DOM estables |
 | `trackTransport.js` | Controles de reproducción: Play, Stop cíclico, reanudar. Usa `requestAnimationFrame` para el cursor |
 | `waveformCanvas.js` | Dibuja la onda en un `<canvas>`: envolvente, marcadores de cue, playhead. Gestiona zoom y arrastre |
 | `trackEditorWindow.js` | Gestiona el modo ventana flotante (pop-out y docking) |
 | `editor_analysis.rs` | Orquesta el análisis en Rust con progreso, caché en memoria, `tracks.db` y caché persistente |
-| `audio_analysis.rs` | Decodifica el PCM completo, mide LUFS, calcula ganancia sugerida, construye la envolvente |
+| `analysis.rs` | Mide LUFS, calcula ganancia sugerida y construye la envolvente |
+| `block_decode.rs` | Decodifica PCM por paquetes con Symphonia y cae al decodificador compartido para formatos especiales |
 | `waveform.rs` | Almacena la envolvente de alta resolución; `view()` agrega para el zoom actual |
 | `waveform_disk.rs` | Persiste envolventes del editor en disco con límites de tamaño/antigüedad |
-| `waveform_binary.rs` | Serializa y lee la envolvente persistente del editor |
+| `waveform_binary.rs` | Serializa y lee la envolvente persistente mediante E/S agrupada |
 | `track_analysis_cache.rs` | Caché en memoria del análisis completo para no re-analizar si el archivo no cambió (mtime/size) |
 | `engine/persist/tracks.rs` | Persiste cue, dB y normalización en SQLite |
 | `cmd_tracks.rs` | Comandos IPC del editor; `analyze_track` delega en `editor_analysis.rs` mediante worker bloqueante |
+
+La respuesta de `analyze_track` es la única confirmación de que los datos ya pueden
+dibujarse. Los eventos `track-analysis-progress` no anuncian finalización. Cada
+apertura lleva una versión local: al cerrar o abrir otra pista, cualquier respuesta
+anterior queda invalidada y no puede repintar el editor actual.
 
 **Modelo de ganancia de 3 capas:**
 ```

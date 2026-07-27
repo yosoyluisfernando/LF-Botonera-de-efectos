@@ -50,6 +50,13 @@
         <button id="btn-add-tab" class="btn-add-tab" data-i18n-title="tabs.add_tooltip">+</button>
         <button id="btn-console" class="btn-settings" data-i18n-title="console.tooltip">🎛️</button>
         <button id="btn-fixed-panel" class="btn-settings btn-fixed-panel" data-i18n-title="fixed_panel.toggle">▤</button>
+        <button id="btn-library" class="btn-settings btn-library"
+                data-i18n-title="library.open_window"
+                data-i18n-aria-label="library.open_window">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5h5v14H4zM10.5 5h4v14h-4zM16 5l3.5-1 3 13.5-3.5 1z"/>
+          </svg>
+        </button>
         <button id="btn-profiles" class="btn-profile" data-i18n-title="profiles.tooltip">👤</button>
         <button id="btn-settings" class="btn-settings">⚙️</button>
       </div>
@@ -77,9 +84,6 @@
             </span>
             <span class="fixed-header-actions">
               <button id="fixed-panel-add" class="fixed-panel-add" data-i18n-title="fixed_panel.add">+</button>
-              <button id="library-roots-open" class="library-roots-open"
-                      data-i18n-title="library.roots_open"
-                      data-i18n-aria-label="library.roots_open">&#128204;</button>
               <span id="player-drop-progress" class="player-drop-progress hidden"></span>
               <span class="player-actions">
                 <button id="player-clear" data-i18n-title="player.clear">🧹</button>
@@ -412,49 +416,6 @@
         <div class="modal-footer">
           <button id="preload-dialog-skip" class="btn-dark" data-i18n="preload.dialog_skip">Ahora no</button>
           <button id="preload-dialog-save" class="btn-blue" data-i18n="preload.dialog_save">Guardar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Las carpetas quedan como borrador hasta pulsar Iniciar. -->
-    <div id="library-roots-modal" class="hidden modal-overlay" style="z-index:4660">
-      <div class="modal-content modal-lg library-roots-content"
-           role="dialog" aria-modal="true" aria-labelledby="library-roots-title">
-        <div class="modal-header">
-          <h3 id="library-roots-title" data-i18n="library.roots_title">Carpetas del buscador</h3>
-          <button class="close-btn" data-close="library-roots-modal"
-                  data-i18n-aria-label="library.roots_close">✕</button>
-        </div>
-        <div class="modal-body library-roots-body">
-          <p class="library-roots-help" data-i18n="library.roots_help"></p>
-          <section class="library-root-section" aria-labelledby="library-music-title">
-            <div class="library-root-heading">
-              <h4 id="library-music-title" data-i18n="library.music">Música</h4>
-              <button id="library-add-music" type="button" class="btn-dark"
-                      data-i18n="library.add_music">Añadir carpeta de música</button>
-            </div>
-            <div id="library-music-roots" class="library-root-list"></div>
-          </section>
-          <section class="library-root-section" aria-labelledby="library-effects-title">
-            <div class="library-root-heading">
-              <h4 id="library-effects-title" data-i18n="library.effects">Efectos</h4>
-              <button id="library-add-effects" type="button" class="btn-dark"
-                      data-i18n="library.add_effects">Añadir carpeta de efectos</button>
-            </div>
-            <div id="library-effects-roots" class="library-root-list"></div>
-          </section>
-          <div id="library-roots-notice" class="library-roots-notice"
-               role="status" aria-live="polite"></div>
-          <div class="library-index-progress hidden"
-               data-library-progress role="status" aria-live="polite"></div>
-        </div>
-        <div class="modal-footer">
-          <button id="library-roots-hide" type="button" class="btn-dark hidden"
-                  data-i18n="library.hide_window">Ocultar ventana</button>
-          <button id="library-roots-start" type="button" class="btn-blue"
-                  data-i18n="library.start_indexing">Iniciar</button>
-          <button id="library-roots-cancel" type="button" class="btn-dark"
-                  data-i18n="edit_modal.cancel">Cancelar</button>
         </div>
       </div>
     </div>
