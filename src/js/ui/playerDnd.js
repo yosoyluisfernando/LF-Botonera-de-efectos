@@ -1,8 +1,8 @@
 /**
  * Archivo: playerDnd.js
  * Proposito: arrastre de la cola del reproductor. Reordenar canciones con un
- * arrastre normal (sin Alt: en la lista el clic suelto no hace nada y el doble
- * clic activa la fila), recibir lo que se suelta desde el explorador o desde un
+ * arrastre normal sin modificadores (Ctrl/Shift quedan reservados para seleccionar),
+ * recibir lo que se suelta desde el explorador o desde un
  * boton de la botonera, y soltar una pista SOBRE la botonera para copiarla a un
  * boton. Rust decide y persiste; la UI solo marca origen/destino.
  */
@@ -23,7 +23,7 @@ export function initPlayerDnd(onRefresh) {
     if (_wired) return;
     _wired = true;
     document.addEventListener('mousedown', e => {
-        if (e.button !== 0 || e.altKey) return;
+        if (e.button !== 0 || e.altKey || e.ctrlKey || e.shiftKey) return;
         const row = _rowOf(e.target);
         if (!row) return;
         _src = Number(row.dataset.index);

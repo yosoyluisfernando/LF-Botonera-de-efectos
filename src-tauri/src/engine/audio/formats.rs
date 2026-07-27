@@ -1,7 +1,9 @@
 use crate::engine::audio::decode as audio_decode;
 /// Modulo: audio_formats.rs
 /// Proposito: lista unica de extensiones y validacion de archivos de audio.
-use std::path::Path;
+use std::fs::Metadata;
+use std::path::{Path, PathBuf};
+use std::time::UNIX_EPOCH;
 
 pub const AUDIO_EXTENSIONS: &[&str] = &[
     "mp3", "wav", "flac", "ogg", "oga", "opus", "aac", "m4a", "aiff", "wma",
@@ -54,6 +56,68 @@ pub fn probe_duration_secs(path: &str) -> f64 {
         .unwrap_or(-1.0)
 }
 
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct AudioWalkStats {
+    pub directories: usize,
+    pub audio_files: usize,
+    pub inaccessible: usize,
+}
+
+/// Recorre una raiz una sola vez y entrega cada audio al consumidor.
+/// Es la fuente unica para importar carpetas y para indexar la biblioteca.
+pub fn visit_audio_files<F, D>(root: &Path, mut descend: D, mut visit: F) -> AudioWalkStats
+where
+    F: FnMut(&Path),
+    D: FnMut(&Path) -> bool,
+{
+    let mut stats = AudioWalkStats::default();
+    let mut pending = vec![root.to_path_buf()];
+    while let Some(dir) = pending.pop() {
+        if dir != root && !descend(&dir) {
+            continue;
+        }
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            stats.inaccessible += 1;
+            continue;
+        };
+        stats.directories += 1;
+        for result in entries {
+            let Ok(entry) = result else {
+                stats.inaccessible += 1;
+                continue;
+            };
+            let path = entry.path();
+            match entry.file_type() {
+                Ok(kind) if kind.is_dir() => pending.push(path),
+                Ok(kind) if kind.is_file() && is_audio_path(&path) => {
+                    stats.audio_files += 1;
+                    visit(&path);
+                }
+                Err(_) => stats.inaccessible += 1,
+                _ => {}
+            }
+        }
+    }
+    stats
+}
+
+/// Sello barato usado para decidir si un archivo necesita releerse.
+pub fn stamp_from_metadata(metadata: &Metadata) -> (i64, i64) {
+    let mtime = metadata
+        .modified()
+        .ok()
+        .and_then(|time| time.duration_since(UNIX_EPOCH).ok())
+        .map(|duration| duration.as_secs() as i64)
+        .unwrap_or(0);
+    (mtime, metadata.len() as i64)
+}
+
+pub fn file_stamp(path: &Path) -> (i64, i64) {
+    std::fs::metadata(path)
+        .map(|metadata| stamp_from_metadata(&metadata))
+        .unwrap_or((0, 0))
+}
+
 /// Todos los audios de una carpeta y sus subcarpetas, en orden alfabetico por
 /// ruta completa (asi cada subcarpeta queda agrupada y ordenada).
 ///
@@ -63,24 +127,11 @@ pub fn probe_duration_secs(path: &str) -> f64 {
 /// contar de inmediato y dejar lo caro para despues.
 pub fn audio_files_recursive(folder: &str) -> Vec<String> {
     let mut out = Vec::new();
-    let mut pending = vec![std::path::PathBuf::from(folder)];
-    // Pila explicita en vez de recursion: un arbol muy anidado no debe poder
-    // desbordar la pila del hilo.
-    while let Some(dir) = pending.pop() {
-        let Ok(entries) = std::fs::read_dir(&dir) else {
-            continue; // una carpeta sin permisos no aborta el resto
-        };
-        for entry in entries.flatten() {
-            let path = entry.path();
-            match entry.file_type() {
-                Ok(t) if t.is_dir() => pending.push(path),
-                Ok(t) if t.is_file() && is_audio_path(&path) => {
-                    out.push(path.to_string_lossy().to_string());
-                }
-                _ => {}
-            }
-        }
-    }
+    visit_audio_files(
+        &PathBuf::from(folder),
+        |_| true,
+        |path| out.push(path.to_string_lossy().to_string()),
+    );
     out.sort();
     out
 }

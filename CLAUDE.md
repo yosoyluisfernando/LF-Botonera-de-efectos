@@ -274,8 +274,22 @@ CREATE TABLE IF NOT EXISTS track (
 ```
 
 - WAL habilitado (`PRAGMA journal_mode=WAL`) para escrituras frecuentes baratas.
-- Versión del esquema en `PRAGMA user_version` (actualmente 1).
+- Versión del esquema en `PRAGMA user_version` (actualmente 4).
 - `last_played` se vuelca desde memoria a disco cada 30 s (debounce) y al cerrar.
+
+El esquema 3 conserva `track` como única fuente de los datos técnicos y añade:
+
+- `library_root`: cualquier cantidad de raíces Música/Efectos;
+- `library_track`: pertenencia, ruta relativa, etiquetas y estado de indexación;
+- `library_track_search`: índice FTS5 derivado para el panel y la Biblioteca.
+
+No crear otra base. El catálogo referencia `track(path)` y retirar una raíz no borra
+cue, ganancia, normalización ni historial.
+
+El esquema 4 añade solamente índices derivados para recorrer `library_track` por
+colección, presencia, nombre y ruta. `library_browse` usa esos índices y cursores
+bidireccionales; son la fuente interna de la futura lista virtual, no paginación
+visible.
 
 ---
 
@@ -439,7 +453,8 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 |---|---|---|
 | Consola | `engine/console/thread.rs` | Hilo guardián: **único dueño de las tarjetas abiertas** (`OutputStream` no es Send). Solo atiende ruteo; reproducir no pasa por aquí |
 | Audio | `engine/audio/thread.rs` | Motor de efectos: comandos, estados de botón y fades |
-| Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con progreso + VU. **En reposo calla**; reposo = ni efectos ni reproductor, porque los dos suman en el bus que mide el vúmetro |
+| Monitor | `engine/audio/monitor.rs` | Emite `"audio-tick"` cada 100 ms con estado y progreso. **En reposo calla** |
+| Monitor VU | `engine/audio/meter_monitor.rs` | Emite el payload ligero `"meter-tick"` cada 20 ms (50 FPS). En reposo manda un cero final y calla |
 | Monitor reproductor | `engine/player/monitor.rs` | Emite `"player-tick"` cada 100 ms. Propio, porque el reproductor tiene su cola y su transporte y suena sin efectos |
 | Reloj | `cmd_meta` | Emite `"clock-tick"` cada 1 s con hora y fecha localizadas |
 | Historial | `last_played` | Vuelca buffer en memoria a tracks.db cada 30 s (debounce) |
@@ -452,7 +467,8 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 
 | Evento | Payload | Quién escucha |
 |---|---|---|
-| `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r, buses{efectos,panel,reproductor,cue}, idle}` (en `engine/audio/tick.rs`) | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
+| `"audio-tick"` | `AudioTickPayload {buttons[{group, progress_percent, ...}], display_remaining, display_duration, ...}` a 10 Hz | gridPlayback.js, fixedPanel.js, clockWidget.js y tabs.js; también dispara `CustomEvent("lf-audio-tick")` en el DOM |
+| `"meter-tick"` | `MeterTickPayload {master_level_l, master_level_r, buses{efectos,panel,reproductor,cue}, idle}` a 50 FPS | vuMeter.js y consoleView.js, tanto modal como ventana independiente |
 | `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, loop_current, can_seek, volume, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"player-drop-progress"` | progreso al añadir una carpeta grande a la cola (lotes de 20) | playerDrop.js |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
@@ -536,6 +552,50 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `play_time_locution(id?, vol?, folder?)`
 - `play_climate_locution(id?, climate_type, vol?, folder?)`
 
+### Biblioteca y buscador
+- `library_list_roots`
+- `library_add_root(path, collection)` — `collection` = `"music"` | `"effects"`
+- `library_add_roots(roots)` — alta atómica de todas las carpetas preparadas en el
+  modal; si una falla, no se guarda ninguna
+- `library_remove_root(root_id)`
+- `library_sync_root(root_id)` / `library_sync_all`
+- `library_search(query, collection?, limit?)`
+- `library_browse(collection?, limit?, cursor?, direction?)` — bloques internos
+  `"forward"` / `"backward"` para scroll continuo
+- `library_status`
+- `library_play_live(path, duration_s?, position_s?, volume?)` — reproducción por
+  Programa con el id reservado `__library_live__`
+- `library_assign_to_paleta(paths, paleta_id)` — lote atómico a espacios vacíos
+- `player_add_tracks(paths, index?)` — lote con una sola persistencia
+
+La sincronización emite `library-index-progress`. Toda la lógica está en
+`engine/library/`; estos comandos solo ejecutan trabajo bloqueante fuera del hilo UI.
+`LibraryService` inicia `notify` y una reconciliación de seguridad en segundo plano.
+Los eventos se agrupan 250 ms y actualizan únicamente las rutas afectadas; búsquedas y
+lecturas continúan usando conexiones SQLite independientes.
+
+El panel usa `fixed_panel.view = "search"`. El encabezado abre un menú para elegir
+directamente `buttons`, `player` o `search`; no rota las vistas. El alfiler abre un
+modal cuyo borrador vive solo en JavaScript hasta pulsar Iniciar. La confirmación usa
+`library_add_roots` y luego `library_sync_all`; Cancelar no escribe nada.
+Durante la sincronización, el modal muestra únicamente `Ocultar ventana`: ocultarlo no
+cancela el trabajo. Al reabrirlo se presenta antes de consultar las raíces.
+`librarySearchView.js` orquesta la vista;
+`libraryResultSource.js` mantiene la ventana bidireccional acotada y
+`libraryVirtualList.js` limita el DOM a lo visible más 50 filas por lado. CUE y LIVE
+comparten `miniAudioPlayer.js`, pero tienen ids, buses y posiciones opuestas.
+
+El arrastre del buscador usa seguimiento interno de ratón, igual que `gridDnd.js`.
+No volver a usar HTML5 `draggable`/`dataTransfer`: en Windows compite con
+`tauri://drag-*`, necesario para recibir archivos del Explorador. Soltar una pista en
+la rejilla debe reutilizar `fileDrop.js::dropFileOnGrid`; los lotes sobre pestañas
+siguen pasando una sola vez por `library_assign_to_paleta`.
+
+La primera sincronización tiene dos fases. `index_discovery.rs` guarda nombres y rutas
+en lotes de 500 durante el recorrido; `index_enrichment.rs` completa después duración
+y etiquetas con hasta cuatro trabajadores. No esperar a reunir todas las rutas para
+guardar nombres ni volver a unir ambas fases en una sola lectura monolítica.
+
 ### Export / Import
 - `export_tab(paleta_id, path?)` — abre diálogo si no se pasa path
 - `export_tab_by_id(paleta_id)` → JSON string
@@ -584,7 +644,8 @@ Los índices son POSICIONES 0-based en la cola. Ver `Documentación/PLAN_MODO_RE
 - `player_set_volume(volume, persist?)` — 0.0–1.5 (la UI expone 0–100 %). `persist: false` mientras se arrastra: aplicar es un atómico, guardar en cada píxel sería una tormenta de escrituras
 - `player_set_device(device)` — "" = el mismo de los efectos. **Reaplicarlo reabre la salida y corta la música**
 - `player_add_track(path, index?)` / `player_add_button(buttonId, index?)`
-- `player_remove_track(index)` / `player_reorder_tracks(fromIndex, toIndex)` / `player_clear_queue`
+- `player_remove_track(index)` / `player_remove_tracks(indexes)` /
+  `player_reorder_tracks(fromIndex, toIndex)` / `player_clear_queue`
 - `player_save_playlist` / `player_open_playlist` — formato `.LFPlay` (compatible con LFA)
 - `player_scan_drop(paths)` → `DropScan` — cuenta lo soltado (carpetas incluidas, recursivo) y **Rust decide** si hay que preguntar (umbral `LARGE_FOLDER_THRESHOLD` = 250)
 - `player_add_drop(paths)` — añade en `spawn_blocking` por lotes de 20 emitiendo `player-drop-progress`; una sola escritura a disco al final
@@ -723,7 +784,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 209 passed, 4 ignored)
+# Backend Rust (suite actual: 245 passed, 14 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
 

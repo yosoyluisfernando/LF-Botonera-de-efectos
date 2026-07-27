@@ -2,7 +2,7 @@
  * Archivo: consoleView.js
  * Propósito: pinta las tiras de canal de la consola y manda los movimientos del
  * fader. Solo dibuja (Regla 4): los buses, sus topes y si suman en el programa
- * los decide Rust en `get_console_view`; el nivel y los dB llegan en audio-tick.
+ * los decide Rust en `get_console_view`; el nivel y los dB llegan en `meter-tick`.
  * No registra listeners de audio — main.js es el único punto de escucha.
  */
 import '../../css/console.css';
@@ -10,6 +10,7 @@ import '../../css/consoleMeter.css';
 import '../../css/consoleFader.css';
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
+import { activeMeterTransition } from './meterBallistics.js';
 
 /** Los faders vivos, por bus, para no rehacer el DOM en cada tick. */
 const _strips = new Map();
@@ -24,13 +25,13 @@ export async function renderConsole() {
     return view;
 }
 
-/** Con la consola cerrada no hay nada que pintar: el tick sigue llegando diez
+/** Con la consola cerrada no hay nada que pintar: el tick sigue llegando cincuenta
  *  veces por segundo y no tiene sentido tocar un DOM que nadie ve. */
 export function clearConsole() {
     _strips.clear();
 }
 
-/** Actualiza vúmetros y dB. Llamar desde el handler de audio-tick en main.js. */
+/** Actualiza vúmetros y dB. Llamar desde el handler de `meter-tick`. */
 export function updateConsoleTick(payload) {
     if (!_strips.size) return;
     const buses = payload.buses ?? {};
@@ -83,7 +84,7 @@ function _buildStrip(strip) {
 }
 
 /**
- * El vúmetro se marca `aria-hidden`: cambia diez veces por segundo y no hay
+ * El vúmetro se marca `aria-hidden`: cambia cincuenta veces por segundo y no hay
  * forma de leerlo en voz alta que no sea una tortura. Lo que sí es legible es la
  * cifra en dB, que está fuera y se lee al llegar a ella.
  */
@@ -121,7 +122,10 @@ function _paint(bus, level) {
 function _mask(el, ch, level) {
     const mask = el.querySelector(`.meter-mask[data-ch="${ch}"]`);
     // La máscara tapa desde arriba: cuanto más baja, más escala se ve.
-    if (mask) mask.style.height = `${((1 - Math.min(level, 1)) * 100).toFixed(1)}%`;
+    if (mask) {
+        mask.style.transitionDuration = `${activeMeterTransition(mask, level)}ms`;
+        mask.style.height = `${((1 - Math.min(level, 1)) * 100).toFixed(1)}%`;
+    }
 }
 
 /**

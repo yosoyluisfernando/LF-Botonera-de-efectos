@@ -5,6 +5,7 @@ pub mod decode;
 pub mod engine;
 pub mod formats;
 pub mod last_pressed;
+pub mod meter_monitor;
 pub mod monitor;
 pub mod ops;
 pub mod routing;

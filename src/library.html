@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca — LF Botonera de Efectos</title>
+    <link rel="icon" type="image/png" href="/icono_circular.png">
+    <script type="module" src="/js/ui/theme.js"></script>
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="/css/modalForm.css">
+    <link rel="stylesheet" href="/css/contextMenu.css">
+    <link rel="stylesheet" href="/css/librarySearch.css">
+    <link rel="stylesheet" href="/css/libraryWindow.css">
+  </head>
+  <body class="library-window">
+    <main id="library-window" class="library-window-shell hidden">
+      <header class="library-window-toolbar">
+        <label class="library-window-search">
+          <span class="library-search-icon" aria-hidden="true">⌕</span>
+          <input id="library-window-search" type="search" autocomplete="off"
+                 data-i18n-placeholder="library.search_placeholder">
+        </label>
+        <span class="library-toolbar-spacer"></span>
+        <button id="library-refresh" class="library-toolbar-button"
+                data-i18n-title="library.refresh">
+          <span aria-hidden="true">↻</span>
+          <span class="library-button-text" data-i18n="library.refresh">Actualizar</span>
+        </button>
+        <button id="library-show-all" class="library-toolbar-button">
+          <span aria-hidden="true">▰</span>
+          <span class="library-button-text" data-i18n="library.show_all">Mostrar todo</span>
+        </button>
+        <button id="library-roots-open"
+                class="library-toolbar-button library-processing-button">
+          <span aria-hidden="true">⚙️</span>
+          <span class="library-button-text"
+                data-i18n="library.processing_center">Centro de procesamiento</span>
+        </button>
+      </header>
+
+      <section class="library-window-body">
+        <nav class="library-navigator" aria-label="Navegador local">
+          <h2 data-i18n="library.local_navigator">Navegador local</h2>
+          <div id="library-tree" class="library-tree" role="tree"></div>
+        </nav>
+        <section class="library-content" aria-label="Biblioteca">
+          <div id="library-table-header" class="library-table-header" role="row"></div>
+          <div id="library-table" class="library-table" role="listbox"
+               aria-multiselectable="true" tabindex="0"></div>
+          <div id="library-empty" class="library-empty hidden"
+               data-i18n="library.no_results">No hay elementos para mostrar.</div>
+        </section>
+      </section>
+
+      <footer class="library-window-footer">
+        <span id="library-window-progress" class="library-footer-progress"
+              data-library-progress role="status" aria-live="polite"></span>
+        <span id="library-window-status" role="status" aria-live="polite"></span>
+        <span class="library-footer-spacer"></span>
+        <span class="library-display-selector">
+          <button id="library-display-switch" class="library-display-switch"
+                  type="button" aria-haspopup="menu" aria-expanded="false"
+                  aria-controls="library-display-menu">
+            <span id="library-display-label"></span><span aria-hidden="true">▾</span>
+          </button>
+          <span id="library-display-menu"
+                class="library-display-menu hidden" role="menu">
+            <button type="button" role="menuitemradio"
+                    data-library-display="filename"
+                    data-i18n="library.display_filename">Nombre del archivo</button>
+            <button type="button" role="menuitemradio"
+                    data-library-display="metadata"
+                    data-i18n="library.display_metadata">Título y artista</button>
+          </span>
+        </span>
+      </footer>
+    </main>
+
+    <div id="library-roots-modal" class="hidden modal-overlay">
+      <div class="modal-content modal-lg library-roots-content"
+           role="dialog" aria-modal="true" aria-labelledby="library-roots-title">
+        <div class="modal-header">
+          <h3 id="library-roots-title"
+              data-i18n="library.processing_center">Centro de procesamiento</h3>
+          <button class="close-btn" data-i18n-aria-label="library.roots_close">✕</button>
+        </div>
+        <div class="modal-body library-roots-body">
+          <p class="library-roots-help" data-i18n="library.roots_help"></p>
+          <section class="library-root-section" aria-labelledby="library-music-title">
+            <div class="library-root-heading">
+              <h4 id="library-music-title" data-i18n="library.music">Música</h4>
+              <button id="library-add-music" type="button" class="btn-dark"
+                      data-i18n="library.add_music">Añadir carpeta de música</button>
+            </div>
+            <div id="library-music-roots" class="library-root-list"></div>
+          </section>
+          <section class="library-root-section" aria-labelledby="library-effects-title">
+            <div class="library-root-heading">
+              <h4 id="library-effects-title" data-i18n="library.effects">Efectos</h4>
+              <button id="library-add-effects" type="button" class="btn-dark"
+                      data-i18n="library.add_effects">Añadir carpeta de efectos</button>
+            </div>
+            <div id="library-effects-roots" class="library-root-list"></div>
+          </section>
+          <div id="library-roots-notice" class="library-roots-notice"
+               role="status" aria-live="polite"></div>
+          <div class="library-index-progress hidden"
+               data-library-progress role="status" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="library-roots-hide" type="button" class="btn-dark hidden"
+                  data-i18n="library.hide_window">Ocultar ventana</button>
+          <button id="library-roots-start" type="button" class="btn-blue"
+                  data-i18n="library.start_indexing">Iniciar</button>
+          <button id="library-roots-cancel" type="button" class="btn-dark"
+                  data-i18n="edit_modal.cancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="library-context-menu" class="hidden context-style" role="menu">
+      <ul>
+        <li id="library-menu-live" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">📡</span><span data-i18n="library.play_on_air">Reproducir al aire</span></li>
+        <li id="library-menu-preview" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">🎧</span><span data-i18n="context_menu.preview">Escucha previa</span></li>
+        <li id="library-menu-add-player" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">➕</span><span data-i18n="library.add_to_player">Añadir al reproductor</span></li>
+        <li id="library-menu-editor" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">🎚</span><span data-i18n="context_menu.edit_track">Editor de pista…</span></li>
+      </ul>
+    </div>
+
+    <div id="loading-screen"><span data-i18n="library.loading">Cargando Biblioteca…</span></div>
+    <script type="module" src="/js/libraryMain.js"></script>
+  </body>
+</html>

@@ -14,6 +14,11 @@ import { alertIpcError } from './ipcError.js';
 import { initPlayerProgress, paintPlayerProgress, setQueueTotal } from './playerProgress.js';
 import { initPlayerModes, paintPlayerModes } from './playerModes.js';
 import { initPlayerVolume, paintPlayerVolume } from './playerVolume.js';
+import {
+    clearPlayerSelection, handlePlayerSelectionClick, initPlayerSelection,
+    isPlayerSelected, prunePlayerSelection, selectionForContext,
+} from './playerSelection.js';
+import { initPlayerListKeyboard } from './playerListKeyboard.js';
 
 let _wired = false;
 let _tracks = [];
@@ -24,6 +29,8 @@ export function initPlayerView() {
     initPlayerProgress();
     initPlayerModes();
     initPlayerVolume();
+    initPlayerSelection();
+    initPlayerListKeyboard(() => _tracks, _openTrackContext);
     _on('player-play', () => invoke('player_resume'));
     _on('player-pause', () => invoke('player_pause'));
     _on('player-stop', () => invoke('player_stop'));
@@ -81,6 +88,7 @@ async function _open() {
 export async function drawPlayerView() {
     const view = await invoke('get_player');
     _tracks = view.tracks;
+    prunePlayerSelection(_tracks);
     const rows = document.getElementById('player-rows');
     rows.innerHTML = '';
     // Con la lista vacía no hay nada que hacer evidente: los botones fijos tienen
@@ -128,7 +136,12 @@ function _emptyHint() {
 function _row(track, position) {
     const el = document.createElement('div');
     el.className = 'player-row';
+    el.id = `player-row-${position}`;
     el.dataset.index = position;
+    el.dataset.trackId = track.id;
+    el.setAttribute('role', 'option');
+    el.setAttribute('aria-selected', String(isPlayerSelected(track.id)));
+    el.classList.toggle('queue-selected', isPlayerSelected(track.id));
     const icon = track.type_icon ? typeIcon(track.type_icon) : '';
     // Los tipos especiales no se resuelven hasta sonar: no hay duracion que
     // mostrar. Misma convencion que el Automatizador.
@@ -139,13 +152,16 @@ function _row(track, position) {
         <span class="player-row-dur">${dur}</span>`;
     // Doble clic: Rust decide segun suene o no (reproducir / marcar siguiente).
     // Un clic no hace nada: marcar sin querer al rozar una fila era problematico.
-    el.addEventListener('dblclick', () => invoke('player_activate_index', { index: position }));
-    // Clic derecho: escucha previa y editor de pista, las mismas de los botones.
-    el.addEventListener('contextmenu', e => {
-        e.preventDefault();
-        import('./contextMenu.js').then(m =>
-            m.showTrackContextMenu(e.clientX, e.clientY, track, _afterTrackEdit));
+    el.addEventListener('click', e => {
+        handlePlayerSelectionClick(e, track, _tracks);
+        document.getElementById('player-rows')
+            .setAttribute('aria-activedescendant', el.id);
     });
+    el.addEventListener('dblclick', e => {
+        if (!e.ctrlKey && !e.shiftKey) invoke('player_activate_index', { index: position });
+    });
+    // Clic derecho: acciones individuales o eliminación de la selección.
+    el.addEventListener('contextmenu', e => _openTrackContext(e, track));
     el.title = t('player.row_hint');
     return el;
 }
@@ -155,6 +171,26 @@ function _row(track, position) {
 async function _afterTrackEdit() {
     try { await invoke('player_resync'); } catch (e) { console.error(e); }
     await drawPlayerView();
+}
+
+function _openTrackContext(event, track) {
+    event.preventDefault();
+    const selection = selectionForContext(track, _tracks);
+    import('./contextMenu.js').then(module =>
+        module.showTrackContextMenu(
+            event.clientX, event.clientY, track, _afterTrackEdit,
+            selection.count, () => _removeTracks(selection.indexes),
+        ));
+}
+
+async function _removeTracks(indexes) {
+    try {
+        await invoke('player_remove_tracks', { indexes });
+        clearPlayerSelection();
+        await drawPlayerView();
+    } catch (err) {
+        await alertIpcError(err);
+    }
 }
 
 function _on(id, handler) {

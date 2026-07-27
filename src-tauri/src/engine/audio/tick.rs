@@ -74,11 +74,22 @@ pub struct AudioTickPayload {
     pub idle: bool,
 }
 
+/// Telemetría ligera para los vúmetros. Viaja a 50 FPS sin arrastrar posiciones,
+/// botones ni relojes, que conservan su pulso de 10 Hz.
+#[derive(Serialize, Clone, Copy)]
+pub struct MeterTickPayload {
+    pub master_level_l: f32,
+    pub master_level_r: f32,
+    pub buses: BusLevels,
+    pub idle: bool,
+}
+
 /// Los atomicos de nivel de todos los buses, pedidos UNA vez.
 ///
 /// Se guardan y no se vuelven a pedir: son del `BusSlot` y sobreviven a que el
 /// grafo se rehaga, asi que valen para toda la vida del monitor. Pedirlos en cada
-/// tick seria tomar el candado de la consola diez veces por segundo para nada.
+/// `meter-tick` sería tomar el candado de la consola cincuenta veces por segundo
+/// para nada.
 pub struct LevelTaps {
     programa: (Arc<AtomicU32>, Arc<AtomicU32>),
     efectos: (Arc<AtomicU32>, Arc<AtomicU32>),
@@ -121,6 +132,16 @@ impl LevelTaps {
             panel: de(&self.panel),
             reproductor: de(&self.reproductor),
             cue: de(&self.cue),
+        }
+    }
+
+    pub fn snapshot(&self, idle: bool) -> MeterTickPayload {
+        let (master_level_l, master_level_r) = if idle { (0.0, 0.0) } else { self.program() };
+        MeterTickPayload {
+            master_level_l,
+            master_level_r,
+            buses: self.buses(idle),
+            idle,
         }
     }
 }

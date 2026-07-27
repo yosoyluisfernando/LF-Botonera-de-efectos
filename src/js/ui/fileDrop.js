@@ -33,7 +33,7 @@ export function initFileDrop(onRefresh) {
             // carpetas. Son dos herramientas distintas, no una incoherencia.
             if (target.closest('#player-view')) await dropOnPlayer(target, paths);
             else if (target.closest('#fixed-panel')) await _dropFileOnFixed(target, paths[0]);
-            else await _dropFileOnGrid(target, paths[0]);
+            else await dropFileOnGrid(target, paths[0]);
         } catch (err) {
             console.error('Error al asignar archivo soltado:', err);
             await alertIpcError(err);
@@ -57,7 +57,7 @@ async function _dropFileOnFixed(target, path) {
 }
 
 // Sobre una celda ocupada (con data-id) pregunta reemplazar/no; en vacio asigna.
-async function _dropFileOnGrid(cell, path) {
+export async function dropFileOnGrid(cell, path) {
     if (cell.dataset.id && !await appConfirm(t('app.button_has_content'),
         { ok: t('app.replace'), cancel: t('app.dont_add') }, { ok: 1, cancel: 2 })) return;
     const s = await invoke('assign_file_to_button', { index: parseInt(cell.dataset.index), path });

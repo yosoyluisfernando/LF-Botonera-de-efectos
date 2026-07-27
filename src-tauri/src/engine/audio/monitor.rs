@@ -5,9 +5,11 @@
 /// Lo que viaja en el tick está en `tick.rs`.
 use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup};
 use crate::engine::audio::last_pressed::LastPressedInfo;
+use crate::engine::audio::meter_monitor;
 use crate::engine::audio::tick::{AudioTickPayload, LevelTaps, TickInfo};
 use crate::engine::console::ConsoleEngine;
 use crate::engine::player::PlayerSnapshot;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -20,6 +22,8 @@ pub fn start(
     player: Arc<Mutex<PlayerSnapshot>>,
     console: Arc<ConsoleEngine>,
 ) {
+    let meter_idle = Arc::new(AtomicBool::new(true));
+    meter_monitor::start(app.clone(), Arc::clone(&console), Arc::clone(&meter_idle));
     thread::spawn(move || {
         // Una vez y para siempre: los atómicos son del BusSlot y sobreviven a que
         // el grafo se rehaga.
@@ -67,11 +71,12 @@ pub fn start(
             // botones": con música de fondo y sin efectos hay señal de sobra, y
             // callar aquí dejaría la aguja plana mientras suena la música.
             let idle = buttons.is_empty() && !player.lock().unwrap().playing;
+            meter_idle.store(idle, Ordering::Release);
             // En reposo los atómicos aún pueden retener el último pico medido (el
             // LevelSource necesita ~21ms más para medir el silencio). Forzar 0.0
             // garantiza que el tick final lleve nivel cero y el vúmetro baje hasta
             // la base en lugar de quedarse colgado.
-            let (ml, mr) = if idle { (0.0, 0.0) } else { taps.program() };
+            let meter = taps.snapshot(idle);
             if !idle || !was_idle {
                 let _ = app.emit(
                     "audio-tick",
@@ -79,9 +84,9 @@ pub fn start(
                         buttons,
                         display_remaining,
                         display_duration,
-                        master_level_l: ml,
-                        master_level_r: mr,
-                        buses: taps.buses(idle),
+                        master_level_l: meter.master_level_l,
+                        master_level_r: meter.master_level_r,
+                        buses: meter.buses,
                         idle,
                     },
                 );

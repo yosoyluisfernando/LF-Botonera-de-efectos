@@ -29,6 +29,8 @@ pub struct FixedPanelConfig {
     pub solo_mode: bool,
     #[serde(default = "default_modes_position")]
     pub modes_position: String,
+    #[serde(default = "default_library_display")]
+    pub library_display: String,
 }
 
 impl Default for FixedPanelConfig {
@@ -45,6 +47,7 @@ impl Default for FixedPanelConfig {
             playback_mode: default_playback_mode(),
             solo_mode: false,
             modes_position: default_modes_position(),
+            library_display: default_library_display(),
         }
     }
 }
@@ -71,6 +74,7 @@ fn default_playback_mode() -> String {
     "normal".into()
 }
 fn default_modes_position() -> String { "top".into() }
+fn default_library_display() -> String { "metadata".into() }
 
 #[cfg(test)]
 mod tests {
@@ -86,5 +90,14 @@ mod tests {
         assert_eq!(panel.row_mode, "unlimited");
         assert_eq!(panel.rows, 10);
         assert!(panel.show_on_start);
+        assert_eq!(panel.library_display, "metadata");
+    }
+
+    #[test]
+    fn old_config_without_library_display_uses_metadata() {
+        let mut value = serde_json::to_value(FixedPanelConfig::default()).unwrap();
+        value.as_object_mut().unwrap().remove("library_display");
+        let panel: FixedPanelConfig = serde_json::from_value(value).unwrap();
+        assert_eq!(panel.library_display, "metadata");
     }
 }

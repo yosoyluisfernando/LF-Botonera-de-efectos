@@ -47,3 +47,47 @@ preparados en esta carpeta por si se incorporan en una actualización posterior.
 
 La Submission 2 (`1152921505701463690`) se envió a certificación el 2026-07-21 sin
 cambiar el paquete MSIX 1.2.1.
+
+## Próxima actualización funcional
+
+La versión propuesta es **1.3.0** (`1.3.0.0` dentro del MSIX), porque incorpora la
+Biblioteca y el buscador interno sin romper compatibilidad. Sus textos localizados
+están en [`NOTAS_VERSION_SIGUIENTE.md`](NOTAS_VERSION_SIGUIENTE.md).
+
+El 2026-07-27 se creó y envió la Submission 3
+(`1152921505701501616`) del producto `9NJ8ST39QP7V`:
+
+- paquete `LF-Botonera-1.3.0.0-x64-unsigned.msix` validado por Partner Center;
+- notas de versión actualizadas en español, inglés, portugués de Brasil y portugués
+  de Portugal;
+- publicación configurada para comenzar automáticamente cuando apruebe la
+  certificación;
+- estado confirmado al terminar el envío: `Update in certification`, etapa
+  `Pre-processing` (paso 2 de 4).
+
+No cancelar la certificación ni crear otra Submission. El siguiente control consiste
+en esperar la decisión de Microsoft; si aprueba, la publicación comienza sin fecha ni
+hora manual.
+
+### Paquete preparado
+
+El 2026-07-27 se generó y auditó:
+
+`src-tauri/target/msix/LF-Botonera-1.3.0.0-x64-unsigned.msix`
+
+- identidad: `LuisFernandoVelasquez.LFBotoneradeEfectos`;
+- editor: `CN=AD90DE58-447F-47AE-AC1A-3D369955282B`;
+- arquitectura: `x64`;
+- versión MSIX: `1.3.0.0`;
+- versión del ejecutable: `1.3.0`;
+- canal encontrado en el binario: `microsoft_store`;
+- tamaño: `9.694.349` bytes;
+- SHA-256:
+  `56E2D70AC832B36AB1A005B734DB948FB0CB0F19B2886EBEA5705E5FFCD2AD8E`.
+
+El paquete se desempaquetó correctamente: 60 archivos, manifiesto 1.3.0.0 y ejecutable
+idéntico al original por SHA-256. `cargo test --lib` aprobó 265 pruebas y dejó 16
+ignoradas deliberadamente; `cargo build --lib`, `cargo check`, `npm run build` y el
+formato de los módulos nuevos aprobaron. `cargo fmt --check` global continúa fallando
+por formato histórico en archivos no relacionados; no se aplicó una reescritura
+masiva dentro de este release.

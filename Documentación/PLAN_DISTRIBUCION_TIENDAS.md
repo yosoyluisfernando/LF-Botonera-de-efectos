@@ -4,6 +4,11 @@ Documento rector para publicar **LF Botonera de Efectos** fuera de GitHub Releas
 Microsoft Store quedó completada con la versión 1.2.1. La prioridad activa es la
 prueba física en Linux y, después, Flathub.
 
+La próxima actualización funcional se prepara como 1.3.0, sin crear todavía una
+Submission. Partner Center confirmó el 2026-07-27 que la Submission 2 permanece
+publicada en 240 mercados. El paquete 1.3.0.0 se generará y probará antes de iniciar
+la nueva entrega; GitHub conservará exactamente la misma versión funcional.
+
 **Estado del documento:** guía inicial basada en la auditoría de la versión 1.2.0.
 **Rama de trabajo:** `codex/distribucion-tiendas`.
 **Fecha de inicio:** 2026-07-20.

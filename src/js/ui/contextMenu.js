@@ -9,6 +9,7 @@ import { openEditModal } from './editModal.js';
 import { invoke } from '../bridge/api.js';
 import { placeMenu } from '../util/menuPosition.js';
 import { hasSelection, paintSelection } from './buttonSelection.js';
+import { wirePlayerContextActions } from './playerContextActions.js';
 
 let _cleanupFn = null;
 
@@ -57,37 +58,23 @@ export function showContextMenu(x, y, index, btnData, onUpdate, group = 'grid') 
 }
 
 /**
- * Menú contextual de una fila del reproductor: solo Escucha previa y Editor de
- * pista, reutilizando el mismo menú y sus etiquetas. `onUpdate` se llama tras
- * editar en el editor de pista.
+ * Menú contextual del reproductor. Eliminar admite una selección completa;
+ * escucha previa y editor solo se habilitan cuando hay una fila.
  */
-export function showTrackContextMenu(x, y, track, onUpdate) {
-    if (!track?.can_prelisten) return; // sin archivo no hay nada que previsualizar
+export function showTrackContextMenu(x, y, track, onUpdate, selectionCount, onRemove) {
+    if (!track) return;
     const menu = document.getElementById('context-menu');
+    const allowed = new Set(['menu-previa', 'menu-editar-pista', 'menu-player-remove']);
     menu.querySelectorAll('li, hr').forEach(el =>
-        el.classList.toggle('hidden', el.id !== 'menu-previa' && el.id !== 'menu-editar-pista'));
-    _toggleDisabled('menu-previa', false);
-    _toggleDisabled('menu-editar-pista', false);
+        el.classList.toggle('hidden', !allowed.has(el.id)));
+    const single = selectionCount === 1;
+    _toggleDisabled('menu-previa', !single || !track.can_prelisten);
+    _toggleDisabled('menu-editar-pista', !single || !track.can_prelisten);
+    _toggleDisabled('menu-player-remove', false);
     placeMenu(menu, x, y);
     if (_cleanupFn) _cleanupFn();
-    _cleanupFn = _wireTrackActions(track, onUpdate);
+    _cleanupFn = wirePlayerContextActions(track, onUpdate, onRemove, single);
     setTimeout(() => document.addEventListener('click', _hideOnClickOutside), 10);
-}
-
-function _wireTrackActions(track, onUpdate) {
-    const name = track.name || track.label;
-    const previaEl = document.getElementById('menu-previa');
-    const editTrackEl = document.getElementById('menu-editar-pista');
-    const onPrevia = () => { _hide(); import('./prelisten.js').then(m =>
-        m.openPrelisten(track.path, name, track.vol ?? 1.0, track.duration ?? 0)); };
-    const onEditTrack = () => { _hide(); import('./trackEditor.js').then(m =>
-        m.openPreferredTrackEditor(track.path, name, onUpdate)); };
-    previaEl.addEventListener('click', onPrevia);
-    editTrackEl.addEventListener('click', onEditTrack);
-    return () => {
-        previaEl.removeEventListener('click', onPrevia);
-        editTrackEl.removeEventListener('click', onEditTrack);
-    };
 }
 
 /** Devuelve true si el menú quedó en modo "solo color" (hay selección). */
@@ -97,6 +84,7 @@ function _showColorOnly(menu, onUpdate) {
         el.classList.toggle('hidden', multi && el.id !== 'menu-color-selected');
     });
     document.getElementById('menu-color-selected')?.classList.toggle('hidden', !multi);
+    document.getElementById('menu-player-remove')?.classList.add('hidden');
     if (!multi) return false;
     if (_cleanupFn) _cleanupFn();
     const item = document.getElementById('menu-color-selected');
@@ -192,6 +180,7 @@ async function _toggleButtonFlag(index, btnData, flag, onUpdate, group) {
 
 function _toggleDisabled(id, disabled) {
     const el = document.getElementById(id);
+    el.setAttribute('aria-disabled', String(disabled));
     if (disabled) el.classList.add('disabled');
     else          el.classList.remove('disabled');
 }

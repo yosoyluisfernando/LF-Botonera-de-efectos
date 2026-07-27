@@ -8,6 +8,9 @@ import { paintPlayback } from './playbackPainter.js';
 import { initFixedPlaybackModes, refreshFixedPlaybackModes } from './fixedPlaybackModes.js';
 import { initFixedPanelResize } from './fixedPanelResize.js';
 import { initPlayerView, drawPlayerView } from './playerView.js';
+import { initFixedPanelViews, refreshFixedPanelView } from './fixedPanelViews.js';
+import { initLibrarySearch, drawLibrarySearch } from './librarySearchView.js';
+import { initLibraryIndexProgress } from './libraryIndexProgress.js';
 
 let _refresh = null;
 let _buttons = {};
@@ -18,6 +21,9 @@ export function initFixedPanel(state, onRefresh) {
     initFixedPlaybackModes();
     initFixedPanelResize();
     initPlayerView();
+    initFixedPanelViews(drawFixedPanel);
+    initLibrarySearch(onRefresh, drawFixedPanel);
+    initLibraryIndexProgress();
     document.getElementById('fixed-panel-add').addEventListener('click', async () => {
         const current = await invoke('get_fixed_panel');
         const next = Math.max(0, ...current.buttons.map(b => b.index)) + 1;
@@ -54,8 +60,10 @@ export function drawFixedPanel(state) {
     state.buttons.sort((a, b) => a.index - b.index).forEach(btn => list.appendChild(_item(btn)));
     document.getElementById('btn-fixed-panel').classList.toggle('active', settings.visible);
     refreshFixedPlaybackModes();
+    refreshFixedPanelView(settings);
     // El modo reproductor tiene cola propia: se dibuja aparte de los botones fijos.
     if (settings.view === 'player') drawPlayerView().catch(console.error);
+    if (settings.view === 'search') drawLibrarySearch(settings).catch(console.error);
 }
 
 export function paintFixedAudioTick(payload) {

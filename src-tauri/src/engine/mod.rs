@@ -3,6 +3,7 @@ pub mod cache;
 pub mod console;
 pub mod dsp;
 pub mod input;
+pub mod library;
 pub mod persist;
 pub mod player;
 pub mod weather;

@@ -1,14 +1,15 @@
 /// Lectura/escritura binaria versionada de WaveEnvelope.
 use crate::engine::dsp::waveform::WaveEnvelope;
 use std::fs;
-use std::io::{Read, Write};
+use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::PathBuf;
 
 const MAGIC: &[u8; 4] = b"LFWF";
 const VERSION: u32 = 1;
 
 pub fn read(path: &PathBuf) -> Result<WaveEnvelope, String> {
-    let mut f = fs::File::open(path).map_err(|e| e.to_string())?;
+    let file = fs::File::open(path).map_err(|e| e.to_string())?;
+    let mut f = BufReader::new(file);
     let mut magic = [0u8; 4];
     f.read_exact(&mut magic).map_err(|e| e.to_string())?;
     if &magic != MAGIC || read_u32(&mut f)? != VERSION {
@@ -28,7 +29,8 @@ pub fn read(path: &PathBuf) -> Result<WaveEnvelope, String> {
 
 pub fn write(path: &PathBuf, env: &WaveEnvelope) -> Result<u64, String> {
     let (mins, maxs, sample_rate, frames) = env.parts();
-    let mut f = fs::File::create(path).map_err(|e| e.to_string())?;
+    let file = fs::File::create(path).map_err(|e| e.to_string())?;
+    let mut f = BufWriter::new(file);
     f.write_all(MAGIC).map_err(|e| e.to_string())?;
     write_u32(&mut f, VERSION)?;
     write_u32(&mut f, sample_rate)?;
@@ -38,7 +40,8 @@ pub fn write(path: &PathBuf, env: &WaveEnvelope) -> Result<u64, String> {
         write_f32(&mut f, mins[i])?;
         write_f32(&mut f, maxs[i])?;
     }
-    Ok(f.metadata().map_err(|e| e.to_string())?.len())
+    f.flush().map_err(|e| e.to_string())?;
+    Ok(f.get_ref().metadata().map_err(|e| e.to_string())?.len())
 }
 
 fn read_u32<R: Read>(r: &mut R) -> Result<u32, String> {

@@ -5,6 +5,14 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 
 ---
 
+## LF BOTONERA DE EFECTOS YA ESTÁ DISPONIBLE EN MICROSOFT STORE PARA WINDOWS
+
+Instala la versión administrada por Microsoft Store y recibe sus actualizaciones
+directamente desde Windows:
+[Descargar LF Botonera de Efectos en Microsoft Store](https://apps.microsoft.com/detail/9NJ8ST39QP7V).
+
+---
+
 ## Cómo mantener este archivo
 
 **Categorías disponibles:** `Añadido` · `Cambiado` · `Corregido` · `Eliminado` · `Seguridad`
@@ -25,13 +33,33 @@ Este archivo documenta los cambios relevantes de cada versión, siguiendo el est
 ## [Sin publicar]
 
 ### Añadido
-- «Acerca de» indica el canal de distribución, el sistema operativo y quién
-  administra las actualizaciones. Los paquetes directos de Windows y Linux muestran
-  GitHub Releases; la edición de Microsoft Store muestra Microsoft Store.
+- Biblioteca rápida para Música y Efectos, con múltiples carpetas por categoría,
+  búsqueda difusa, metadatos, actualización automática y un único catálogo sin
+  archivos duplicados.
+- Buscador en el panel fijo y ventana Biblioteca independiente con navegación por
+  carpetas y unidades, carga continua para colecciones grandes y vistas por nombre de
+  archivo o por título y artista.
+- Acciones compartidas para reproducir al aire, escuchar previamente, añadir al
+  reproductor y abrir el editor de pistas. El Buscador permite además selección
+  múltiple y arrastre hacia botones o pestañas.
+- El reproductor auxiliar permite seleccionar con ratón o teclado, combinar
+  `Ctrl` y `Shift` y eliminar varias filas juntas.
+- «Acerca de» identifica el canal de distribución y quién administra sus
+  actualizaciones: Microsoft Store o GitHub Releases.
+
+### Cambiado
+- El Centro de procesamiento administra las carpetas de la Biblioteca, muestra el
+  progreso total y permite ocultarse sin detener la indexación.
+- El editor de pistas abre y reabre audios con mayor rapidez mediante decodificación
+  por bloques y reutilización de su caché.
+- El vúmetro principal y los de la consola se actualizan a 50 FPS con una caída más
+  suave.
 
 ### Corregido
 - Disparar un botón ya no detiene la escucha previa general ni la reproducción del
   editor de pistas, incluso con Solo o «Detener otros» activos.
+- Al volver a abrir el editor en modo ventana, la instancia existente cambia a la
+  pista solicitada, se restaura si estaba minimizada y pasa al frente.
 
 ## [1.2.1] — 2026-07-20
 

@@ -100,6 +100,7 @@ Los motores actuales son:
 | `engine/console/` | La consola de audio: **dueña de las salidas físicas y de los buses**. Los demás motores de audio son sus clientes: le piden un bus y le entregan fuentes |
 | `engine/audio/` | Reproducción de efectos: botones, fades, estados, hilo de audio. Pide sus buses a la consola |
 | `engine/player/` | Reproductor auxiliar (música de fondo): motor **independiente** en cola, avance y transporte, con su hilo y sus dos decks. Ya no tiene tarjeta propia: entrega al bus `Reproductor` de la consola |
+| `domain/library/` | Reglas puras de Biblioteca: colecciones Música/Efectos y planificación de raíces solapadas sin duplicación |
 | `engine/dsp/` | Análisis de audio, LUFS, cue, fade, waveform y análisis del editor |
 | `engine/cache/` | Precarga RAM, caché de análisis, caché persistente de waveforms |
 | `engine/persist/` | `botonera_config.json`, `tracks.db`, historial y últimos reproducidos |
@@ -118,7 +119,8 @@ El frontend está organizado en 3 capas:
 
 - Renderizar la rejilla de botones, pestañas y perfiles con datos que vienen de Rust.
 - Capturar clics, drag & drop y teclado; llamar al IPC Rust correspondiente.
-- Suscribirse a eventos Rust (`audio-tick`, `player-tick`, `clock-tick`, `weather-updated`, `track-analysis-progress`) y actualizar la pantalla.
+- Suscribirse a eventos Rust (`audio-tick`, `meter-tick`, `player-tick`,
+  `clock-tick`, `weather-updated`, `track-analysis-progress`) y actualizar la pantalla.
 - Mostrar modales de edición, configuración y el editor de pistas.
 
 ### Lo que hace Rust
@@ -151,7 +153,8 @@ El frontend está organizado en 3 capas:
    b. build_play_source: cache hit → O(1) seek; cache miss → decode + skip O(n)
    c. attach_button → ButtonSource dentro del bus de la consola
 5. engine/audio/monitor.rs detecta el nuevo ButtonState → emite "audio-tick" cada 100ms
-6. gridPlayback.js pinta el botón en verde + barra de progreso roja
+6. engine/audio/meter_monitor.rs emite niveles por "meter-tick" cada 20ms
+7. gridPlayback.js pinta el botón y vuMeter.js/consoleView.js pintan los niveles
 ```
 
 ---
@@ -237,10 +240,52 @@ Plan y fases: [`PLAN_CONSOLA_VIRTUAL.md`](PLAN_CONSOLA_VIRTUAL.md).
 
 ---
 
+## Biblioteca y buscador interno
+
+La Biblioteca tiene dos superficies sobre un solo estado: búsqueda rápida como
+tercera vista del panel fijo y la ventana independiente `library.html` para administrar
+el catálogo completo. Ninguna superficie calcula similitud; ambas consultan el mismo
+motor Rust. El panel usa `library_browse` para su carga continua. La ventana completa
+usa `library_browse_window`, que devuelve un bloque por posición absoluta junto con
+`total` y `offset`: así la barra vertical representa el catálogo entero desde el
+principio y puede saltar a cualquier zona sin cargar los bloques anteriores.
+`library_folder_children` deriva el árbol sin volver a indexar.
+
+`tracks.db` continúa como única base. La versión 2 del esquema añade `library_root`,
+con una ruta normalizada y una colección explícita `music` o `effects`. La ruta es
+única: una carpeta no puede registrarse dos veces.
+
+`domain/library/root_plan.rs` decide el resultado antes de mutar:
+
+- una raíz ya cubierta no vuelve a añadirse;
+- una raíz más general absorbe las subcarpetas de su misma colección tras avisar;
+- una subcarpeta de otra colección se conserva como excepción;
+- cuando varias reglas cubren una ruta, manda la más específica.
+
+El Centro de procesamiento de la ventana Biblioteca administra altas sin crear otra
+configuración: el frontend mantiene únicamente un borrador y `library_add_roots`
+confirma todas las rutas en una transacción Rust. La validación completa ocurre antes
+de escribir; Cancelar no invoca ninguna mutación. Después, `library_sync_all` usa el
+indexador compartido y `library-index-progress` alimenta el modal y el panel.
+
+La exploración de almacenamiento es deliberadamente distinta del catálogo:
+`library_storage_roots` detecta unidades y `library_read_directory` devuelve carpetas
+y archivos de audio compatibles mediante trabajo bloqueante fuera del hilo UI.
+Explorar nunca añade raíces ni escribe en `tracks.db`. La ventana separa esas dos
+clases de resultado: las carpetas alimentan únicamente el árbol izquierdo y el panel
+derecho presenta exclusivamente los archivos de audio de la ubicación seleccionada.
+
+Enter y doble clic todavía no tienen acción. `Reproducir al aire` ya usa el id
+`__library_live__` por el bus Programa, separado del CUE. El documento rector es
+[`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).
+
+---
+
 ## El reproductor auxiliar (modo reproductor del panel fijo)
 
-El panel lateral tiene dos presentaciones: `buttons` (botones fijos) y `player` (una lista de
-reproducción). El reproductor existe para dejar **música de fondo** sonando mientras se
+El panel lateral tiene tres presentaciones: `buttons` (botones fijos), `player` (una
+lista de reproducción) y `search` (Buscador). El reproductor existe para dejar
+**música de fondo** sonando mientras se
 disparan los efectos, así que es un **motor propio**, no un grupo dentro del motor de efectos:
 tiene su hilo, su `OutputStream`, su dispositivo y su volumen. Por eso el Stop general y el
 Solo de los efectos no lo cortan; el reproductor tiene su propio Stop.
@@ -287,6 +332,13 @@ cuyo `clearList` vacía las filas sin tocar la reproducción.
 sonando marca como siguiente (`player_activate_index` → `QueueState::activate(index, is_playing)`).
 El `is_playing` lo aporta el hilo, que conoce los decks: una huérfana suena sin estar en la cola.
 
+**La selección múltiple solo prepara acciones sobre la lista.** `Ctrl+clic` alterna filas,
+`Shift+clic` marca un intervalo y el clic normal conserva el comportamiento anterior. Los ids
+estables sostienen la selección en la UI; al eliminar, Rust recibe las posiciones, las valida
+todas, borra de mayor a menor, reindexa, persiste y sincroniza una sola vez. Con varias filas,
+escucha previa y editor quedan deshabilitados porque son acciones de una sola pista. Quitar de
+la cola la canción actual no corta su audio: se aplica la misma regla de pista huérfana.
+
 **Si la resolución falla** (carpeta vacía, sin clima, archivo ilegible) el deck queda `Failed`,
 que `poll_finished` trata como terminado: el motor releva y la música sigue.
 
@@ -331,20 +383,22 @@ trackEditor.js → invoke('analyze_track', { path })
     ▼
 cmd_tracks::analyze_track (Rust)
     ├── spawn_blocking → engine::dsp::editor_analysis::analyze_track()
-    ├── Emite "track-analysis-progress" por etapas: cache, decode, analyze, save, cleanup
+    ├── Emite progreso intermedio: cache, decode, waveform, save, cleanup
+    │     └── La única señal de finalización es la respuesta IPC, no otro evento
     ├── Comprueba TrackAnalysisCache en memoria (mtime/size)
     ├── Si tracks.db sigue válido + waveform_disk hit:
     │     └── Devuelve resultado sin decodificar el audio completo
     ├── Si tracks.db sigue válido + falta waveform:
     │     └── Reconstruye solo WaveEnvelope, guarda caché persistente y devuelve
     ├── Si no hay caché válida:
-    │     ├── Decodifica PCM completo (symphonia)
+    │     ├── Decodifica PCM completo por paquetes (symphonia)
+    │     │     └── fallback al decodificador compartido para formatos especiales
     │     ├── Mide LUFS integrado (ebur128)
     │     ├── Mide pico dBFS
     │     ├── Calcula ganancia sugerida según configuración global
     │     └── Construye WaveEnvelope (min/max por bucket, hasta 120k puntos)
     ├── Upsert en tracks.db (preserva cue/dB del usuario si ya había fila)
-    ├── Guarda WaveEnvelope en caché persistente de disco
+    ├── Guarda WaveEnvelope en caché persistente con E/S binaria agrupada
     ├── Inserta PCM en PreloadCache solo si la precarga está activa y el archivo cabe
     └── Devuelve AnalysisResult al frontend
     │
@@ -357,6 +411,12 @@ trackTransport.js: cursor de reproducción con requestAnimationFrame
     ├── Al pulsar Play: registra startClock = performance.now() - playOrigin
     └── Loop rAF: t = performance.now() - startClock; actualiza posición del cursor
 ```
+
+En modo ventana solo existe una instancia con la etiqueta `track-editor`. Si ya está
+abierta, `trackEditorWindow.js` le envía `track-editor-open` con la pista solicitada,
+la restaura si estaba minimizada, la muestra y solicita foco. La ventana recibe la
+orden y reutiliza `openTrackEditor`; no se crea un segundo editor ni se conserva una
+pista anterior en primer plano.
 
 ---
 

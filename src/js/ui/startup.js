@@ -31,7 +31,7 @@ import { initFixedPanel, drawFixedPanel, initialFixedPanel } from './fixedPanel.
 import { wire as wireConsole, initWindowMode as initConsoleWindow } from './consoleWindow.js';
 import { applyToolbarButtons } from './toolbarButtons.js';
 import { wireRuntimeEvents } from './runtimeEvents.js';
-
+import { initLibraryWindowOpen } from './libraryWindowOpen.js';
 let _closeWired = false;
 /** Punto único de arranque llamado desde main.js al cargar el DOM. */
 export async function startApp() {
@@ -109,6 +109,7 @@ async function _startEditorWindow(rawPath) {
         invoke('stop_audio', { id: '__track_preview__' }).catch(() => {});
     });
     const editor = await import('./trackEditor.js');
+    await listen('track-editor-open', e => _openDockedEditor(e.payload ?? {})).catch(console.error);
     editor.openTrackEditor(decodeURIComponent(rawPath), params.get('name') || '', null, {
         zoom: parseFloat(params.get('zoom') || '1'),
     });
@@ -152,6 +153,7 @@ function _initModules(config, grid, fixedPanel) {
     drawGrid(grid, _refresh);
     initFixedPanel(fixedPanel, _refresh);
     wireConsole();
+    initLibraryWindowOpen();
     applyToolbarButtons(config);
     initSettingsModal(_refresh);
     initMapping(_refresh);
@@ -181,7 +183,6 @@ function _wireCloseButtons() {
         });
     });
 }
-
 function _show(sectionId) {
     document.getElementById('loading-screen')?.classList.add('hidden');
     document.getElementById(sectionId)?.classList.remove('hidden');

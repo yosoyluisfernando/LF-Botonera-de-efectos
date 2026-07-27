@@ -102,6 +102,7 @@ src-tauri/src/
 │   ├── player/              ← Reproductor auxiliar: motor propio e independiente
 │   ├── dsp/                 ← symphonia, ebur128, cue, fade, waveform
 │   ├── cache/               ← LRU RAM, preloader, calentamiento
+│   ├── library/             ← Raíces, catálogo incremental y búsqueda difusa
 │   ├── persist/             ← SQLite, config JSON, undo/redo
 │   ├── weather/             ← open-meteo, geocoding
 │   └── input/               ← Atajos globales de SO, reglas de dispatch
@@ -209,12 +210,14 @@ Este es el flujo más importante del sistema. Entenderlo explica por qué existe
              └─► play_raw → OutputEndpoint → dispositivo CPAL → altavoces
                  (la tarjeta se abre UNA vez; varios buses en ella se suman en el conector)
 
-6. MIENTRAS SUENA — engine/audio/monitor.rs (hilo 100 ms)
-   └─► emite "audio-tick" → Frontend:
-        ├─ gridPlayback.js: botón en verde + barra roja de progreso
-        ├─ tabs.js: pestaña con indicador de audio
-        ├─ clockWidget.js: cuenta regresiva en la barra inferior
-        └─ vuMeter.js: vúmetro L/R con balística
+6. MIENTRAS SUENA — dos pulsos independientes:
+   ├─ engine/audio/monitor.rs, 100 ms → "audio-tick":
+   │    ├─ gridPlayback.js: botón en verde + barra roja de progreso
+   │    ├─ tabs.js: pestaña con indicador de audio
+   │    └─ clockWidget.js: cuenta regresiva en la barra inferior
+   └─ engine/audio/meter_monitor.rs, 20 ms → "meter-tick":
+        ├─ vuMeter.js: vúmetro L/R principal a 50 FPS
+        └─ consoleView.js: todos los vúmetros de la consola a 50 FPS
 ```
 
 > Ver glosario: [AudioEngine](#), [AudioCommand](#), [consola](#), [Bus](#), [OutputEndpoint](#), [ButtonSource](#), [file_gain](#), [ButtonState](#), [CachedSource](#)
@@ -266,6 +269,53 @@ Base de datos SQLite. **Una fila por archivo de audio.** Guarda:
 | `last_played` | Epoch de la última reproducción (para la precarga OnPlay) |
 
 > Ver glosario: [AppConfig](#), [TrackMeta](#), [LUFS](#), [cue](#), [WAL](#)
+
+La Biblioteca no crea otra base. El esquema 3 añade al mismo `tracks.db`:
+
+- `library_root`, con múltiples carpetas independientes por colección;
+- `library_track`, con ruta relativa, Música/Efectos, duración y etiquetas;
+- `library_track_search`, índice FTS5 derivado y reconstruible.
+
+`track` sigue siendo la única fuente de cue, ganancia, normalización, duración técnica
+y sello del archivo. El motor `engine/library/` descubre nombres por lotes, enriquece
+metadatos fuera de los hilos de UI y audio, y omite esa lectura cuando tamaño y
+`mtime` no cambiaron. El panel fijo y la ventana Biblioteca consultarán el mismo
+`LibraryService`.
+
+`engine/library/monitor.rs` mantiene la observación recursiva nativa. Agrupa ráfagas
+durante 250 ms y delega cada archivo en `incremental.rs`; un directorio o un error
+activa reconciliación. Al iniciar, la reconciliación completa corre en segundo plano.
+El observador acelera lo normal, pero nunca reemplaza esa garantía de consistencia.
+
+El esquema 4 añade índices derivados de recorrido por colección, presencia, nombre y
+ruta. `library_browse` devuelve bloques estables hacia delante o atrás para que panel
+y Biblioteca implementen scroll continuo. Los bloques y cursores son internos: la
+interfaz no muestra páginas y conserva solo las filas visibles más un margen de 50
+por encima y 50 por debajo.
+
+El Centro de procesamiento de la ventana Biblioteca permite preparar cualquier
+cantidad de carpetas de Música y Efectos. El borrador no sale del frontend hasta
+Iniciar; entonces `library_add_roots` valida todas las rutas y las confirma en una
+sola transacción. Esto evita estados parciales y conserva en un único lugar las reglas
+de solapamiento y unificación. El progreso real del indexador se muestra tanto en el
+modal como en el panel.
+
+`library.html` conserva la distribución visual de la Biblioteca del LF Automatizador:
+barra superior, navegador local izquierdo, tabla principal y estado inferior. Su árbol
+indexado se deriva de `library_track`; las unidades se exploran en vivo mediante Rust
+sin indexarlas. La página comparte lista virtual, selección, modos de presentación y
+acciones con el Buscador en lugar de mantener otro catálogo en JavaScript.
+
+La tercera vista `search` del panel fijo consume esa fuente mediante una ventana de
+datos acotada. La selección se conserva por ruta aunque una fila salga del DOM.
+`Ctrl`, `Shift`, flechas, Page Up/Down y el menú por teclado comparten el mismo estado
+que el ratón. El encabezado común cambia de vista sin abrir Ajustes.
+
+Las acciones de resultados reutilizan los dueños existentes: CUE usa `play_audio`,
+el editor abre `trackEditor`, la cola recibe un lote mediante `player_add_tracks` y
+los botones se construyen con `domain/button/audio_file.rs`. LIVE comparte el control
+visual compacto de CUE, pero usa `__library_live__` en el bus Programa. Por eso CUE
+abajo a la derecha y LIVE abajo a la izquierda pueden sonar y controlarse a la vez.
 
 ---
 
@@ -368,8 +418,9 @@ main.js
                                                                            │
         Eventos Rust que llegan en runtime:                                │
         ├── 'clock-tick'    → clockWidget.js                               │
-        ├── 'audio-tick'    → gridPlayback.js + clockWidget.js + vuMeter.js + tabs.js
+        ├── 'audio-tick'    → gridPlayback.js + clockWidget.js + tabs.js
         │                  → también dispara CustomEvent('lf-audio-tick') en el DOM
+        ├── 'meter-tick'    → vuMeter.js + consoleView.js
         ├── 'weather-updated' → settingsLocutions.js                      │
         ├── 'global-shortcut-refresh' → _refresh()                        │
         ├── 'track-editor-dock' → trackEditor.js (lazy import)            │
@@ -389,17 +440,25 @@ El editor de pistas es la función más compleja del sistema. Permite al usuario
 | Módulo | Rol |
 |---|---|
 | `trackEditor.js` | Orquestador: abre el modal o la ventana pop-out, pide análisis a Rust, conecta todos los sub-módulos |
+| `trackEditorLoading.js` | Limpia el resultado anterior, bloquea controles durante el análisis y presenta solo progreso vigente |
+| `trackEditorWave.js` | Construye el componente de onda con sus referencias DOM estables |
 | `trackTransport.js` | Controles de reproducción: Play, Stop cíclico, reanudar. Usa `requestAnimationFrame` para el cursor |
 | `waveformCanvas.js` | Dibuja la onda en un `<canvas>`: envolvente, marcadores de cue, playhead. Gestiona zoom y arrastre |
 | `trackEditorWindow.js` | Gestiona el modo ventana flotante (pop-out y docking) |
 | `editor_analysis.rs` | Orquesta el análisis en Rust con progreso, caché en memoria, `tracks.db` y caché persistente |
-| `audio_analysis.rs` | Decodifica el PCM completo, mide LUFS, calcula ganancia sugerida, construye la envolvente |
+| `analysis.rs` | Mide LUFS, calcula ganancia sugerida y construye la envolvente |
+| `block_decode.rs` | Decodifica PCM por paquetes con Symphonia y cae al decodificador compartido para formatos especiales |
 | `waveform.rs` | Almacena la envolvente de alta resolución; `view()` agrega para el zoom actual |
 | `waveform_disk.rs` | Persiste envolventes del editor en disco con límites de tamaño/antigüedad |
-| `waveform_binary.rs` | Serializa y lee la envolvente persistente del editor |
+| `waveform_binary.rs` | Serializa y lee la envolvente persistente mediante E/S agrupada |
 | `track_analysis_cache.rs` | Caché en memoria del análisis completo para no re-analizar si el archivo no cambió (mtime/size) |
 | `engine/persist/tracks.rs` | Persiste cue, dB y normalización en SQLite |
 | `cmd_tracks.rs` | Comandos IPC del editor; `analyze_track` delega en `editor_analysis.rs` mediante worker bloqueante |
+
+La respuesta de `analyze_track` es la única confirmación de que los datos ya pueden
+dibujarse. Los eventos `track-analysis-progress` no anuncian finalización. Cada
+apertura lleva una versión local: al cerrar o abrir otra pista, cualquier respuesta
+anterior queda invalidada y no puede repintar el editor actual.
 
 **Modelo de ganancia de 3 capas:**
 ```

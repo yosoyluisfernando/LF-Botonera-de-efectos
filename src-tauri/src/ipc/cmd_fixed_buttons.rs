@@ -1,7 +1,8 @@
 use super::cmd_fixed_panel::{button_prefix, buttons_mut, ensure_capacity, next_index, state, FixedPanelState};
 use super::AppState;
+use crate::domain::button::audio_file;
 use crate::domain::button::defaults::new_button;
-use crate::engine::audio::formats::{probe_duration_secs, validate_audio_file, AUDIO_EXTENSIONS};
+use crate::engine::audio::formats::{validate_audio_file, AUDIO_EXTENSIONS};
 use crate::engine::persist::config_io;
 
 #[tauri::command]
@@ -12,21 +13,28 @@ pub fn assign_file_to_fixed_button(
         .pick_file().map(|p| p.to_string_lossy().to_string())).ok_or("Operación cancelada.")?;
     let is_folder = std::path::Path::new(&path).is_dir();
     if is_folder { crate::domain::button::random_folder::ensure_has_audio(&path)?; }
-    else { validate_audio_file(&path)?; }
+    let prepared = if is_folder { None } else {
+        let theme = state_.config.lock().unwrap().theme.clone();
+        Some(audio_file::from_audio_file("pending", 1, path.clone(), &theme)?)
+    };
     let name = std::path::Path::new(&path).file_stem().unwrap_or_default()
         .to_string_lossy().to_uppercase();
     let mut cfg = state_.config.lock().unwrap();
     let index = index.unwrap_or_else(|| next_index(&cfg));
     let replacing = buttons_mut(&mut cfg)?.iter().any(|b| b.index == index);
     ensure_capacity(&cfg, replacing)?;
-    let bg = crate::domain::colors::random_color();
-    let text = crate::domain::colors::text_for_theme(&bg, &cfg.theme, "button");
+    let theme = cfg.theme.clone();
     let prefix = button_prefix(&cfg);
     let list = buttons_mut(&mut cfg)?; list.retain(|b| b.index != index);
-    let mut btn = new_button(&prefix, index, &name, &bg, &text);
-    if is_folder { btn.type_field = "random_folder".into(); btn.folder = path; btn.duration_str = "RND".into(); }
-    else { btn.path = path; btn.duration = probe_duration_secs(&btn.path);
-        btn.duration_str = if btn.duration > 0.0 { format!("{:.1}s", btn.duration) } else { String::new() }; }
+    let btn = if let Some(mut button) = prepared {
+        button.id = format!("{prefix}_btn_{index}"); button.index = index; button
+    } else {
+        let bg = crate::domain::colors::random_color();
+        let text = crate::domain::colors::text_for_theme(&bg, &theme, "button");
+        let mut button = new_button(&prefix, index, &name, &bg, &text);
+        button.type_field = "random_folder".into(); button.folder = path;
+        button.duration_str = "RND".into(); button
+    };
     list.push(btn); config_io::save_config(&cfg)?; Ok(state(&cfg))
 }
 

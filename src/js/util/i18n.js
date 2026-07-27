@@ -45,6 +45,10 @@ function applyTranslations() {
         const val = getNestedValue(currentLangData, el.getAttribute('data-i18n-title'));
         if (val) el.title = val;
     });
+    document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+        const val = getNestedValue(currentLangData, el.getAttribute('data-i18n-aria-label'));
+        if (val) el.setAttribute('aria-label', val);
+    });
 }
 
 /** Navega un objeto anidado usando notación de punto (ej: "app.title"). */

@@ -44,7 +44,7 @@ export function initWindowMode() {
     document.getElementById('console-popout')?.addEventListener('click', dockIn);
     renderConsole();
     _syncPopout();
-    listen('audio-tick', e => updateConsoleTick(e.payload ?? {})).catch(console.error);
+    listen('meter-tick', e => updateConsoleTick(e.payload ?? {})).catch(console.error);
 }
 
 export function wire() {

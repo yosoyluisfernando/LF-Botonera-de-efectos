@@ -101,7 +101,7 @@ AppConfig
   ├── theme, language, button_text_size, editor_mode
   ├── preload: PreloadConfig
   ├── locutions: LocutionConfig
-  ├── fixed_panel: FixedPanelConfig {scope, view: "player"|"buttons", side, columns, rows, width, ...}
+  ├── fixed_panel: FixedPanelConfig {scope, view: "player"|"buttons"|"search", side, columns, rows, width, ...}
   ├── player: PlayerConfig          ← reproductor auxiliar, global (uno solo)
   │     ├── tracks: Vec<ButtonData>   (la cola; reutiliza ButtonData, admite todos los tipos)
   │     ├── playback_mode: "normal"|"repeat"|"random"
@@ -206,7 +206,8 @@ el CUE a `Program` aunque se pida.
 
 | Evento Tauri | Payload | Quién lo consume |
 |---|---|---|
-| `"audio-tick"` | `{buttons[{group, progress_percent, ...}], display_remaining, display_duration, master_level_l, master_level_r}` | gridPlayback.js, fixedPanel.js, clockWidget.js, vuMeter.js, tabs.js |
+| `"audio-tick"` | `{buttons[{group, progress_percent, ...}], display_remaining, display_duration, ...}` a 10 Hz | gridPlayback.js, fixedPanel.js, clockWidget.js, tabs.js |
+| `"meter-tick"` | `{master_level_l, master_level_r, buses, idle}` a 50 FPS | vuMeter.js y consoleView.js |
 | `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
@@ -246,7 +247,8 @@ Para la lista completa ver [`CLAUDE.md §9`](CLAUDE.md).
 - `player_set_stop_after(enabled)` → al acabar la actual, no arranca sola
 - `player_set_volume(volume)` / `player_set_device(device)` → salida propia ("" = la de los efectos)
 - `player_add_track(path, index?)` / `player_add_button(buttonId, index?)` → sin `index`, al final
-- `player_remove_track(index)` / `player_reorder_tracks(from, to)` / `player_clear_queue`
+- `player_remove_track(index)` / `player_remove_tracks(indexes)` /
+  `player_reorder_tracks(from, to)` / `player_clear_queue`
 - `player_save_playlist` / `player_open_playlist` → formato `.LFPlay` (compatible con LFA)
 
 ---
@@ -334,7 +336,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (suite actual: 209 passed, 4 ignored)
+# Tests unitarios Rust (suite actual: 253 passed, 14 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -372,13 +374,41 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 - i18n en 4 idiomas (es, en, pt-BR, pt-PT)
 - CI/CD con GitHub Actions
 
-**En desarrollo (rama `codex/distribucion-tiendas`):**
+**Distribución (fusionada en `main`; Linux pendiente):**
 - Microsoft Store completada con la versión 1.2.1.
 - Prueba física prioritaria en Linux y preparación posterior de Flathub.
 - Canales actuales centralizados: `direct` para GitHub Releases y `store` para
   Microsoft Store; los canales administrados de Linux todavía no están implementados.
 - Plan y evidencia en
-  [`Documentación/PLAN_DISTRIBUCION_TIENDAS.md`](Documentación/PLAN_DISTRIBUCION_TIENDAS.md).
+[`Documentación/PLAN_DISTRIBUCION_TIENDAS.md`](Documentación/PLAN_DISTRIBUCION_TIENDAS.md).
+
+**En desarrollo (rama `codex/buscador-interno`):**
+- Buscador rápido como tercera vista del panel fijo y ventana Biblioteca completa.
+- Un solo catálogo en `tracks.db`, dividido en Música y Efectos por elección del
+  usuario.
+- Las raíces solapadas se unifican sin duplicar; una subcarpeta de otra colección se
+  conserva como excepción y manda por ser más específica.
+- El backend de raíces, catálogo incremental y búsqueda difusa ya está implementado
+  en `engine/library/`. El esquema 3 añade `library_root`, `library_track` y FTS5 al
+  mismo `tracks.db`; el esquema 4 añade índices de recorrido para carga perezosa. No
+  crear otra base ni otro buscador para la Biblioteca.
+- Cada colección admite múltiples raíces independientes. Retirar una raíz conserva
+  los datos técnicos y ajustes del archivo en `track`.
+- La observación incremental usa `notify` con debounce de 250 ms y actualización por
+  archivo. Al iniciar se reconcilia en segundo plano; los eventos de directorio o
+  errores también reconcilian porque el observador no es la única garantía.
+- `library_browse` ofrece bloques bidireccionales internos para una lista virtual sin
+  páginas visibles. La UI conservará lo visible más 50 filas arriba y 50 abajo.
+- La tercera vista del panel, selección accesible, menú contextual, arrastre a
+  botones/pestañas y reproductor LIVE ya están implementados. LIVE y CUE comparten
+  componente visual, nunca id ni bus.
+- El encabezado abre un menú directo para elegir vista. El alfiler del Buscador
+  permite preparar múltiples carpetas por categoría; Cancelar no guarda y el alta
+  completa se confirma atómicamente al pulsar Iniciar.
+- Pendiente inmediato: prueba funcional Release y ventana Biblioteca independiente.
+- Enter y doble clic siguen sin acción hasta una decisión posterior.
+- Documento rector:
+  [`Documentación/PLAN_BUSCADOR_INTERNO.md`](Documentación/PLAN_BUSCADOR_INTERNO.md).
 
 **Pendientes conocidos:**
 
