@@ -31,7 +31,7 @@ jobs:
         run: npm install
 
       - name: Build
-        run: npm run tauri build
+        run: npm run tauri build -- --bundles nsis,msi
 
       - name: Upload Windows bundles
         uses: actions/upload-artifact@v4
@@ -80,7 +80,7 @@ jobs:
         run: npm install
 
       - name: Build
-        run: npm run tauri build
+        run: npm run tauri build -- --bundles deb,appimage,rpm
 
       - name: Upload Linux bundles
         uses: actions/upload-artifact@v4

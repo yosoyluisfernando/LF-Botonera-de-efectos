@@ -62,8 +62,13 @@ jobs:
         working-directory: src-tauri
         run: cargo test
 
-      - name: Build Tauri bundles
-        run: npm run tauri build
+      - name: Build Tauri bundles (Linux)
+        if: runner.os == 'Linux'
+        run: npm run tauri build -- --bundles deb,appimage,rpm
+
+      - name: Build Tauri bundles (Windows)
+        if: runner.os == 'Windows'
+        run: npm run tauri build -- --bundles nsis,msi
 
       - name: Upload Linux assets
         if: runner.os == 'Linux'

@@ -50,7 +50,8 @@
     ],
     "linux": {
       "deb": { "depends": ["libwebkit2gtk-4.1-0", "libssl3"] },
-      "appimage": { "bundleMediaFramework": true }
+      "appimage": { "bundleMediaFramework": true },
+      "rpm": { "depends": ["webkit2gtk4.1", "openssl"] }
     },
     "windows": {
       "wix": {
