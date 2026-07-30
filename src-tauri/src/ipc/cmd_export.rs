@@ -19,7 +19,14 @@ pub fn export_tab(state: tauri::State<AppState>) -> Result<(), String> {
         let profile = active_profile(&cfg)?;
         paleta_export_payload(&profile.active_paleta_id, profile)?
     };
-    finish_export(&state, "LF Botonera de Efectos Tab", "bdelf", name, value, paths)
+    finish_export(
+        &state,
+        "LF Botonera de Efectos Tab",
+        "bdelf",
+        name,
+        value,
+        paths,
+    )
 }
 
 /// Exporta una pestaña concreta sin cambiar el estado activo de la aplicacion.
@@ -34,7 +41,14 @@ pub fn export_tab_by_id(
         let profile = profile_by_id(&cfg, &profile_id)?;
         paleta_export_payload(&paleta_id, profile)?
     };
-    finish_export(&state, "LF Botonera de Efectos Tab", "bdelf", name, value, paths)
+    finish_export(
+        &state,
+        "LF Botonera de Efectos Tab",
+        "bdelf",
+        name,
+        value,
+        paths,
+    )
 }
 
 /// Importa un .bdelf como nueva pestaña del perfil activo.
@@ -77,7 +91,14 @@ pub fn export_profile(state: tauri::State<AppState>) -> Result<(), String> {
         let cfg = state.config.lock().unwrap();
         profile_export_payload(active_profile(&cfg)?)?
     };
-    finish_export(&state, "LF Botonera de Efectos Profile", "bdeplf", name, value, paths)
+    finish_export(
+        &state,
+        "LF Botonera de Efectos Profile",
+        "bdeplf",
+        name,
+        value,
+        paths,
+    )
 }
 
 /// Exporta un perfil concreto sin cambiar el perfil activo.
@@ -90,7 +111,14 @@ pub fn export_profile_by_id(
         let cfg = state.config.lock().unwrap();
         profile_export_payload(profile_by_id(&cfg, &profile_id)?)?
     };
-    finish_export(&state, "LF Botonera de Efectos Profile", "bdeplf", name, value, paths)
+    finish_export(
+        &state,
+        "LF Botonera de Efectos Profile",
+        "bdeplf",
+        name,
+        value,
+        paths,
+    )
 }
 
 /// Importa un .bdeplf como nuevo perfil y lo activa.
@@ -141,13 +169,23 @@ fn paleta_export_payload(
         .iter()
         .find(|p| p.id == paleta_id)
         .ok_or("Pestaña no encontrada")?;
-    let value = serde_json::to_value(lfa_format::to_lfa_paleta(paleta)).map_err(|e| e.to_string())?;
-    Ok((paleta.nombre.clone(), value, export_tracks::paleta_paths(paleta)))
+    let value =
+        serde_json::to_value(lfa_format::to_lfa_paleta(paleta)).map_err(|e| e.to_string())?;
+    Ok((
+        paleta.nombre.clone(),
+        value,
+        export_tracks::paleta_paths(paleta),
+    ))
 }
 
 fn profile_export_payload(profile: &ProfileData) -> Result<(String, Value, Vec<String>), String> {
-    let value = serde_json::to_value(lfa_format::to_lfa_profile(profile)).map_err(|e| e.to_string())?;
-    let paths = profile.paletas.iter().flat_map(export_tracks::paleta_paths).collect();
+    let value =
+        serde_json::to_value(lfa_format::to_lfa_profile(profile)).map_err(|e| e.to_string())?;
+    let paths = profile
+        .paletas
+        .iter()
+        .flat_map(export_tracks::paleta_paths)
+        .collect();
     Ok((profile.name.clone(), value, paths))
 }
 

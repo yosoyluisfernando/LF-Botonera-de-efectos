@@ -46,13 +46,24 @@ impl QueueEntry {
 /// Accion sobre un deck (0 o 1). El hilo la traduce a operaciones de rodio.
 #[derive(Debug)]
 pub enum DeckAction {
-    Load { deck: usize, entry: QueueEntry, autoplay: bool },
+    Load {
+        deck: usize,
+        entry: QueueEntry,
+        autoplay: bool,
+    },
     /// Saltar a una posicion de la pista ya cargada, sin cambiar de pista.
-    Seek { deck: usize, position_s: f64 },
-    Resume { deck: usize },
+    Seek {
+        deck: usize,
+        position_s: f64,
+    },
+    Resume {
+        deck: usize,
+    },
     /// Detiene un solo deck (el saliente en un relevo forzado, sin cortar el que
     /// acaba de arrancar). Evita que dos pistas suenen a la vez (solapamiento).
-    Stop { deck: usize },
+    Stop {
+        deck: usize,
+    },
     StopAll,
 }
 
@@ -134,21 +145,37 @@ mod tests {
     use super::*;
 
     fn special(kind: &str, folder: &str) -> QueueEntry {
-        QueueEntry { id: "x".into(), kind: kind.into(), folder: folder.into(), ..Default::default() }
+        QueueEntry {
+            id: "x".into(),
+            kind: kind.into(),
+            folder: folder.into(),
+            ..Default::default()
+        }
     }
 
     #[test]
     fn audio_needs_a_file() {
-        let with = QueueEntry { kind: "audio".into(), path: "C:/a.mp3".into(), ..Default::default() };
+        let with = QueueEntry {
+            kind: "audio".into(),
+            path: "C:/a.mp3".into(),
+            ..Default::default()
+        };
         assert!(with.is_playable());
-        assert!(!QueueEntry { kind: "audio".into(), ..Default::default() }.is_playable());
+        assert!(!QueueEntry {
+            kind: "audio".into(),
+            ..Default::default()
+        }
+        .is_playable());
     }
 
     /// Los especiales solo necesitan carpeta: el archivo se elige al sonar.
     #[test]
     fn special_types_only_need_a_folder() {
         for kind in ["random_folder", "time", "temperature", "humidity"] {
-            assert!(special(kind, "C:/carpeta").is_playable(), "{kind} deberia sonar");
+            assert!(
+                special(kind, "C:/carpeta").is_playable(),
+                "{kind} deberia sonar"
+            );
             assert!(!special(kind, "").is_playable(), "{kind} sin carpeta no");
         }
     }
@@ -158,10 +185,17 @@ mod tests {
     #[test]
     fn only_time_and_weather_resolve_late() {
         for kind in ["time", "temperature", "humidity"] {
-            assert!(special(kind, "C:/x").needs_late_resolve(), "{kind} depende de la hora");
+            assert!(
+                special(kind, "C:/x").needs_late_resolve(),
+                "{kind} depende de la hora"
+            );
         }
         assert!(!special("random_folder", "C:/x").needs_late_resolve());
-        let audio = QueueEntry { kind: "audio".into(), path: "a.mp3".into(), ..Default::default() };
+        let audio = QueueEntry {
+            kind: "audio".into(),
+            path: "a.mp3".into(),
+            ..Default::default()
+        };
         assert!(!audio.needs_late_resolve());
     }
 
@@ -170,10 +204,17 @@ mod tests {
     fn the_queue_no_longer_skips_special_types() {
         let mut q = QueueState::new();
         q.entries = vec![
-            QueueEntry { kind: "audio".into(), path: "C:/a.mp3".into(), ..Default::default() },
+            QueueEntry {
+                kind: "audio".into(),
+                path: "C:/a.mp3".into(),
+                ..Default::default()
+            },
             special("random_folder", "C:/musica"),
         ];
         assert!(q.playable(0));
-        assert!(q.playable(1), "la carpeta aleatoria cuenta como reproducible");
+        assert!(
+            q.playable(1),
+            "la carpeta aleatoria cuenta como reproducible"
+        );
     }
 }

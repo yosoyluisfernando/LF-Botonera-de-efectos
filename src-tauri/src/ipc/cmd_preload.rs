@@ -23,12 +23,12 @@ pub struct PreloadView {
 
 impl From<&PreloadConfig> for PreloadView {
     fn from(c: &PreloadConfig) -> Self {
-        let (evict_value, evict_unit) = if c.evict_after_hours >= 24 && c.evict_after_hours % 24 == 0
-        {
-            (c.evict_after_hours / 24, "days")
-        } else {
-            (c.evict_after_hours, "hours")
-        };
+        let (evict_value, evict_unit) =
+            if c.evict_after_hours >= 24 && c.evict_after_hours % 24 == 0 {
+                (c.evict_after_hours / 24, "days")
+            } else {
+                (c.evict_after_hours, "hours")
+            };
         Self {
             enabled: c.enabled,
             ram_budget_mb: c.ram_budget_mb,

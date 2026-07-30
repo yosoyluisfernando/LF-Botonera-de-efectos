@@ -22,7 +22,10 @@ fn finds_audio_in_subfolders() {
     let _ = fs::remove_dir_all(&root);
 
     assert_eq!(found.len(), 3, "las tres, incluidas las de subcarpetas");
-    assert!(found.iter().any(|f| f.ends_with("c.wav")), "hasta el nivel mas hondo");
+    assert!(
+        found.iter().any(|f| f.ends_with("c.wav")),
+        "hasta el nivel mas hondo"
+    );
 }
 
 /// Lo que no es audio no entra, y el orden es estable (alfabetico por ruta).
@@ -35,7 +38,10 @@ fn skips_non_audio_and_sorts() {
     assert!(!found.iter().any(|f| f.ends_with(".txt")));
     let mut sorted = found.clone();
     sorted.sort();
-    assert_eq!(found, sorted, "el orden no puede depender del sistema de archivos");
+    assert_eq!(
+        found, sorted,
+        "el orden no puede depender del sistema de archivos"
+    );
 }
 
 /// Una carpeta que no existe no revienta: simplemente no hay audio.

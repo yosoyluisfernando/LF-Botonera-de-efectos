@@ -59,7 +59,11 @@ fn exec(
     resolver: &QueueResolver,
 ) {
     match action {
-        DeckAction::Load { deck, entry, autoplay } => {
+        DeckAction::Load {
+            deck,
+            entry,
+            autoplay,
+        } => {
             let Some(target) = decks.get_mut(deck) else {
                 return;
             };

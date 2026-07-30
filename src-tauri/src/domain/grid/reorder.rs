@@ -1,11 +1,11 @@
+use crate::core::AppState;
+use crate::domain::playback::state as playback_state;
 /// Modulo: grid_reorder.rs
 /// Proposito: reordenar botones de la grilla y trasladar su estado de audio
 /// activo cuando cambian de posicion.
 use crate::ipc::cmd_grid::{active_paleta, save_grid};
-use crate::domain::playback::state as playback_state;
 use crate::model::grid::GridState;
 use crate::model::ButtonData;
-use crate::core::AppState;
 
 #[tauri::command]
 pub fn reorder_buttons(

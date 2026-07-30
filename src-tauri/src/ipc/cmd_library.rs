@@ -52,14 +52,6 @@ pub async fn library_add_roots(
 }
 
 #[tauri::command]
-pub async fn library_remove_root(root_id: i64, state: State<'_, AppState>) -> Result<(), String> {
-    let service = state.library.clone();
-    tauri::async_runtime::spawn_blocking(move || service.remove_root(root_id))
-        .await
-        .map_err(|error| error.to_string())?
-}
-
-#[tauri::command]
 pub async fn library_sync_root(
     root_id: i64,
     app: AppHandle,

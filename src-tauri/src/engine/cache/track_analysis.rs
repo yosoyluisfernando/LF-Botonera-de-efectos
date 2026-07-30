@@ -2,8 +2,8 @@
 /// Proposito: cache efimera del analisis completo del editor de pistas.
 /// Evita re-decodificar y recalcular LUFS al mover el editor entre modal/ventana.
 use crate::engine::cache::cached_source::CachedPcm;
-use crate::model::track::TrackMeta;
 use crate::engine::dsp::waveform::WaveEnvelope;
+use crate::model::track::TrackMeta;
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 
@@ -59,7 +59,8 @@ impl TrackAnalysisCache {
         }
     }
 
-    fn remove(&mut self, key: &str) {
+    /// Invalida el análisis de una ruta que cambió en el disco.
+    pub fn remove(&mut self, key: &str) {
         self.map.remove(key);
         if let Some(i) = self.order.iter().position(|k| k == key) {
             self.order.remove(i);

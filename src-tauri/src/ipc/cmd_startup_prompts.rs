@@ -1,5 +1,5 @@
-use crate::engine::persist::config_io as config;
 use crate::core::AppState;
+use crate::engine::persist::config_io as config;
 use serde::Serialize;
 use tauri::State;
 
@@ -24,7 +24,10 @@ pub fn prepare_startup_prompts(state: State<AppState>) -> Result<StartupPrompts,
     cfg.startup.launch_count = cfg.startup.launch_count.saturating_add(1);
     let notes = release_notes_for(&current);
     let show = cfg.startup.last_seen_version != current && !notes.is_empty();
-    let donation_due = donation_due(cfg.startup.launch_count, cfg.startup.last_donation_prompt_launch);
+    let donation_due = donation_due(
+        cfg.startup.launch_count,
+        cfg.startup.last_donation_prompt_launch,
+    );
     let launch_count = cfg.startup.launch_count;
     config::save_config(&cfg)?;
     Ok(StartupPrompts {
@@ -78,7 +81,9 @@ fn section(marker: &str) -> String {
     };
     let body = &CHANGELOG[start + header.len()..];
     let end = body.find("\n## ").unwrap_or(body.len());
-    body[..end].trim_matches(|c| c == '\n' || c == '\r' || c == ' ').to_string()
+    body[..end]
+        .trim_matches(|c| c == '\n' || c == '\r' || c == ' ')
+        .to_string()
 }
 
 #[cfg(test)]

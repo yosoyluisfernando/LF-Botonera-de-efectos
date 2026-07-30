@@ -10,8 +10,8 @@
 //! aplicacion, asi que el trabajo va en `spawn_blocking` y se emite progreso,
 //! mismo patron que el analisis del editor de pistas. Las pistas se insertan por
 //! lotes, asi la lista **crece a la vista** y nunca parece que no hace nada.
-use super::cmd_player_queue::{insert_track, next_id, sync_queue};
 use super::cmd_player::{player_view, PlayerView};
+use super::cmd_player_queue::{insert_track, next_id, sync_queue};
 use super::AppState;
 use crate::domain::button::defaults::new_button;
 use crate::engine::audio::formats::{audio_files_recursive, is_audio_path, probe_duration_secs};
@@ -57,7 +57,13 @@ fn expand(paths: &[String]) -> Vec<String> {
 #[tauri::command]
 pub fn player_scan_drop(paths: Vec<String>, state: tauri::State<AppState>) -> DropScan {
     let count = expand(&paths).len();
-    let action = state.config.lock().unwrap().player.large_folder_action.clone();
+    let action = state
+        .config
+        .lock()
+        .unwrap()
+        .player
+        .large_folder_action
+        .clone();
     let many = count > LARGE_FOLDER_THRESHOLD;
     DropScan {
         count: count as u32,
@@ -148,6 +154,9 @@ struct DropProgress {
 fn emit_progress(app: &tauri::AppHandle, done: usize, total: usize) {
     let _ = app.emit(
         "player-drop-progress",
-        DropProgress { done: done.min(total) as u32, total: total as u32 },
+        DropProgress {
+            done: done.min(total) as u32,
+            total: total as u32,
+        },
     );
 }

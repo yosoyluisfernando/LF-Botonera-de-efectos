@@ -60,7 +60,20 @@
   color:var(--error-color); background:transparent; font-size:16px; }
 .library-root-remove:hover, .library-root-remove:focus-visible {
   background:var(--playback-hover-bg); }
+.library-root-restore { flex:none; white-space:nowrap; }
 .library-root-empty { margin:0; color:var(--text-secondary); font-style:italic; }
+.library-retention-help { margin:0 0 8px; color:var(--text-secondary); line-height:1.4; }
+.library-retention-controls { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.library-retention-controls input { width:72px; padding:5px; color:var(--text-primary);
+  background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:3px; }
+.library-remove-root-content { max-width:520px; }
+.library-remove-root-path { overflow-wrap:anywhere; font-weight:600; color:var(--text-primary); }
+.library-remove-root-content .btn-danger { padding:8px 16px; cursor:pointer;
+  color:var(--danger-text); background:var(--danger-bg);
+  border:1px solid var(--danger-border); border-radius:4px; }
+.library-remove-root-content .btn-danger:hover,
+.library-remove-root-content .btn-danger:focus-visible {
+  color:#fff; background:var(--error-color); border-color:var(--error-color); }
 .library-roots-notice { min-height:18px; margin-top:4px; color:var(--text-primary);
   line-height:1.4; }
 .library-roots-body > .library-index-progress { margin-top:8px;

@@ -34,8 +34,8 @@ mod graph;
 mod level;
 mod thread;
 
-pub use bus::Bus;
 pub use crate::domain::console::{BusId, Routing};
+pub use bus::Bus;
 
 use crate::domain::console::sanitize;
 use std::collections::HashMap;
@@ -163,7 +163,11 @@ impl ConsoleEngine {
 
     /// A cuanto esta el fader del bus.
     pub fn fader(&self, bus: BusId) -> f32 {
-        f32::from_bits(self.state.lock().unwrap().slots[&bus].volume.load(Ordering::Relaxed))
+        f32::from_bits(
+            self.state.lock().unwrap().slots[&bus]
+                .volume
+                .load(Ordering::Relaxed),
+        )
     }
 
     /// El atomico del fader, para quien lo lea muy a menudo (el monitor del

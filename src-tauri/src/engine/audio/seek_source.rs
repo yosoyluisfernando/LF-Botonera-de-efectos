@@ -60,7 +60,12 @@ impl SeekSource {
             hint.with_extension(ext);
         }
         let probed = symphonia::default::get_probe()
-            .format(&hint, mss, &FormatOptions::default(), &MetadataOptions::default())
+            .format(
+                &hint,
+                mss,
+                &FormatOptions::default(),
+                &MetadataOptions::default(),
+            )
             .ok()?;
         let mut format = probed.format;
 
@@ -83,15 +88,17 @@ impl SeekSource {
             let seeked = format
                 .seek(
                     SeekMode::Accurate,
-                    SeekTo::Time { time: Time::from(start_s), track_id: Some(track_id) },
+                    SeekTo::Time {
+                        time: Time::from(start_s),
+                        track_id: Some(track_id),
+                    },
                 )
                 .ok()?;
             // Tras saltar, el decodificador arrastra estado del punto anterior.
             decoder.reset();
             // El salto cae al principio del bloque que contiene el punto, asi que
             // sobra el trozo que va desde ahi hasta lo pedido: se descarta.
-            skip = seeked.required_ts.saturating_sub(seeked.actual_ts) as usize
-                * channels as usize;
+            skip = seeked.required_ts.saturating_sub(seeked.actual_ts) as usize * channels as usize;
         }
 
         Some(Self {

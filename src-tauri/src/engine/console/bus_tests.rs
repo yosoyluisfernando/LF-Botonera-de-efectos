@@ -93,7 +93,10 @@ fn mover_el_fader_mueve_el_medidor() {
     gain.store(0.25f32.to_bits(), Ordering::Relaxed);
     drain(&mut rig, 1);
     let bajo = read(&l);
-    assert!(alto > 0.9, "con el fader arriba el medidor debe marcar: {alto}");
+    assert!(
+        alto > 0.9,
+        "con el fader arriba el medidor debe marcar: {alto}"
+    );
     assert!(
         (bajo - 0.25).abs() < 1e-6,
         "al bajar el fader el medidor debe seguirlo: {bajo}"
@@ -119,7 +122,13 @@ fn el_fader_de_un_bus_no_toca_al_otro() {
     let (l1, r1, gain1) = atomics(1.0);
     let (l2, r2, gain2) = atomics(1.0);
     let uno = Bus::open(BusOutput::Bus(&rig.controller), Arc::clone(&l1), r1, gain1).unwrap();
-    let dos = Bus::open(BusOutput::Bus(&rig.controller), Arc::clone(&l2), r2, Arc::clone(&gain2)).unwrap();
+    let dos = Bus::open(
+        BusOutput::Bus(&rig.controller),
+        Arc::clone(&l2),
+        r2,
+        Arc::clone(&gain2),
+    )
+    .unwrap();
     uno.add(tone(0.5, WINDOW * 8));
     dos.add(tone(0.5, WINDOW * 8));
     drain(&mut rig, 1);

@@ -1,7 +1,7 @@
-# Actualización de la ficha de Microsoft Store
+# Registro de la ficha de Microsoft Store
 
-Fuente de verdad para la actualización de metadatos posterior a la publicación de
-LF Botonera de Efectos 1.2.1. Esta actualización no sustituye el paquete aprobado.
+Registro histórico de la ficha iniciada con 1.2.1 y de la actualización funcional
+1.3.0. La publicación ya está cerrada; este archivo no es una lista de tareas.
 
 ## Enlaces oficiales
 
@@ -36,23 +36,13 @@ de las capturas permanece en español. La ficha española incluye los siete pies
 imagen; las otras tres conservan las capturas sin pie. Los textos localizados quedan
 preparados en esta carpeta por si se incorporan en una actualización posterior.
 
-## Alcance del envío
+## Envíos cerrados
 
-- Mantener el paquete MSIX 1.2.1 aprobado.
-- Sustituir el sitio web y el soporte antiguos de GitHub por las páginas oficiales de
-  Blogger. La política aprobada continúa como texto completo dentro de Store.
-- Sustituir la descripción y la descripción breve en los cuatro idiomas.
-- Añadir las siete capturas en las cuatro fichas y los pies en español.
-- Mantener 1.2.1 como versión publicada; no prometer funciones futuras.
-
-La Submission 2 (`1152921505701463690`) se envió a certificación el 2026-07-21 sin
-cambiar el paquete MSIX 1.2.1.
-
-## Próxima actualización funcional
-
-La versión propuesta es **1.3.0** (`1.3.0.0` dentro del MSIX), porque incorpora la
-Biblioteca y el buscador interno sin romper compatibilidad. Sus textos localizados
-están en [`NOTAS_VERSION_SIGUIENTE.md`](NOTAS_VERSION_SIGUIENTE.md).
+- La Submission 2 (`1152921505701463690`) publicó la ficha y el paquete 1.2.1.
+- La Submission 3 (`1152921505701501616`) publicó la actualización funcional
+  **1.3.0** (`1.3.0.0` dentro del MSIX), con Biblioteca y buscador interno.
+- Los textos localizados usados para 1.3.0 se conservan en
+  [`NOTAS_VERSION_SIGUIENTE.md`](NOTAS_VERSION_SIGUIENTE.md) como registro.
 
 El 2026-07-27 se creó y envió la Submission 3
 (`1152921505701501616`) del producto `9NJ8ST39QP7V`:
@@ -60,14 +50,8 @@ El 2026-07-27 se creó y envió la Submission 3
 - paquete `LF-Botonera-1.3.0.0-x64-unsigned.msix` validado por Partner Center;
 - notas de versión actualizadas en español, inglés, portugués de Brasil y portugués
   de Portugal;
-- publicación configurada para comenzar automáticamente cuando apruebe la
-  certificación;
-- estado confirmado al terminar el envío: `Update in certification`, etapa
-  `Pre-processing` (paso 2 de 4).
-
-No cancelar la certificación ni crear otra Submission. El siguiente control consiste
-en esperar la decisión de Microsoft; si aprueba, la publicación comienza sin fecha ni
-hora manual.
+- publicación configurada para comenzar automáticamente al aprobar la certificación;
+- certificación y publicación completadas.
 
 ### Paquete preparado
 

@@ -1,0 +1,189 @@
+/* Editor de metadatos compartido por Biblioteca y buscador del panel fijo. */
+.lm-modal {
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(820px, calc(100vh - 32px));
+  display: flex;
+  flex-direction: column;
+}
+
+.lm-body {
+  overflow: auto;
+}
+
+.lm-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+}
+
+.lm-kind {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.lm-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.lm-file-info,
+.lm-field.wide,
+.lm-help {
+  grid-column: 1 / -1;
+}
+
+.lm-file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  color: var(--text-secondary);
+}
+
+.lm-file-info strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.lm-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lm-field label input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--accent-color);
+}
+
+.lm-field > input,
+.lm-field > textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.lm-field > textarea {
+  min-height: 62px;
+  resize: vertical;
+}
+
+.lm-field > input:focus-visible,
+.lm-field > textarea:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+.lm-help {
+  margin: 3px 0;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.lm-tags,
+.lm-rename,
+.lm-write {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.lm-tags h4 {
+  margin: 0 0 4px;
+  color: var(--text-primary);
+}
+
+.lm-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 28px;
+  margin: 8px 0;
+}
+
+.lm-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 5px 3px 9px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.lm-tag-chip button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.lm-tag-chip button:hover,
+.lm-tag-chip button:focus-visible {
+  background: var(--error-color);
+  color: #fff;
+}
+
+.lm-tag-input {
+  box-sizing: border-box;
+}
+
+.lm-rename-controls {
+  margin-top: 9px;
+}
+
+.lm-rename-row {
+  display: flex;
+  gap: 8px;
+}
+
+.lm-rename-row input {
+  min-width: 0;
+  flex: 1;
+}
+
+.lm-rename-row button {
+  white-space: nowrap;
+}
+
+.lm-warning {
+  margin: 7px 0 0;
+  color: var(--error-color);
+  line-height: 1.35;
+}
+
+.lm-status {
+  min-height: 18px;
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+}
+
+#library-metadata-modal[aria-busy="true"] .lm-modal {
+  cursor: wait;
+}
+
+@media (max-width: 580px) {
+  .lm-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .lm-rename-row {
+    flex-direction: column;
+  }
+}

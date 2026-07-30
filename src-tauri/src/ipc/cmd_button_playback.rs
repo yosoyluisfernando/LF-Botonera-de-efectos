@@ -155,7 +155,6 @@ fn seed_preload(state: &AppState, cfg: &AppConfig, path: &str, file_dur: f64) {
     }
 }
 
-
 fn is_button_active(state: &AppState, id: &str) -> bool {
     let states = state.audio.lock().unwrap().button_states_handle();
     let is_active = states

@@ -15,7 +15,7 @@ Lee todo antes de tocar código.
 
 **El público son cuatro, y no uno:** operadores de radio, locutores, streamers y DJs. Comparten la mecánica —una rejilla de sonidos y las manos ocupadas mientras algo sale al aire— pero no el vocabulario ni el equipo. Conviene tenerlo presente al decidir: las locuciones de hora y clima son de radio y un streamer no las tocará nunca, mientras que mandar la música a una tarjeta distinta de la de los efectos le importa sobre todo a quien emite por internet. No dar por supuesto un estudio de radio.
 
-- **Versión actual:** 1.2.0
+- **Versión actual del código:** 1.3.0
 - **Repositorio:** `C:\OVERLAY\BOTONERA`
 - **GitHub:** https://github.com/yosoyluisfernando/LF-Botonera-de-efectos
 - **Autor:** Luis Fernando Velásquez
@@ -274,7 +274,7 @@ CREATE TABLE IF NOT EXISTS track (
 ```
 
 - WAL habilitado (`PRAGMA journal_mode=WAL`) para escrituras frecuentes baratas.
-- Versión del esquema en `PRAGMA user_version` (actualmente 4).
+- Versión del esquema en `PRAGMA user_version` (actualmente 6).
 - `last_played` se vuelca desde memoria a disco cada 30 s (debounce) y al cerrar.
 
 El esquema 3 conserva `track` como única fuente de los datos técnicos y añade:
@@ -290,6 +290,10 @@ El esquema 4 añade solamente índices derivados para recorrer `library_track` p
 colección, presencia, nombre y ruta. `library_browse` usa esos índices y cursores
 bidireccionales; son la fuente interna de la futura lista virtual, no paginación
 visible.
+
+El esquema 5 añade retiro reversible y retención 30..=365. El esquema 6 añade
+`track_user_metadata` y `track_keyword`: las decisiones editoriales y tags del
+usuario sobreviven a la reindexación y alimentan el mismo FTS5.
 
 ---
 
@@ -563,6 +567,12 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `library_browse(collection?, limit?, cursor?, direction?)` — bloques internos
   `"forward"` / `"backward"` para scroll continuo
 - `library_status`
+- `library_metadata_get(paths)` → campos efectivos, tags y sugerencias
+- `library_metadata_save(paths, fields, add_tags, remove_tags, write_to_file?)` —
+  lote atómico; la escritura física solo admite una pista
+- `library_metadata_suggest_tags(query, limit?)`
+- `library_rename_file(path, new_file_name)` — renombrado físico recuperable que
+  actualiza catálogo y referencias propias
 - `library_play_live(path, duration_s?, position_s?, volume?)` — reproducción por
   Programa con el id reservado `__library_live__`
 - `library_assign_to_paleta(paths, paleta_id)` — lote atómico a espacios vacíos
@@ -577,8 +587,8 @@ lecturas continúan usando conexiones SQLite independientes.
 El panel usa `fixed_panel.view = "search"`. El encabezado abre un menú para elegir
 directamente `buttons`, `player` o `search`; no rota las vistas. El alfiler abre un
 modal cuyo borrador vive solo en JavaScript hasta pulsar Iniciar. La confirmación usa
-`library_add_roots` y luego `library_sync_all`; Cancelar no escribe nada.
-Durante la sincronización, el modal muestra únicamente `Ocultar ventana`: ocultarlo no
+`library_add_roots` y luego `library_sync_all`; `Ocultar ventana` conserva el
+borrador de la sesión y no escribe nada. Durante la sincronización, ocultarlo tampoco
 cancela el trabajo. Al reabrirlo se presenta antes de consultar las raíces.
 `librarySearchView.js` orquesta la vista;
 `libraryResultSource.js` mantiene la ventana bidireccional acotada y
@@ -603,6 +613,14 @@ guardar nombres ni volver a unir ambas fases en una sola lectura monolítica.
 - `export_profile(profile_id, path?)`
 - `export_profile_by_id(profile_id)` → JSON string
 - `import_profile(path?)`
+
+### Respaldo completo
+- `backup_create` → `BackupSummary?` — diálogo nativo y creación verificada de `.lfbackup`
+- `backup_choose_restore` → `BackupInspection?` — selección y validación de solo lectura
+- `backup_prepare_restore(source_path)` → `RestorePrepared` — copia local, respaldo de
+  emergencia y marcador transaccional
+- `backup_restart` — vuelca historial y reinicia para restaurar antes de `AppState`
+- `backup_take_restore_result` → `RestoreResult?` — resultado accesible del reinicio
 
 ### Metadatos / Sistema
 - `get_app_version` → String
@@ -784,7 +802,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 245 passed, 14 ignored)
+# Backend Rust (suite actual: 298 passed, 19 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
 
@@ -840,11 +858,20 @@ No lanzar la app por computer-use. El usuario prueba en su PC.
 
 ## 15. Pendientes reales (en orden de prioridad)
 
-### A) Prueba física en Linux
+### A) Emojis opcionales en los botones
+
+- Objetivo confirmado: reconocer los botones con mayor facilidad a distancia.
+- El diseño detallado se está cerrando en otra conversación. Incorporarlo y aprobarlo
+  antes de cambiar `ButtonData`, IPC o los formatos compartidos.
+- Debe conservar un nombre accesible para lector de pantalla y compatibilidad hacia
+  atrás mediante `#[serde(default)]`.
+- Estado: no iniciado en esta rama.
+
+### B) Prueba física en Linux
 - El código es agnóstico del SO (rutas vía `config::get_data_dir()`, SQLite bundled, rodio/ALSA).
 - Falta compilar y probar en una máquina Linux real (`.deb`, `.AppImage`).
 
-### B) Deuda menor: `master_volume` es `f32`
+### C) Deuda menor: `master_volume` es `f32`
 - Su representación en JSON crece sola al guardar (`0.45` → `0.4499999…`). Inocuo, pero ensucia el
   fichero. Afecta a `AudioConfig` y al `vol` de `ButtonData`.
 

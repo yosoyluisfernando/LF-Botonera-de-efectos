@@ -33,6 +33,37 @@ directamente desde Windows:
 ## [Sin publicar]
 
 ### Añadido
+- El Centro de procesamiento permite retirar rutas ya indexadas con confirmación,
+  conservarlas entre 30 y 365 días y restaurarlas antes de su vencimiento.
+- La Biblioteca permite crear y restaurar un respaldo completo `.lfbackup` con la
+  configuración, perfiles, paletas, catálogo y ajustes de pistas en un solo archivo.
+- La Biblioteca y el Buscador del panel fijo incorporan un editor de metadatos
+  adaptado a Música y Efectos, con tags o palabras clave buscables y edición por
+  lotes.
+- El editor permite renombrar expresamente un archivo físico y, para una pista de
+  Música individual, escribir opcionalmente los campos compatibles dentro del
+  archivo.
+
+### Seguridad
+- La purga de una ruta vencida conserva cue, ganancia, normalización y demás datos
+  técnicos de cualquier pista que siga asignada a una rejilla, botón fijo o cola del
+  reproductor.
+- Cada respaldo se comprueba después de crearse. La restauración valida el archivo,
+  crea una copia de emergencia y se aplica durante un reinicio transaccional antes de
+  abrir la base de datos.
+- El renombrado actualiza catálogo, configuración, rejillas, botones fijos y
+  reproductor como una sola operación recuperable. La escritura de etiquetas trabaja
+  sobre una copia, verifica el resultado y conserva el audio original ante un fallo o
+  interrupción.
+
+### Cambiado
+- El editor de metadatos adapta todos sus campos de texto al tema claro u oscuro.
+- El Centro de procesamiento usa siempre `Ocultar ventana` y conserva las carpetas
+  pendientes durante la sesión; solo `Iniciar` las guarda e indexa.
+
+## [1.3.0] — 2026-07-27
+
+### Añadido
 - Biblioteca rápida para Música y Efectos, con múltiples carpetas por categoría,
   búsqueda difusa, metadatos, actualización automática y un único catálogo sin
   archivos duplicados.
@@ -236,7 +267,8 @@ reducción de permisos innecesarios.
 
 ---
 
-[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.1...HEAD
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.2...v1.1.3

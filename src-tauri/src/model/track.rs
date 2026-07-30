@@ -80,9 +80,7 @@ impl TrackMeta {
     pub fn sanitized_cue(&self) -> (f64, Option<f64>) {
         let dur = self.duration_s.max(0.0);
         let start = self.cue_start_s.clamp(0.0, (dur - 0.01).max(0.0));
-        let end = self
-            .cue_end_s
-            .filter(|&e| e > start && e <= dur + 0.001);
+        let end = self.cue_end_s.filter(|&e| e > start && e <= dur + 0.001);
         (start, end)
     }
 
@@ -94,7 +92,11 @@ impl TrackMeta {
 
     /// Ganancia total en dB al reproducir = normalización (si activa) + manual.
     pub fn effective_gain_db(&self) -> f64 {
-        let normalization = if self.norm_enabled { self.norm_gain_db } else { 0.0 };
+        let normalization = if self.norm_enabled {
+            self.norm_gain_db
+        } else {
+            0.0
+        };
         normalization + self.gain_db
     }
 

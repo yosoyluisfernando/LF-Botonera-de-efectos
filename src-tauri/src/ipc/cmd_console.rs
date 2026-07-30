@@ -105,7 +105,11 @@ pub fn set_bus_fader(
 #[tauri::command]
 pub fn set_console_mode(mode: String, state: tauri::State<AppState>) -> Result<(), String> {
     let mut cfg = state.config.lock().unwrap();
-    cfg.console_mode = if mode == "window" { mode } else { "modal".into() };
+    cfg.console_mode = if mode == "window" {
+        mode
+    } else {
+        "modal".into()
+    };
     config::save_config(&cfg)
 }
 

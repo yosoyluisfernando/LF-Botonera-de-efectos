@@ -71,10 +71,7 @@ pub fn seek_active(
 
 /// La ficha y la posicion de la instancia que suena de ese boton. La ULTIMA, que
 /// con `overlap` no es la unica.
-fn current_state(
-    states: &Arc<Mutex<ButtonStateMap>>,
-    id: &str,
-) -> Option<(Arc<ReplayInfo>, f64)> {
+fn current_state(states: &Arc<Mutex<ButtonStateMap>>, id: &str) -> Option<(Arc<ReplayInfo>, f64)> {
     let map = states.lock().unwrap();
     let state = map.get(id)?.iter().rev().find(|s| !s.is_done())?;
     Some((state.replay.clone()?, state.position()))

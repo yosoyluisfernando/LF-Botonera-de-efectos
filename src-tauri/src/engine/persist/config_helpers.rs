@@ -2,7 +2,9 @@ use crate::model::{AppConfig, AudioConfig, PaletaData, ProfileData};
 
 impl AppConfig {
     pub fn active_profile(&self) -> Option<&ProfileData> {
-        self.profiles.iter().find(|p| p.id == self.active_profile_id)
+        self.profiles
+            .iter()
+            .find(|p| p.id == self.active_profile_id)
     }
 
     pub fn active_profile_mut(&mut self) -> Option<&mut ProfileData> {

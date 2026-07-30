@@ -38,7 +38,7 @@ Guía de lectura completa del repositorio. Lee esto primero si acabas de llegar 
 
 El proyecto está construido con **Tauri v2 + Rust** (backend) y **Vanilla JavaScript + Vite** (frontend). La filosofía central es que la interfaz de usuario es un "humilde control remoto": dibuja botones, muestra lo que Rust le dice, y reenvía acciones del usuario hacia Rust. Todo el audio, la lógica y los datos críticos viven en el backend.
 
-Es software libre (GPL-3.0-or-later). Su versión actual es la **1.1.2**.
+Es software libre (GPL-3.0-or-later). La versión actual del código es la **1.3.0**.
 
 Tiene una **aplicación hermana**, el [LF Automatizador v1.0](https://github.com/yosoyluisfernando/lf-automatizador), con la que comparte los formatos de archivo `.bdelf` (pestañas) y `.bdeplf` (perfiles). La compatibilidad entre ambas es obligatoria.
 
@@ -292,6 +292,31 @@ ruta. `library_browse` devuelve bloques estables hacia delante o atrás para que
 y Biblioteca implementen scroll continuo. Los bloques y cursores son internos: la
 interfaz no muestra páginas y conserva solo las filas visibles más un margen de 50
 por encima y 50 por debajo.
+
+El esquema 5 añade retiro reversible de raíces. `enabled=0`, `retired_at` y
+`purge_after` sacan una raíz de la Biblioteca y del observador sin borrar todavía su
+catálogo. `library_setting` guarda el plazo global para futuras retiradas, limitado a
+30..=365 días; cada raíz conserva la fecha exacta calculada al retirarse. Restaurar
+reactiva el mismo catálogo. Al vencer, la purga borra raíz, catálogo y FTS y elimina
+solo filas `track` huérfanas. Las rutas todavía usadas por cualquier rejilla, botones
+fijos globales o por perfil y cola del reproductor protegen siempre sus metadatos
+técnicos.
+
+El esquema 6 añade datos editoriales propios sin mezclar su responsabilidad con
+`track` ni con los tags originales del contenedor:
+
+- `track_user_metadata`: una anulación opcional por campo y archivo;
+- `track_keyword`: tags o palabras clave deduplicados por una clave sin acentos ni
+  diferencias de mayúsculas;
+- `library_track_search`: sigue siendo derivado, pero se reconstruye con nombre,
+  metadatos efectivos y tags propios.
+
+El menú contextual abre el mismo editor desde el panel fijo y desde `library.html`.
+Música muestra sus campos editoriales; Efectos ofrece nombre descriptivo, categoría,
+descripción y tags. En lote se modifican únicamente los campos marcados. Renombrar un
+archivo actualiza todas las referencias guardadas sin cambiar etiquetas de botones,
+cue, ganancia ni normalización. La escritura opcional dentro del audio usa copia,
+verificación y recuperación antes de reemplazar el original.
 
 El Centro de procesamiento de la ventana Biblioteca permite preparar cualquier
 cantidad de carpetas de Música y Efectos. El borrador no sale del frontend hasta
@@ -830,8 +855,9 @@ Al lanzar la aplicación, ocurre la siguiente secuencia:
 
 **Backend (Rust):**
 1. `main.rs` → `lib::run()`
-2. `lib::run()` crea `AppState`: carga `botonera_config.json`, abre `tracks.db`, crea `AudioEngine`
-3. Tauri llama `core::setup::on_setup()`:
+2. `lib::run()` resuelve primero cualquier restauración `.lfbackup` pendiente.
+3. `lib::run()` crea `AppState`: carga `botonera_config.json`, abre `tracks.db`, crea `AudioEngine`
+4. Tauri llama `core::setup::on_setup()`:
    - Aplica el dispositivo de audio del perfil activo
    - Fija el presupuesto de RAM de la caché de precarga
    - Arranca 4 hilos: monitor de audio, reloj, flusher de historial, refresco de clima
@@ -847,6 +873,17 @@ Al lanzar la aplicación, ocurre la siguiente secuencia:
 6. Suscribe eventos Rust: `clock-tick`, `audio-tick`, `weather-updated`, etc.
 
 > Ver glosario: [AppState](#), [is_first_boot](#), [wizard](#), [pop-out](#)
+
+### Respaldo completo
+
+La Biblioteca crea un único `.lfbackup` con configuración y base de datos. SQLite
+Online Backup obtiene una instantánea coherente mientras la aplicación permanece
+abierta. El paquete se vuelve a abrir y comprobar antes de anunciar éxito.
+
+Para restaurar, Rust valida primero sin escribir, crea un respaldo de emergencia y
+reinicia. El reemplazo sucede antes de abrir `AppState`, de modo que ninguna conexión
+SQLite viva ni motor puede observar un estado parcial. Ver
+[`PLAN_RESPALDO_RESTAURACION.md`](PLAN_RESPALDO_RESTAURACION.md).
 
 ---
 

@@ -45,8 +45,14 @@ fn hues_are_spread_around_the_colour_wheel() {
     for c in SAFE_COLORS {
         bands[(hex_to_hsl(c).unwrap().0 as usize / 30).min(11)] += 1;
     }
-    assert!(bands.iter().all(|&n| n > 0), "hay franjas de color vacias: {bands:?}");
-    assert!(bands.iter().all(|&n| n <= 4), "hay colores amontonados: {bands:?}");
+    assert!(
+        bands.iter().all(|&n| n > 0),
+        "hay franjas de color vacias: {bands:?}"
+    );
+    assert!(
+        bands.iter().all(|&n| n <= 4),
+        "hay colores amontonados: {bands:?}"
+    );
 }
 
 /// Regla 8: el texto debe LEERSE sobre el fondo, en los dos temas. Se comprueba
@@ -61,11 +67,13 @@ fn text_is_readable_on_every_colour() {
             let ratio = contrast_ratio(&bg, &text);
             // 4.4: el estandar pide 4.5 y solo un color se queda en 4.43. Subir
             // mas obligaria a aclarar la paleta y perder viveza.
-            assert!(ratio >= 4.4, "{c} en {theme}: contraste {ratio:.1}, insuficiente");
+            assert!(
+                ratio >= 4.4,
+                "{c} en {theme}: contraste {ratio:.1}, insuficiente"
+            );
         }
     }
 }
-
 
 /// La paleta no puede tener repetidos: son huecos desperdiciados.
 #[test]

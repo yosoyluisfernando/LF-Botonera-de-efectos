@@ -3,7 +3,7 @@
 /// `PRAGMA user_version`. Punto ÚNICO donde vive la diferencia de SO en la
 /// clave de archivo (Windows no distingue mayúsculas; Linux sí).
 use crate::engine::persist::config_io::get_data_dir;
-use db_schema::{SCHEMA_V1, SCHEMA_V2, SCHEMA_V3, SCHEMA_V4};
+use db_schema::{SCHEMA_V1, SCHEMA_V2, SCHEMA_V3, SCHEMA_V4, SCHEMA_V5, SCHEMA_V6};
 use rusqlite::Connection;
 use std::path::{Path, PathBuf};
 
@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 mod db_schema;
 
 /// Versión actual del esquema. Subir este número al añadir una migración.
-const SCHEMA_VERSION: i64 = 4;
+pub const SCHEMA_VERSION: i64 = 6;
 
 /// Ruta del fichero de base de datos, junto al config (multiplataforma).
 pub fn db_path() -> PathBuf {
@@ -57,6 +57,12 @@ pub fn migrate(conn: &Connection) -> Result<(), String> {
     }
     if version < 4 {
         conn.execute_batch(SCHEMA_V4).map_err(|e| e.to_string())?;
+    }
+    if version < 5 {
+        conn.execute_batch(SCHEMA_V5).map_err(|e| e.to_string())?;
+    }
+    if version < 6 {
+        conn.execute_batch(SCHEMA_V6).map_err(|e| e.to_string())?;
     }
     if version > SCHEMA_VERSION {
         return Err("database_schema_newer".into());

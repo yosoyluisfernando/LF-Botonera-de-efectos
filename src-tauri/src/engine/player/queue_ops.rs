@@ -19,7 +19,11 @@ impl QueueState {
         // deck contrario) y carga la pista pedida desde cero en el deck 0.
         let mut actions = vec![
             DeckAction::StopAll,
-            DeckAction::Load { deck: 0, entry: self.entries[index].clone(), autoplay: true },
+            DeckAction::Load {
+                deck: 0,
+                entry: self.entries[index].clone(),
+                autoplay: true,
+            },
         ];
         self.preload(&mut actions);
         actions
@@ -43,7 +47,10 @@ impl QueueState {
     }
 
     pub fn prev(&mut self) -> Vec<DeckAction> {
-        let target = self.current.or(self.cursor).map_or(0, |c| c.saturating_sub(1));
+        let target = self
+            .current
+            .or(self.cursor)
+            .map_or(0, |c| c.saturating_sub(1));
         self.start_at(target)
     }
 
@@ -104,11 +111,17 @@ impl QueueState {
         if ready {
             actions.push(DeckAction::Resume { deck: other });
         } else {
-            actions.push(DeckAction::Load { deck: other, entry: self.entries[target].clone(), autoplay: true });
+            actions.push(DeckAction::Load {
+                deck: other,
+                entry: self.entries[target].clone(),
+                autoplay: true,
+            });
         }
         // Corta el deck saliente: en un relevo forzado (boton Siguiente) aun suena;
         // en un fin natural ya esta vacio. Sin esto, dos pistas sonarian a la vez.
-        actions.push(DeckAction::Stop { deck: self.active_deck });
+        actions.push(DeckAction::Stop {
+            deck: self.active_deck,
+        });
         self.active_deck = other;
         self.current = Some(target);
         self.cursor = Some(target);

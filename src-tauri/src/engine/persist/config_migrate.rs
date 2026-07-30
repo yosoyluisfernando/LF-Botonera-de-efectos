@@ -11,7 +11,10 @@ use crate::model::{AppConfig, ButtonData};
 /// suyas. Solo toca lo que es exactamente un marcador: una carpeta real se queda.
 pub(crate) fn clear_locution_markers(cfg: &mut AppConfig) {
     for track in cfg.player.tracks.iter_mut() {
-        let is_locution = matches!(track.type_field.as_str(), "time" | "temperature" | "humidity");
+        let is_locution = matches!(
+            track.type_field.as_str(),
+            "time" | "temperature" | "humidity"
+        );
         let is_marker = matches!(
             track.folder.trim(),
             "time_locution" | "temperature_locution" | "humidity_locution"

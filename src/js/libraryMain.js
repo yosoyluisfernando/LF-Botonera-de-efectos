@@ -4,6 +4,7 @@ import { loadLanguage, t } from './util/i18n.js';
 import { applyTheme } from './ui/theme.js';
 import { initLibraryIndexProgress } from './ui/libraryIndexProgress.js';
 import { initLibraryRootsModal } from './ui/libraryRootsModal.js';
+import { initBackupRestore } from './ui/backupRestoreModal.js';
 import {
     initLibraryDisplayMode, refreshLibraryDisplayMode,
 } from './ui/libraryDisplayMode.js';
@@ -25,6 +26,8 @@ async function start() {
     document.title = t('library.window_title');
     await listen('theme-changed', event =>
         applyTheme(event.payload?.theme || 'dark'));
+    await listen('library-metadata-changed', () =>
+        refreshLibraryWindowTable().catch(showStatusError));
     document.addEventListener('contextmenu', event => event.preventDefault(), true);
     initLibraryWindowTable();
     initLibraryWindowTree({
@@ -39,6 +42,10 @@ async function start() {
                 showCatalog({}),
             ]);
         },
+    });
+    await initBackupRestore({
+        buttonId: 'library-backup-open',
+        checkResult: true,
     });
     initLibraryDisplayMode(() => repaintLibraryWindowTable());
     const panel = await invoke('get_fixed_panel');
@@ -62,7 +69,7 @@ function wireToolbar() {
     });
     document.querySelector('#library-roots-modal .close-btn')
         .addEventListener('click', () =>
-            document.getElementById('library-roots-cancel').click());
+            document.getElementById('library-roots-hide').click());
 }
 
 function showStatusError(error) {

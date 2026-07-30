@@ -66,5 +66,6 @@ fn candidate(path: &str, title: &str, artist: &str) -> Candidate {
             metadata_state: "ready".into(),
         },
         search_text: String::new(),
+        user_roles: false,
     }
 }

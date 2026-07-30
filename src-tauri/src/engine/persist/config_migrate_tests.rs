@@ -63,7 +63,10 @@ fn a_good_duration_is_never_probed_again() {
 
     recover_missing_durations(&mut cfg);
 
-    assert_eq!(cfg.player.tracks[0].duration, 123.0, "no se toca lo que ya estaba bien");
+    assert_eq!(
+        cfg.player.tracks[0].duration, 123.0,
+        "no se toca lo que ya estaba bien"
+    );
 }
 
 /// Un archivo que ya no existe deja la duracion como estaba: no se puede
@@ -91,7 +94,10 @@ fn special_types_are_not_probed() {
 
     recover_missing_durations(&mut cfg);
 
-    assert_eq!(cfg.player.tracks[0].duration, -1.0, "una carpeta no tiene duracion");
+    assert_eq!(
+        cfg.player.tracks[0].duration, -1.0,
+        "una carpeta no tiene duracion"
+    );
 }
 
 /// El agujero que casi se escapa: la migracion cubria solo la cola del
@@ -110,7 +116,9 @@ fn it_also_recovers_buttons_not_just_the_player_queue() {
         b
     };
     cfg.profiles[0].paletas[0].botones.push(broken("rejilla"));
-    cfg.profiles[0].fixed_buttons.push(broken("fijo del perfil"));
+    cfg.profiles[0]
+        .fixed_buttons
+        .push(broken("fijo del perfil"));
     cfg.fixed_panel.global_buttons.push(broken("fijo global"));
     cfg.player.tracks.push(broken("cola"));
 
@@ -118,9 +126,18 @@ fn it_also_recovers_buttons_not_just_the_player_queue() {
     let _ = std::fs::remove_file(&wav);
 
     // Los CUATRO sitios donde puede haber duracion, no solo la cola.
-    assert!(cfg.profiles[0].paletas[0].botones[0].duration > 0.0, "rejilla sin recuperar");
-    assert!(cfg.profiles[0].fixed_buttons[0].duration > 0.0, "fijo del perfil sin recuperar");
-    assert!(cfg.fixed_panel.global_buttons[0].duration > 0.0, "fijo global sin recuperar");
+    assert!(
+        cfg.profiles[0].paletas[0].botones[0].duration > 0.0,
+        "rejilla sin recuperar"
+    );
+    assert!(
+        cfg.profiles[0].fixed_buttons[0].duration > 0.0,
+        "fijo del perfil sin recuperar"
+    );
+    assert!(
+        cfg.fixed_panel.global_buttons[0].duration > 0.0,
+        "fijo global sin recuperar"
+    );
     assert!(cfg.player.tracks[0].duration > 0.0, "cola sin recuperar");
 }
 

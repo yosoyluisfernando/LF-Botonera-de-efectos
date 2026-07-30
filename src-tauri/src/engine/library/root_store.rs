@@ -1,6 +1,6 @@
 use crate::domain::library::root_plan::{plan_root_add, LibraryCollection, RootAddKind, RootSpec};
 use crate::engine::library::time::now_epoch;
-use crate::engine::library::{root_merge, root_path};
+use crate::engine::library::{root_merge, root_path, root_retention};
 use rusqlite::{params, Connection, Transaction};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
@@ -22,13 +22,14 @@ pub enum AddOutcome {
     Added { root_id: i64, merged: Vec<i64> },
     AlreadyCovered { root_id: i64 },
     Reclassified { root_id: i64 },
+    Restored { root_id: i64 },
 }
 
 pub fn list(conn: &Connection) -> Result<Vec<LibraryRoot>, String> {
     let mut statement = conn
         .prepare(
             "SELECT id,path,path_key,collection,enabled,state,scan_generation,last_scan_at
-             FROM library_root ORDER BY collection,path_key",
+             FROM library_root WHERE enabled=1 ORDER BY collection,path_key",
         )
         .map_err(|error| error.to_string())?;
     let rows = statement
@@ -89,6 +90,27 @@ fn add_normalized(
     path_key: String,
     collection: LibraryCollection,
 ) -> Result<AddOutcome, String> {
+    if let Some(retired) = root_retention::overlapping(transaction, &path_key)? {
+        if retired.path_key != path_key {
+            return Err("library_root_overlaps_retired".into());
+        }
+        transaction
+            .execute(
+                "UPDATE library_root SET enabled=1,state='pending',collection=?2,
+                 retired_at=NULL,purge_after=NULL WHERE id=?1",
+                params![retired.id, collection.as_str()],
+            )
+            .map_err(|error| error.to_string())?;
+        transaction
+            .execute(
+                "UPDATE library_track SET collection=?2 WHERE root_id=?1",
+                params![retired.id, collection.as_str()],
+            )
+            .map_err(|error| error.to_string())?;
+        return Ok(AddOutcome::Restored {
+            root_id: retired.id,
+        });
+    }
     let plan = plan_root_add(&specs(transaction)?, &path_key, collection);
     match plan.kind {
         RootAddKind::AlreadyCovered { root_id } => {
@@ -132,29 +154,21 @@ fn add_normalized(
     })
 }
 
-pub fn remove(conn: &mut Connection, root_id: i64) -> Result<(), String> {
-    let transaction = conn.transaction().map_err(|error| error.to_string())?;
-    let exists = transaction
-        .query_row(
-            "SELECT EXISTS(SELECT 1 FROM library_root WHERE id=?1)",
-            params![root_id],
-            |row| row.get::<_, bool>(0),
-        )
-        .map_err(|error| error.to_string())?;
-    if !exists {
-        return Err("library_root_not_found".into());
+pub fn remove(conn: &mut Connection, root_id: i64) -> Result<root_retention::RetiredRoot, String> {
+    root_retention::retire(conn, root_id)
+}
+
+pub fn restore(conn: &mut Connection, root_id: i64) -> Result<(), String> {
+    let retired = root_retention::list(conn)?
+        .into_iter()
+        .find(|root| root.id == root_id)
+        .ok_or("library_retired_root_not_found")?;
+    let collection = LibraryCollection::parse(&retired.collection)?;
+    let plan = plan_root_add(&specs(conn)?, &retired.path_key, collection);
+    if !matches!(plan.kind, RootAddKind::Add) || !plan.merge_root_ids.is_empty() {
+        return Err("library_restore_root_overlap".into());
     }
-    transaction
-        .execute(
-            "DELETE FROM library_track_search
-             WHERE path_key IN (SELECT path_key FROM library_track WHERE root_id=?1)",
-            params![root_id],
-        )
-        .map_err(|error| error.to_string())?;
-    transaction
-        .execute("DELETE FROM library_root WHERE id=?1", params![root_id])
-        .map_err(|error| error.to_string())?;
-    transaction.commit().map_err(|error| error.to_string())
+    root_retention::restore(conn, root_id)
 }
 
 fn specs(conn: &Connection) -> Result<Vec<RootSpec>, String> {

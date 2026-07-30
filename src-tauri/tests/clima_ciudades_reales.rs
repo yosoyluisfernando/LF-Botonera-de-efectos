@@ -19,7 +19,11 @@ use tauri_app_lib::engine::weather::geocode::resolve_coords;
 const CASOS: &[(&str, f64, f64)] = &[
     ("Barcelona, Estado Anzoátegui, VE", 10.1384, -64.68769),
     ("Valencia, Estado Carabobo, VE", 10.16153, -68.00044),
-    ("Barcelona, Comunidad Autónoma de Cataluña, ES", 41.38879, 2.15899),
+    (
+        "Barcelona, Comunidad Autónoma de Cataluña, ES",
+        41.38879,
+        2.15899,
+    ),
     ("Valencia, Comunidad Valenciana, ES", 39.47391, -0.37966),
     ("El Callao, Estado Bolívar, VE", 7.34706, -61.82684),
     (

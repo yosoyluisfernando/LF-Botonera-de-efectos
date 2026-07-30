@@ -57,11 +57,23 @@ Fachada pública del motor de efectos en `engine/audio/engine.rs`. Posee el `Sen
 
 ## B
 
+**Respaldo `.lfbackup`**
+Paquete autocontenido de recuperación. Es una instantánea SQLite verificada de
+`tracks.db` que incorpora en `lf_backup_manifest` la configuración completa,
+versión, fecha y cantidades. No contiene los archivos de audio ni la caché de ondas.
+Se crea con la aplicación abierta; se restaura mediante un reinicio transaccional.
+
 **Biblioteca**
 Ventana independiente para explorar y administrar todo el catálogo indexado. No tiene
 un motor ni una base propios: comparte `LibraryService`, `tracks.db`, lista virtual,
 selección y acciones con la vista rápida del panel fijo. También permite recorrer
 unidades sin indexarlas.
+
+**Retención de Biblioteca**
+Período de seguridad de 30 a 365 días para una raíz retirada. Durante ese plazo la
+ruta no se busca, recorre ni vigila, pero su catálogo permanece restaurable. Al
+vencer se purgan catálogo e índice; una pista todavía usada en cualquier rejilla,
+botón fijo o cola del reproductor conserva sus datos técnicos en `track`.
 
 **`bdelf`**
 Extensión de archivo para exportar una paleta (pestaña) de la Botonera. JSON compatible con el LF Automatizador. Puede contener el campo opcional `bdelf_tracks` con metadatos de cue y dB que el LFA ignora.
@@ -555,11 +567,22 @@ Crate Rust de decodificación de audio pura Rust. Soporta MP3, WAV, FLAC, OGG/Vo
 
 ## T
 
+**`tag de Biblioteca`**
+Palabra o frase elegida por el usuario para describir una pista y mejorar su
+búsqueda, especialmente en Efectos. Vive en `track_keyword` dentro de `tracks.db`;
+no se confunde con los tags leídos del contenedor ni se escribe automáticamente en el
+archivo. Su clave normalizada evita duplicados por acentos o mayúsculas.
+
 **`Tauri`**
 Framework que empaqueta una aplicación web (Vite + JS) con un backend nativo Rust. Proporciona un WebView2 (Windows) o WebKit (Linux/macOS) para el frontend, y expone las APIs de sistema a través del IPC. Versión usada: Tauri v2.
 
 **`TrackMeta`**
 Struct Rust (`model/track.rs`) que representa una fila de `tracks.db`. Contiene todos los metadatos persistidos por el editor de pistas: cue, dB, normalización, LUFS, pico, mtime/size para validación.
+
+**`track_user_metadata`**
+Tabla del esquema 6 que conserva las anulaciones editoriales del usuario. Un campo
+ausente hereda lo leído del archivo; un campo presente y vacío lo borra de la
+presentación efectiva. No contiene cue, ganancia ni normalización.
 
 **`TrackStore`**
 Struct en `engine/persist/tracks.rs` que encapsula la conexión SQLite y ofrece métodos CRUD para `TrackMeta`: `upsert`, `get`, `set_cue`, `set_gain`, `set_normalization`, `touch_last_played`, `recent_paths`.

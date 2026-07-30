@@ -14,7 +14,11 @@ fn cfg_with(colors: &[&str]) -> AppConfig {
 }
 
 fn colors_of(cfg: &AppConfig) -> Vec<String> {
-    cfg.profiles[0].paletas[0].botones.iter().map(|b| b.color_bg.clone()).collect()
+    cfg.profiles[0].paletas[0]
+        .botones
+        .iter()
+        .map(|b| b.color_bg.clone())
+        .collect()
 }
 
 /// Lo pedido: seleccionas varios y quedan del mismo color.
@@ -25,7 +29,11 @@ fn paints_only_the_selected_buttons() {
     let n = paint(&mut cfg, &[1, 3], "#DB2424", "#FFFFFF", "grid").unwrap();
 
     assert_eq!(n, 2);
-    assert_eq!(colors_of(&cfg), ["#DB2424", "#222222", "#DB2424"], "el 2 no se toca");
+    assert_eq!(
+        colors_of(&cfg),
+        ["#DB2424", "#222222", "#DB2424"],
+        "el 2 no se toca"
+    );
 }
 
 /// Un indice que ya no existe no puede tirar la operacion entera: entre

@@ -96,7 +96,10 @@ fn open_bus(
         // Sin tarjeta propia: va sumado dentro del programa. Si el programa no
         // existe (su tarjeta fallo), este bus tampoco: no hay donde entregar.
         None => {
-            let parent = state.live.get(&BusId::Programa).map(|p| p.controller().clone());
+            let parent = state
+                .live
+                .get(&BusId::Programa)
+                .map(|p| p.controller().clone());
             parent.and_then(|ctrl| Bus::open(BusOutput::Bus(&ctrl), level_l, level_r, gain))
         }
         Some(device) => endpoints
@@ -110,10 +113,7 @@ fn open_bus(
 
 /// Los atomicos del bus. Viven en el slot y sobreviven a la reconstruccion: el
 /// monitor y el fader los tienen cogidos desde antes.
-fn atomics(
-    state: &ConsoleState,
-    bus: BusId,
-) -> (Arc<AtomicU32>, Arc<AtomicU32>, Arc<AtomicU32>) {
+fn atomics(state: &ConsoleState, bus: BusId) -> (Arc<AtomicU32>, Arc<AtomicU32>, Arc<AtomicU32>) {
     let slot = &state.slots[&bus];
     (
         Arc::clone(&slot.level_l),
@@ -121,4 +121,3 @@ fn atomics(
         Arc::clone(&slot.volume),
     )
 }
-

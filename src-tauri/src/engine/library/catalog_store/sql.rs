@@ -1,5 +1,5 @@
 use super::{CatalogInput, MetadataUpdate};
-use crate::engine::library::{search_text, time::now_epoch};
+use crate::engine::library::{search_index, time::now_epoch};
 use rusqlite::{params, Transaction};
 
 pub(super) fn upsert_track_placeholder(
@@ -59,16 +59,7 @@ pub(super) fn upsert_catalog(
 }
 
 pub(super) fn rebuild_search(tx: &Transaction, path_key: &str) -> Result<(), String> {
-    let text: String = tx
-        .query_row(
-            "SELECT file_name||' '||relative_path||' '||COALESCE(title,'')||' '||
-             COALESCE(artist,'')||' '||COALESCE(album,'')||' '||COALESCE(genre,'')
-             FROM library_track WHERE path_key=?1",
-            params![path_key],
-            |row| row.get(0),
-        )
-        .map_err(|error| error.to_string())?;
-    replace_search(tx, path_key, &search_text::normalize(&text))
+    search_index::rebuild(tx, path_key)
 }
 
 pub(super) fn apply_metadata(tx: &Transaction, update: &MetadataUpdate) -> Result<(), String> {
@@ -124,15 +115,5 @@ pub(super) fn apply_metadata(tx: &Transaction, update: &MetadataUpdate) -> Resul
 }
 
 pub(super) fn replace_search(tx: &Transaction, path_key: &str, text: &str) -> Result<(), String> {
-    tx.execute(
-        "DELETE FROM library_track_search WHERE path_key=?1",
-        params![path_key],
-    )
-    .map_err(|error| error.to_string())?;
-    tx.execute(
-        "INSERT INTO library_track_search(path_key,search_text) VALUES(?1,?2)",
-        params![path_key, text],
-    )
-    .map(|_| ())
-    .map_err(|error| error.to_string())
+    search_index::replace(tx, path_key, text)
 }

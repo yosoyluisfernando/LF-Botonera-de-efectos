@@ -42,7 +42,11 @@ impl FadeRamp {
         let ramp = Self {
             fade_in_total: to_samples(fade_in_s),
             fade_out_stop_total: to_samples(fade_out_stop_s),
-            fade_out_end_total: if loop_mode { 0 } else { to_samples(fade_out_end_s) },
+            fade_out_end_total: if loop_mode {
+                0
+            } else {
+                to_samples(fade_out_end_s)
+            },
             track_total: total_samples,
             pos: 0,
             fade_out_flag: fade_out_flag.clone(),
@@ -100,8 +104,23 @@ impl FadeRamp {
 mod tests {
     use super::*;
 
-    fn build(fade_in_s: f64, fade_out_stop_s: f64, fade_out_end_s: f64, sr: u32, ch: u16, total: usize) -> FadeRamp {
-        let (ramp, _) = FadeRamp::new(fade_in_s, fade_out_stop_s, fade_out_end_s, sr, ch, total, false);
+    fn build(
+        fade_in_s: f64,
+        fade_out_stop_s: f64,
+        fade_out_end_s: f64,
+        sr: u32,
+        ch: u16,
+        total: usize,
+    ) -> FadeRamp {
+        let (ramp, _) = FadeRamp::new(
+            fade_in_s,
+            fade_out_stop_s,
+            fade_out_end_s,
+            sr,
+            ch,
+            total,
+            false,
+        );
         ramp
     }
 
@@ -121,7 +140,9 @@ mod tests {
         let g5 = (1..5).map(|_| r.next_gain().unwrap()).last().unwrap();
         assert!(g5 > 0.0 && g5 < 1.0);
         // Después de 10 muestras debe ser 1.0
-        for _ in 5..10 { r.next_gain(); }
+        for _ in 5..10 {
+            r.next_gain();
+        }
         assert_eq!(r.next_gain(), Some(1.0));
     }
 

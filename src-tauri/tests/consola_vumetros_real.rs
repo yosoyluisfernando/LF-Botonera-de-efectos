@@ -73,7 +73,11 @@ fn bajar_un_bus_mueve_su_aguja_y_la_del_programa_solamente() {
     let (efe, _) = consola.levels(BusId::Efectos);
     let (rep, _) = consola.levels(BusId::Reproductor);
     let (prog, _) = consola.levels(BusId::Programa);
-    assert!((nivel(&prog) - 0.75).abs() < 0.01, "de partida: {}", nivel(&prog));
+    assert!(
+        (nivel(&prog) - 0.75).abs() < 0.01,
+        "de partida: {}",
+        nivel(&prog)
+    );
 
     // Se baja la musica a la mitad, como para hablar encima.
     consola.set_fader(BusId::Reproductor, 0.5);
@@ -118,7 +122,11 @@ fn el_master_mueve_la_aguja_del_programa_pero_no_las_de_sus_buses() {
     let (prog, _) = consola.levels(BusId::Programa);
     consola.set_fader(BusId::Programa, 0.5);
     respirar();
-    println!("con el master a la mitad → efectos {} · programa {}", nivel(&efe), nivel(&prog));
+    println!(
+        "con el master a la mitad → efectos {} · programa {}",
+        nivel(&efe),
+        nivel(&prog)
+    );
     assert!(
         (nivel(&efe) - 0.8).abs() < 0.01,
         "el bus de efectos aporta lo mismo: {}",
@@ -130,4 +138,3 @@ fn el_master_mueve_la_aguja_del_programa_pero_no_las_de_sus_buses() {
         nivel(&prog)
     );
 }
-

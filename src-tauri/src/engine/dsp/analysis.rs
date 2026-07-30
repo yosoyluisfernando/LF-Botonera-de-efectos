@@ -1,8 +1,8 @@
 /// Analisis DSP de pistas fuera del hilo de audio.
 use crate::engine::audio::decode as audio_decode;
 use crate::engine::cache::cached_source::CachedPcm;
-use crate::engine::dsp::{block_decode, cue_detect};
 use crate::engine::dsp::waveform::WaveEnvelope;
+use crate::engine::dsp::{block_decode, cue_detect};
 use crate::model::norm::{CueDetectConfig, NormConfig};
 use crate::model::track::TrackMeta;
 use ebur128::{EbuR128, Mode};
@@ -97,8 +97,7 @@ fn decode_samples(path: &str) -> Result<(Vec<f32>, u16, u32), String> {
     if let Some(decoded) = block_decode::decode(path) {
         return Ok((decoded.samples, decoded.channels, decoded.sample_rate));
     }
-    let source =
-        audio_decode::source_from_path(path, false).ok_or("unsupported_audio_format")?;
+    let source = audio_decode::source_from_path(path, false).ok_or("unsupported_audio_format")?;
     let channels = source.channels().max(1);
     let sample_rate = source.sample_rate().max(1);
     Ok((source.collect(), channels, sample_rate))

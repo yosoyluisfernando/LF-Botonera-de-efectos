@@ -14,18 +14,22 @@ export function showLibraryContextMenu(x, y, selection, onEdited) {
     setDisabled('library-menu-preview', !single);
     setDisabled('library-menu-editor', !single);
     setDisabled('library-menu-add-player', !selection.length);
+    const editable = selection.length > 0
+        && selection.every(item => item.path_key && item.collection);
+    setDisabled('library-menu-metadata', !editable);
     if (cleanup) cleanup();
-    cleanup = wire(selection, single, onEdited);
+    cleanup = wire(selection, single, editable, onEdited);
     placeMenu(menu, x, y);
     menu.addEventListener('keydown', navigateMenu);
     firstEnabled(menu)?.focus();
     setTimeout(() => document.addEventListener('click', hideOutside), 10);
 }
 
-function wire(selection, single, onEdited) {
+function wire(selection, single, editable, onEdited) {
     const live = document.getElementById('library-menu-live');
     const preview = document.getElementById('library-menu-preview');
     const add = document.getElementById('library-menu-add-player');
+    const metadata = document.getElementById('library-menu-metadata');
     const editor = document.getElementById('library-menu-editor');
     const onLive = () => single && action(
         () => dispatchLibraryAction('live', selection, onEdited));
@@ -33,16 +37,20 @@ function wire(selection, single, onEdited) {
         () => dispatchLibraryAction('preview', selection, onEdited));
     const onAdd = () => action(
         () => dispatchLibraryAction('player', selection, onEdited));
+    const onMetadata = () => editable && action(
+        () => dispatchLibraryAction('metadata', selection, onEdited));
     const onEditor = () => single && action(
         () => dispatchLibraryAction('editor', selection, onEdited));
     live.addEventListener('click', onLive);
     preview.addEventListener('click', onPreview);
     add.addEventListener('click', onAdd);
+    metadata.addEventListener('click', onMetadata);
     editor.addEventListener('click', onEditor);
     return () => {
         live.removeEventListener('click', onLive);
         preview.removeEventListener('click', onPreview);
         add.removeEventListener('click', onAdd);
+        metadata.removeEventListener('click', onMetadata);
         editor.removeEventListener('click', onEditor);
     };
 }

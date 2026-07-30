@@ -40,7 +40,11 @@ impl QueueResolver {
         random_folders: Arc<Mutex<RandomFolderState>>,
         tracks: Arc<Mutex<TrackStore>>,
     ) -> Self {
-        Self { config, random_folders, tracks }
+        Self {
+            config,
+            random_folders,
+            tracks,
+        }
     }
 
     /// `None` = no se pudo resolver (carpeta vacia, sin clima, falta el archivo
@@ -102,7 +106,11 @@ impl QueueResolver {
                 .ok()?
         };
         let now = weather::weather_now(&self.config, false).ok()?;
-        let value = if entry.kind == "humidity" { now.hum } else { now.temp };
+        let value = if entry.kind == "humidity" {
+            now.hum
+        } else {
+            now.temp
+        };
         let file = locutions::resolve_climate_file(&folder, &entry.kind, value).ok()?;
         Self::sequence(vec![file])
     }
@@ -129,7 +137,13 @@ impl QueueResolver {
             .map(|p| probe_duration_secs(p))
             .filter(|d| *d > 0.0)
             .sum();
-        Some(ResolvedPlayback { paths, cue_start_s: 0.0, cue_end_s: None, gain: 1.0, duration_s })
+        Some(ResolvedPlayback {
+            paths,
+            cue_start_s: 0.0,
+            cue_end_s: None,
+            gain: 1.0,
+            duration_s,
+        })
     }
 }
 
@@ -146,7 +160,12 @@ mod tests {
     }
 
     fn entry(kind: &str, folder: &str) -> QueueEntry {
-        QueueEntry { id: "x".into(), kind: kind.into(), folder: folder.into(), ..Default::default() }
+        QueueEntry {
+            id: "x".into(),
+            kind: kind.into(),
+            folder: folder.into(),
+            ..Default::default()
+        }
     }
 
     /// Sin carpeta en la fila NI en ajustes no hay nada que sonar: se salta.
@@ -168,7 +187,11 @@ mod tests {
     fn no_row_folder_lets_the_config_decide() {
         let r = resolver_with(AppConfig::default());
         assert_eq!(r.row_folder(&entry("time", "")), None);
-        assert_eq!(r.row_folder(&entry("time", "   ")), None, "espacios no son carpeta");
+        assert_eq!(
+            r.row_folder(&entry("time", "   ")),
+            None,
+            "espacios no son carpeta"
+        );
     }
 
     /// El modulo de locuciones apagado: no suena, aunque haya carpeta en Ajustes.

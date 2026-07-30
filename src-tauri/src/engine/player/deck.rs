@@ -166,8 +166,7 @@ impl Deck {
     }
     /// Se suma el offset del ultimo seek: la fuente nueva cuenta desde cero.
     pub fn position_s(&self) -> f64 {
-        self.position_offset_s
-            + self.handle.as_ref().map_or(0.0, DeckHandle::position_s)
+        self.position_offset_s + self.handle.as_ref().map_or(0.0, DeckHandle::position_s)
     }
     /// Solo se puede saltar de posicion en una pista con duracion conocida y de
     /// un solo archivo (una locucion son varios encadenados).

@@ -41,8 +41,10 @@ impl Default for FixedPanelConfig {
             side: default_side(),
             visible: true,
             show_on_start: true,
-            columns: default_columns(), row_mode: default_row_mode(),
-            rows: default_rows(), width: default_width(),
+            columns: default_columns(),
+            row_mode: default_row_mode(),
+            rows: default_rows(),
+            width: default_width(),
             global_buttons: Vec::new(),
             playback_mode: default_playback_mode(),
             solo_mode: false,
@@ -67,14 +69,24 @@ fn default_true() -> bool {
 fn default_columns() -> u32 {
     1
 }
-fn default_row_mode() -> String { "unlimited".into() }
-fn default_rows() -> u32 { 10 }
-fn default_width() -> u32 { 240 }
+fn default_row_mode() -> String {
+    "unlimited".into()
+}
+fn default_rows() -> u32 {
+    10
+}
+fn default_width() -> u32 {
+    240
+}
 fn default_playback_mode() -> String {
     "normal".into()
 }
-fn default_modes_position() -> String { "top".into() }
-fn default_library_display() -> String { "metadata".into() }
+fn default_modes_position() -> String {
+    "top".into()
+}
+fn default_library_display() -> String {
+    "metadata".into()
+}
 
 #[cfg(test)]
 mod tests {

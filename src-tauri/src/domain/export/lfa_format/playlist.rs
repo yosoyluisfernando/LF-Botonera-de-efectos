@@ -79,7 +79,11 @@ pub fn to_lfa_row(btn: &ButtonData) -> LfaPlaylistRow {
     };
     LfaPlaylistRow {
         ruta,
-        titulo: if btn.name.is_empty() { btn.label.clone() } else { btn.name.clone() },
+        titulo: if btn.name.is_empty() {
+            btn.label.clone()
+        } else {
+            btn.name.clone()
+        },
         duracion: btn.duration.max(0.0),
         type_field: type_field.to_string(),
         target: None,
@@ -98,7 +102,11 @@ pub fn from_lfa_row(row: &LfaPlaylistRow, index: u32, bg: &str, text: &str) -> O
     if kind == "audio" && row.ruta.trim().is_empty() {
         return None;
     }
-    let title = if row.titulo.trim().is_empty() { stem(&row.ruta) } else { row.titulo.clone() };
+    let title = if row.titulo.trim().is_empty() {
+        stem(&row.ruta)
+    } else {
+        row.titulo.clone()
+    };
     let mut btn = new_button("player", index, &title, bg, text);
     btn.type_field = kind.to_string();
     if kind == "audio" {

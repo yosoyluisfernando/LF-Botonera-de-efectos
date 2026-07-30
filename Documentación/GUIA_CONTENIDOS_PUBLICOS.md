@@ -33,6 +33,7 @@ se está al aire.
 - perfiles, pestañas y rejillas adaptables a cada programa o proyecto;
 - motor nativo con reproducción simultánea y preescucha independiente;
 - editor no destructivo con forma de onda, cues, ganancia y normalización;
+- Biblioteca y buscador compartido para catálogos grandes de Música y Efectos;
 - panel fijo, reproductor auxiliar y consola con controles separados;
 - atajos locales y globales para trabajar sin depender del ratón;
 - software libre GPL-3.0-or-later, sin publicidad, cuenta obligatoria ni telemetría.
@@ -53,10 +54,8 @@ audiencia, en lugar de enumerar todo el programa.
 
 ## 4. Honestidad y límites
 
-- La versión `1.2.1` prepara la distribución en Microsoft Store; no promete nuevas
-  funciones ni mejoras de rendimiento respecto de `1.2.0`.
-- No anunciar aprobación o disponibilidad en Microsoft Store hasta que Microsoft la
-  confirme públicamente.
+- La versión `1.3.0` incorpora la Biblioteca y el buscador interno. Su publicación en
+  Microsoft Store y GitHub está cerrada.
 - Linux sigue siendo experimental hasta completar una prueba física.
 - No afirmar accesibilidad completa sin una auditoría específica, aunque los textos y
   documentos se diseñen para funcionar bien con lector de pantalla.

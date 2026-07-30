@@ -5,7 +5,12 @@ use crate::engine::player::queue::{QueueEntry, QueueState};
 
 /// Pista reproducible (ruta no vacia) con id estable.
 fn entry(id: &str) -> QueueEntry {
-    QueueEntry { id: id.into(), path: format!("C:/{id}.mp3"), duration_s: 10.0, ..Default::default() }
+    QueueEntry {
+        id: id.into(),
+        path: format!("C:/{id}.mp3"),
+        duration_s: 10.0,
+        ..Default::default()
+    }
 }
 
 fn queue_with(ids: &[&str]) -> QueueState {
@@ -27,8 +32,15 @@ fn clearing_the_queue_while_playing_does_not_stop_the_music() {
 
     let actions = q.set_entries(Vec::new());
 
-    assert!(!stops_all(&actions), "limpiar la lista no debe detener la musica");
-    assert_eq!(q.current(), None, "la pista que suena ya no esta en la lista");
+    assert!(
+        !stops_all(&actions),
+        "limpiar la lista no debe detener la musica"
+    );
+    assert_eq!(
+        q.current(),
+        None,
+        "la pista que suena ya no esta en la lista"
+    );
     assert_eq!(q.len(), 0);
 }
 
@@ -40,7 +52,10 @@ fn opening_another_playlist_while_playing_does_not_stop_the_music() {
 
     let actions = q.set_entries(vec![entry("x"), entry("y")]);
 
-    assert!(!stops_all(&actions), "abrir otra lista no debe detener la musica");
+    assert!(
+        !stops_all(&actions),
+        "abrir otra lista no debe detener la musica"
+    );
     assert_eq!(q.current(), None);
     assert_eq!(q.len(), 2);
 }
@@ -54,7 +69,10 @@ fn orphan_track_hands_over_to_the_new_list_when_it_ends() {
 
     let actions = q.advance(false);
 
-    assert!(!stops_all(&actions), "hay lista nueva: debe continuar, no parar");
+    assert!(
+        !stops_all(&actions),
+        "hay lista nueva: debe continuar, no parar"
+    );
     assert_eq!(q.current(), Some(0), "arranca la primera de la lista nueva");
     assert!(actions
         .iter()
@@ -86,9 +104,17 @@ fn marked_next_follows_its_track_when_the_queue_is_reordered() {
     // El operador arrastra "c" a la primera posicion.
     q.set_entries(vec![entry("c"), entry("a"), entry("b")]);
 
-    assert_eq!(q.next(), Some(0), "la marca sigue a 'c', no a la posicion 2");
+    assert_eq!(
+        q.next(),
+        Some(0),
+        "la marca sigue a 'c', no a la posicion 2"
+    );
     q.advance(false);
-    assert_eq!(q.current(), Some(0), "y al avanzar suena 'c', que era lo marcado");
+    assert_eq!(
+        q.current(),
+        Some(0),
+        "y al avanzar suena 'c', que era lo marcado"
+    );
 }
 
 /// Si la cancion marcada se elimina de la lista, la marca se cae (no salta a otra).
@@ -113,7 +139,11 @@ fn editing_the_queue_keeps_the_surviving_current_track() {
     let actions = q.set_entries(vec![entry("c"), entry("b"), entry("a")]);
 
     assert!(!stops_all(&actions));
-    assert_eq!(q.current(), Some(1), "'b' sigue presente: se conserva por id");
+    assert_eq!(
+        q.current(),
+        Some(1),
+        "'b' sigue presente: se conserva por id"
+    );
 }
 
 /// El naranja es la guia de "que viene": al pulsar Stop NO debe desaparecer.
@@ -137,7 +167,10 @@ fn stopping_at_the_end_of_the_list_still_shows_what_comes_next() {
     q.advance(false); // Normal: se acaba la lista
 
     assert_eq!(q.current(), None, "Normal se detiene al final");
-    assert!(q.next().is_some(), "pero sigue habiendo guia de por donde retomar");
+    assert!(
+        q.next().is_some(),
+        "pero sigue habiendo guia de por donde retomar"
+    );
 }
 
 /// Al llenar una lista vacia, la primera queda marcada sola: sin ella el

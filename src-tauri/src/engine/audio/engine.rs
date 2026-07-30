@@ -6,6 +6,7 @@ use crate::engine::audio::thread as audio_thread;
 use crate::engine::cache::preload::PreloadCache;
 use crate::engine::cache::preloader::Preloader;
 use crate::engine::console::{BusId, ConsoleEngine, Routing};
+use crate::engine::persist::db;
 use crate::model::fade::FadeConfig;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -65,6 +66,23 @@ impl AudioEngine {
     }
     pub fn last_pressed_handle(&self) -> Arc<Mutex<Option<LastPressedInfo>>> {
         Arc::clone(&self.last_pressed)
+    }
+
+    /// Evita renombrar un archivo que todavía alimenta alguna fuente activa.
+    pub fn is_path_active(&self, path: &str) -> bool {
+        let key = db::normalize_key(path);
+        self.button_states
+            .lock()
+            .map(|states| {
+                states.values().flatten().any(|state| {
+                    !state.is_done()
+                        && state
+                            .replay
+                            .as_ref()
+                            .is_some_and(|replay| db::normalize_key(&replay.path) == key)
+                })
+            })
+            .unwrap_or(true)
     }
 
     /// La salida principal: la tarjeta por la que sale el programa.

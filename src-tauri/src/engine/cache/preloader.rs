@@ -1,9 +1,9 @@
+use crate::engine::cache::preload::{self as preload_cache, PreloadCache};
 /// Módulo: preloader.rs
 /// Propósito: hilo de fondo que LLENA la caché de precarga. Recibe rutas por una
 /// cola, decodifica a PCM i16 (preload_cache::decode_pcm) e inserta en la caché.
 /// NUNCA decodifica en el hilo de audio: el disparo no se bloquea jamás.
 use crate::engine::persist::db;
-use crate::engine::cache::preload::{self as preload_cache, PreloadCache};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};

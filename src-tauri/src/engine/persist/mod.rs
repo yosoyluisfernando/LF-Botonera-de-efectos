@@ -1,3 +1,4 @@
+pub mod atomic_file;
 pub mod config_helpers;
 pub mod config_io;
 pub mod config_migrate;

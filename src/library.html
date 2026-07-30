@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="/css/contextMenu.css">
     <link rel="stylesheet" href="/css/librarySearch.css">
     <link rel="stylesheet" href="/css/libraryWindow.css">
+    <link rel="stylesheet" href="/css/libraryMetadata.css">
+    <link rel="stylesheet" href="/css/backupRestore.css">
   </head>
   <body class="library-window">
     <main id="library-window" class="library-window-shell hidden">
@@ -59,6 +61,16 @@
               data-library-progress role="status" aria-live="polite"></span>
         <span id="library-window-status" role="status" aria-live="polite"></span>
         <span class="library-footer-spacer"></span>
+        <button id="library-backup-open" class="library-backup-button" type="button"
+                data-i18n-title="backup.button_title"
+                data-i18n-aria-label="backup.button_title">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 5h18v5H3zM5 10v9a2 2 0 0 0 2 2h5"/>
+            <path d="M9 14h6M19 13v4h-4"/>
+            <path d="M19 17a4 4 0 1 1-1.2-2.8"/>
+          </svg>
+          <span data-i18n="backup.button">Respaldo</span>
+        </button>
         <span class="library-display-selector">
           <button id="library-display-switch" class="library-display-switch"
                   type="button" aria-haspopup="menu" aria-expanded="false"
@@ -104,17 +116,61 @@
             </div>
             <div id="library-effects-roots" class="library-root-list"></div>
           </section>
+          <section class="library-root-section" aria-labelledby="library-retention-title">
+            <div class="library-root-heading">
+              <h4 id="library-retention-title"
+                  data-i18n="library.retention_title">Conservación segura</h4>
+            </div>
+            <p class="library-retention-help"
+               data-i18n="library.retention_help"></p>
+            <div class="library-retention-controls">
+              <label for="library-retention-days"
+                     data-i18n="library.retention_days">Días de conservación</label>
+              <input id="library-retention-days" type="number" min="30" max="365"
+                     step="1" inputmode="numeric">
+              <button id="library-retention-save" type="button" class="btn-dark"
+                      data-i18n="library.retention_save">Guardar</button>
+            </div>
+          </section>
+          <section class="library-root-section" aria-labelledby="library-retired-title">
+            <div class="library-root-heading">
+              <h4 id="library-retired-title"
+                  data-i18n="library.retired_title">Rutas retiradas</h4>
+            </div>
+            <div id="library-retired-roots" class="library-root-list"></div>
+          </section>
           <div id="library-roots-notice" class="library-roots-notice"
                role="status" aria-live="polite"></div>
           <div class="library-index-progress hidden"
                data-library-progress role="status" aria-live="polite"></div>
         </div>
         <div class="modal-footer">
-          <button id="library-roots-hide" type="button" class="btn-dark hidden"
+          <button id="library-roots-hide" type="button" class="btn-dark"
                   data-i18n="library.hide_window">Ocultar ventana</button>
           <button id="library-roots-start" type="button" class="btn-blue"
                   data-i18n="library.start_indexing">Iniciar</button>
-          <button id="library-roots-cancel" type="button" class="btn-dark"
+        </div>
+      </div>
+    </div>
+
+    <div id="library-remove-root-modal" class="hidden modal-overlay">
+      <div class="modal-content library-remove-root-content"
+           role="alertdialog" aria-modal="true"
+           aria-labelledby="library-remove-root-title"
+           aria-describedby="library-remove-root-description">
+        <div class="modal-header">
+          <h3 id="library-remove-root-title"
+              data-i18n="library.remove_root_title">Retirar ruta</h3>
+        </div>
+        <div class="modal-body">
+          <p id="library-remove-root-description"
+             data-i18n="library.remove_root_description"></p>
+          <p id="library-remove-root-path" class="library-remove-root-path"></p>
+        </div>
+        <div class="modal-footer">
+          <button id="library-remove-root-confirm" type="button" class="btn-danger"
+                  data-i18n="library.remove_root_confirm">Retirar ruta</button>
+          <button id="library-remove-root-cancel" type="button" class="btn-dark"
                   data-i18n="edit_modal.cancel">Cancelar</button>
         </div>
       </div>
@@ -125,6 +181,7 @@
         <li id="library-menu-live" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">📡</span><span data-i18n="library.play_on_air">Reproducir al aire</span></li>
         <li id="library-menu-preview" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">🎧</span><span data-i18n="context_menu.preview">Escucha previa</span></li>
         <li id="library-menu-add-player" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">➕</span><span data-i18n="library.add_to_player">Añadir al reproductor</span></li>
+        <li id="library-menu-metadata" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">🏷️</span><span data-i18n="metadata_editor.menu">Editar metadatos…</span></li>
         <li id="library-menu-editor" role="menuitem" tabindex="-1"><span class="menu-icon" aria-hidden="true">🎚</span><span data-i18n="context_menu.edit_track">Editor de pista…</span></li>
       </ul>
     </div>

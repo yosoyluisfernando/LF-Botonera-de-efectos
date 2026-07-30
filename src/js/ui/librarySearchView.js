@@ -1,5 +1,5 @@
 /** Tercera vista del panel fijo: consulta Rust y pinta una lista virtual. */
-import { invoke } from '../bridge/api.js';
+import { invoke, listen } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
 import { createLibraryVirtualList } from './libraryVirtualList.js';
 import {
@@ -35,6 +35,7 @@ export function initLibrarySearch(onRefresh, onPanelChange) {
     element('input').addEventListener('keydown', focusResults);
     rows.addEventListener('keydown', navigate);
     rows.addEventListener('scroll', maybeLoad);
+    listen('library-metadata-changed', refreshLibrarySearch).catch(console.error);
 }
 export async function drawLibrarySearch(settings) {
     refreshLibraryDisplayMode(settings);

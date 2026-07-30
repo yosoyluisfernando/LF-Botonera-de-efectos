@@ -40,26 +40,39 @@ mod tests {
     use super::*;
 
     fn snap(playing: bool, current: Option<u32>) -> PlayerSnapshot {
-        PlayerSnapshot { playing, current_index: current, ..Default::default() }
+        PlayerSnapshot {
+            playing,
+            current_index: current,
+            ..Default::default()
+        }
     }
 
     #[test]
     fn emits_while_playing_so_the_time_advances() {
         let s = snap(true, Some(0));
-        assert!(should_emit(&s, Some(&s)), "sonando siempre emite: el tiempo corre");
+        assert!(
+            should_emit(&s, Some(&s)),
+            "sonando siempre emite: el tiempo corre"
+        );
     }
 
     #[test]
     fn stays_quiet_when_idle_and_unchanged() {
         let s = snap(false, None);
-        assert!(!should_emit(&s, Some(&s)), "en reposo y sin cambios no se emite");
+        assert!(
+            !should_emit(&s, Some(&s)),
+            "en reposo y sin cambios no se emite"
+        );
     }
 
     #[test]
     fn emits_once_when_idle_state_changes() {
         // Marcar una siguiente con el reproductor parado debe repintar el naranja.
         let before = snap(false, None);
-        let after = PlayerSnapshot { next_index: Some(2), ..before.clone() };
+        let after = PlayerSnapshot {
+            next_index: Some(2),
+            ..before.clone()
+        };
         assert!(should_emit(&after, Some(&before)));
     }
 

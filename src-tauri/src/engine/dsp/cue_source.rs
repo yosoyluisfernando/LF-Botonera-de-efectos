@@ -147,7 +147,11 @@ mod tests {
     use rodio::buffer::SamplesBuffer;
 
     fn ramp(n: usize, ch: u16, sr: u32) -> BoxSource {
-        Box::new(SamplesBuffer::new(ch, sr, (0..n).map(|i| i as f32).collect::<Vec<_>>()))
+        Box::new(SamplesBuffer::new(
+            ch,
+            sr,
+            (0..n).map(|i| i as f32).collect::<Vec<_>>(),
+        ))
     }
 
     #[test]

@@ -29,7 +29,6 @@ impl OutputEndpoint {
             handle,
         })
     }
-
 }
 
 /// Las tarjetas abiertas, por nombre.

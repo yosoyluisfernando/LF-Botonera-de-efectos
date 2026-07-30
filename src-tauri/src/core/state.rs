@@ -1,14 +1,15 @@
 use crate::domain::button::random_folder::RandomFolderState;
+use crate::domain::library::protected_tracks;
 use crate::engine::audio::AudioEngine;
 use crate::engine::cache::track_analysis::TrackAnalysisCache;
 use crate::engine::console::ConsoleEngine;
-use crate::engine::player::{PlayerEngine, QueueResolver};
 use crate::engine::dsp::waveform::WaveformCache;
 use crate::engine::library::service::LibraryService;
 use crate::engine::persist::config_io;
 use crate::engine::persist::history::ConfigHistory;
 use crate::engine::persist::last_played::LastPlayed;
 use crate::engine::persist::tracks::TrackStore;
+use crate::engine::player::{PlayerEngine, QueueResolver};
 use crate::model::AppConfig;
 use std::sync::{Arc, Mutex};
 
@@ -28,6 +29,9 @@ pub struct AppState {
     pub waveforms: Mutex<WaveformCache>,
     pub track_analysis: Mutex<TrackAnalysisCache>,
     pub last_played: LastPlayed,
+    /// Serializa la creación y preparación de respaldos. SQLite sigue
+    /// atendiendo audio/Biblioteca mediante su copia en línea.
+    pub backup_operation: Mutex<()>,
 }
 
 impl AppState {
@@ -54,11 +58,21 @@ impl AppState {
             Arc::clone(&random_folders),
             Arc::clone(&tracks),
         );
-        let player = PlayerEngine::new(
-            audio.preload_cache_handle(),
-            resolver,
-            Arc::clone(&console),
-        );
+        let player =
+            PlayerEngine::new(audio.preload_cache_handle(), resolver, Arc::clone(&console));
+        let cleanup_library = Arc::clone(&library);
+        let cleanup_config = Arc::clone(&config);
+        let _ = std::thread::Builder::new()
+            .name("library-retention".into())
+            .spawn(move || {
+                let Ok(config_guard) = cleanup_config.lock() else {
+                    return;
+                };
+                let protected = protected_tracks::from_config(&config_guard);
+                if let Err(error) = cleanup_library.purge_expired(&protected) {
+                    eprintln!("library retention cleanup unavailable: {error}");
+                }
+            });
         Self {
             config,
             console,
@@ -71,6 +85,7 @@ impl AppState {
             waveforms: Mutex::new(WaveformCache::default()),
             track_analysis: Mutex::new(TrackAnalysisCache::default()),
             last_played: LastPlayed::new(),
+            backup_operation: Mutex::new(()),
         }
     }
 }

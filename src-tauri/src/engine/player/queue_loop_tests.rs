@@ -5,8 +5,13 @@ use super::*;
 use crate::engine::player::queue::{QueueEntry, QueueState};
 
 fn entry(id: &str) -> QueueEntry {
-    QueueEntry { id: id.into(), kind: "audio".into(), path: format!("C:/{id}.mp3"),
-        duration_s: 10.0, ..Default::default() }
+    QueueEntry {
+        id: id.into(),
+        kind: "audio".into(),
+        path: format!("C:/{id}.mp3"),
+        duration_s: 10.0,
+        ..Default::default()
+    }
 }
 
 fn queue_with(ids: &[&str]) -> QueueState {

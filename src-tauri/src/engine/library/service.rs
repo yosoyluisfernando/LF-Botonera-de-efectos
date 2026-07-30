@@ -12,7 +12,7 @@ use std::sync::{Arc, Mutex};
 #[derive(Clone)]
 pub struct LibraryService {
     database_path: PathBuf,
-    operation: Arc<Mutex<()>>,
+    pub(super) operation: Arc<Mutex<()>>,
     monitor: Arc<Mutex<Option<LibraryMonitor>>>,
     monitor_error: Arc<Mutex<Option<String>>>,
 }
@@ -87,18 +87,6 @@ impl LibraryService {
         Ok(outcomes)
     }
 
-    pub fn remove_root(&self, root_id: i64) -> Result<(), String> {
-        {
-            let _guard = self
-                .operation
-                .lock()
-                .map_err(|_| "library_operation_lock")?;
-            root_store::remove(&mut self.connection()?, root_id)?;
-        }
-        self.refresh_monitor();
-        Ok(())
-    }
-
     pub fn sync_root<F>(&self, root_id: i64, progress: F) -> Result<SyncReport, String>
     where
         F: FnMut(SyncProgress),
@@ -154,7 +142,11 @@ impl LibraryService {
         db::open(Some(&self.database_path))
     }
 
-    fn refresh_monitor(&self) {
+    pub(super) fn database_path(&self) -> &Path {
+        &self.database_path
+    }
+
+    pub(super) fn refresh_monitor(&self) {
         let result = self.list_roots().and_then(|roots| {
             let mut monitor = self.monitor.lock().map_err(|_| "library_monitor_lock")?;
             if let Some(monitor) = monitor.as_mut() {

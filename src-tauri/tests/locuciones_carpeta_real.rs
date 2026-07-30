@@ -34,7 +34,10 @@ fn la_hora_de_zararadio_sale_de_una_carpeta_de_verdad() {
 fn la_hora_de_salamandra_suena_y_su_jingle_no_estorba() {
     let carpeta = Carpeta::con(&pack_salamandra_hora());
     let ((hh, mm), suena) = resuelve_con_el_reloj_quieto(&carpeta);
-    assert_eq!(suena, [format!("HRS{hh:02}.mp3"), format!("MIN{mm:02}.mp3")]);
+    assert_eq!(
+        suena,
+        [format!("HRS{hh:02}.mp3"), format!("MIN{mm:02}.mp3")]
+    );
 }
 
 #[test]

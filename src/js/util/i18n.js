@@ -16,6 +16,7 @@ export async function loadLanguage(lang = 'es') {
         const response = await fetch(`/i18n/${lang}.json`);
         if (!response.ok) throw new Error(`Archivo de idioma no encontrado: ${lang}`);
         currentLangData = await response.json();
+        document.documentElement.lang = lang;
         applyTranslations();
     } catch (error) {
         console.error("Error cargando idioma:", error);

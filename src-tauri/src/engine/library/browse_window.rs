@@ -1,7 +1,8 @@
 //! Ventana por posición absoluta para una barra de desplazamiento de tamaño estable.
 use super::browse::relative_pattern;
 use super::catalog_count;
-use super::search::{into_result, map_candidate, Candidate, SearchResult};
+use super::search::{Candidate, SearchResult};
+use super::search_result::{fields as candidate_fields, into_result, map as map_candidate};
 use super::service::LibraryService;
 use super::tag_roles;
 use rusqlite::{params, Connection};
@@ -46,20 +47,21 @@ pub fn browse_window(
     let total = catalog_count::count(connection, Some(collection), root_id, relative_prefix)?;
     let safe_limit = limit.clamp(1, 500);
     let safe_offset = offset.min(total.saturating_sub(safe_limit));
-    let mut statement = connection
-        .prepare(
-            "SELECT lr.path,lt.relative_path,lt.collection,lt.file_name,lt.title,
-             lt.artist,lt.album,lt.genre,lt.year,lt.track_number,t.duration_s,
-             lt.metadata_state,'' AS search_text,lt.path_key
+    let sql = format!(
+        "SELECT {}
              FROM library_track lt
              JOIN library_root lr ON lr.id=lt.root_id
              JOIN track t ON t.path=lt.path_key
-             WHERE lt.present=1 AND (?1='' OR lt.collection=?1)
+             LEFT JOIN track_user_metadata um ON um.path_key=lt.path_key
+             WHERE lt.present=1 AND lr.enabled=1 AND (?1='' OR lt.collection=?1)
              AND (?2<0 OR lt.root_id=?2)
              AND (?3='' OR replace(lt.relative_path,'\\','/') LIKE ?3 ESCAPE '\\')
              ORDER BY lt.file_name COLLATE NOCASE,lt.path_key
              LIMIT ?4 OFFSET ?5",
-        )
+        candidate_fields("''")
+    );
+    let mut statement = connection
+        .prepare(&sql)
         .map_err(|error| error.to_string())?;
     let rows = statement
         .query_map(

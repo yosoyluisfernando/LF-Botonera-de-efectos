@@ -1,4 +1,5 @@
 pub mod cmd_audio;
+pub mod cmd_backup;
 pub mod cmd_button_color;
 pub mod cmd_button_flags;
 pub mod cmd_button_playback;
@@ -16,6 +17,9 @@ pub mod cmd_history;
 pub mod cmd_keys;
 pub mod cmd_library;
 pub mod cmd_library_actions;
+pub mod cmd_library_file;
+pub mod cmd_library_metadata;
+pub mod cmd_library_retention;
 pub mod cmd_local_shortcuts;
 pub mod cmd_locutions;
 pub mod cmd_master_volume;

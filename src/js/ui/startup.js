@@ -32,6 +32,7 @@ import { wire as wireConsole, initWindowMode as initConsoleWindow } from './cons
 import { applyToolbarButtons } from './toolbarButtons.js';
 import { wireRuntimeEvents } from './runtimeEvents.js';
 import { initLibraryWindowOpen } from './libraryWindowOpen.js';
+import { initBackupRestore } from './backupRestoreModal.js';
 let _closeWired = false;
 /** Punto único de arranque llamado desde main.js al cargar el DOM. */
 export async function startApp() {
@@ -66,9 +67,10 @@ export async function startApp() {
         initStartupPrompts();
         await wireRuntimeEvents({ onRefresh: _refresh, onDockEditor: _openDockedEditor });
         _show('app-section');
+        const restoreResultShown = await initBackupRestore({ checkResult: true });
         checkAudioDevicesOnStartup();
         await maybeShowPreloadDialog(); // Rust decide si toca (primer arranque)
-        await runStartupPrompts();
+        if (!restoreResultShown) await runStartupPrompts();
         startUpdateChecks();
     } catch (e) {
         console.error('Error iniciando la app:', e);

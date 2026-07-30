@@ -66,6 +66,20 @@ Los instaladores directos para Windows y los paquetes para Linux siguen disponib
 - **Pestañas ilimitadas por perfil** con cuadrículas configurables (filas y columnas libres), nombres, colores y dispositivo de audio independiente por pestaña.
 - **Colores personalizables** en cada botón y pestaña, con adaptación automática al tema claro u oscuro para mantener el contraste.
 
+### Biblioteca y buscador
+
+- **Biblioteca independiente** para recorrer Música, Efectos, carpetas indexadas y
+  unidades locales desde una sola ventana.
+- **Buscador rápido en el panel fijo** para encontrar audios por nombre, título,
+  artista, álbum, género o palabras clave.
+- **Actualización automática:** detecta los cambios de las carpetas y mantiene la
+  Biblioteca al día.
+- **Retiro reversible de carpetas:** una ruta retirada deja de aparecer sin borrar
+  los archivos de audio. Puede restaurarse durante un plazo configurable de 30 a
+  365 días.
+- **Acciones directas:** reproduce al aire, escucha en CUE, añade al reproductor o
+  arrastra una pista a un botón.
+
 ### Reproducción
 
 - **Motor de audio nativo en Rust** (rodio + cpal) con mezcla simultánea de múltiples fuentes.
@@ -102,6 +116,20 @@ Los instaladores directos para Windows y los paquetes para Linux siguen disponib
 - **Ventana flotante (pop-out):** el editor puede sacarse como ventana independiente que se puede mover o minimizar.
 - **Persistencia por archivo**, no por botón: edita un audio una vez y el cue y la ganancia se aplican en todos los botones que usan ese archivo.
 - **Portabilidad en exports:** el cue y la ganancia viajan dentro de los archivos `.bdelf` / `.bdeplf` como campo opcional, para recuperarlos al importar en otro equipo.
+
+### Metadatos y respaldo
+
+- **Editor de metadatos y tags:** corrige la información de Música o Efectos y añade
+  palabras clave para encontrarlos con mayor facilidad.
+- **Edición múltiple:** aplica tags o campos seleccionados a varias pistas de una vez.
+- **Renombrado físico opcional:** cambia el nombre real de un archivo solo cuando el
+  usuario lo solicita expresamente.
+- **Escritura opcional en el audio:** permite guardar los metadatos compatibles dentro
+  de una pista individual de Música.
+- **Respaldo completo `.lfbackup`:** reúne la configuración y `tracks.db` en un solo
+  archivo validado. Los audios no se incluyen.
+- **Restauración segura:** comprueba el archivo, crea una copia de seguridad del estado
+  actual y reinicia la aplicación para completar la restauración.
 
 ### Precarga de audio en RAM
 

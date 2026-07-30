@@ -3,12 +3,12 @@
 /// por responsabilidad única (perfiles vs pestañas). Reutiliza el helper
 /// `next_id` de cmd_profiles para no duplicarlo.
 use super::AppState;
-use crate::ipc::cmd_profiles::next_id;
 use crate::domain::grid::reorder as grid_reorder;
 use crate::domain::grid::resize as grid_resize;
 use crate::engine::input::keyboard as global_shortcuts;
 use crate::engine::input::rules as shortcut_rules;
 use crate::engine::persist::config_io as config;
+use crate::ipc::cmd_profiles::next_id;
 use crate::model::{AppConfig, PaletaData};
 
 #[tauri::command]

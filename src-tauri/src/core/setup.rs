@@ -1,3 +1,4 @@
+use crate::core::AppState;
 /// Modulo: core/setup.rs
 /// Proposito: logica de ARRANQUE de la app (dispositivo de audio, presupuesto de
 /// precarga, hilos de monitor/reloj/historial/clima, recalentado de precarga y
@@ -7,11 +8,10 @@ use crate::engine::audio::monitor as audio_monitor;
 use crate::engine::cache::warm as preload_warm;
 use crate::engine::console::BusId;
 use crate::engine::input::keyboard as global_shortcuts;
-use crate::engine::player::monitor as player_monitor;
 use crate::engine::persist::last_played;
+use crate::engine::player::monitor as player_monitor;
 use crate::engine::weather::client as weather;
 use crate::ipc::{cmd_master_volume, cmd_meta};
-use crate::core::AppState;
 use std::sync::Arc;
 use tauri::Manager;
 
@@ -40,13 +40,19 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
     // suyo al abrirse. Asi no hay carrera con el `set_device` de arriba, que es
     // asincrono.
     state.console.set_fader(BusId::Programa, master_volume);
-    state.console.set_fader(BusId::Efectos, console_faders.efectos);
+    state
+        .console
+        .set_fader(BusId::Efectos, console_faders.efectos);
     state.console.set_fader(BusId::Panel, console_faders.panel);
     state.console.set_fader(BusId::Cue, console_faders.cue);
     engine.set_preload_enabled(preload_enabled);
     // Pre-escucha: vacio = comparte la tarjeta del programa. No es un fallback —
     // sigue siendo un bus aparte, sin master y fuera del vumetro de programa.
-    let pre = if out_pre.is_empty() || out_pre == device { "" } else { &out_pre };
+    let pre = if out_pre.is_empty() || out_pre == device {
+        ""
+    } else {
+        &out_pre
+    };
     let _ = engine.set_pre_device(pre);
     engine
         .preload_cache_handle()

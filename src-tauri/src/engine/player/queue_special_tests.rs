@@ -5,12 +5,22 @@ use super::*;
 use crate::engine::player::queue::{QueueEntry, QueueState};
 
 fn entry(id: &str) -> QueueEntry {
-    QueueEntry { id: id.into(), kind: "audio".into(), path: format!("C:/{id}.mp3"),
-        duration_s: 10.0, ..Default::default() }
+    QueueEntry {
+        id: id.into(),
+        kind: "audio".into(),
+        path: format!("C:/{id}.mp3"),
+        duration_s: 10.0,
+        ..Default::default()
+    }
 }
 
 fn special(id: &str, kind: &str) -> QueueEntry {
-    QueueEntry { id: id.into(), kind: kind.into(), folder: "C:/carpeta".into(), ..Default::default() }
+    QueueEntry {
+        id: id.into(),
+        kind: kind.into(),
+        folder: "C:/carpeta".into(),
+        ..Default::default()
+    }
 }
 
 fn loads(actions: &[DeckAction]) -> bool {
@@ -29,7 +39,15 @@ fn a_time_locution_is_marked_next_but_not_preloaded() {
     assert_eq!(q.next(), Some(1), "se ve en naranja que viene la hora");
     let preloads: Vec<_> = actions
         .iter()
-        .filter(|a| matches!(a, DeckAction::Load { autoplay: false, .. }))
+        .filter(|a| {
+            matches!(
+                a,
+                DeckAction::Load {
+                    autoplay: false,
+                    ..
+                }
+            )
+        })
         .collect();
     assert!(preloads.is_empty(), "la hora no debe precargarse");
 }
@@ -45,9 +63,14 @@ fn a_time_locution_is_loaded_fresh_when_its_turn_comes() {
     let actions = q.advance(false);
 
     assert_eq!(q.current(), Some(1));
-    assert!(loads(&actions), "debe cargarse ahora, con la hora de este momento");
     assert!(
-        !actions.iter().any(|a| matches!(a, DeckAction::Resume { .. })),
+        loads(&actions),
+        "debe cargarse ahora, con la hora de este momento"
+    );
+    assert!(
+        !actions
+            .iter()
+            .any(|a| matches!(a, DeckAction::Resume { .. })),
         "reanudar un deck vacio dejaria la locucion muda"
     );
 }
@@ -60,8 +83,11 @@ fn a_random_folder_is_preloaded_normally() {
 
     let actions = q.start_at(0);
 
-    assert!(actions
-        .iter()
-        .any(|a| matches!(a, DeckAction::Load { autoplay: false, .. })));
+    assert!(actions.iter().any(|a| matches!(
+        a,
+        DeckAction::Load {
+            autoplay: false,
+            ..
+        }
+    )));
 }
-

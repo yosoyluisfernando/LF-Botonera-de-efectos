@@ -50,7 +50,13 @@ pub fn start_clock_thread(app: tauri::AppHandle, config: Arc<Mutex<AppConfig>>) 
 /// Formatea la fecha segun el idioma activo. Rust es el unico formateador.
 fn format_date(lang: &str, weekday: usize, day: usize, month0: usize, year: u32) -> String {
     const DAYS_ES: [&str; 7] = [
-        "Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado",
+        "Domingo",
+        "Lunes",
+        "Martes",
+        "Miercoles",
+        "Jueves",
+        "Viernes",
+        "Sabado",
     ];
     const MONTHS_ES: [&str; 12] = [
         "Enero",

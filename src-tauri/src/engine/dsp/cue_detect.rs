@@ -89,8 +89,8 @@ mod tests {
     #[test]
     fn end_uses_last_signal_after_middle_pause() {
         let pcm = pcm_from_frames(&[
-            0, 2000, 2000, 0, 0, 2000, 2000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 2000, 2000, 0, 0, 2000, 2000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         ]);
         let (_, end) = detect_boundaries(&pcm, 1000, 1, &cfg());
         assert!((end.unwrap() - 0.07).abs() < 1e-9);

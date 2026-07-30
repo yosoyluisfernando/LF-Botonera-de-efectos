@@ -23,11 +23,8 @@ pub const SAFE_COLORS: [&str; 24] = [
     // rojo → naranja → amarillo (el ojo separa bien: pasos cortos)
     "#DB2424", "#DB4F24", "#DB7924", "#DB9E24", "#DBC324", "#CFDB24",
     // verdes (separa mal: pasos largos)
-    "#9EDB24", "#67DB24", "#24DB24", "#24DB70",
-    // turquesa → cian
-    "#24DBAD", "#24DBDB", "#24B4DB",
-    // azules (separa mal: pasos largos)
-    "#248FDB", "#2461DB", "#243CDB", "#3324DB",
-    // violetas → magentas → rosas
+    "#9EDB24", "#67DB24", "#24DB24", "#24DB70", // turquesa → cian
+    "#24DBAD", "#24DBDB", "#24B4DB", // azules (separa mal: pasos largos)
+    "#248FDB", "#2461DB", "#243CDB", "#3324DB", // violetas → magentas → rosas
     "#5B24DB", "#8C24DB", "#B724DB", "#DB24D5", "#DB24A4", "#DB2479", "#DB2452",
 ];

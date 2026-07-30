@@ -60,12 +60,14 @@ by an independent developer.
 
 Supported formats: MP3, WAV, FLAC, OGG/Vorbis, OGG/Opus, AAC, M4A, and AIFF.
 
-## What's new in 1.2.1
+## What's new in 1.3.0
 
-This release does not add features or performance improvements. It adapts LF Botonera
-de Efectos for Microsoft Store distribution: installation and updates through the
-Store, improved Windows DPI integration, and fewer unnecessary external permissions.
-Audio features remain those introduced in the major 1.2.0 update.
+Adds a new Library for indexing multiple Music and Effects folders without duplicate
+files, with fuzzy search, metadata and automatic updates. Includes an independent
+window for browsing the catalog and storage drives, a fixed-panel search view,
+multi-selection, playback actions and continuous loading for large libraries. This
+release also improves player selection, speeds up the track editor and updates the
+meters at 50 FPS with a smoother falloff.
 
 ## Screenshot captions
 

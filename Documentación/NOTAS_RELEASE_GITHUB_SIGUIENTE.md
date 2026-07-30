@@ -1,14 +1,15 @@
-# Borrador de publicación para GitHub
+# Notas históricas de publicación 1.3.0
 
 ## Estado
 
-- Versión propuesta: **1.3.0**.
-- Última versión publicada en GitHub: **1.2.0**.
-- Versión actualmente publicada en Microsoft Store: **1.2.1**.
-- Microsoft Store validó el paquete **1.3.0.0** y la Submission 3
-  (`1152921505701501616`) está en certificación desde el 2026-07-27.
-- No publicar este texto ni crear el tag hasta que Microsoft apruebe la certificación
-  y comience la publicación automática de la misma versión funcional.
+- Documento cerrado y conservado como registro de la publicación.
+- Versión: **1.3.0**.
+- Microsoft Store: actualización 1.3.0 completada.
+- GitHub: release público
+  [`v1.3.0`](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/releases/tag/v1.3.0),
+  publicado el 2026-07-28.
+- No usar este archivo como lista de tareas. El estado de trabajo vigente está en
+  [`CONTINUIDAD_SESION.md`](CONTINUIDAD_SESION.md).
 
 La propuesta es 1.3.0 porque incorpora una capacidad nueva importante —Biblioteca y
 buscador interno— sin romper compatibilidad. Microsoft Store recibirá técnicamente el
@@ -58,10 +59,23 @@ también las unidades de almacenamiento sin añadirlas automáticamente al catá
 - Vista por `Nombre del archivo` o por `Título y artista`.
 - Lista virtual preparada para bibliotecas grandes: la barra representa desde el
   principio la cantidad total y puede saltar directamente a cualquier posición.
-- Centro de procesamiento para preparar varias carpetas, cancelar antes de guardar,
-  iniciar la indexación y ocultar la ventana sin detener el trabajo.
+- Centro de procesamiento para preparar varias carpetas, ocultar conservando el
+  borrador, iniciar la indexación y volver a ocultar sin detener el trabajo.
 - Menú contextual con Reproducir al aire, Escucha previa, Añadir al reproductor y
   Editor de pista.
+
+## Editor de metadatos y tags
+
+- `Editar metadatos…` está disponible desde la Biblioteca y el Buscador fijo.
+- Música y Efectos muestran formularios adaptados y admiten tags o palabras clave
+  propias para encontrar mejor cada pista.
+- La edición múltiple solo cambia los campos marcados y una selección mixta conserva
+  exclusivamente las operaciones comunes.
+- El nombre físico puede cambiarse de forma expresa; LF Botonera actualiza su
+  catálogo, rejillas, botones fijos y reproductor sin perder cue, ganancia ni
+  normalización.
+- En Música individual se puede escribir opcionalmente los campos compatibles dentro
+  del archivo mediante una copia verificada y recuperable.
 
 ## Buscador en el panel fijo
 
@@ -134,14 +148,13 @@ exportar los perfiles de trabajo más valiosos.
 
 ---
 
-## Lista interna antes de publicar
+## Cierre interno
 
-- [x] Microsoft Store valida el paquete 1.3.0.0 y recibe la Submission 3.
-- [ ] Microsoft Store aprueba la certificación y comienza la publicación automática.
-- [x] `package.json`, `Cargo.toml`, `Cargo.lock` y `tauri.conf.json` están en 1.3.0.
-- [ ] CHANGELOG cerrado como 1.3.0 con la fecha real.
-- [x] Build Store identifica el canal `store`.
-- [ ] Builds de GitHub identifican el canal `direct`.
-- [x] Pruebas Rust, frontend y Release aprobadas.
-- [ ] Prueba funcional del paquete MSIX completada.
-- [ ] Tag `v1.3.0` y GitHub Release creados solo después de la aprobación de Store.
+- Microsoft Store validó y publicó el paquete 1.3.0.0.
+- `package.json`, `Cargo.toml`, `Cargo.lock` y `tauri.conf.json` quedaron
+  sincronizados en 1.3.0.
+- El canal Store se identifica como `store` y el canal directo como `direct`.
+- Las pruebas Rust, frontend y Release se aprobaron.
+- El tag y GitHub Release `v1.3.0` ya existen.
+
+La publicación 1.3.0 no debe volver a aparecer entre los pendientes del proyecto.

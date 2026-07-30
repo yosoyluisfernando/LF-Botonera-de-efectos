@@ -94,7 +94,10 @@ impl Carpeta {
     pub fn clima(&self, kind: &str, value: f64) -> String {
         let ruta = resolve_climate_file(self.path(), kind, value)
             .unwrap_or_else(|e| panic!("{kind} {value} debería sonar, y dio {e}"));
-        assert!(Path::new(&ruta).exists(), "la ruta devuelta no existe: {ruta}");
+        assert!(
+            Path::new(&ruta).exists(),
+            "la ruta devuelta no existe: {ruta}"
+        );
         nombre(&ruta)
     }
 }
@@ -115,7 +118,10 @@ pub fn resuelve_con_el_reloj_quieto(carpeta: &Carpeta) -> ((u32, u32), Vec<Strin
         let antes = ahora();
         let suena = resolve_time_files(carpeta.path()).expect("el pack cubre todas las horas");
         for ruta in &suena {
-            assert!(Path::new(ruta).exists(), "la ruta devuelta no existe: {ruta}");
+            assert!(
+                Path::new(ruta).exists(),
+                "la ruta devuelta no existe: {ruta}"
+            );
         }
         if ahora() == antes {
             return (antes, suena.iter().map(|r| nombre(r)).collect());

@@ -1,10 +1,12 @@
 # Plan — buscador interno e índice de archivos de audio
 
-Documento rector para la nueva actualización de LF Botonera de Efectos. Conserva el
-análisis, las decisiones aprobadas y las cuestiones que siguen abiertas. Toda sesión
-debe leerlo antes de modificar el buscador o la Biblioteca.
+Documento rector de la actualización de Biblioteca y buscador. Conserva el análisis,
+las decisiones aprobadas y la evidencia de implementación. Las secciones redactadas
+en futuro describen el plan histórico; el estado operativo actual está al final y en
+`CONTINUIDAD_SESION.md`.
 
-**Estado:** arquitectura base aprobada; implementación por etapas autorizada.
+**Estado:** implementado hasta el esquema 6, incluido retiro reversible, respaldo y
+editor de metadatos/tags. Enter y doble clic continúan deliberadamente sin acción.
 
 **Rama:** `codex/buscador-interno`.
 
@@ -797,8 +799,9 @@ Interfaz del panel implementada el 2026-07-25:
   modal como en el panel fijo.
 - los nombres se guardan durante el recorrido en lotes de 500 y quedan disponibles
   antes de que finalice la lectura de duración y etiquetas;
-- mientras se procesa, el administrador sustituye Cancelar por `Ocultar ventana`;
-  reabrirlo no espera a la consulta de raíces y ocultarlo no detiene el motor.
+- `Ocultar ventana` está disponible al preparar rutas y mientras se procesa; reabrir
+  conserva el borrador de la sesión, no espera a la consulta de raíces y ocultar no
+  detiene el motor.
 - el arrastre interno del buscador no usa HTML5 `draggable`, porque compite con los
   eventos nativos de archivos de Tauri en Windows. Sigue el ratón igual que
   `gridDnd.js` y reutiliza `fileDrop.js::dropFileOnGrid` para soltar en una celda.
@@ -811,8 +814,8 @@ La prueba funcional debe generarse con `npm run tauri build -- --no-bundle`. Un
 `cargo build --release` aislado no sustituye el empaquetado Tauri y puede dejar el
 ejecutable intentando abrir la URL de desarrollo.
 
-Siguiente paso: ventana independiente Biblioteca. Enter y doble clic quedan sin
-acción; el menú contextual es la única puerta a las acciones de pista.
+Estado de esta etapa: completada. Enter y doble clic quedan sin acción; el menú
+contextual es la única puerta a las acciones de pista.
 
 ### Diseño aprobado de la ventana Biblioteca — 2026-07-27
 
@@ -843,6 +846,41 @@ acción; el menú contextual es la única puerta a las acciones de pista.
 - El transporte del arrastre entre dos WebView se probará de forma aislada. Se
   reutilizarán los destinos y órdenes existentes; no se creará otra lógica de
   asignación.
+
+### Retiro seguro de raíces — 2026-07-29
+
+- Cada raíz configurada muestra una X roja y exige confirmación antes de retirarse.
+- Retirar nunca borra archivos de audio: detiene observación y excluye la raíz de
+  búsquedas, árbol, recorridos y conteos.
+- El esquema 5 conserva catálogo y FTS hasta una fecha individual calculada con el
+  plazo global vigente, configurable entre 30 y 365 días.
+- Las rutas retiradas permanecen visibles en el Centro de procesamiento y pueden
+  restaurarse antes del vencimiento.
+- Cambiar el plazo se aplica a futuras retiradas y no acorta fechas ya prometidas.
+- La purga vencida elimina catálogo e índice y solo borra metadatos `track` huérfanos.
+  Las rutas presentes en rejillas de cualquier perfil, botones fijos globales o por
+  perfil y cola del reproductor quedan protegidas.
+- La limpieza corre al iniciar y al consultar rutas retiradas; no toca hilos de audio.
+- La prueba sobre una copia real de 20.411 pistas retiró, restauró y venció
+  artificialmente la raíz mayor. Eliminó 15.330 filas de catálogo, conservó la fila
+  técnica protegida y no modificó la base original.
+
+### Editor de metadatos y tags — 2026-07-30
+
+- La Biblioteca y el Buscador fijo comparten `Editar metadatos…` encima del editor
+  de pista; no existe un editor o almacenamiento paralelo por ventana.
+- Los campos propios y tags viven en el esquema 6 de `tracks.db` y prevalecen sobre
+  lo leído del archivo sin destruirlo.
+- Música y Efectos tienen formularios distintos. Los lotes exigen marcar cada campo;
+  una selección mixta solo admite tags.
+- Tags, metadatos efectivos, recorrido y búsqueda difusa alimentan un solo índice
+  FTS5 reconstruible.
+- Renombrar el archivo es siempre individual, opcional y explícito. Actualiza todas
+  las referencias propias y usa recuperación transaccional.
+- Escribir en el archivo es una opción separada para Música individual: copia,
+  escritura, reapertura, verificación y sustitución recuperable.
+- Diseño completo y evidencia:
+  [`PLAN_EDITOR_METADATOS.md`](PLAN_EDITOR_METADATOS.md).
 
 ---
 

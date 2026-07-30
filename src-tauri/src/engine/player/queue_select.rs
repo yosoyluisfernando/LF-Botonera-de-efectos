@@ -13,13 +13,22 @@ impl QueueState {
     /// una carpeta aleatoria, donde la cola solo conoce la carpeta. Si la pista
     /// no es reposicionable (una locucion), el deck ignora la accion.
     pub fn seek(&mut self, position_s: f64) -> Vec<DeckAction> {
-        vec![DeckAction::Seek { deck: self.active_deck, position_s: position_s.max(0.0) }]
+        vec![DeckAction::Seek {
+            deck: self.active_deck,
+            position_s: position_s.max(0.0),
+        }]
     }
 
     /// Primer candidato (respeta lo marcado), saltando no reproducibles.
     pub(super) fn peek_next(&mut self) -> Option<usize> {
         let base = self.current.or(self.cursor);
-        let first = next_index(self.mode, self.entries.len(), base, self.marked, self.rand());
+        let first = next_index(
+            self.mode,
+            self.entries.len(),
+            base,
+            self.marked,
+            self.rand(),
+        );
         self.resolve_playable(first)
     }
 
@@ -46,7 +55,13 @@ impl QueueState {
         if self.entries.is_empty() || self.current.is_some() || self.marked.is_some() {
             return;
         }
-        let cand = next_index(self.mode, self.entries.len(), self.cursor, None, self.rand());
+        let cand = next_index(
+            self.mode,
+            self.entries.len(),
+            self.cursor,
+            None,
+            self.rand(),
+        );
         self.marked = self
             .resolve_playable(cand)
             .or_else(|| self.resolve_playable(Some(0)));

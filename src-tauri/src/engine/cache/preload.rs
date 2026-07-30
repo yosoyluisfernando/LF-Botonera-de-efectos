@@ -87,7 +87,8 @@ impl PreloadCache {
         }
     }
 
-    fn remove(&mut self, key: &str) {
+    /// Expulsa una ruta concreta después de renombrarla o modificarla.
+    pub fn remove(&mut self, key: &str) {
         if let Some(pcm) = self.map.remove(key) {
             self.bytes_used = self.bytes_used.saturating_sub(pcm.bytes());
             if let Some(i) = self.order.iter().position(|k| k == key) {

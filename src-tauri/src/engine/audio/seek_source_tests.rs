@@ -43,7 +43,10 @@ fn lands_past_the_step_not_before_it() {
     let first = source.next().expect("debe dar audio");
     let _ = fs::remove_file(&path);
 
-    assert!(first > 0.2, "cayo antes del escalon (dio {first}): el salto se quedo corto");
+    assert!(
+        first > 0.2,
+        "cayo antes del escalon (dio {first}): el salto se quedo corto"
+    );
 }
 
 /// Sin salto se empieza por el principio: el camino normal no debe alterarse.
@@ -54,7 +57,10 @@ fn without_seek_it_starts_at_the_beginning() {
     let first = source.next().expect("debe dar audio");
     let _ = fs::remove_file(&path);
 
-    assert!(first < 0.1, "deberia empezar en la parte floja (dio {first})");
+    assert!(
+        first < 0.1,
+        "deberia empezar en la parte floja (dio {first})"
+    );
 }
 
 /// Conserva el formato: si mintiera en canales o frecuencia, sonaria agudo o

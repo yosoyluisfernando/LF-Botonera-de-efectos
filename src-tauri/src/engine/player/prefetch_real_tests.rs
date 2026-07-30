@@ -98,17 +98,15 @@ fn un_efecto_precargado_pasa_por_el_colchon_intacto() {
     };
     let pcm = decode_pcm(&path).expect("el efecto deberia decodificar a PCM");
     let cache = Arc::new(Mutex::new(PreloadCache::new(64)));
-    cache
-        .lock()
-        .unwrap()
-        .insert(db::normalize_key(&path), pcm);
+    cache.lock().unwrap().insert(db::normalize_key(&path), pcm);
     assert!(
         cache.lock().unwrap().contains(&db::normalize_key(&path)),
         "el efecto deberia estar precargado"
     );
 
     let sin = build_play_source(&cache, &path, false, 0.0, None).expect("acierto de caché");
-    let con = buffered(build_play_source(&cache, &path, false, 0.0, None).expect("acierto de caché"));
+    let con =
+        buffered(build_play_source(&cache, &path, false, 0.0, None).expect("acierto de caché"));
     let n = iguales(sin, con);
     println!("  ✓ efecto precargado en RAM: {n} muestras iguales con y sin colchon");
 }

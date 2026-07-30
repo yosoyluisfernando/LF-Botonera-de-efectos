@@ -109,7 +109,7 @@ fn nested_other_collection_remains_an_exception() {
 }
 
 #[test]
-fn removing_root_preserves_shared_track_edits_and_clears_catalog() {
+fn retiring_root_preserves_shared_track_edits_and_hides_catalog() {
     let mut conn = db::open(None).unwrap();
     let root = tree("remove");
     let audio = root.join("identificacion.wav");
@@ -129,9 +129,11 @@ fn removing_root_preserves_shared_track_edits_and_clears_catalog() {
     conn.execute("UPDATE track SET gain_db=4.0 WHERE path=?1", params![key])
         .unwrap();
 
-    remove(&mut conn, root_id).unwrap();
+    let retired = remove(&mut conn, root_id).unwrap();
 
     assert!(list(&conn).unwrap().is_empty());
+    assert_eq!(retired.id, root_id);
+    assert_eq!(root_retention::list(&conn).unwrap().len(), 1);
     assert!(search::search(&conn, "identificacion", None, 10)
         .unwrap()
         .is_empty());
@@ -144,4 +146,42 @@ fn removing_root_preserves_shared_track_edits_and_clears_catalog() {
         .unwrap();
     assert_eq!(gain, 4.0);
     let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn adding_the_same_retired_path_restores_without_duplicate() {
+    let mut conn = db::open(None).unwrap();
+    let root = tree("readd_retired");
+    let root_id = match add(&mut conn, &root, LibraryCollection::Music).unwrap() {
+        AddOutcome::Added { root_id, .. } => root_id,
+        other => panic!("alta inesperada: {other:?}"),
+    };
+    remove(&mut conn, root_id).unwrap();
+
+    let outcome = add(&mut conn, &root, LibraryCollection::Effects).unwrap();
+
+    assert!(matches!(outcome, AddOutcome::Restored { root_id: id } if id == root_id));
+    let roots = list(&conn).unwrap();
+    assert_eq!(roots.len(), 1);
+    assert_eq!(roots[0].collection, "effects");
+    let _ = fs::remove_dir_all(root);
+}
+
+#[test]
+fn overlapping_a_retired_path_is_rejected_until_the_user_decides() {
+    let mut conn = db::open(None).unwrap();
+    let parent = tree("retired_overlap");
+    let child = parent.join("child");
+    fs::create_dir_all(&child).unwrap();
+    let root_id = match add(&mut conn, &parent, LibraryCollection::Music).unwrap() {
+        AddOutcome::Added { root_id, .. } => root_id,
+        other => panic!("alta inesperada: {other:?}"),
+    };
+    remove(&mut conn, root_id).unwrap();
+
+    assert_eq!(
+        add(&mut conn, &child, LibraryCollection::Music).unwrap_err(),
+        "library_root_overlaps_retired"
+    );
+    let _ = fs::remove_dir_all(parent);
 }

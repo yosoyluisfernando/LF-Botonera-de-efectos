@@ -16,6 +16,9 @@ struct FolderEvidence {
 pub fn correct(candidates: &mut [Candidate]) {
     let mut folders = HashMap::<String, FolderEvidence>::new();
     for candidate in candidates.iter() {
+        if candidate.user_roles {
+            continue;
+        }
         let evidence = folders.entry(parent(&candidate.relative_path)).or_default();
         count(&mut evidence.titles, candidate.result.title.as_deref());
         count(&mut evidence.artists, candidate.result.artist.as_deref());
@@ -24,6 +27,9 @@ pub fn correct(candidates: &mut [Candidate]) {
         }
     }
     for candidate in candidates {
+        if candidate.user_roles {
+            continue;
+        }
         let Some(evidence) = folders.get(&parent(&candidate.relative_path)) else {
             continue;
         };

@@ -3,7 +3,7 @@ import { emit, invoke } from '../bridge/api.js';
 import { drawPlayerView } from './playerView.js';
 
 export async function dispatchLibraryAction(action, selection, onEdited) {
-    if (document.body.classList.contains('library-window')) {
+    if (document.body.classList.contains('library-window') && action !== 'metadata') {
         return emit('library-window-action', { action, selection });
     }
     return executeLibraryAction(action, selection, onEdited);
@@ -25,6 +25,10 @@ export async function executeLibraryAction(action, selection, onEdited) {
             paths: selection.map(value => value.path),
         });
         return drawPlayerView();
+    }
+    if (action === 'metadata') {
+        const module = await import('./libraryMetadataModal.js');
+        return module.openLibraryMetadataEditor(selection);
     }
     if (action === 'editor') {
         const module = await import('./trackEditor.js');

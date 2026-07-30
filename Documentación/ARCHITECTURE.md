@@ -263,10 +263,40 @@ con una ruta normalizada y una colección explícita `music` o `effects`. La rut
 - cuando varias reglas cubren una ruta, manda la más específica.
 
 El Centro de procesamiento de la ventana Biblioteca administra altas sin crear otra
+fuente de verdad. También retira raíces de forma reversible: el esquema 5 añade
+`retired_at`, `purge_after` y `library_setting.retention_days` (30..=365). Una raíz
+retirada deja inmediatamente de participar en búsquedas, recorridos, conteos y
+observación, pero conserva catálogo e índice hasta su fecha individual de purga.
+
+`engine/library/root_purge.rs` elimina al vencer el catálogo y el FTS dentro de una
+transacción. Los metadatos `track` solo se eliminan cuando quedan huérfanos. Antes de
+la purga, `domain/library/protected_tracks.rs` reúne las rutas de todas las rejillas,
+botones fijos globales y por perfil y cola del reproductor; cualquier coincidencia
+conserva cue, ganancia, normalización y análisis. La política se ejecuta al iniciar y
+al consultar las rutas retiradas, siempre fuera de los hilos de UI y audio.
+
+El esquema 6 separa los metadatos leídos del archivo de las decisiones del usuario.
+`track_user_metadata` guarda anulaciones por campo y `track_keyword` guarda tags
+normalizados sin crear otra base. `metadata_query.rs`, `search_index.rs`, búsqueda y
+recorrido calculan el mismo valor efectivo: una anulación, incluso vacía, manda sobre
+el valor leído. Una reindexación actualiza `library_track`, pero no borra estas
+decisiones.
+
+El editor es una superficie compartida por panel y Biblioteca. JavaScript solo
+construye el formulario y envía cambios; validación, lotes atómicos, deduplicación,
+FTS, renombrado y escritura física viven en Rust. `file_rename.rs` coordina archivo,
+clave SQLite y las cuatro fuentes de referencias de `AppConfig`, con un diario
+recuperable al arranque. `embedded_tags.rs` escribe sobre una copia hermana,
+`embedded_tag_edit.rs` la vuelve a abrir y verifica duración y campos, y un segundo
+diario decide si una interrupción debe restaurar el original o terminar la operación.
+Nunca se renombra ni sustituye una pista que esté reproduciéndose.
+
+Las altas del mismo Centro no crean otra
 configuración: el frontend mantiene únicamente un borrador y `library_add_roots`
 confirma todas las rutas en una transacción Rust. La validación completa ocurre antes
-de escribir; Cancelar no invoca ninguna mutación. Después, `library_sync_all` usa el
-indexador compartido y `library-index-progress` alimenta el modal y el panel.
+de escribir; `Ocultar ventana` conserva el borrador en memoria sin invocar ninguna
+mutación. Después, `library_sync_all` usa el indexador compartido y
+`library-index-progress` alimenta el modal y el panel.
 
 La exploración de almacenamiento es deliberadamente distinta del catálogo:
 `library_storage_roots` detecta unidades y `library_read_directory` devuelve carpetas
@@ -278,6 +308,8 @@ derecho presenta exclusivamente los archivos de audio de la ubicación seleccion
 Enter y doble clic todavía no tienen acción. `Reproducir al aire` ya usa el id
 `__library_live__` por el bus Programa, separado del CUE. El documento rector es
 [`PLAN_BUSCADOR_INTERNO.md`](PLAN_BUSCADOR_INTERNO.md).
+El diseño del editor está en
+[`PLAN_EDITOR_METADATOS.md`](PLAN_EDITOR_METADATOS.md).
 
 ---
 
@@ -524,7 +556,7 @@ Detalles de compatibilidad aprendidos del LFA real:
 ## Testing
 
 ```bash
-# Tests unitarios de Rust (suite actual: 209 passed, 4 ignored)
+# Tests unitarios de Rust (suite actual: 298 passed, 19 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -539,6 +571,12 @@ wc -l src-tauri/src/**/*.rs src/js/**/*.js
 Los tests cubren:
 - `engine/persist/db.rs`: migración, idempotencia, `normalize_key`
 - `model/track.rs`: `sanitized_cue`, `effective_duration_s`, casos extremos
+- `engine/library/`: raíces solapadas, catálogo, FTS, recorrido, observación,
+  reconciliación, retiro, restauración, retención y purga protegida
+- `engine/backup/`: creación, validación, restauración, respaldo de emergencia y
+  recuperación ante fallos de `.lfbackup`
+- metadatos editoriales: tags, valores efectivos, lotes, renombrado físico,
+  escritura embebida y recuperación transaccional
 - `engine/audio/monitor.rs`: `compute_display_time` con múltiples instancias
 - `engine/cache/cached_source.rs`, `engine/dsp/cue_source.rs`: seek y bucle
 - `engine/cache/preload.rs`: LRU, presupuesto RAM
@@ -561,10 +599,13 @@ No existen tests de UI (Tauri no expone un harness de integración para el webvi
 | `symphonia` | 0.5.5 | Decodificación de audio (MP3, FLAC, OGG, M4A…) |
 | `opus-decoder` | 0.1.1 | Soporte adicional para Opus/OGG |
 | `ebur128` | 0.1 | Medición LUFS integrado (EBU R128) |
-| `rusqlite` | 0.32 (bundled) | SQLite compilado estático; sin DLL de sistema |
+| `rusqlite` | 0.32 (bundled + backup) | SQLite estático, catálogo y copias online coherentes |
 | `serde` + `serde_json` | 1 | Serialización JSON (config, IPC) |
 | `ureq` | 2 | HTTP síncrono (clima, updates, geocoding) |
 | `chrono` | 0.4 | Fecha/hora localizada |
+| `lofty` | 0.22 | Lectura y escritura verificada de metadatos de audio |
+| `notify` | 8.2 | Observación incremental de las raíces de Biblioteca |
+| `rfd` | 0.17.2 | Selección nativa de carpetas para respaldos |
 | `tauri-plugin-global-shortcut` | 2.3.2 | Atajos de teclado del SO |
 | `tauri-plugin-window-state` | 2 | Recuerda tamaño/posición de ventana |
 | `tauri-plugin-dialog` | 2.7.1 | Diálogos de abrir/guardar archivo |
@@ -626,3 +667,23 @@ Reglas:
 No se crearán versiones completas separadas de la aplicación para cada sistema. La
 separación válida es: núcleo común, adaptadores nativos mínimos y empaquetado propio
 de cada destino.
+
+## Respaldo y restauración transaccional
+
+`engine/backup/` es dueño del formato `.lfbackup`. El paquete es una instantánea
+SQLite de `tracks.db` creada con SQLite Online Backup y contiene
+`lf_backup_manifest`, donde se guarda la configuración completa y el resumen
+verificable. No se copian directamente `tracks.db-wal` ni `tracks.db-shm`.
+
+La creación funciona con la aplicación abierta: vuelca `last_played`, toma
+`AppConfig` desde RAM, construye un temporal, ejecuta `integrity_check`, sincroniza y
+renombra. Solo Rust decide si el respaldo es válido.
+
+La restauración nunca reemplaza una conexión abierta. `backup_prepare_restore`
+prepara una copia local, un respaldo de emergencia y un marcador atómico. Tras el
+reinicio, `lib::run()` llama `recover_pending_restore()` antes de `AppState::new()`.
+El marcador permite repetir una instalación interrumpida; si el paquete preparado
+falla, se reinstala el respaldo de emergencia.
+
+Diseño completo y pruebas:
+[`PLAN_RESPALDO_RESTAURACION.md`](PLAN_RESPALDO_RESTAURACION.md).

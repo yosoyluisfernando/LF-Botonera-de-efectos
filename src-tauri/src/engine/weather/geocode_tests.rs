@@ -17,10 +17,18 @@ fn city(label: &str, lat: f64, lon: f64) -> CityResult {
 /// Las cinco Barcelonas, tal cual las ordena Open-Meteo.
 fn barcelonas() -> Vec<CityResult> {
     vec![
-        city("Barcelona, Comunidad Autónoma de Cataluña, ES", 41.38879, 2.15899),
+        city(
+            "Barcelona, Comunidad Autónoma de Cataluña, ES",
+            41.38879,
+            2.15899,
+        ),
         city("Barcelona, Estado Anzoátegui, VE", 10.1384, -64.68769),
         city("Barcelona, Bicolandia, PH", 12.8683, 124.1419),
-        city("Barcelona, Estado de Río Grande del Norte, BR", -5.95056, -35.92639),
+        city(
+            "Barcelona, Estado de Río Grande del Norte, BR",
+            -5.95056,
+            -35.92639,
+        ),
     ]
 }
 
@@ -30,7 +38,11 @@ fn la_ciudad_elegida_gana_a_la_mas_poblada() {
     let candidatas = barcelonas();
     let elegida = pick(&candidatas, "Barcelona, Estado Anzoátegui, VE").unwrap();
     assert_eq!(elegida.label, "Barcelona, Estado Anzoátegui, VE");
-    assert!((elegida.lat - 10.1384).abs() < 0.001, "lat: {}", elegida.lat);
+    assert!(
+        (elegida.lat - 10.1384).abs() < 0.001,
+        "lat: {}",
+        elegida.lat
+    );
 }
 
 /// Y la de España sigue saliendo cuando es la que se pidió: el arreglo no puede
@@ -39,7 +51,10 @@ fn la_ciudad_elegida_gana_a_la_mas_poblada() {
 fn la_mas_poblada_gana_cuando_es_la_pedida() {
     let candidatas = barcelonas();
     let elegida = pick(&candidatas, "Barcelona, Comunidad Autónoma de Cataluña, ES").unwrap();
-    assert_eq!(elegida.label, "Barcelona, Comunidad Autónoma de Cataluña, ES");
+    assert_eq!(
+        elegida.label,
+        "Barcelona, Comunidad Autónoma de Cataluña, ES"
+    );
 }
 
 /// Escrito a mano, sin la región exacta: con el país basta para desempatar.
@@ -65,7 +80,10 @@ fn una_region_que_ya_no_cuadra_cae_al_pais() {
 fn sin_pais_es_ambigua_y_se_coge_la_primera() {
     let candidatas = barcelonas();
     let elegida = pick(&candidatas, "Barcelona").unwrap();
-    assert_eq!(elegida.label, "Barcelona, Comunidad Autónoma de Cataluña, ES");
+    assert_eq!(
+        elegida.label,
+        "Barcelona, Comunidad Autónoma de Cataluña, ES"
+    );
 }
 
 /// El país pedido no está entre las candidatas (una etiqueta inventada, un país
@@ -74,7 +92,10 @@ fn sin_pais_es_ambigua_y_se_coge_la_primera() {
 fn un_pais_que_no_esta_cae_a_la_primera() {
     let candidatas = barcelonas();
     let elegida = pick(&candidatas, "Barcelona, XX").unwrap();
-    assert_eq!(elegida.label, "Barcelona, Comunidad Autónoma de Cataluña, ES");
+    assert_eq!(
+        elegida.label,
+        "Barcelona, Comunidad Autónoma de Cataluña, ES"
+    );
 }
 
 /// Sin candidatas no hay ciudad. El llamante lo traduce a `city_not_found`.
@@ -89,7 +110,11 @@ fn sin_candidatas_no_hay_ciudad() {
 #[test]
 fn el_callao_de_bolivar_gana_al_de_peru() {
     let callaos = vec![
-        city("El Callao, Provincia Constitucional del Callao, PE", -12.05162, -77.13452),
+        city(
+            "El Callao, Provincia Constitucional del Callao, PE",
+            -12.05162,
+            -77.13452,
+        ),
         city("El Callao, Estado Bolívar, VE", 7.34706, -61.82684),
         city("El Callao, Estado Lara, VE", 10.29121, -69.23874),
     ];

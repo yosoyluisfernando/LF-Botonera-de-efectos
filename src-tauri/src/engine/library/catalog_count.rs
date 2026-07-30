@@ -27,7 +27,9 @@ pub(super) fn count(
     connection
         .query_row(
             "SELECT COUNT(*) FROM library_track lt
-             WHERE lt.present=1 AND (?1='' OR lt.collection=?1)
+             JOIN library_root lr ON lr.id=lt.root_id
+             WHERE lt.present=1 AND lr.enabled=1
+             AND (?1='' OR lt.collection=?1)
              AND (?2<0 OR lt.root_id=?2)
              AND (?3='' OR replace(lt.relative_path,'\\','/') LIKE ?3 ESCAPE '\\')",
             params![

@@ -62,12 +62,17 @@ fn el_reproductor_en_la_tarjeta_del_programa_suma_en_el() {
     consola.set_bus_routing_sync(BusId::Programa, Routing::Device(tarjeta.clone()));
     // Por su NOMBRE, no con "la misma que los efectos".
     consola.set_bus_routing_sync(BusId::Reproductor, Routing::Device(tarjeta.clone()));
-    let bus = consola.bus(BusId::Reproductor).expect("el bus deberia existir");
+    let bus = consola
+        .bus(BusId::Reproductor)
+        .expect("el bus deberia existir");
     bus.add(tono(0.8));
     respirar();
 
     let (l, _r) = consola.levels(BusId::Programa);
-    println!("[{tarjeta}] reproductor por nombre → programa: {}", nivel(&l));
+    println!(
+        "[{tarjeta}] reproductor por nombre → programa: {}",
+        nivel(&l)
+    );
     assert!(
         nivel(&l) > 0.5,
         "pedir la tarjeta del programa es pedir el programa: {}",
@@ -87,13 +92,19 @@ fn el_reproductor_en_otra_tarjeta_sale_del_programa() {
     let consola = ConsoleEngine::new();
     consola.set_bus_routing_sync(BusId::Programa, Routing::Device(una.clone()));
     consola.set_bus_routing_sync(BusId::Reproductor, Routing::Device(otra.clone()));
-    let bus = consola.bus(BusId::Reproductor).expect("el bus deberia existir");
+    let bus = consola
+        .bus(BusId::Reproductor)
+        .expect("el bus deberia existir");
     bus.add(tono(0.8));
     respirar();
 
     let (prog, _) = consola.levels(BusId::Programa);
     let (repro, _) = consola.levels(BusId::Reproductor);
-    println!("[{una} | {otra}] programa: {} · reproductor: {}", nivel(&prog), nivel(&repro));
+    println!(
+        "[{una} | {otra}] programa: {} · reproductor: {}",
+        nivel(&prog),
+        nivel(&repro)
+    );
     assert!(
         nivel(&repro) > 0.5,
         "el reproductor deberia medir en su propio bus: {}",

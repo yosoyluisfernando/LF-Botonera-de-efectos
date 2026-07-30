@@ -148,6 +148,14 @@ impl WaveformCache {
             }
         }
     }
+
+    /// Invalida la forma de onda de una ruta que cambió en el disco.
+    pub fn remove(&mut self, key: &str) {
+        self.map.remove(key);
+        if let Some(index) = self.order.iter().position(|item| item == key) {
+            self.order.remove(index);
+        }
+    }
 }
 
 #[cfg(test)]

@@ -103,7 +103,11 @@ pub fn player_resume(state: tauri::State<AppState>) {
 /// Marca (o desmarca con `None`) la pista siguiente. Es ley: siempre se respeta.
 #[tauri::command]
 pub fn player_mark_next(index: Option<u32>, state: tauri::State<AppState>) {
-    state.player.lock().unwrap().mark_next(index.map(|i| i as usize));
+    state
+        .player
+        .lock()
+        .unwrap()
+        .mark_next(index.map(|i| i as usize));
 }
 
 /// Detener al finalizar: al terminar la pista actual, la siguiente NO arranca

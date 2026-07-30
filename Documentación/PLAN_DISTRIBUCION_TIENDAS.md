@@ -1,18 +1,18 @@
 # Plan de distribución en tiendas y repositorios
 
 Documento rector para publicar **LF Botonera de Efectos** fuera de GitHub Releases.
-Microsoft Store quedó completada con la versión 1.2.1. La prioridad activa es la
-prueba física en Linux y, después, Flathub.
+Microsoft Store y GitHub Releases quedaron actualizados a la versión 1.3.0. Dentro de
+este plan solo permanece la prueba física en Linux y, después, una posible publicación
+en Flathub; no son la prioridad inmediata del desarrollo.
 
-La próxima actualización funcional se prepara como 1.3.0, sin crear todavía una
-Submission. Partner Center confirmó el 2026-07-27 que la Submission 2 permanece
-publicada en 240 mercados. El paquete 1.3.0.0 se generará y probará antes de iniciar
-la nueva entrega; GitHub conservará exactamente la misma versión funcional.
+La Submission 3 publicó el paquete 1.3.0.0 y GitHub publicó el release `v1.3.0` el
+2026-07-28. Las secciones anteriores redactadas como pasos futuros se conservan como
+evidencia histórica y no deben reabrirse como pendientes.
 
 **Estado del documento:** guía inicial basada en la auditoría de la versión 1.2.0.
 **Rama de trabajo:** `codex/distribucion-tiendas`.
 **Fecha de inicio:** 2026-07-20.
-**Última actualización:** 2026-07-23.
+**Última actualización:** 2026-07-30.
 
 Las reglas vigentes de aislamiento entre Windows y Linux están en
 [`ARCHITECTURE.md`](ARCHITECTURE.md#política-para-cambios-específicos-de-windows-o-linux).
@@ -91,9 +91,9 @@ registrar los suyos.
 
 ## 3. Microsoft Store: ruta principal
 
-> **Estado histórico:** completada. La versión 1.2.1 y la actualización de su ficha
-> fueron aprobadas. Esta sección conserva las razones y el procedimiento que llevaron
-> a la publicación; no define trabajo activo.
+> **Estado histórico:** completada. La versión 1.2.1 inició la publicación y la
+> actualización funcional 1.3.0 también fue aprobada. Esta sección conserva las
+> razones y el procedimiento; no define trabajo activo.
 
 ### 3.1 Cuenta y titular de la publicación
 

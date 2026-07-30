@@ -1,3 +1,4 @@
+use crate::engine::persist::atomic_file;
 use crate::engine::persist::config_migrate::{
     clear_locution_markers, normalize_button_ids, normalize_playback_modes,
     recover_missing_durations,
@@ -61,6 +62,9 @@ struct LegacyButton {
 
 pub fn load_config() -> AppConfig {
     let path = get_data_dir().join("botonera_config.json");
+    if let Err(error) = atomic_file::recover(&path) {
+        eprintln!("config recovery unavailable: {error}");
+    }
     let raw = match fs::read_to_string(&path) {
         Ok(s) => s,
         Err(_) => return AppConfig::default(),
@@ -149,7 +153,10 @@ fn load_legacy_grid() -> Option<LegacyGrid> {
 
 pub fn save_config(config: &AppConfig) -> Result<(), String> {
     let dir = get_data_dir();
-    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    save_config_at(&dir.join("botonera_config.json"), config)
+}
+
+pub(crate) fn save_config_at(path: &std::path::Path, config: &AppConfig) -> Result<(), String> {
     let data = serde_json::to_string_pretty(config).map_err(|e| e.to_string())?;
-    fs::write(dir.join("botonera_config.json"), data).map_err(|e| e.to_string())
+    atomic_file::write(path, data.as_bytes())
 }

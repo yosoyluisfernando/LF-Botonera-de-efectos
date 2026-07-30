@@ -44,3 +44,33 @@ CREATE INDEX IF NOT EXISTS library_track_browse_all
   ON library_track(present,file_name COLLATE NOCASE,path_key);
 CREATE INDEX IF NOT EXISTS library_track_browse_collection
   ON library_track(collection,present,file_name COLLATE NOCASE,path_key);";
+
+pub(super) const SCHEMA_V5: &str = "
+ALTER TABLE library_root ADD COLUMN retired_at INTEGER;
+ALTER TABLE library_root ADD COLUMN purge_after INTEGER;
+CREATE INDEX IF NOT EXISTS library_root_retired
+  ON library_root(enabled,purge_after);
+CREATE TABLE IF NOT EXISTS library_setting (
+  id INTEGER PRIMARY KEY CHECK(id=1),
+  retention_days INTEGER NOT NULL DEFAULT 30
+    CHECK(retention_days BETWEEN 30 AND 365)
+);
+INSERT OR IGNORE INTO library_setting(id,retention_days) VALUES(1,30);";
+
+pub(super) const SCHEMA_V6: &str = "
+CREATE TABLE IF NOT EXISTS track_user_metadata (
+  path_key TEXT PRIMARY KEY REFERENCES track(path)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  title TEXT, artist TEXT, album TEXT, album_artist TEXT, genre TEXT,
+  year TEXT, track_number TEXT,
+  composer TEXT, comment TEXT, display_name TEXT, category TEXT, description TEXT,
+  updated_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS track_keyword (
+  path_key TEXT NOT NULL REFERENCES track(path)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  keyword TEXT NOT NULL, keyword_key TEXT NOT NULL, position INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY(path_key,keyword_key)
+);
+CREATE INDEX IF NOT EXISTS track_keyword_suggestion
+  ON track_keyword(keyword_key,keyword);";

@@ -57,9 +57,7 @@ fn rodio_source_at(path: &str, loop_mode: bool, start_s: f64) -> Option<BoxSourc
     let file = File::open(path).ok()?;
     let mut decoder = Decoder::new(BufReader::new(file)).ok()?;
     if start_s > 0.0 {
-        decoder
-            .try_seek(Duration::from_secs_f64(start_s))
-            .ok()?;
+        decoder.try_seek(Duration::from_secs_f64(start_s)).ok()?;
     }
     if loop_mode {
         Some(Box::new(decoder.repeat_infinite().convert_samples::<f32>()))

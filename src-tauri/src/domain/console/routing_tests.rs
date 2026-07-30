@@ -43,7 +43,10 @@ fn otra_tarjeta_sigue_siendo_salida_directa() {
 #[test]
 fn si_el_programa_se_muda_el_bus_se_queda_de_salida_directa() {
     let pedido = Routing::Device("Altavoces".into());
-    assert_eq!(effective(BusId::Reproductor, &pedido, "Altavoces"), Routing::Program);
+    assert_eq!(
+        effective(BusId::Reproductor, &pedido, "Altavoces"),
+        Routing::Program
+    );
     assert_eq!(
         effective(BusId::Reproductor, &pedido, "AUDIO PCI"),
         Routing::Device("Altavoces".into())

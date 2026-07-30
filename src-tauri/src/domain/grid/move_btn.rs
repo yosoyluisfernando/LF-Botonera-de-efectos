@@ -1,9 +1,9 @@
+use crate::core::AppState;
 /// Modulo: grid_move.rs
 /// Proposito: mover botones entre pestanas sin duplicar datos en la UI.
 use crate::domain::grid::reorder as grid_reorder;
 use crate::engine::persist::config_io as config;
 use crate::model::{AppConfig, ButtonData, PaletaData};
-use crate::core::AppState;
 
 #[tauri::command]
 pub fn move_button_to_paleta(

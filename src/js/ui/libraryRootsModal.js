@@ -5,6 +5,10 @@ import {
     clearLibraryIndexProgress, initLibraryIndexProgress, setLibraryIndexError,
     setLibraryIndexFinished, setLibraryIndexStarting,
 } from './libraryIndexProgress.js';
+import {
+    configuredRemoveButton, initLibraryRootRetention, loadLibraryRootRetention,
+    setLibraryRetentionDisabled,
+} from './libraryRootRetention.js';
 
 let configured = [];
 let drafts = [];
@@ -17,19 +21,18 @@ export function initLibraryRootsModal(options = {}) {
     if (wired) return;
     wired = true;
     initLibraryIndexProgress();
+    initLibraryRootRetention({ onChanged: refreshAfterRootChange });
     document.getElementById('library-roots-open').addEventListener('click', openModal);
     document.getElementById('library-add-music')
         .addEventListener('click', () => pickFolder('music'));
     document.getElementById('library-add-effects')
         .addEventListener('click', () => pickFolder('effects'));
     document.getElementById('library-roots-start').addEventListener('click', startIndexing);
-    document.getElementById('library-roots-cancel').addEventListener('click', closeModal);
     document.getElementById('library-roots-hide').addEventListener('click', hideModal);
 }
 
 async function openModal() {
-    if (!running) {
-        drafts = [];
+    if (!running && !drafts.length) {
         notice('');
         clearLibraryIndexProgress();
     }
@@ -39,7 +42,10 @@ async function openModal() {
     (running
         ? document.getElementById('library-roots-hide')
         : document.getElementById('library-add-music')).focus();
-    configured = await invoke('library_list_roots');
+    [configured] = await Promise.all([
+        invoke('library_list_roots'),
+        loadLibraryRootRetention(),
+    ]);
     render();
 }
 
@@ -133,6 +139,10 @@ function rootRow(root) {
             render();
         });
         row.appendChild(remove);
+    } else {
+        const remove = configuredRemoveButton(root);
+        remove.disabled = running;
+        row.appendChild(remove);
     }
     return row;
 }
@@ -140,21 +150,19 @@ function rootRow(root) {
 function setControlsDisabled(disabled) {
     ['library-add-music', 'library-add-effects']
         .forEach(id => { document.getElementById(id).disabled = disabled; });
-    document.querySelector('#library-roots-modal .close-btn').disabled = disabled;
-    document.getElementById('library-roots-cancel').classList.toggle('hidden', disabled);
-    document.getElementById('library-roots-hide').classList.toggle('hidden', !disabled);
     document.getElementById('library-roots-start').disabled = disabled || !drafts.length;
+    setLibraryRetentionDisabled(disabled);
 }
 
-function closeModal() {
-    if (running) return;
-    drafts = [];
-    document.getElementById('library-roots-modal').classList.add('hidden');
+async function refreshAfterRootChange() {
+    configured = await invoke('library_list_roots');
+    render();
+    await onComplete?.();
 }
 
 function hideModal() {
-    if (!running) return;
     document.getElementById('library-roots-modal').classList.add('hidden');
+    document.getElementById('library-roots-open').focus();
 }
 
 function isAlreadyListed(path) {

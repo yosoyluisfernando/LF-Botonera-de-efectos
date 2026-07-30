@@ -1,30 +1,7 @@
+use super::search_result::{fields as candidate_fields, into_result};
+pub use super::search_result::{Candidate, SearchResult};
 use super::{search_expression, search_score, search_text, tag_roles};
-use rusqlite::{params, Connection, Row};
-use serde::Serialize;
-use std::path::PathBuf;
-
-#[derive(Debug, Clone, Serialize)]
-pub struct SearchResult {
-    pub path: String,
-    pub path_key: String,
-    pub collection: String,
-    pub file_name: String,
-    pub title: Option<String>,
-    pub artist: Option<String>,
-    pub album: Option<String>,
-    pub genre: Option<String>,
-    pub year: Option<u32>,
-    pub track_number: Option<u32>,
-    pub duration_s: f64,
-    pub metadata_state: String,
-}
-
-pub(super) struct Candidate {
-    pub root_path: String,
-    pub relative_path: String,
-    pub result: SearchResult,
-    pub search_text: String,
-}
+use rusqlite::{params, Connection};
 
 pub fn search(
     conn: &Connection,
@@ -40,7 +17,7 @@ pub fn search(
     let safe_limit = limit.clamp(1, 500);
     let mut candidates = if query.is_empty() {
         browse_candidates(conn, collection, safe_limit)?
-    } else if query.chars().count() <= 4 {
+    } else if query.chars().count() <= 2 {
         prefix_candidates(conn, &query, collection, 5_000)?
     } else {
         fts_candidates(conn, &query, collection, 5_000)?
@@ -87,11 +64,13 @@ fn fts_candidates(
     query_candidates(
         conn,
         "WHERE library_track_search MATCH ?1
-         AND lt.present=1 AND (?2='' OR lt.collection=?2)
+         AND lt.present=1 AND lr.enabled=1 AND (?2='' OR lt.collection=?2)
+         AND ?4=''
          ORDER BY bm25(library_track_search) LIMIT ?3",
         &expression,
         collection,
         limit,
+        "",
     )
 }
 
@@ -106,13 +85,18 @@ fn prefix_candidates(
         .next()
         .map(|value| format!("{value}%"))
         .unwrap_or_default();
+    let tag_prefix = format!("{query}%");
     query_candidates(
         conn,
-        "WHERE s.search_text LIKE ?1 AND lt.present=1
+        "WHERE (s.search_text LIKE ?1 OR EXISTS(
+           SELECT 1 FROM track_keyword tk
+           WHERE tk.path_key=lt.path_key AND tk.keyword_key LIKE ?4))
+         AND lt.present=1 AND lr.enabled=1
          AND (?2='' OR lt.collection=?2) LIMIT ?3",
         &first,
         collection,
         limit,
+        &tag_prefix,
     )
 }
 
@@ -123,11 +107,13 @@ fn browse_candidates(
 ) -> Result<Vec<Candidate>, String> {
     query_candidates(
         conn,
-        "WHERE lt.present=1 AND (?2='' OR lt.collection=?2)
+        "WHERE lt.present=1 AND lr.enabled=1 AND (?2='' OR lt.collection=?2)
+         AND ?4=''
          ORDER BY lt.file_name COLLATE NOCASE LIMIT ?3",
         "",
         collection,
         limit,
+        "",
     )
 }
 
@@ -137,51 +123,25 @@ fn query_candidates(
     value: &str,
     collection: &str,
     limit: usize,
+    tag_prefix: &str,
 ) -> Result<Vec<Candidate>, String> {
     let sql = format!(
-        "SELECT lr.path,lt.relative_path,lt.collection,lt.file_name,lt.title,lt.artist,
-         lt.album,lt.genre,lt.year,lt.track_number,t.duration_s,lt.metadata_state,
-         s.search_text,s.path_key FROM library_track_search s
+        "SELECT {} FROM library_track_search s
          JOIN library_track lt ON lt.path_key=s.path_key
          JOIN library_root lr ON lr.id=lt.root_id
-         JOIN track t ON t.path=lt.path_key {clause}"
+         JOIN track t ON t.path=lt.path_key
+         LEFT JOIN track_user_metadata um ON um.path_key=lt.path_key {clause}",
+        candidate_fields("s.search_text")
     );
     let mut statement = conn.prepare(&sql).map_err(|error| error.to_string())?;
     let rows = statement
-        .query_map(params![value, collection, limit as i64], map_candidate)
+        .query_map(
+            params![value, collection, limit as i64, tag_prefix],
+            super::search_result::map,
+        )
         .map_err(|error| error.to_string())?;
     rows.collect::<Result<Vec<_>, _>>()
         .map_err(|error| error.to_string())
-}
-
-pub(super) fn map_candidate(row: &Row) -> rusqlite::Result<Candidate> {
-    Ok(Candidate {
-        root_path: row.get(0)?,
-        relative_path: row.get(1)?,
-        result: SearchResult {
-            path: String::new(),
-            path_key: row.get(13)?,
-            collection: row.get(2)?,
-            file_name: row.get(3)?,
-            title: row.get(4)?,
-            artist: row.get(5)?,
-            album: row.get(6)?,
-            genre: row.get(7)?,
-            year: row.get(8)?,
-            track_number: row.get(9)?,
-            duration_s: row.get(10)?,
-            metadata_state: row.get(11)?,
-        },
-        search_text: row.get(12)?,
-    })
-}
-
-pub(super) fn into_result(mut candidate: Candidate) -> SearchResult {
-    candidate.result.path = PathBuf::from(candidate.root_path)
-        .join(candidate.relative_path)
-        .to_string_lossy()
-        .to_string();
-    candidate.result
 }
 
 #[cfg(test)]

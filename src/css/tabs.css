@@ -96,7 +96,10 @@
   margin-left: 5px;
 }
 .btn-settings:hover { background: var(--action-accent-hover); filter: none; }
-.btn-library svg { width:18px; height:18px; fill:currentColor; vertical-align:middle; }
+.btn-library svg {
+  width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2;
+  stroke-linecap:round; stroke-linejoin:round; vertical-align:middle;
+}
 
 .tab:hover {
   filter: var(--tab-hover-filter);

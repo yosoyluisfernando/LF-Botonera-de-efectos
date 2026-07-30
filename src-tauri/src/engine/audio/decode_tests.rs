@@ -32,7 +32,10 @@ fn manual_seek_probe_from_env() {
     let opened_ms = start.elapsed().as_millis();
     let _ = source.next();
     let first_ms = start.elapsed().as_millis();
-    println!("seek probe: open={}ms first_sample={}ms", opened_ms, first_ms);
+    println!(
+        "seek probe: open={}ms first_sample={}ms",
+        opened_ms, first_ms
+    );
     assert!(first_ms < 1500);
 }
 

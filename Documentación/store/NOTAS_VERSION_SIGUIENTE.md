@@ -1,12 +1,12 @@
-# Notas de la próxima versión en Microsoft Store
+# Notas publicadas de la versión 1.3.0 en Microsoft Store
 
 ## Estado
 
-- Versión propuesta: **1.3.0**.
+- Versión publicada: **1.3.0**.
 - Versión MSIX correspondiente: **1.3.0.0**.
-- No sustituir todavía los textos publicados de 1.2.1.
-- Usar estos textos al crear la próxima Submission y revisarlos otra vez antes de
-  enviarla a certificación.
+- Documento histórico: conserva los cuatro textos localizados utilizados en la
+  Submission 3. No es una tarea pendiente ni debe reutilizarse sin revisión para una
+  versión futura.
 
 ## Español
 

@@ -23,14 +23,16 @@ pub fn read(
     let mut status = connection
         .query_row(
             "SELECT
-             (SELECT COUNT(*) FROM library_root),
-             SUM(CASE WHEN present=1 THEN 1 ELSE 0 END),
-             SUM(CASE WHEN present=1 AND collection='music' THEN 1 ELSE 0 END),
-             SUM(CASE WHEN present=1 AND collection='effects' THEN 1 ELSE 0 END),
-             SUM(CASE WHEN present=1 AND metadata_state='pending' THEN 1 ELSE 0 END),
-             SUM(CASE WHEN present=1 AND metadata_state='failed' THEN 1 ELSE 0 END),
-             SUM(CASE WHEN present=0 THEN 1 ELSE 0 END)
-             FROM library_track",
+             (SELECT COUNT(*) FROM library_root WHERE enabled=1),
+             SUM(CASE WHEN lt.present=1 THEN 1 ELSE 0 END),
+             SUM(CASE WHEN lt.present=1 AND lt.collection='music' THEN 1 ELSE 0 END),
+             SUM(CASE WHEN lt.present=1 AND lt.collection='effects' THEN 1 ELSE 0 END),
+             SUM(CASE WHEN lt.present=1 AND lt.metadata_state='pending' THEN 1 ELSE 0 END),
+             SUM(CASE WHEN lt.present=1 AND lt.metadata_state='failed' THEN 1 ELSE 0 END),
+             SUM(CASE WHEN lt.present=0 THEN 1 ELSE 0 END)
+             FROM library_track lt
+             JOIN library_root lr ON lr.id=lt.root_id
+             WHERE lr.enabled=1",
             [],
             map_status,
         )

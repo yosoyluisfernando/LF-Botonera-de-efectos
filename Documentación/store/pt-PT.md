@@ -63,12 +63,14 @@ programador independente.
 
 Formatos: MP3, WAV, FLAC, OGG/Vorbis, OGG/Opus, AAC, M4A e AIFF.
 
-## Novidades da versão 1.2.1
+## Novidades da versão 1.3.0
 
-Esta versão não adiciona funcionalidades nem melhorias de desempenho. Adapta LF
-Botonera de Efectos à Microsoft Store: instalação e atualizações através da loja,
-melhor integração de DPI no Windows e menos permissões externas desnecessárias. As
-funcionalidades de áudio correspondem à grande atualização 1.2.0.
+Adiciona uma nova Biblioteca para indexar várias pastas de Música e Efeitos sem
+duplicar ficheiros, com pesquisa aproximada, metadados e atualização automática.
+Inclui uma janela independente para navegar no catálogo e nas unidades, pesquisa no
+painel fixo, seleção múltipla, ações de reprodução e carregamento contínuo para
+bibliotecas grandes. Também melhora a seleção do leitor, acelera o editor de faixas e
+atualiza os medidores a 50 FPS com uma descida mais suave.
 
 ## Legendas das capturas
 

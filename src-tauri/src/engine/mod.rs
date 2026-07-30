@@ -1,4 +1,5 @@
 pub mod audio;
+pub mod backup;
 pub mod cache;
 pub mod console;
 pub mod dsp;

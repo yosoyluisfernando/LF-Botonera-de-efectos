@@ -85,7 +85,11 @@ mod tests {
 
     #[test]
     fn bytes_counts_two_per_sample() {
-        let pcm = CachedPcm { data: vec![1, 2, 3], channels: 1, sample_rate: 8000 };
+        let pcm = CachedPcm {
+            data: vec![1, 2, 3],
+            channels: 1,
+            sample_rate: 8000,
+        };
         assert_eq!(pcm.bytes(), 6);
     }
 }

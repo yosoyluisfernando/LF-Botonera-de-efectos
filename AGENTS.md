@@ -14,7 +14,7 @@ Lee este archivo completo antes de proponer o escribir código.
 
 **LF Botonera de Efectos** es una botonera de sonidos (*soundboard*) para radio y *streaming* en directo. Los operadores de radio asignan archivos de audio a botones en una rejilla, organizados en pestañas (paletas) dentro de perfiles, y los disparan en tiempo real durante transmisiones.
 
-- **Versión:** 1.2.1
+- **Versión del código:** 1.3.0
 - **Stack:** Tauri v2 (backend Rust) + Vanilla JS + Vite (frontend)
 - **Repositorio local:** `C:\OVERLAY\BOTONERA`
 - **GitHub:** https://github.com/yosoyluisfernando/LF-Botonera-de-efectos
@@ -336,7 +336,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (suite actual: 253 passed, 14 ignored)
+# Tests unitarios Rust (suite actual: 298 passed, 19 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -360,62 +360,40 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 
 ## 12. Estado del proyecto y pendientes
 
-**Versión 1.2.1 — funcionalidades completas:**
-- Perfiles, paletas, botones (tipos: audio, time, temperature, humidity, random_folder)
-- Motor de audio: loop, overlap, restart, stop_other, pre-escucha independiente
-- Modos de reproducción global: normal, loop, overlap, restart + solo mode
-- Atajos de teclado locales y globales del SO
-- Editor de pistas: cue, normalización dB/LUFS, onda, transporte, pop-out a ventana
-- Precarga de audio RAM (LRU, estrategias FullProfile/VisibleTabs/OnPlay, TTL)
-- Locuciones dinámicas de hora y clima (open-meteo)
-- Export/import `.bdelf`/`.bdeplf` con portabilidad de cue/dB
-- Panel lateral fijo con botones globales o por perfil
-- Reproductor auxiliar con cola y listas `.LFPlay` compatibles con LF Automatizador
-- i18n en 4 idiomas (es, en, pt-BR, pt-PT)
-- CI/CD con GitHub Actions
+**Código actual: 1.3.0, rama `codex/buscador-interno`.**
 
-**Distribución (fusionada en `main`; Linux pendiente):**
-- Microsoft Store completada con la versión 1.2.1.
-- Prueba física prioritaria en Linux y preparación posterior de Flathub.
-- Canales actuales centralizados: `direct` para GitHub Releases y `store` para
-  Microsoft Store; los canales administrados de Linux todavía no están implementados.
-- Plan y evidencia en
-[`Documentación/PLAN_DISTRIBUCION_TIENDAS.md`](Documentación/PLAN_DISTRIBUCION_TIENDAS.md).
-
-**En desarrollo (rama `codex/buscador-interno`):**
-- Buscador rápido como tercera vista del panel fijo y ventana Biblioteca completa.
-- Un solo catálogo en `tracks.db`, dividido en Música y Efectos por elección del
-  usuario.
-- Las raíces solapadas se unifican sin duplicar; una subcarpeta de otra colección se
-  conserva como excepción y manda por ser más específica.
-- El backend de raíces, catálogo incremental y búsqueda difusa ya está implementado
-  en `engine/library/`. El esquema 3 añade `library_root`, `library_track` y FTS5 al
-  mismo `tracks.db`; el esquema 4 añade índices de recorrido para carga perezosa. No
-  crear otra base ni otro buscador para la Biblioteca.
-- Cada colección admite múltiples raíces independientes. Retirar una raíz conserva
-  los datos técnicos y ajustes del archivo en `track`.
-- La observación incremental usa `notify` con debounce de 250 ms y actualización por
-  archivo. Al iniciar se reconcilia en segundo plano; los eventos de directorio o
-  errores también reconcilian porque el observador no es la única garantía.
+- La publicación y actualización 1.3.0 están cerradas. El release de GitHub
+  `v1.3.0` se publicó el 2026-07-28. No reabrirlas como continuidad activa.
+- Biblioteca y Buscador fijo comparten un único catálogo en `tracks.db`, dividido en
+  Música y Efectos. El esquema vigente es el 6: raíces, catálogo, FTS5, retiro
+  reversible, metadatos editoriales y tags propios.
+- La observación incremental usa `notify` con debounce de 250 ms y reconciliación al
+  iniciar. Los eventos de directorio o error también fuerzan reconciliación.
 - `library_browse` ofrece bloques bidireccionales internos para una lista virtual sin
-  páginas visibles. La UI conservará lo visible más 50 filas arriba y 50 abajo.
-- La tercera vista del panel, selección accesible, menú contextual, arrastre a
-  botones/pestañas y reproductor LIVE ya están implementados. LIVE y CUE comparten
-  componente visual, nunca id ni bus.
-- El encabezado abre un menú directo para elegir vista. El alfiler del Buscador
-  permite preparar múltiples carpetas por categoría; Cancelar no guarda y el alta
-  completa se confirma atómicamente al pulsar Iniciar.
-- Pendiente inmediato: prueba funcional Release y ventana Biblioteca independiente.
-- Enter y doble clic siguen sin acción hasta una decisión posterior.
-- Documento rector:
-  [`Documentación/PLAN_BUSCADOR_INTERNO.md`](Documentación/PLAN_BUSCADOR_INTERNO.md).
+  páginas visibles.
+- Centro de procesamiento, retiro con retención de 30 a 365 días, restauración y
+  purga segura ya están implementados. La purga protege pistas presentes en rejillas,
+  botones fijos o cola del reproductor.
+- El respaldo y restauración completos usan un único `.lfbackup`, validación previa,
+  respaldo de emergencia y reinicio controlado.
+- El editor de metadatos/tags, el renombrado físico opcional y la escritura opcional
+  dentro de una pista individual de Música ya están implementados.
+- `Ocultar ventana` conserva el borrador del Centro de procesamiento durante la
+  sesión y nunca detiene la indexación.
+- Enter y doble clic en Biblioteca siguen sin acción; el menú contextual es la única
+  puerta a las acciones de pista.
 
-**Pendientes conocidos:**
+**Pendiente inmediato: emojis en los botones.**
 
-**A — Prueba física en Linux**
-El código es multiplataforma (rutas via `config::get_data_dir()`, SQLite bundled, rodio/ALSA). Falta probar el build (`.deb`, `.AppImage`) en una máquina Linux real.
+El autor está cerrando el diseño en otra conversación. Antes de modificar código hay
+que incorporar esas decisiones y aprobar cualquier cambio de `ButtonData`, IPC o
+formatos compartidos. El objetivo confirmado es mejorar la identificación visual a
+distancia sin perder accesibilidad para lector de pantalla.
 
-**B — Deuda menor: `master_volume` es `f32`**
-Su representación en JSON crece sola al guardar (`0.45` → `0.4499999…`). Inocuo, pero ensucia el fichero. Afecta a `AudioConfig` y al `vol` de `ButtonData`.
+**Pendientes conocidos no bloqueantes:**
+
+- Prueba física en Linux de `.deb` y `.AppImage`.
+- Deuda menor: `master_volume` y `ButtonData.vol` son `f32`; su representación JSON
+  puede crecer (`0.45` → `0.4499999…`).
 
 **Política de colores de los botones nuevos: DESCARTADA** (2026-07-16). El autor la vio complicada de explicar y de usar. En su lugar existe la **selección múltiple** (Ctrl+clic y clic derecho → pintar: `buttonSelection.js` + `set_buttons_color`). **No volver a proponerla.** [`Documentación/PLAN_POLITICA_COLORES.md`](Documentación/PLAN_POLITICA_COLORES.md) se conserva solo como registro de lo que se decidió.

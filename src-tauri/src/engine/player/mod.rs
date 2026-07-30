@@ -110,7 +110,11 @@ impl PlayerEngine {
                 console_thread,
             )
         });
-        Self { tx, console, snapshot }
+        Self {
+            tx,
+            console,
+            snapshot,
+        }
     }
 
     fn send(&self, cmd: PlayerCommand) {

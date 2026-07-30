@@ -4,7 +4,7 @@ Borrador común para Microsoft Store, Flathub y otros catálogos. Se adapta a lo
 campos y límites vigentes de cada canal en el momento del envío; no se copiará a
 ciegas si una tienda cambia sus requisitos.
 **Producto:** LF Botonera de Efectos
-**Versión base:** 1.2.1
+**Versión base:** 1.3.0
 **Licencia:** GPL-3.0-or-later
 **Autor y publicador humano:** Luis Fernando Velásquez
 
@@ -49,6 +49,10 @@ música y una consola para controlar por separado efectos, panel, reproductor,
 preescucha y salida principal. También puede construir locuciones de hora, temperatura
 y humedad usando archivos de voz elegidos por el usuario.
 
+La Biblioteca indexa múltiples carpetas de Música y Efectos sin duplicar archivos.
+Puede recorrerse en una ventana propia o buscarse desde el panel fijo, con actualización
+automática y carga continua para catálogos grandes.
+
 LF Botonera de Efectos es software libre bajo GPL-3.0-or-later y es compatible con los
 formatos de pestañas, perfiles y listas de LF Automatizador.
 
@@ -63,6 +67,7 @@ formatos de pestañas, perfiles y listas de LF Automatizador.
 - Panel de botones fijos y reproductor auxiliar con listas `.LFPlay`.
 - Consola de audio con fader y vúmetro por fuente.
 - Locuciones configurables de hora y clima.
+- Biblioteca y buscador interno con múltiples carpetas de Música y Efectos.
 - Importación y exportación compatibles con LF Automatizador.
 - Interfaz en español, inglés y portugués.
 
@@ -94,6 +99,10 @@ player, and a console that controls effects, side-panel audio, music, preview, a
 main output separately. It can also assemble time, temperature, and humidity
 announcements from voice files selected by the user.
 
+The Library indexes multiple Music and Effects folders without duplicating files. It
+can be browsed in its own window or searched from the fixed panel, with automatic
+updates and continuous loading for large catalogs.
+
 LF Botonera de Efectos is free software licensed under GPL-3.0-or-later and supports
 the tab, profile, and playlist formats used by LF Automatizador.
 
@@ -108,6 +117,7 @@ the tab, profile, and playlist formats used by LF Automatizador.
 - Persistent side-panel buttons and an auxiliary player with `.LFPlay` playlists.
 - Audio console with a separate fader and meter for each source.
 - Configurable time and weather announcements.
+- Library and internal search across multiple Music and Effects folders.
 - Import and export compatibility with LF Automatizador.
 - Spanish, English, Brazilian Portuguese, and European Portuguese interface.
 
@@ -145,7 +155,7 @@ GitHub conserva copias públicas de privacidad y soporte como respaldo.
 - Publicidad: ninguna.
 - Compras dentro de la aplicación: ninguna.
 - Donaciones: enlace externo opcional a PayPal.
-- Telemetría: ninguna encontrada en la auditoría de la versión 1.2.1.
+- Telemetría: ninguna encontrada en la auditoría de la versión 1.3.0.
 - Contenido generado por usuarios: no se publica ni comparte desde la aplicación.
 - Archivos de audio: deben ser aportados y licenciados por el usuario.
 
@@ -173,13 +183,11 @@ una serie real; no se reutilizará una captura de Windows como evidencia de Linu
 - Categoría Música y publicación automática tras superar la certificación.
 - Ficha completa en español, inglés, portugués de Brasil y portugués de Portugal.
 - Clasificación IARC apta para todo público.
-- Publicada el 2026-07-21 con Id. de Store `9NJ8ST39QP7V`.
-- La siguiente entrega será solo de metadatos: enlaces oficiales, descripción y
-  galería. No sustituirá el paquete 1.2.1 aprobado.
+- Publicada inicialmente el 2026-07-21 con Id. de Store `9NJ8ST39QP7V`.
+- La actualización funcional 1.3.0 y su ficha localizada están publicadas.
 
 ## 8. Afirmaciones que no deben hacerse todavía
 
-- No anunciar certificación Microsoft hasta aprobarla.
 - No afirmar compatibilidad total con Linux, Flatpak o Wayland antes de la prueba
   física.
 - No afirmar accesibilidad completa con lector de pantalla sin una prueba específica.

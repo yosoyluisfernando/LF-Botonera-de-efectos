@@ -39,7 +39,10 @@ pub fn player_save_playlist(state: tauri::State<AppState>) -> Result<bool, Strin
 /// Abre una lista y REEMPLAZA la cola actual. `None` = el usuario cancelo.
 #[tauri::command]
 pub fn player_open_playlist(state: tauri::State<AppState>) -> Result<Option<PlayerView>, String> {
-    let Some(path) = rfd::FileDialog::new().add_filter(FILTER, &[EXT]).pick_file() else {
+    let Some(path) = rfd::FileDialog::new()
+        .add_filter(FILTER, &[EXT])
+        .pick_file()
+    else {
         return Ok(None);
     };
     let json = std::fs::read_to_string(path).map_err(|e| e.to_string())?;

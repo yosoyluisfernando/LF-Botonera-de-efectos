@@ -65,9 +65,7 @@ enum LocalShortcutAction {
 }
 
 fn resolve_local_action(cfg: &AppConfig, key: &str) -> Result<LocalShortcutAction, String> {
-    let profile = cfg
-        .active_profile()
-        .ok_or("Perfil activo no encontrado")?;
+    let profile = cfg.active_profile().ok_or("Perfil activo no encontrado")?;
     if profile.audio.global_keys {
         return Ok(LocalShortcutAction::None);
     }

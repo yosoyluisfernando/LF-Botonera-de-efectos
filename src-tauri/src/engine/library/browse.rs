@@ -1,4 +1,5 @@
-use super::search::{into_result, map_candidate, Candidate, SearchResult};
+use super::search::{Candidate, SearchResult};
+use super::search_result::{fields as candidate_fields, into_result, map as map_candidate};
 use super::service::LibraryService;
 use super::tag_roles;
 use rusqlite::{params, Connection};
@@ -98,18 +99,18 @@ pub fn browse_scoped(
         "1=1".to_string()
     };
     let sql = format!(
-        "SELECT lr.path,lt.relative_path,lt.collection,lt.file_name,lt.title,
-         lt.artist,lt.album,lt.genre,lt.year,lt.track_number,t.duration_s,
-         lt.metadata_state,'' AS search_text,lt.path_key
+        "SELECT {}
          FROM library_track lt
          JOIN library_root lr ON lr.id=lt.root_id
          JOIN track t ON t.path=lt.path_key
-         WHERE lt.present=1 AND (?1='' OR lt.collection=?1)
+         LEFT JOIN track_user_metadata um ON um.path_key=lt.path_key
+         WHERE lt.present=1 AND lr.enabled=1 AND (?1='' OR lt.collection=?1)
          AND (?2<0 OR lt.root_id=?2)
          AND (?3='' OR replace(lt.relative_path,'\\','/') LIKE ?3 ESCAPE '\\')
          AND {cursor_clause}
          ORDER BY lt.file_name COLLATE NOCASE {order},lt.path_key {order}
-         LIMIT ?6"
+         LIMIT ?6",
+        candidate_fields("''")
     );
     let mut statement = connection
         .prepare(&sql)

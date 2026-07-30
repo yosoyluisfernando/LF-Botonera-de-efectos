@@ -25,7 +25,13 @@ fn suena_clima<'a>(files: &'a [String], kind: &str, value: f64) -> &'a str {
 
 /// Un pack de ZaraRadio completo: hora, "en punto" y minutos.
 fn zara_hora() -> Vec<String> {
-    names(&["HRS13.mp3", "HRS14.mp3", "HRS14_O.mp3", "MIN00.mp3", "MIN25.mp3"])
+    names(&[
+        "HRS13.mp3",
+        "HRS14.mp3",
+        "HRS14_O.mp3",
+        "MIN00.mp3",
+        "MIN25.mp3",
+    ])
 }
 
 // ─── Hora ─────────────────────────────────────────────────────────────────────
@@ -146,7 +152,10 @@ fn bajo_cero_con_el_signo_de_radioboss() {
 /// Y -3 no puede llevarse el de -30, que empieza igual.
 #[test]
 fn bajo_cero_no_confunde_tres_con_treinta() {
-    assert_eq!(suena_clima(&names(&["TMP-30.mp3"]), "temperature", -3.0), "");
+    assert_eq!(
+        suena_clima(&names(&["TMP-30.mp3"]), "temperature", -3.0),
+        ""
+    );
 }
 
 /// El nombre es entero: los decimales del servicio de clima se redondean.

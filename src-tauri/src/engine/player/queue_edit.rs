@@ -16,13 +16,25 @@ impl QueueState {
     /// `advance` arranca la lista nueva desde el principio. Es el criterio del
     /// Automatizador, cuyo `clearList` vacia las filas sin tocar la reproduccion.
     pub fn set_entries(&mut self, entries: Vec<QueueEntry>) -> Vec<DeckAction> {
-        let current_id = self.current.and_then(|i| self.entries.get(i)).map(|e| e.id.clone());
-        let cursor_id = self.cursor.and_then(|i| self.entries.get(i)).map(|e| e.id.clone());
-        let marked_id = self.marked.and_then(|i| self.entries.get(i)).map(|e| e.id.clone());
+        let current_id = self
+            .current
+            .and_then(|i| self.entries.get(i))
+            .map(|e| e.id.clone());
+        let cursor_id = self
+            .cursor
+            .and_then(|i| self.entries.get(i))
+            .map(|e| e.id.clone());
+        let marked_id = self
+            .marked
+            .and_then(|i| self.entries.get(i))
+            .map(|e| e.id.clone());
         self.entries = entries;
         self.current = current_id.as_deref().and_then(|id| self.index_of(id));
         self.cursor = cursor_id.as_deref().and_then(|id| self.index_of(id));
-        self.marked = marked_id.as_deref().and_then(|id| self.index_of(id)).filter(|&i| self.playable(i));
+        self.marked = marked_id
+            .as_deref()
+            .and_then(|id| self.index_of(id))
+            .filter(|&i| self.playable(i));
         self.loaded_other = None;
         let mut actions = Vec::new();
         if self.current.is_some() {

@@ -15,7 +15,11 @@ fn is_audio(b: &ButtonData) -> bool {
 
 /// Rutas de audio de una pestaña.
 pub fn paleta_paths(p: &PaletaData) -> Vec<String> {
-    p.botones.iter().filter(|b| is_audio(b)).map(|b| b.path.clone()).collect()
+    p.botones
+        .iter()
+        .filter(|b| is_audio(b))
+        .map(|b| b.path.clone())
+        .collect()
 }
 
 /// Inserta `bdelf_tracks` en el JSON exportado (solo de las rutas con datos).

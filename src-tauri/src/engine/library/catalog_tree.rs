@@ -30,10 +30,11 @@ fn read(connection: &Connection, root_id: i64, parent: &str) -> Result<Vec<Catal
     let pattern = format!("{}%", escape_like(&prefix));
     let mut statement = connection
         .prepare(
-            "SELECT replace(relative_path,'\\','/')
-             FROM library_track
-             WHERE root_id=?1 AND present=1
-             AND replace(relative_path,'\\','/') LIKE ?2 ESCAPE '\\'",
+            "SELECT replace(lt.relative_path,'\\','/')
+             FROM library_track lt
+             JOIN library_root lr ON lr.id=lt.root_id
+             WHERE lt.root_id=?1 AND lt.present=1 AND lr.enabled=1
+             AND replace(lt.relative_path,'\\','/') LIKE ?2 ESCAPE '\\'",
         )
         .map_err(|error| error.to_string())?;
     let rows = statement

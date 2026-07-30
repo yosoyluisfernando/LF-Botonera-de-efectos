@@ -83,22 +83,38 @@ impl TrackStore {
 
     /// Persiste el cue (inicio/fin) editado por el usuario.
     pub fn set_cue(&self, path: &str, start_s: f64, end_s: Option<f64>) -> Result<(), String> {
-        self.update(path, "cue_start_s=?2, cue_end_s=?3", params![db::normalize_key(path), start_s, end_s])
+        self.update(
+            path,
+            "cue_start_s=?2, cue_end_s=?3",
+            params![db::normalize_key(path), start_s, end_s],
+        )
     }
 
     /// Persiste el trim manual en dB.
     pub fn set_gain(&self, path: &str, gain_db: f64) -> Result<(), String> {
-        self.update(path, "gain_db=?2", params![db::normalize_key(path), gain_db])
+        self.update(
+            path,
+            "gain_db=?2",
+            params![db::normalize_key(path), gain_db],
+        )
     }
 
     /// Activa/desactiva la normalización automática para este archivo.
     pub fn set_normalization(&self, path: &str, enabled: bool) -> Result<(), String> {
-        self.update(path, "norm_enabled=?2", params![db::normalize_key(path), enabled as i64])
+        self.update(
+            path,
+            "norm_enabled=?2",
+            params![db::normalize_key(path), enabled as i64],
+        )
     }
 
     /// Marca la última reproducción (epoch). Historial para la precarga.
     pub fn touch_last_played(&self, path: &str, epoch: i64) -> Result<(), String> {
-        self.update(path, "last_played=?2", params![db::normalize_key(path), epoch])
+        self.update(
+            path,
+            "last_played=?2",
+            params![db::normalize_key(path), epoch],
+        )
     }
 
     /// Rutas recientes (>= since) y cortas (< max_dur), para el recalentado OnPlay.
@@ -192,7 +208,10 @@ mod tests {
             .upsert(&TrackMeta::new(path.into(), 1, 1, 2.0, 48000, 2))
             .unwrap();
         store.touch_last_played(path, 1700000000).unwrap();
-        assert_eq!(store.get(path).unwrap().unwrap().last_played, Some(1700000000));
+        assert_eq!(
+            store.get(path).unwrap().unwrap().last_played,
+            Some(1700000000)
+        );
         // Reciente (since menor) y corto → aparece; ventana futura → no.
         assert_eq!(store.recent_paths(1699999999, 30.0).unwrap().len(), 1);
         assert!(store.recent_paths(1700000001, 30.0).unwrap().is_empty());

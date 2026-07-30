@@ -61,7 +61,11 @@ pub fn run(
             rebuild_decks(&mut motor, &cache, &console);
         }
         let active = motor.queue.active_deck();
-        if motor.decks.get_mut(active).is_some_and(|d| d.poll_finished()) {
+        if motor
+            .decks
+            .get_mut(active)
+            .is_some_and(|d| d.poll_finished())
+        {
             let actions = motor.queue.advance(false);
             let bus = console.bus(BusId::Reproductor);
             exec_all(actions, &mut motor.decks, bus.as_ref(), &cache, &resolver);

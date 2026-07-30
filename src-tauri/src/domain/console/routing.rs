@@ -39,8 +39,7 @@ pub enum Routing {
 
 impl BusId {
     /// Los buses que entran en la suma del programa, en orden estable.
-    pub const PROGRAM_INPUTS: [BusId; 3] =
-        [BusId::Efectos, BusId::Panel, BusId::Reproductor];
+    pub const PROGRAM_INPUTS: [BusId; 3] = [BusId::Efectos, BusId::Panel, BusId::Reproductor];
 
     /// Todos los buses que la consola construye. El programa va primero: los que
     /// suman en el se cuelgan de su controller, asi que tiene que existir antes.
@@ -135,7 +134,6 @@ pub fn devices_in_use(live: &[(BusId, Routing)], program_device: &str) -> Vec<St
         .filter(|name| !name.is_empty())
         .collect()
 }
-
 
 #[cfg(test)]
 #[path = "routing_tests.rs"]

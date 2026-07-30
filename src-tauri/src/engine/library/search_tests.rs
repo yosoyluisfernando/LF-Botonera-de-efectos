@@ -4,6 +4,7 @@ use crate::engine::library::indexer;
 use crate::engine::library::test_support::{add_root, tree, write_wav};
 use crate::engine::persist::db;
 use std::fs;
+use std::path::PathBuf;
 
 fn catalog() -> (Connection, PathBuf) {
     let root = tree("search");
