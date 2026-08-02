@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "sourceCommit": "528cb964c01fb2b09bc3b9208f82b6d8f8c1c1e2",
+  "symbols": [
+    {"id":"alarm","group":"time","es":["Alarma","reloj aviso despertar"],"en":["Alarm","clock alert wake"],"pt-BR":["Alarme","relógio aviso despertar"],"pt-PT":["Alarme","relógio aviso despertar"]},
+    {"id":"call","group":"radio","es":["Llamada","teléfono comunicación"],"en":["Call","phone communication"],"pt-BR":["Chamada","telefone comunicação"],"pt-PT":["Chamada","telefone comunicação"]},
+    {"id":"campaign","group":"radio","es":["Anuncio","publicidad campaña promoción"],"en":["Announcement","advertising campaign promotion"],"pt-BR":["Anúncio","publicidade campanha promoção"],"pt-PT":["Anúncio","publicidade campanha promoção"]},
+    {"id":"celebration","group":"reactions","es":["Celebración","fiesta aplausos público"],"en":["Celebration","party applause audience"],"pt-BR":["Celebração","festa aplausos público"],"pt-PT":["Celebração","festa aplausos público"]},
+    {"id":"directions_car","group":"transport","es":["Automóvil","coche carro vehículo tránsito"],"en":["Car","automobile vehicle traffic"],"pt-BR":["Carro","automóvel veículo trânsito"],"pt-PT":["Automóvel","carro veículo trânsito"]},
+    {"id":"door_open","group":"effects","es":["Puerta abierta","entrada salida abrir"],"en":["Open door","entrance exit open"],"pt-BR":["Porta aberta","entrada saída abrir"],"pt-PT":["Porta aberta","entrada saída abrir"]},
+    {"id":"emergency","group":"emergency","es":["Emergencia","alarma auxilio peligro"],"en":["Emergency","alarm help danger"],"pt-BR":["Emergência","alarme ajuda perigo"],"pt-PT":["Emergência","alarme ajuda perigo"]},
+    {"id":"explosion","group":"effects","es":["Explosión","bomba impacto golpe"],"en":["Explosion","bomb impact hit"],"pt-BR":["Explosão","bomba impacto golpe"],"pt-PT":["Explosão","bomba impacto golpe"]},
+    {"id":"headphones","group":"radio","es":["Auriculares","audífonos escucha monitoreo"],"en":["Headphones","earphones listen monitor"],"pt-BR":["Fones de ouvido","auscultadores escuta monitor"],"pt-PT":["Auscultadores","fones escuta monitor"]},
+    {"id":"local_fire_department","group":"emergency","es":["Fuego","incendio llama bomberos"],"en":["Fire","flame firefighters"],"pt-BR":["Fogo","incêndio chama bombeiros"],"pt-PT":["Fogo","incêndio chama bombeiros"]},
+    {"id":"mic","group":"radio","es":["Micrófono","micro voz locutor"],"en":["Microphone","mic voice announcer"],"pt-BR":["Microfone","voz locutor"],"pt-PT":["Microfone","voz locutor"]},
+    {"id":"music_note","group":"radio","es":["Música","canción tema cortina"],"en":["Music","song track bed"],"pt-BR":["Música","canção faixa cortina"],"pt-PT":["Música","canção faixa cortina"]},
+    {"id":"notifications","group":"effects","es":["Campana","aviso notificación timbre"],"en":["Bell","alert notification chime"],"pt-BR":["Sino","aviso notificação campainha"],"pt-PT":["Sino","aviso notificação campainha"]},
+    {"id":"pause","group":"playback","es":["Pausa","pausar detener temporal"],"en":["Pause","hold temporary stop"],"pt-BR":["Pausa","pausar parar temporário"],"pt-PT":["Pausa","pausar parar temporário"]},
+    {"id":"pets","group":"effects","es":["Animal","mascota perro gato"],"en":["Animal","pet dog cat"],"pt-BR":["Animal","mascote cão gato"],"pt-PT":["Animal","animal de estimação cão gato"]},
+    {"id":"play_arrow","group":"playback","es":["Reproducir","iniciar sonar play"],"en":["Play","start sound"],"pt-BR":["Reproduzir","iniciar tocar play"],"pt-PT":["Reproduzir","iniciar tocar play"]},
+    {"id":"podcasts","group":"radio","es":["Pódcast","programa emisión antena"],"en":["Podcast","show broadcast antenna"],"pt-BR":["Podcast","programa transmissão antena"],"pt-PT":["Podcast","programa emissão antena"]},
+    {"id":"radio","group":"radio","es":["Radio","emisora transmisión aire"],"en":["Radio","station broadcast on air"],"pt-BR":["Rádio","estação transmissão no ar"],"pt-PT":["Rádio","estação emissão no ar"]},
+    {"id":"record_voice_over","group":"radio","es":["Locución","voz locutor hablar"],"en":["Voice-over","voice announcer speak"],"pt-BR":["Locução","voz locutor falar"],"pt-PT":["Locução","voz locutor falar"]},
+    {"id":"sports_soccer","group":"sports","es":["Fútbol","balón gol deporte"],"en":["Football","soccer ball goal sport"],"pt-BR":["Futebol","bola gol esporte"],"pt-PT":["Futebol","bola golo desporto"]},
+    {"id":"stop","group":"playback","es":["Detener","parar finalizar stop"],"en":["Stop","end halt"],"pt-BR":["Parar","terminar stop"],"pt-PT":["Parar","terminar stop"]},
+    {"id":"thunderstorm","group":"weather","es":["Tormenta","trueno rayo lluvia clima"],"en":["Storm","thunder lightning rain weather"],"pt-BR":["Tempestade","trovão raio chuva clima"],"pt-PT":["Tempestade","trovão raio chuva tempo"]},
+    {"id":"volume_off","group":"playback","es":["Silencio","mute sin sonido volumen"],"en":["Mute","silent no sound volume"],"pt-BR":["Silenciar","mudo sem som volume"],"pt-PT":["Silenciar","mudo sem som volume"]},
+    {"id":"volume_up","group":"playback","es":["Volumen","sonido altavoz aumentar"],"en":["Volume","sound speaker increase"],"pt-BR":["Volume","som alto-falante aumentar"],"pt-PT":["Volume","som altifalante aumentar"]}
+  ]
+}

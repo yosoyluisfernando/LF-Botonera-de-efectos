@@ -30,6 +30,56 @@ Los manifiestos que seleccionan las dependencias directas son:
 - `src-tauri/Cargo.toml`
 - `package.json`
 
+## Datos Unicode
+
+El catálogo local de identificadores visuales se genera a partir de Unicode Emoji
+17.0 y Unicode CLDR 48.2.0. No es una dependencia de red en tiempo de ejecución:
+`scripts/generate-emoji-catalog.mjs` fija las fuentes oficiales y produce los
+archivos versionados de `src-tauri/resources/emoji/`.
+
+La distribución incluye el texto aplicable en
+`legal/UNICODE_LICENSE.txt`, generado desde la licencia fijada por la etiqueta CLDR
+48.2.0. Los datos y sus titulares conservan sus condiciones originales.
+
+La representación colorida usa Noto Emoji COLRv1, fijada al commit
+`8998f5dd683424a73e2314a8c1f1e359c19e8742`. Su licencia se incluye como
+`legal/NOTO_EMOJI_LICENSE.txt`.
+
+## Material Symbols
+
+La colección local `Básicos` usa un subconjunto de Material Symbols Rounded de
+Google, obtenido mediante la API oficial de Google Fonts y validado contra el
+repositorio oficial fijado en el commit registrado por
+`scripts/basic-symbols.json`. La aplicación no descarga la fuente en tiempo de
+ejecución.
+
+Material Symbols se distribuye bajo Apache License 2.0. El texto correspondiente se
+incluye como `legal/MATERIAL_SYMBOLS_LICENSE.txt`.
+
+## Tabler Icons
+
+La colección monocromática `Básicos` incorpora una selección automática de Tabler
+Icons `v3.46.0`: se excluyen marcas y variantes terminadas en `-off` para reducir
+riesgo de marcas y repeticiones visuales. Los SVG se fijan al commit registrado en
+`scripts/visual-packs.json`, se agrupan localmente por categoría y no realizan
+peticiones de red durante el uso.
+
+Tabler Icons se distribuye bajo licencia MIT. El texto correspondiente se incluye
+como `legal/TABLER_LICENSE.txt`.
+
+## Game Icons
+
+`Básicos` incorpora además los pictogramas de Game Icons fijados al commit indicado
+en `scripts/visual-packs.json`. Se excluye la carpeta auxiliar `badges` y, cuando dos
+autores publicaron el mismo identificador, se conserva una sola variante
+determinista. Las 134 páginas oficiales de etiquetas se conservan como una
+instantánea local para clasificar los diseños. Los iconos se normalizan a un único
+color para adaptarse al texto del botón.
+
+Los iconos se distribuyen bajo CC BY 3.0 o CC0 cuando el archivo de licencia de la
+colección identifica esa excepción. La atribución completa de Lorc, Delapouite y los
+demás autores se conserva en `legal/GAME_ICONS_LICENSE.txt`.
+
 Para verificar el inventario Rust sin modificar el proyecto:
 
 ```powershell

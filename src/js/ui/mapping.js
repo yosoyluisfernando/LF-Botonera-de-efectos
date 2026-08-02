@@ -9,6 +9,7 @@
 import { t } from '../util/i18n.js';
 import { initKeyInputs } from '../util/keyInputs.js';
 import { invokeShortcutSave } from './shortcutSave.js';
+import { getMidiField, initMidiField, setMidiField } from './midiControls.js';
 
 let _onRefresh = null;
 let _target    = null; // ButtonData o PaletaData según _type
@@ -33,6 +34,7 @@ export function initMapping(onRefresh) {
     });
 
     document.getElementById('btn-save-capture').addEventListener('click', _saveCapture);
+    initMidiField('capture-midi-input', 'btn-capture-midi', 'btn-clear-midi');
 
     // ESC sale del modo mapeo con prioridad máxima (fase de captura)
     document.addEventListener('keydown', e => {
@@ -62,6 +64,7 @@ function _openCapture(label, current) {
     document.getElementById('capture-target-name').textContent = label;
     const input = document.getElementById('capture-key-input');
     input.value = current || '';
+    setMidiField('capture-midi-input', _target?.midi);
     initKeyInputs(document.getElementById('capture-modal'));
     document.getElementById('capture-modal').classList.remove('hidden');
     input.focus();
@@ -75,12 +78,14 @@ async function _saveCapture() {
                 index: _target.index, label: _target.label,
                 colorBg: _target.color_bg, colorText: _target.color_text,
                 shortcut: key,
+                midi: getMidiField('capture-midi-input'),
             });
         } else if (_type === 'tab') {
             await invokeShortcutSave('update_paleta_meta', {
                 profileId: _profileId, paletaId: _target.id,
                 nombre: _target.nombre, rows: _target.rows, cols: _target.cols,
                 shortcut: key,
+                midi: getMidiField('capture-midi-input'),
             });
         }
         exitMapping();

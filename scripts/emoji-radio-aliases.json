@@ -1,0 +1,58 @@
+{
+  "es": {
+    "👏": ["aplausos", "público"],
+    "😂": ["carcajada", "risa"],
+    "🚨": ["alarma", "emergencia", "sirena"],
+    "📞": ["llamada", "teléfono"],
+    "⚽": ["fútbol", "gol"],
+    "🎵": ["cortina", "música"],
+    "🎙️": ["locución", "micrófono", "voz"],
+    "📢": ["anuncio", "promoción", "publicidad"],
+    "🔔": ["aviso", "campana"],
+    "💥": ["explosión", "golpe"],
+    "🚪": ["puerta"],
+    "🐕": ["perro"]
+  },
+  "en": {
+    "👏": ["applause", "audience"],
+    "😂": ["laughter"],
+    "🚨": ["alarm", "emergency", "siren"],
+    "📞": ["call", "telephone"],
+    "⚽": ["football", "goal", "soccer"],
+    "🎵": ["music", "music bed"],
+    "🎙️": ["microphone", "voice"],
+    "📢": ["advertisement", "promo"],
+    "🔔": ["alert", "bell"],
+    "💥": ["explosion", "hit"],
+    "🚪": ["door"],
+    "🐕": ["dog"]
+  },
+  "pt-BR": {
+    "👏": ["aplausos", "plateia", "público"],
+    "😂": ["gargalhada", "risada"],
+    "🚨": ["alarme", "emergência", "sirene"],
+    "📞": ["ligação", "telefone"],
+    "⚽": ["futebol", "gol"],
+    "🎵": ["música", "trilha"],
+    "🎙️": ["locução", "microfone", "voz"],
+    "📢": ["anúncio", "promoção", "publicidade"],
+    "🔔": ["aviso", "campainha"],
+    "💥": ["explosão", "impacto"],
+    "🚪": ["porta"],
+    "🐕": ["cachorro"]
+  },
+  "pt-PT": {
+    "👏": ["aplausos", "público"],
+    "😂": ["gargalhada", "riso"],
+    "🚨": ["alarme", "emergência", "sirene"],
+    "📞": ["chamada", "telefone"],
+    "⚽": ["futebol", "golo"],
+    "🎵": ["música", "separador"],
+    "🎙️": ["locução", "microfone", "voz"],
+    "📢": ["anúncio", "promoção", "publicidade"],
+    "🔔": ["aviso", "campainha"],
+    "💥": ["explosão", "impacto"],
+    "🚪": ["porta"],
+    "🐕": ["cão"]
+  }
+}

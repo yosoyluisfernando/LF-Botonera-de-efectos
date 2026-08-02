@@ -6,10 +6,11 @@ use super::AppState;
 use crate::domain::grid::reorder as grid_reorder;
 use crate::domain::grid::resize as grid_resize;
 use crate::engine::input::keyboard as global_shortcuts;
+use crate::engine::input::midi_rules;
 use crate::engine::input::rules as shortcut_rules;
 use crate::engine::persist::config_io as config;
 use crate::ipc::cmd_profiles::next_id;
-use crate::model::{AppConfig, PaletaData};
+use crate::model::{AppConfig, MidiBinding, PaletaData};
 
 #[tauri::command]
 pub fn set_active_paleta(
@@ -60,6 +61,7 @@ pub fn create_paleta(
         cols: cols.unwrap_or(5),
         audio_out: audio_out.unwrap_or_default(),
         shortcut: String::new(),
+        midi: Default::default(),
         tab_bg: tab_bg.unwrap_or_default(),
         tab_text: tab_text.unwrap_or_default(),
         botones: Vec::new(),
@@ -113,6 +115,7 @@ pub fn update_paleta_meta(
     tab_text: Option<String>,
     audio_out: Option<String>,
     shortcut: Option<String>,
+    midi: Option<MidiBinding>,
     replace_shortcut: Option<bool>,
     app: tauri::AppHandle,
     state: tauri::State<AppState>,
@@ -126,6 +129,15 @@ pub fn update_paleta_meta(
             &profile_id,
             &paleta_id,
             v,
+            replace_shortcut.unwrap_or(false),
+        )?;
+    }
+    if let Some(value) = midi.as_ref() {
+        midi_rules::apply_tab(
+            &mut cfg,
+            &profile_id,
+            &paleta_id,
+            value,
             replace_shortcut.unwrap_or(false),
         )?;
     }
@@ -167,6 +179,9 @@ pub fn update_paleta_meta(
     }
     if let Some(v) = shortcut {
         paleta.shortcut = v;
+    }
+    if let Some(value) = midi {
+        paleta.midi = value;
     }
     config::save_config(&cfg)?;
     drop(cfg);

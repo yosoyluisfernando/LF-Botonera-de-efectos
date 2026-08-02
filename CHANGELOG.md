@@ -33,13 +33,31 @@ directamente desde Windows:
 ## [Sin publicar]
 
 ### Añadido
+- Los atajos ahora aceptan entradas MIDI en Windows. Desde Ajustes se pueden activar
+  y seleccionar uno o varios puertos, incluso cuando Windows muestra varias entradas
+  del mismo modelo, y asignar Note On, Control Change o Program Change a botones,
+  botones fijos, pestañas y las acciones globales Detener todos, Pestaña siguiente y
+  Pestaña anterior.
+- La selección MIDI se aplica en caliente: la aplicación detecta conexiones y
+  desconexiones sin reiniciar. La misma captura se usa desde Ajustes, el modo de mapeo
+  y la edición directa de un botón; no bloquea la ventana y puede cancelarse de
+  inmediato con Escape, el ratón o los controles del modal.
+- Los botones admiten identificadores visuales completamente offline: 3.953 emojis y
+  8.388 iconos monocromáticos buscables en español, inglés y las dos variantes de
+  portugués. Cada botón puede conservar su icono original o presentarse como Solo
+  texto, Visual y texto o Solo visual sin perder su nombre accesible.
+- El selector visual ofrece las colecciones Emojis y Básicos, búsqueda y categorías
+  localizadas, desplazamiento continuo con carga limitada en memoria y una opción
+  para mostrar las variantes de tono de piel, ocultas inicialmente. El editor reúne
+  la vista previa, la elección del visual y el modo de presentación en una fila
+  compacta.
 - El Centro de procesamiento permite retirar rutas ya indexadas con confirmación,
   conservarlas entre 30 y 365 días y restaurarlas antes de su vencimiento.
 - La Biblioteca permite crear y restaurar un respaldo completo `.lfbackup` con la
   configuración, perfiles, paletas, catálogo y ajustes de pistas en un solo archivo.
 - La Biblioteca y el Buscador del panel fijo incorporan un editor de metadatos
-  adaptado a Música y Efectos, con tags o palabras clave buscables y edición por
-  lotes.
+  adaptado a Música y Efectos y a los temas claro y oscuro, con tags o palabras clave
+  buscables y edición por lotes.
 - El editor permite renombrar expresamente un archivo físico y, para una pista de
   Música individual, escribir opcionalmente los campos compatibles dentro del
   archivo.
@@ -57,7 +75,8 @@ directamente desde Windows:
   interrupción.
 
 ### Cambiado
-- El editor de metadatos adapta todos sus campos de texto al tema claro u oscuro.
+- El inicio informa qué etapa está preparando y mantiene la ventana receptiva mientras
+  la Biblioteca activa la observación de carpetas en segundo plano.
 - El Centro de procesamiento usa siempre `Ocultar ventana` y conserva las carpetas
   pendientes durante la sesión; solo `Iniciar` las guarda e indexa.
 

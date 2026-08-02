@@ -1,0 +1,31 @@
+.midi-input-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.midi-input-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.midi-input-row button {
+  white-space: nowrap;
+}
+
+.midi-device-list {
+  margin: 8px 0;
+}
+
+.midi-capture-label {
+  display: block;
+  margin-top: 12px;
+}
+
+@media (max-width: 720px) {
+  .midi-input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

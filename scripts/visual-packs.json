@@ -1,0 +1,78 @@
+{
+  "format": 1,
+  "tabler": {
+    "version": "3.46.0",
+    "tag": "v3.46.0",
+    "commit": "8ac7d81b72ece11072ef25ea9fd92e80c6f3c9fc",
+    "repository": "https://github.com/tabler/tabler-icons.git",
+    "excludeCategories": ["Brand"],
+    "excludeSuffixes": ["-off"]
+  },
+  "gameIcons": {
+    "commit": "82d948812bfe3f269ef8f731dcdb07b08160edc4",
+    "repository": "https://github.com/game-icons/icons.git",
+    "excludeFolders": ["badges"],
+    "excludeTags": [
+      "arimaa", "catan", "cluedo", "game-of-thrones", "super-mario", "zelda"
+    ]
+  },
+  "groupOrder": [
+    "audio", "reactions", "alerts", "office", "communication", "people",
+    "animals", "nature", "objects", "food", "transport", "weather",
+    "sports", "places", "technology", "creative", "science", "fantasy",
+    "weapons", "symbols", "actions", "other"
+  ],
+  "tablerCategories": {
+    "System": "actions",
+    "Devices": "technology",
+    "Design": "creative",
+    "Arrows": "symbols",
+    "Map": "places",
+    "Letters": "symbols",
+    "Document": "office",
+    "Numbers": "symbols",
+    "Text": "office",
+    "Shapes": "symbols",
+    "Media": "audio",
+    "E-commerce": "objects",
+    "Communication": "communication",
+    "Food": "food",
+    "Buildings": "places",
+    "Vehicles": "transport",
+    "Math": "science",
+    "Health": "science",
+    "Sport": "sports",
+    "Currencies": "symbols",
+    "Development": "technology",
+    "Weather": "weather",
+    "Mood": "reactions",
+    "Photography": "creative",
+    "Games": "fantasy",
+    "Nature": "nature",
+    "Computers": "technology",
+    "Database": "technology",
+    "Laundry": "objects",
+    "Charts": "office",
+    "Symbols": "symbols",
+    "Badges": "symbols",
+    "Electrical": "technology",
+    "Gender": "people",
+    "Animals": "animals",
+    "Gestures": "people",
+    "Extensions": "symbols",
+    "Zodiac": "fantasy",
+    "Version control": "technology",
+    "Logic": "science"
+  },
+  "materialGroups": {
+    "radio": "audio",
+    "reactions": "reactions",
+    "transport": "transport",
+    "effects": "actions",
+    "emergency": "alerts",
+    "playback": "audio",
+    "sports": "sports",
+    "weather": "weather",
+    "time": "alerts"
+  }
+}

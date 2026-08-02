@@ -22,6 +22,7 @@ pub fn to_lfa_paleta(p: &PaletaData) -> LfaPaleta {
             p.audio_out.clone()
         },
         shortcut: p.shortcut.clone(),
+        midi: p.midi.clone(),
         tab_bg: p.tab_bg.clone(),
         tab_text: p.tab_text.clone(),
         botones,
@@ -44,6 +45,8 @@ fn button_to_lfa(id: u32, b: &ButtonData) -> LfaButton {
         overlap: b.overlap,
         restart: b.restart,
         shortcut: b.shortcut.clone(),
+        midi: b.midi.clone(),
+        visual: b.visual.clone(),
     }
 }
 
@@ -63,6 +66,8 @@ fn empty_button(id: u32) -> LfaButton {
         overlap: false,
         restart: false,
         shortcut: String::new(),
+        midi: Default::default(),
+        visual: Default::default(),
     }
 }
 
@@ -86,6 +91,7 @@ pub fn from_lfa_paleta(p: LfaPaleta, id: String) -> PaletaData {
             p.audio_out
         },
         shortcut: p.shortcut,
+        midi: p.midi,
         tab_bg: p.tab_bg,
         tab_text: p.tab_text,
         botones,
@@ -115,5 +121,43 @@ fn button_from_lfa(b: LfaButton, paleta_id: &str) -> ButtonData {
         overlap: b.overlap,
         restart: b.restart,
         shortcut: b.shortcut,
+        midi: b.midi,
+        visual: b.visual,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::button::defaults::new_button;
+    use crate::model::ButtonVisual;
+
+    #[test]
+    fn visual_survives_the_shared_tab_format() {
+        let mut button = new_button("source", 1, "Aplausos", "#000000", "#ffffff");
+        button.path = "aplausos.wav".into();
+        button.visual = ButtonVisual {
+            kind: "emoji".into(),
+            value: "👏".into(),
+            mode: "visual_text".into(),
+        };
+        let source = PaletaData {
+            id: "source".into(),
+            nombre: "Efectos".into(),
+            rows: 1,
+            cols: 1,
+            audio_out: String::new(),
+            shortcut: String::new(),
+            midi: Default::default(),
+            tab_bg: String::new(),
+            tab_text: String::new(),
+            botones: vec![button],
+        };
+
+        let json = serde_json::to_string(&to_lfa_paleta(&source)).unwrap();
+        let encoded: LfaPaleta = serde_json::from_str(&json).unwrap();
+        let restored = from_lfa_paleta(encoded, "target".into());
+        assert_eq!(restored.botones[0].visual.value, "👏");
+        assert_eq!(restored.botones[0].visual.mode, "visual_text");
     }
 }

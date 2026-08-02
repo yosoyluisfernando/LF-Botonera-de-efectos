@@ -1,0 +1,78 @@
+@font-face {
+  font-family: "Noto Color Emoji";
+  src: url("/fonts/Noto-COLRv1.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Material Symbols Rounded";
+  src: url("/fonts/material-symbols-rounded-basic.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+.material-symbols-rounded {
+  font-family: "Material Symbols Rounded";
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+}
+
+.button-visual {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  font-size: clamp(24px, 5vmin, 56px);
+  line-height: 1;
+}
+
+.button-visual-emoji {
+  font-family: "Noto Color Emoji", "Segoe UI Emoji", sans-serif;
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px #000);
+}
+
+.button-visual-svg {
+  width: 1em;
+  height: 1em;
+  overflow: visible;
+  color: inherit;
+}
+
+.grid-item .label.visual-custom,
+.fixed-panel-name.visual-custom {
+  flex-direction: column;
+}
+
+.visual-only .button-visual {
+  font-size: clamp(34px, 8vmin, 84px);
+}
+
+.visual-only .button-visual-auto .type-icon {
+  font-size: inherit;
+}
+
+.fixed-panel-name .button-visual {
+  font-size: clamp(22px, 3vmin, 40px);
+}
+
+.player-row-title .button-visual {
+  font-size: 22px;
+}
+
+.player-row-title.visual-only .button-visual {
+  font-size: 28px;
+}
+
+.button-visual-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

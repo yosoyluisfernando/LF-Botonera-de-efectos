@@ -1,7 +1,7 @@
 import { invoke } from '../bridge/api.js';
 import { paintAdaptive } from '../util/colorAdapter.js';
-import { typeIcon } from '../util/typeIcons.js';
 import { t } from '../util/i18n.js';
+import { paintButtonContent } from './buttonVisual.js';
 import { openEditModal } from './editModal.js';
 import { showContextMenu } from './contextMenu.js';
 import { paintPlayback } from './playbackPainter.js';
@@ -86,9 +86,10 @@ function _item(btn) {
     const el = document.createElement('button');
     el.className = 'fixed-panel-item'; el.dataset.id = btn.id; el.dataset.index = btn.index;
     paintAdaptive(el, btn.color_bg, btn.color_text, 'button');
-    el.innerHTML = `<span class="fixed-panel-name">${typeIcon(btn.type_icon)}${btn.name || btn.label}</span>
+    el.innerHTML = `<span class="fixed-panel-name"></span>
         <span class="timer fixed-panel-time">${btn.duration_str || ''}</span>
         <span class="progress-container"><span class="progress-bar"></span></span>`;
+    paintButtonContent(el.querySelector('.fixed-panel-name'), btn);
     el.addEventListener('click', e => {
         if (e.altKey) return; // Alt+clic = reordenar/mover (gridDnd.js)
         invoke('play_button', { id: btn.id }).catch(console.error);

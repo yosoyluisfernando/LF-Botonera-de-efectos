@@ -11,6 +11,7 @@ import { t } from '../util/i18n.js';
 import { paintAdaptive } from '../util/colorAdapter.js';
 import { confirmDelete } from './deleteConfirm.js';
 import { appAlert } from './appDialog.js';
+import { display as midiDisplay } from './midiControls.js';
 
 let _config     = null;
 let _onRefresh  = null;
@@ -74,9 +75,9 @@ function renderTabs(config) {
         tab.className = `tab${paleta.id === profile.active_paleta_id ? ' active' : ''}`;
         tab.dataset.paletaId = paleta.id;
         paintAdaptive(tab, paleta.tab_bg || '#3a3f44', paleta.tab_text || '#ffffff', 'tab');
-        tab.textContent = paleta.shortcut
-            ? `[${paleta.shortcut}] ${paleta.nombre}`
-            : paleta.nombre;
+        const midi = midiDisplay(paleta.midi);
+        const shortcuts = [paleta.shortcut, midi].filter(Boolean).join(' / ');
+        tab.textContent = shortcuts ? `[${shortcuts}] ${paleta.nombre}` : paleta.nombre;
 
         tab.addEventListener('click', async e => {
             if (e.altKey) return;

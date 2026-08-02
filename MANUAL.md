@@ -55,6 +55,19 @@ Clic derecho → **Editar...** permite cambiar:
 - Nombre visible y colores
 - Volumen individual
 - Tecla de atajo directa
+- Identificador visual: emoji, icono básico o el icono original del botón
+- Presentación con solo texto, visual y texto, o solo visual
+
+El selector funciona sin Internet y se divide en **Emojis** y **Básicos**. Básicos
+reúne los dibujos monocromáticos. Puedes buscar en el idioma configurado, filtrar
+por categoría y recorrer todos los resultados directamente con la rueda del ratón,
+sin usar un botón «Mostrar más». Los encabezados y el indicador superior señalan la
+categoría que estás recorriendo.
+
+Las variantes de tono de piel están ocultas inicialmente para evitar repeticiones;
+activa **Mostrar variantes de tono de piel** cuando las necesites. Aunque elijas
+**Solo visual**, el nombre escrito del botón se conserva. **Restaurar icono original**
+recupera la nota musical, carpeta, reloj u otro símbolo propio del tipo de botón.
 
 ### Limpiar un botón
 
@@ -125,7 +138,7 @@ El modo activo se muestra resaltado. **Stop All** no es un estado persistente, e
 
 ---
 
-## 7. Atajos de teclado
+## 7. Atajos de teclado y MIDI
 
 ### Teclas reservadas del sistema
 
@@ -145,13 +158,42 @@ En **Configuración Global → Atajos del Teclado** puedes asignar:
 
 Haz clic en el cuadro de la tecla y pulsa la combinación deseada. Backspace o Supr limpia el atajo.
 
+### Control mediante dispositivos MIDI
+
+En Windows también puedes usar pads, teclas, perillas y otros controles MIDI como
+atajos:
+
+1. Conecta el dispositivo y abre **Configuración Global → Atajos del Teclado**.
+2. Activa **Permitir disparos desde dispositivos MIDI**.
+3. Marca una o varias entradas de la lista. Un solo dispositivo puede aparecer varias
+   veces si expone varios puertos MIDI; selecciona la entrada que recibe sus controles.
+4. Pulsa **Capturar MIDI** junto a la acción que quieras asignar y acciona el pad,
+   tecla o control físico.
+
+Desde este mismo apartado puedes asignar MIDI a **Detener TODOS**, **Pestaña
+siguiente** y **Pestaña anterior**. Los botones y botones fijos también permiten
+capturarlo directamente desde **clic derecho → Editar...**; el modo de mapeo sirve
+para botones y pestañas.
+
+La aplicación reconoce mensajes Note On, Control Change y Program Change. Los
+dispositivos seleccionados pueden conectarse o desconectarse mientras la aplicación
+está abierta. Si una entrada no aparece, pulsa **Actualizar dispositivos MIDI**.
+
+Mientras la aplicación espera una entrada MIDI, puedes cancelar con **Escape**,
+cerrar el modal o usar sus botones de cancelación sin detener el resto del programa.
+Un mismo mensaje no puede ejecutar dos destinos incompatibles; si ya está asignado,
+la aplicación pide confirmación antes de reemplazarlo.
+
 ### Atajos por botón y pestaña (Modo Mapeo)
 
 1. Ve a **Configuración Global → Atajos del Teclado** y pulsa **✏️ Asignar atajos**.
 2. Aparece un banner naranja: la aplicación entra en Modo Mapeo.
-3. Haz clic sobre cualquier **botón** o **pestaña** para asignarle una tecla.
-4. En el cuadro que aparece, pulsa la tecla deseada y haz clic en **Guardar Atajo**.
-5. Para borrar un atajo: abre el cuadro de ese botón/pestaña, pulsa **Backspace** y guarda.
+3. Haz clic sobre cualquier **botón** o **pestaña** para asignarle una tecla o una
+   entrada MIDI.
+4. En el cuadro que aparece, pulsa la tecla deseada o usa **Capturar MIDI**, y después
+   haz clic en **Guardar Atajo**.
+5. Para borrar un atajo, abre el cuadro de ese botón o pestaña, limpia el campo
+   correspondiente y guarda.
 6. Pulsa **ESC** en cualquier momento para salir del Modo Mapeo.
 
 ### Detección de atajos huérfanos

@@ -6,10 +6,11 @@ use crate::domain::button::random_folder;
 use crate::domain::button::types as button_types;
 use crate::engine::audio::formats::validate_audio_file;
 use crate::engine::input::keyboard as global_shortcuts;
+use crate::engine::input::midi_rules;
 use crate::engine::input::rules as shortcut_rules;
 use crate::ipc::cmd_grid::{active_paleta, save_grid};
 use crate::model::grid::GridState;
-use crate::model::{AppConfig, ButtonData, PaletaData};
+use crate::model::{AppConfig, ButtonData, ButtonVisual, MidiBinding, PaletaData};
 
 #[tauri::command]
 pub fn update_button_data(
@@ -26,7 +27,9 @@ pub fn update_button_data(
     overlap: Option<bool>,
     restart: Option<bool>,
     shortcut: Option<String>,
+    midi: Option<MidiBinding>,
     replace_shortcut: Option<bool>,
+    visual: Option<ButtonVisual>,
     app: tauri::AppHandle,
     state: tauri::State<AppState>,
 ) -> Result<GridState, String> {
@@ -36,6 +39,9 @@ pub fn update_button_data(
     }
     if let Some(v) = vol {
         validate_volume(v)?;
+    }
+    if let Some(value) = visual.as_ref() {
+        crate::engine::visuals::validate_button_visual(value)?;
     }
     let current = active_button(&cfg, index);
     let current_type = current.map(|b| b.type_field.as_str()).unwrap_or("audio");
@@ -48,6 +54,9 @@ pub fn update_button_data(
             v,
             replace_shortcut.unwrap_or(false),
         )?;
+    }
+    if let Some(value) = midi.as_ref() {
+        midi_rules::apply_button(&mut cfg, index, value, replace_shortcut.unwrap_or(false))?;
     }
     let paleta = active_paleta(&mut cfg)?;
     ensure_button(paleta, index, &label, &color_bg, &color_text);
@@ -86,6 +95,12 @@ pub fn update_button_data(
     }
     if let Some(v) = shortcut {
         btn.shortcut = v;
+    }
+    if let Some(value) = midi {
+        btn.midi = value;
+    }
+    if let Some(value) = visual {
+        btn.visual = value;
     }
     let grid = save_grid(&mut cfg)?;
     drop(cfg);

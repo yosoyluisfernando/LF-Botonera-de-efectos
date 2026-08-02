@@ -120,6 +120,7 @@ mod tests {
             cols,
             audio_out: String::new(),
             shortcut: String::new(),
+            midi: Default::default(),
             tab_bg: String::new(),
             tab_text: String::new(),
             botones: indexes

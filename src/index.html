@@ -16,12 +16,15 @@
     <link rel="stylesheet" href="/css/contextMenu.css" />
     <link rel="stylesheet" href="/css/modal.css" />
     <link rel="stylesheet" href="/css/modalForm.css" />
+    <link rel="stylesheet" href="/css/buttonVisual.css" />
+    <link rel="stylesheet" href="/css/visualSelector.css" />
     <!-- Después de modal.css a propósito: así el ancho del modal grande gana
          por orden y no hace falta forzarlo con !important. -->
     <link rel="stylesheet" href="/css/settingsModal.css" />
     <link rel="stylesheet" href="/css/settingsWeather.css" />
     <link rel="stylesheet" href="/css/colorPalette.css" />
     <link rel="stylesheet" href="/css/keyInputs.css" />
+    <link rel="stylesheet" href="/css/midi.css" />
     <link rel="stylesheet" href="/css/prelisten.css" />
     <link rel="stylesheet" href="/css/bottomBar.css" />
     <link rel="stylesheet" href="/css/playbackControls.css" />
@@ -234,7 +237,11 @@
 
     <!-- ── Pantalla de carga ──────────────────────────────────── -->
     <section id="loading-screen">
-      <h2 data-i18n="app.loading">Cargando motor de audio...</h2>
+      <div class="startup-card" role="status" aria-live="polite">
+        <h2 data-i18n="startup.title">Iniciando LF Botonera de Efectos</h2>
+        <p id="startup-stage" data-i18n="startup.connecting">Preparando la aplicación…</p>
+        <div class="startup-progress" aria-hidden="true"></div>
+      </div>
     </section>
 
     <!-- ════════════ MENÚS CONTEXTUALES ═══════════════════════ -->
@@ -289,7 +296,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 data-i18n="edit_modal.title">Editar efecto</h3>
-          <button class="close-btn" data-close="edit-modal">✕</button>
+          <button class="close-btn" data-close="edit-modal" data-midi-cancel>✕</button>
         </div>
         <div class="modal-body">
           <label data-i18n="edit_modal.type">Tipo de efecto</label>
@@ -326,14 +333,33 @@
             <div class="col">
               <label data-i18n="edit_modal.shortcut">Tecla de Atajo:</label>
               <input type="text" id="edit-shortcut" readonly class="key-input" data-i18n-placeholder="edit_modal.shortcut_placeholder">
+              <label data-i18n="midi.shortcut">Atajo MIDI:</label>
+              <div class="midi-input-row">
+                <input type="text" id="edit-midi" readonly data-i18n-placeholder="midi.none">
+                <button type="button" id="edit-midi-capture" class="btn-dark" data-i18n="midi.capture">Capturar MIDI</button>
+                <button type="button" id="edit-midi-clear" class="btn-dark" data-i18n="settings.clear_shortcut">Limpiar</button>
+              </div>
             </div>
+          </div>
+          <label data-i18n="visuals.identifier">Identificador visual:</label>
+          <div class="edit-visual-controls">
+            <span id="edit-visual-preview" class="edit-visual-preview" aria-hidden="true"></span>
+            <button type="button" id="edit-visual-open" class="btn-dark"
+                    data-i18n="visuals.choose">Elegir…</button>
+            <select id="edit-visual-mode" data-i18n-title="visuals.mode"
+                    data-i18n-aria-label="visuals.mode">
+              <option value="auto" data-i18n="visuals.restore_original">Restaurar icono original</option>
+              <option value="text" data-i18n="visuals.mode_text">Solo texto</option>
+              <option value="visual_text" data-i18n="visuals.mode_visual_text">Visual y texto</option>
+              <option value="visual" data-i18n="visuals.mode_visual">Solo visual</option>
+            </select>
           </div>
         </div>
         <div class="modal-footer">
           <button id="btn-edit-track"   class="btn-dark"  data-i18n="edit_modal.edit_track_btn">Editor de pista…</button>
           <button id="btn-prelisten"    class="btn-dark"  data-i18n="edit_modal.prelisten_btn">Pre-escuchar</button>
           <button id="btn-save-edit"    class="btn-blue"  data-i18n="edit_modal.ok">Aceptar</button>
-          <button id="btn-cancel-edit"  class="btn-dark"  data-i18n="edit_modal.cancel">Cancelar</button>
+          <button id="btn-cancel-edit" class="btn-dark" data-midi-cancel data-i18n="edit_modal.cancel">Cancelar</button>
         </div>
       </div>
     </div>
@@ -494,7 +520,7 @@
       <div class="modal-content modal-lg">
         <div class="modal-header">
           <h3 data-i18n="settings.title">⚙️ Configuración Global</h3>
-          <button class="close-btn" data-close="settings-modal">✕</button>
+          <button class="close-btn" data-close="settings-modal" data-midi-cancel>✕</button>
         </div>
         <div class="settings-body">
         <div class="settings-tabs">
@@ -608,6 +634,43 @@
               </div>
             </div>
             <hr class="modal-divider">
+            <p class="fade-section-title" data-i18n="midi.title">MIDI</p>
+            <label class="checkbox-line">
+              <input type="checkbox" id="config-midi-enabled">
+              <span data-i18n="midi.enabled">Permitir disparos desde dispositivos MIDI</span>
+            </label>
+            <div id="config-midi-devices" class="midi-device-list"></div>
+            <button type="button" id="config-midi-refresh" class="btn-dark" data-i18n="midi.refresh">Actualizar dispositivos MIDI</button>
+            <p class="hint" data-i18n="midi.mapping_hint">Selecciona los dispositivos que escuchará la botonera y usa Capturar MIDI para asignar un pad, nota o control.</p>
+            <div class="row">
+              <div class="col">
+                <label data-i18n="midi.stop_all">MIDI Detener TODOS:</label>
+                <div class="midi-input-row">
+                  <input type="text" id="config-midi-stop" readonly data-i18n-placeholder="midi.none">
+                  <button type="button" id="config-midi-stop-capture" class="btn-dark" data-i18n="midi.capture">Capturar MIDI</button>
+                  <button type="button" id="config-midi-stop-clear" class="btn-dark" data-i18n="settings.clear_shortcut">Limpiar</button>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <label data-i18n="midi.next_tab">MIDI Pestaña Siguiente:</label>
+                <div class="midi-input-row">
+                  <input type="text" id="config-midi-next" readonly data-i18n-placeholder="midi.none">
+                  <button type="button" id="config-midi-next-capture" class="btn-dark" data-i18n="midi.capture">Capturar MIDI</button>
+                  <button type="button" id="config-midi-next-clear" class="btn-dark" data-i18n="settings.clear_shortcut">Limpiar</button>
+                </div>
+              </div>
+              <div class="col">
+                <label data-i18n="midi.prev_tab">MIDI Pestaña Anterior:</label>
+                <div class="midi-input-row">
+                  <input type="text" id="config-midi-prev" readonly data-i18n-placeholder="midi.none">
+                  <button type="button" id="config-midi-prev-capture" class="btn-dark" data-i18n="midi.capture">Capturar MIDI</button>
+                  <button type="button" id="config-midi-prev-clear" class="btn-dark" data-i18n="settings.clear_shortcut">Limpiar</button>
+                </div>
+              </div>
+            </div>
+            <hr class="modal-divider">
             <div class="reserved-shortcuts">
               <p class="hint" data-i18n="settings.reserved_shortcuts_hint">Atajos reservados de la aplicación:</p>
               <div class="reserved-shortcut-row">
@@ -703,10 +766,16 @@
         <div class="modal-body">
           <p id="capture-target-name" style="font-weight:bold;font-size:14px;margin-bottom:15px"></p>
           <input type="text" id="capture-key-input" class="key-input" readonly data-i18n-placeholder="mapping.placeholder">
+          <label class="midi-capture-label" data-i18n="midi.shortcut">Atajo MIDI:</label>
+          <div class="midi-input-row">
+            <input type="text" id="capture-midi-input" readonly data-i18n-placeholder="midi.none">
+            <button type="button" id="btn-capture-midi" class="btn-dark" data-i18n="midi.capture">Capturar MIDI</button>
+            <button type="button" id="btn-clear-midi" class="btn-dark" data-i18n="settings.clear_shortcut">Limpiar</button>
+          </div>
         </div>
         <div class="modal-footer" style="justify-content:center">
           <button id="btn-save-capture"   class="btn-blue" data-i18n="mapping.save">Guardar Atajo</button>
-          <button id="btn-cancel-capture" class="btn-dark" data-i18n="mapping.cancel">Cancelar</button>
+          <button id="btn-cancel-capture" class="btn-dark" data-midi-cancel data-i18n="mapping.cancel">Cancelar</button>
         </div>
       </div>
     </div>

@@ -115,6 +115,7 @@ mod tests {
             cols: 3,
             audio_out: String::new(),
             shortcut: String::new(),
+            midi: Default::default(),
             tab_bg: String::new(),
             tab_text: String::new(),
             botones: Vec::new(),

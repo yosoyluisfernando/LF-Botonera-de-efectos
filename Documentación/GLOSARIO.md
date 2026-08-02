@@ -104,6 +104,17 @@ Lo que un bus conserva **aunque su tarjeta no exista**: los atómicos de nivel y
 **`ButtonData`**
 Struct Rust (`model/content.rs`) que representa un botón. Campo `type_field` se serializa como `"type"` en JSON. El campo `vol` es un multiplicador lineal 0–1, no en dB (ver [trim](#trim)). Es el ladrillo común: lo usan la rejilla, el panel fijo y la cola del reproductor, por eso vive en el contenido y no cuelga de ningún módulo concreto.
 
+Su campo `visual` separa el identificador gráfico del nombre y usa el valor
+predeterminado automático para archivos antiguos.
+
+**`ButtonVisual`**
+Struct Rust (`model/button_visual.rs`) con `kind`, `value` y `mode`. Permite
+presentación con el icono original, emoji o icono monocromático `basic`, combinada
+con solo texto, visual y texto o solo visual. Los recursos SVG usan identificadores
+`colección:categoría:nombre`, como
+`tabler:animals:dog`. El valor predeterminado se omite del JSON; una selección
+personalizada se valida en Rust y se conserva en los formatos compartidos.
+
 **`ButtonSource`**
 Struct Rust (`engine/audio/button.rs`) que implementa `Iterator<Item=f32>`. Es el **canal** de la consola: envuelve una fuente y aplica lo que es suyo — `muestra × file_gain × vol_botón × fade` — y nada más. Puede pararse por `stop_flag` o marcarse como terminado por `done_flag`.
 
@@ -347,6 +358,16 @@ El naranja es además la **guía de qué viene**, así que no desaparece con el 
 
 **`master_volume`**
 Volumen global del perfil activo. Rango 0–1 (o 0–1.5 en modo boost). Es la tercera capa del modelo de ganancia. Se aplica atómicamente en cada muestra dentro de `ButtonSource`.
+
+**`MidiBinding`**
+Asignación opcional de un mensaje MIDI a una acción. Conserva el puerto, su nombre,
+el tipo de mensaje (`note`, `cc` o `program`), el canal y el número. Puede pertenecer
+a un botón, botón fijo, pestaña o acción global y se omite del JSON cuando está vacío.
+
+**`MidiConfig`**
+Configuración MIDI global de `AppConfig`: indica si la entrada está activa y qué
+puertos debe escuchar la aplicación. El motor reconcilia esa selección en caliente.
+En Windows usa WinMM; en Linux la misma interfaz existe con un backend vacío.
 
 **`MasterBus`** — *eliminado*
 Combinaba un `DynamicMixer<f32>`, un `LevelSource` y un `Sink` en un solo objeto. Ese era justo el problema: fundía la *señal* con el *conector*. Su sustituto es [`Bus`](#b), que es lo mismo **menos el `Sink`** y se enchufa a un [`OutputEndpoint`](#o) con `play_raw`. Un bus nunca se pausa, así que la capa de control del `Sink` sobraba.

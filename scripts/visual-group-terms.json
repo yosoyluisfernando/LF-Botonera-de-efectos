@@ -1,0 +1,134 @@
+{
+  "audio": {
+    "es": "audio sonido sonidos música radio voz micrófono altavoz reproducción",
+    "en": "audio sound sounds music radio voice microphone speaker playback",
+    "pt-BR": "áudio som sons música rádio voz microfone alto-falante reprodução",
+    "pt-PT": "áudio som sons música rádio voz microfone altifalante reprodução"
+  },
+  "reactions": {
+    "es": "reacción reacciones emoción emociones humor aplausos público",
+    "en": "reaction reactions emotion emotions humor applause audience",
+    "pt-BR": "reação reações emoção emoções humor aplausos público",
+    "pt-PT": "reação reações emoção emoções humor aplausos público"
+  },
+  "alerts": {
+    "es": "alerta alertas alarma emergencia peligro aviso tiempo reloj",
+    "en": "alert alerts alarm emergency danger warning time clock",
+    "pt-BR": "alerta alertas alarme emergência perigo aviso tempo relógio",
+    "pt-PT": "alerta alertas alarme emergência perigo aviso tempo relógio"
+  },
+  "office": {
+    "es": "oficina documento documentos trabajo archivo carpeta",
+    "en": "office document documents work file folder",
+    "pt-BR": "escritório documento documentos trabalho arquivo pasta",
+    "pt-PT": "escritório documento documentos trabalho ficheiro pasta"
+  },
+  "communication": {
+    "es": "comunicación mensaje correo teléfono llamada conversación",
+    "en": "communication message mail phone call conversation",
+    "pt-BR": "comunicação mensagem correio telefone chamada conversa",
+    "pt-PT": "comunicação mensagem correio telefone chamada conversa"
+  },
+  "people": {
+    "es": "persona personas gente cuerpo mano gesto",
+    "en": "person people body hand gesture",
+    "pt-BR": "pessoa pessoas gente corpo mão gesto",
+    "pt-PT": "pessoa pessoas gente corpo mão gesto"
+  },
+  "animals": {
+    "es": "animal animales mascota mascotas ave pez insecto",
+    "en": "animal animals pet pets bird fish insect",
+    "pt-BR": "animal animais mascote mascotes ave peixe inseto",
+    "pt-PT": "animal animais animal de estimação aves peixe inseto"
+  },
+  "nature": {
+    "es": "naturaleza planta árbol flor campo mar montaña",
+    "en": "nature plant tree flower field sea mountain",
+    "pt-BR": "natureza planta árvore flor campo mar montanha",
+    "pt-PT": "natureza planta árvore flor campo mar montanha"
+  },
+  "objects": {
+    "es": "objeto objetos cosa cosas herramienta hogar ropa comercio",
+    "en": "object objects thing things tool home clothes commerce",
+    "pt-BR": "objeto objetos coisa coisas ferramenta casa roupa comércio",
+    "pt-PT": "objeto objetos coisa coisas ferramenta casa roupa comércio"
+  },
+  "food": {
+    "es": "comida alimento bebida cocina fruta",
+    "en": "food meal drink kitchen fruit",
+    "pt-BR": "comida alimento bebida cozinha fruta",
+    "pt-PT": "comida alimento bebida cozinha fruta"
+  },
+  "transport": {
+    "es": "transporte vehículo vehículos coche carro tren avión barco tráfico",
+    "en": "transport vehicle vehicles car train plane ship traffic",
+    "pt-BR": "transporte veículo veículos carro trem avião barco trânsito",
+    "pt-PT": "transporte veículo veículos carro comboio avião barco trânsito"
+  },
+  "weather": {
+    "es": "clima tiempo lluvia tormenta sol nube viento nieve",
+    "en": "weather rain storm sun cloud wind snow",
+    "pt-BR": "clima tempo chuva tempestade sol nuvem vento neve",
+    "pt-PT": "clima tempo chuva tempestade sol nuvem vento neve"
+  },
+  "sports": {
+    "es": "deporte deportes juego pelota fútbol",
+    "en": "sport sports game ball football",
+    "pt-BR": "esporte esportes jogo bola futebol",
+    "pt-PT": "desporto desportos jogo bola futebol"
+  },
+  "places": {
+    "es": "lugar lugares edificio casa mapa ciudad campo",
+    "en": "place places building house map city field",
+    "pt-BR": "lugar lugares edifício casa mapa cidade campo",
+    "pt-PT": "lugar lugares edifício casa mapa cidade campo"
+  },
+  "technology": {
+    "es": "tecnología computadora ordenador dispositivo máquina electricidad",
+    "en": "technology computer device machine electricity",
+    "pt-BR": "tecnologia computador dispositivo máquina eletricidade",
+    "pt-PT": "tecnologia computador dispositivo máquina eletricidade"
+  },
+  "creative": {
+    "es": "creatividad diseño fotografía arte cámara dibujo",
+    "en": "creative design photography art camera drawing",
+    "pt-BR": "criatividade design fotografia arte câmera desenho",
+    "pt-PT": "criatividade design fotografia arte câmara desenho"
+  },
+  "science": {
+    "es": "ciencia salud medicina matemáticas energía medida",
+    "en": "science health medicine math energy measurement",
+    "pt-BR": "ciência saúde medicina matemática energia medida",
+    "pt-PT": "ciência saúde medicina matemática energia medida"
+  },
+  "fantasy": {
+    "es": "fantasía juego criatura monstruo magia espacio",
+    "en": "fantasy game creature monster magic space",
+    "pt-BR": "fantasia jogo criatura monstro magia espaço",
+    "pt-PT": "fantasia jogo criatura monstro magia espaço"
+  },
+  "weapons": {
+    "es": "arma armas espada cuchillo pistola flecha batalla",
+    "en": "weapon weapons sword knife gun arrow battle",
+    "pt-BR": "arma armas espada faca pistola flecha batalha",
+    "pt-PT": "arma armas espada faca pistola seta batalha"
+  },
+  "symbols": {
+    "es": "símbolo símbolos flecha forma número letra señal",
+    "en": "symbol symbols arrow shape number letter sign",
+    "pt-BR": "símbolo símbolos seta forma número letra sinal",
+    "pt-PT": "símbolo símbolos seta forma número letra sinal"
+  },
+  "actions": {
+    "es": "acción acciones efecto efectos impacto explosión golpe transición",
+    "en": "action actions effect effects impact explosion hit transition",
+    "pt-BR": "ação ações efeito efeitos impacto explosão golpe transição",
+    "pt-PT": "ação ações efeito efeitos impacto explosão golpe transição"
+  },
+  "other": {
+    "es": "otro otros varios general",
+    "en": "other others miscellaneous general",
+    "pt-BR": "outro outros vários geral",
+    "pt-PT": "outro outros vários geral"
+  }
+}

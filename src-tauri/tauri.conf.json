@@ -39,7 +39,12 @@
       "../SUPPORT.md": "legal/SUPPORT.md",
       "../THIRD_PARTY_NOTICES.md": "legal/THIRD_PARTY_NOTICES.md",
       "../THIRD_PARTY_LICENSES_RUST.html": "legal/THIRD_PARTY_LICENSES_RUST.html",
-      "../THIRD_PARTY_LICENSES_NODE.html": "legal/THIRD_PARTY_LICENSES_NODE.html"
+      "../THIRD_PARTY_LICENSES_NODE.html": "legal/THIRD_PARTY_LICENSES_NODE.html",
+      "resources/emoji/UNICODE_LICENSE.txt": "legal/UNICODE_LICENSE.txt",
+      "resources/emoji/NOTO_EMOJI_LICENSE.txt": "legal/NOTO_EMOJI_LICENSE.txt",
+      "resources/basic/MATERIAL_SYMBOLS_LICENSE.txt": "legal/MATERIAL_SYMBOLS_LICENSE.txt",
+      "resources/basic/TABLER_LICENSE.txt": "legal/TABLER_LICENSE.txt",
+      "resources/basic/GAME_ICONS_LICENSE.txt": "legal/GAME_ICONS_LICENSE.txt"
     },
     "icon": [
       "icons/32x32.png",

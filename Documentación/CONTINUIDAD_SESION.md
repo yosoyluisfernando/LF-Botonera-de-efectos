@@ -1,152 +1,204 @@
 # Continuidad de sesión — estado actual
 
-**Actualizado:** 2026-07-30
+**Actualizado:** 2026-08-02
 
-**Rama de trabajo:** `codex/buscador-interno`
+**Rama de trabajo:** `codex/midi-input`
 
 **Versión del código:** 1.3.0
 
-Este archivo es temporal. Solo conserva el punto real de reanudación, la evidencia
-reciente y las advertencias que evitan repetir errores. Las decisiones permanentes
-pertenecen a `ARCHITECTURE.md`, `LIBRO_PROYECTO.md`, `GLOSARIO.md` y a los planes
-temáticos aprobados.
+Este archivo no es un historial. Conserva el punto real de reanudación, las decisiones
+que evitan repetir trabajo y la evidencia técnica reciente. Las decisiones
+permanentes viven en los documentos de arquitectura y planes temáticos.
 
-## 1. Estado actual
+## 1. Trabajo activo
 
-La etapa de Biblioteca y buscador interno está implementada sobre un único catálogo
-en `tracks.db`. Incluye:
+Las ramas locales `codex/buscador-interno` y `codex/midi-input` apuntan al mismo
+commit base, `43e67b0`. La rama actual ya contiene todo el historial de Biblioteca y
+Buscador; no hay commits que fusionar entre ambas. MIDI e identificadores visuales
+son cambios locales posteriores todavía sin commit y sin publicación pública.
 
-- buscador como tercera vista del panel fijo;
-- ventana Biblioteca independiente;
-- múltiples raíces de Música y Efectos, con solapamientos normalizados;
-- indexación incremental, observador de archivos y reconciliación al iniciar;
-- árbol local, navegación por unidades y lista virtual;
-- LIVE, CUE, envío al reproductor, arrastre y menú contextual compartidos;
-- retiro reversible de raíces, retención configurable entre 30 y 365 días y purga
-  que protege cualquier pista todavía usada en rejillas, botones fijos o reproductor;
-- respaldo y restauración completos mediante un único archivo `.lfbackup`;
-- editor de metadatos propios y tags para Música y Efectos;
-- renombrado físico opcional y escritura opcional de metadatos dentro de una pista
-  individual de Música, ambos con recuperación ante fallos.
+### Entrada MIDI para atajos
 
-El esquema vigente de `tracks.db` es el **6**. No se debe crear otra base, otro
-catálogo ni otro buscador para estas funciones.
+En la rama `codex/midi-input` está implementado el soporte MIDI para atajos en Windows
+sobre WinMM. La función y los identificadores visuales forman parte del mismo estado
+de desarrollo local y se documentan como funciones nuevas de la próxima versión.
 
-La publicación y actualización de la versión 1.3.0 ya no son trabajo activo. GitHub
-Release `v1.3.0` está publicado desde el 2026-07-28. Los documentos de distribución y
-las notas de publicación se conservan como registro histórico.
+Alcance implementado:
 
-## 2. Último bloque terminado
+- Ajustes generales → Atajos permite activar MIDI y seleccionar entradas.
+- La selección se aplica en caliente y el motor reconcilia dispositivos conectados y
+  desconectados cada segundo.
+- Botones, botones fijos, pestañas y acciones globales pueden tener un `MidiBinding`.
+- La captura MIDI se reutiliza en Ajustes y en los modales directos de edición/mapeo.
+- La espera de captura no bloquea el hilo de la ventana y se puede cancelar con
+  Escape o con el ratón sin dejar una captura pendiente.
+- Se admiten Note On con velocidad mayor que cero, Control Change con valor mayor que
+  cero y Program Change. Note Off se ignora para evitar dobles disparos.
+- Varios dispositivos pueden estar seleccionados a la vez. Dos dispositivos iguales
+  se distinguen simultáneamente por índice de puerto WinMM; si Windows reordena dos
+  unidades idénticas tras una desconexión, WinMM no garantiza identidad física
+  persistente.
+- WinMM vive en dos módulos compilados solo para Windows. Linux conserva la interfaz
+  común con un backend vacío y no recibe la dependencia nativa de Windows.
 
-El editor de metadatos y tags quedó integrado en Biblioteca y Buscador fijo:
+Evidencia técnica de esta fase:
 
-- Música: título, artista, álbum, artista del álbum, género, año, número de pista,
-  compositor, comentario y tags;
-- Efectos: nombre descriptivo, categoría, descripción y tags;
-- selección múltiple con campos explícitamente habilitados y selección mixta limitada
-  a tags;
-- búsqueda y recorrido usan los metadatos efectivos y los tags propios;
-- los valores propios prevalecen sobre las etiquetas leídas del archivo sin destruir
-  el original;
-- el renombrado físico nunca es automático y actualiza las referencias propias;
-- la escritura dentro del archivo es una acción independiente, explícita y solo para
-  una pista de Música.
+- i18n: 738 claves idénticas en `es`, `en`, `pt-BR` y `pt-PT`.
+- `cargo build --lib --offline`: correcto.
+- `cargo test --lib --offline`: 320 aprobadas, 0 fallidas y 19 ignoradas; incluye
+  regresiones de cancelación inmediata y liberación después del timeout.
+- `npm run build`: correcto.
+- `$env:LF_DISTRIBUTION_CHANNEL='store'; npm run tauri build -- --no-bundle`:
+  correcto.
+- El ejecutable Release conjunto más reciente se identifica en la sección 5.
 
-También se corrigieron dos detalles de interfaz:
+### Identificadores visuales
 
-- los campos del editor respetan el tema oscuro y ya no aparecen blancos;
-- el Centro de procesamiento usa siempre `Ocultar ventana`; el botón, la X y Escape
-  ocultan sin detener el proceso y conservan el borrador de la sesión en memoria.
+La ampliación de identificadores visuales está implementada y se encuentra en
+verificación final. El diseño definitivo está en
+[`PLAN_EMOJIS_BOTONES.md`](PLAN_EMOJIS_BOTONES.md).
 
-Los diseños, reglas y pruebas de esta etapa están en:
+Colecciones:
 
-- `Documentación/PLAN_BUSCADOR_INTERNO.md`;
-- `Documentación/PLAN_EDITOR_METADATOS.md`;
-- `Documentación/PLAN_RESPALDO_RESTAURACION.md`.
+- `Emojis`: 3.953 valores de Unicode Emoji 17.0 y CLDR 48.2; 1.918 se muestran por
+  defecto al ocultar 2.035 variantes con modificador de piel.
+- `Básicos`: 8.388 monocromáticos: 24 Material Symbols, 4.231 Tabler Icons y 4.133
+  Game Icons.
 
-## 3. Evidencia técnica reciente
+Todo funciona sin Internet. Los nombres y palabras clave existen en español, inglés,
+portugués de Brasil y portugués de Portugal. Se generaron traducciones auxiliares
+para 5.149 palabras y las correcciones manuales de vocabulario importante tienen
+prioridad.
 
-Verificación completada el 2026-07-30:
+## 2. Arquitectura cerrada
 
-- `cargo test --lib`: **298 aprobadas, 0 fallidas, 19 ignoradas**;
+`ButtonData.visual` contiene:
+
+```text
+ButtonVisual {
+  kind: "auto" | "emoji" | "basic"
+  value: identificador estable
+  mode: "text" | "visual_text" | "visual"
+}
+```
+
+- `auto + visual_text` es el valor predeterminado y se omite del JSON.
+- Los archivos antiguos conservan su icono según el tipo.
+- Los valores históricos de los 24 Material Symbols no cambiaron.
+- Tabler y Game Icons usan
+  `colección:categoría:nombre`, por ejemplo `tabler:animals:dog`.
+- Rust busca, pagina, valida y persiste. JavaScript presenta y dibuja.
+- Los recursos SVG se dividen por categoría; ninguno puede superar
+  1.250.000 bytes.
+- El mismo pintor sirve a rejilla, panel fijo y reproductor.
+- El dibujo es decorativo (`aria-hidden`) y el nombre textual del sonido se conserva.
+
+No crear una base de datos para estos catálogos estáticos ni un `kind` distinto por
+cada paquete. `basic` significa monocromático.
+
+## 3. Selector
+
+- Pestañas visibles: `Emojis` y `Básicos`.
+- No existe `Mostrar más`.
+- La cuadrícula virtual conserva como máximo 300 elementos y un colchón de 100.
+- Hay desplazamiento bidireccional, separadores e indicador de categoría.
+- La búsqueda ignora acentos y permite términos localizados de categoría.
+- `animal` y `animales` encuentran la categoría completa.
+- Los tonos de piel se muestran solo cuando el usuario activa la casilla.
+- El modal de edición usa una fila compacta con vista previa, selector y un único
+  desplegable para `Restaurar icono original`, `Solo texto`, `Visual y texto` y
+  `Solo visual`.
+- Favoritos y recientes quedan para una ampliación posterior.
+
+## 4. Recursos y selección
+
+- Tabler está fijado a `v3.46.0`, commit
+  `8ac7d81b72ece11072ef25ea9fd92e80c6f3c9fc`; se excluyen marcas y variantes
+  terminadas en `-off`.
+- Game Icons está fijado al commit
+  `82d948812bfe3f269ef8f731dcdb07b08160edc4`; se excluye `badges`, se deduplican
+  identificadores y se conserva su atribución CC BY 3.0.
+- Una instantánea local de las 134 etiquetas oficiales de Game Icons clasifica
+  4.131 de sus 4.133 conceptos; los dos restantes quedan en `Otros`.
+- Los recursos derivados se reproducen con `visuals:generate-emojis`,
+  `visuals:generate-basics` y `visuals:generate-packs`.
+- `npm run visuals:verify` comprueba hashes, orden, cantidades, seguridad SVG,
+  correspondencia catálogo/sprite, tamaño y cobertura de categorías.
+
+Cobertura monocromática actual:
+
+- Animales: 486.
+- Naturaleza: 600.
+- Oficina: 449.
+- Objetos: 412.
+- Audio: 247.
+- Acciones: 742; antes de usar las etiquetas oficiales concentraba erróneamente
+  3.396 elementos.
+
+## 5. Evidencia conjunta más reciente
+
+Verificación completada:
+
+- generación determinista: Básicos 8.388;
+- `npm run visuals:verify`: correcto;
+- `cargo test --lib`: 320 aprobadas, 0 fallidas y 19 ignoradas;
 - `cargo build --lib`: correcto;
 - `npm run build`: correcto;
-- `npm run tauri build -- --no-bundle`: correcto;
-- ejecutable Release:
-  `src-tauri/target/release/tauri-app.exe`, 23.567.872 bytes;
-- i18n: **646 claves idénticas** en español, inglés, portugués de Brasil y portugués
-  de Portugal;
-- `git diff --check`: sin errores; solo avisos de finales de línea CRLF.
+- 130 archivos JavaScript con sintaxis válida;
+- i18n: 738 claves idénticas y no vacías en los cuatro idiomas;
+- 27 módulos nuevos auditados, todos con un máximo de 200 líneas;
+- prueba local Chromium: Tabler y Game Icons renderizaron correctamente
+  desde sprites offline;
+- `npm run tauri build -- --no-bundle`: correcto.
 
-Pruebas de datos:
+Ejecutable Release final:
 
-- metadatos probados sobre una copia desechable de una base real de 38.576.128 bytes;
-  el archivo original no se modificó;
-- búsqueda y recorrido probados con catálogos sintéticos de 100.000 y 250.000 pistas;
-- retiro, restauración y vencimiento probados sobre una copia real con 20.411 pistas;
-- respaldo, restauración y recuperación ante fallos tienen pruebas automatizadas.
+- ruta: `src-tauri/target/release/tauri-app.exe`;
+- tamaño: 42.848.768 bytes, 40,86 MiB;
+- fecha local: 2026-08-02 07:39:45;
+- versiones de producto y archivo: 1.3.0;
+- SHA-256:
+  `A782C4E988239B2BF22507A73319D7EBC84C2AE617E5113F9881E6A63D036269`;
+- el binario contiene el recurso de producción `main-bmZx2EC-.js`.
 
-La prueba visual y de uso real sigue correspondiendo al autor. Para audio o interacción
-física se usa siempre una compilación Release.
+Para crear el ejecutable autónomo se debe usar siempre:
 
-## 4. Decisiones que siguen vigentes
+```powershell
+npm run tauri build -- --no-bundle
+```
 
-- `botonera_config.json` conserva perfiles, paletas, botones y ajustes.
-- `tracks.db` conserva datos técnicos, catálogo, metadatos propios y tags.
-- Retirar una raíz nunca borra archivos de audio.
-- Una pista usada por una rejilla, botón fijo o cola del reproductor protege sus datos
-  técnicos frente a la purga.
-- El editor de metadatos no altera cue, ganancia, normalización ni análisis.
-- Los tags propios se guardan en LF Botonera; no se escriben dentro del audio salvo
-  que el usuario active expresamente esa opción permitida.
-- Renombrar un archivo físico es individual, opcional y nunca automático.
-- Toda lógica crítica, validación y persistencia vive en Rust. JavaScript presenta
-  estado y envía órdenes.
-- Todo texto visible debe existir en los cuatro idiomas.
-- Enter y doble clic en Biblioteca siguen sin acción; el menú contextual es la puerta
-  a las acciones de pista.
+No usar `cargo build --release` como entrega: conserva el destino de desarrollo y
+puede mostrar `localhost rechazó la conexión` sin Vite abierto.
 
-## 5. Próximo trabajo: emojis en los botones
+## 6. Estado de las etapas anteriores
 
-El diseño funcional ya está recogido en
-[`PLAN_EMOJIS_BOTONES.md`](PLAN_EMOJIS_BOTONES.md). **Todavía no hay código iniciado
-para esta función.**
+La Biblioteca y el Buscador fijo comparten un único catálogo en `tracks.db`, esquema
+6. Están cerrados:
 
-Decisiones cerradas:
+- raíces de Música y Efectos, observación incremental y lista virtual;
+- Centro de procesamiento, retiro reversible, retención y purga segura;
+- respaldo/restauración `.lfbackup`;
+- metadatos, tags, renombrado físico opcional y escritura opcional en una pista;
+- inicio informativo y activación de la observación de Biblioteca en segundo plano.
 
-- `Emojis` será el catálogo principal, colorido y completamente offline;
-- `Básicos` será una segunda colección local de 300 a 500 Material Symbols
-  seleccionados y traducidos;
-- la búsqueda usará nombres y palabras clave locales en los cuatro idiomas; para
-  emojis partirá de Unicode CLDR;
-- un botón admite un solo visual: emoji o icono básico, con texto visible opcional;
-- el visual se guarda separado de `name` y `label`; el nombre textual se conserva
-  aunque el modo visible sea solo dibujo;
-- el visual será decorativo para tecnologías de asistencia y no se leerá como parte
-  redundante del nombre del botón;
-- los botones antiguos conservan su icono automático de tipo; un visual elegido lo
-  sustituye, y quitarlo restaura el comportamiento actual;
-- no habrá red en selección, búsqueda ni renderizado;
-- imágenes personales o arbitrarias quedan fuera de la primera versión.
+No reabrir la publicación 1.3.0, la Biblioteca, el retiro, el respaldo ni los
+metadatos como continuidad activa.
 
-Antes de programar hay que medir y aprobar el empaquetado exacto de Noto Emoji,
-cerrar el modelo opcional de `ButtonData`, definir favoritos/recientes y coordinar la
-portabilidad por `.bdelf`, `.bdeplf` y `.LFPlay` con LF Automatizador. Todo campo
-nuevo llevará `#[serde(default)]`.
+## 7. Reglas de reanudación
 
-## 6. Pendientes conocidos no bloqueantes
+1. Leer `AGENTS.md`, este archivo y `PLAN_EMOJIS_BOTONES.md`.
+2. Continuar por la verificación pendiente; no rediseñar los catálogos.
+3. No tocar `Capturas_Tienda/`: es material ajeno a esta fase.
+4. No introducir parches ni mecanismos duplicados; resolver cualquier fallo desde su
+   causa.
+5. No crear commits, no preparar staging y no hacer push. El autor indicó que solo
+   habrá commit cuando lo solicite expresamente.
+6. MIDI e identificadores visuales no tuvieron beta ni versión pública anterior:
+   describirlos en `CHANGELOG.md` como funciones nuevas, no como correcciones.
 
-- Probar físicamente en Linux los paquetes `.deb` y `.AppImage`.
-- Corregir en una etapa futura la representación extensa de `master_volume` y
-  `ButtonData.vol` por usar `f32` en JSON.
+## 8. Pendientes no bloqueantes
 
-## 7. Orden de lectura al reanudar
-
-1. `AGENTS.md`.
-2. Este archivo.
-3. `Documentación/PLAN_EMOJIS_BOTONES.md`.
-4. `Documentación/ARCHITECTURE.md` y `Documentación/LIBRO_PROYECTO.md` solo para las
-   áreas afectadas.
-
-No hay que reabrir como pendientes la publicación 1.3.0, la Biblioteca, el retiro
-seguro, el respaldo ni el editor de metadatos: esas etapas ya están cerradas.
+- Prueba física del selector por el autor en el ejecutable Windows Release.
+- Prueba posterior en Linux de `.deb`, `.AppImage` y WebKitGTK.
+- Auditoría integral futura con lector de pantalla.
+- Representación extensa de `master_volume` y `ButtonData.vol` por usar `f32` en JSON.

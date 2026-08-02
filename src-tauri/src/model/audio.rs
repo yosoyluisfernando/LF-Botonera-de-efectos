@@ -1,3 +1,4 @@
+use crate::model::MidiBinding;
 /// Módulo: types_audio.rs
 /// Propósito: configuración de audio por perfil (salidas, atajos globales, modo
 /// de reproducción y volumen master). Parte del esquema serializable; separado
@@ -18,6 +19,12 @@ pub struct AudioConfig {
     pub key_next: String,
     #[serde(default)]
     pub key_prev: String,
+    #[serde(default, skip_serializing_if = "MidiBinding::is_empty")]
+    pub midi_stop: MidiBinding,
+    #[serde(default, skip_serializing_if = "MidiBinding::is_empty")]
+    pub midi_next: MidiBinding,
+    #[serde(default, skip_serializing_if = "MidiBinding::is_empty")]
+    pub midi_prev: MidiBinding,
     #[serde(default = "default_playback_mode")]
     pub playback_mode: String,
     #[serde(default)]
@@ -49,6 +56,9 @@ impl Default for AudioConfig {
             key_stop: String::new(),
             key_next: String::new(),
             key_prev: String::new(),
+            midi_stop: MidiBinding::default(),
+            midi_next: MidiBinding::default(),
+            midi_prev: MidiBinding::default(),
             playback_mode: default_playback_mode(),
             solo_mode: false,
             master_volume: default_master_volume(),

@@ -48,6 +48,41 @@ body {
   justify-content: center;
 }
 
+.startup-card {
+  width: min(520px, 85vw);
+  text-align: center;
+}
+
+.startup-card h2 { font-size: 22px; }
+.startup-card p {
+  min-height: 22px;
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.startup-progress {
+  height: 5px;
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+}
+
+.startup-progress::after {
+  content: "";
+  display: block;
+  width: 38%;
+  height: 100%;
+  background: var(--accent-color);
+  animation: startup-progress 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes startup-progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(265%); }
+}
+
 #app-section {
   height: 100vh;
   display: flex;

@@ -4,6 +4,7 @@ use crate::engine::audio::AudioEngine;
 use crate::engine::cache::track_analysis::TrackAnalysisCache;
 use crate::engine::console::ConsoleEngine;
 use crate::engine::dsp::waveform::WaveformCache;
+use crate::engine::input::midi::MidiEngine;
 use crate::engine::library::service::LibraryService;
 use crate::engine::persist::config_io;
 use crate::engine::persist::history::ConfigHistory;
@@ -20,6 +21,7 @@ pub struct AppState {
     pub console: Arc<ConsoleEngine>,
     pub audio: Mutex<AudioEngine>,
     pub player: Mutex<PlayerEngine>,
+    pub midi: MidiEngine,
     pub history: Mutex<ConfigHistory>,
     /// Arc porque lo comparte el resolvedor del reproductor: las bolsas de
     /// aleatorios son las mismas para los botones y para la cola.
@@ -50,9 +52,6 @@ impl AppState {
         let random_folders = Arc::new(Mutex::new(RandomFolderState::default()));
         let tracks = Arc::new(Mutex::new(TrackStore::open()));
         let library = Arc::new(LibraryService::open_default());
-        if let Err(error) = library.start_monitoring() {
-            eprintln!("library monitor unavailable: {error}");
-        }
         let resolver = QueueResolver::new(
             Arc::clone(&config),
             Arc::clone(&random_folders),
@@ -78,6 +77,7 @@ impl AppState {
             console,
             audio: Mutex::new(audio),
             player: Mutex::new(player),
+            midi: MidiEngine::new(),
             history: Mutex::new(ConfigHistory::default()),
             random_folders,
             tracks,

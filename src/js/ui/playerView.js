@@ -7,7 +7,7 @@
 
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
-import { typeIcon } from '../util/typeIcons.js';
+import { paintButtonContent } from './buttonVisual.js';
 import { mmss } from '../util/durationFormat.js';
 import { appConfirm3 } from './appDialog.js';
 import { alertIpcError } from './ipcError.js';
@@ -142,14 +142,12 @@ function _row(track, position) {
     el.setAttribute('role', 'option');
     el.setAttribute('aria-selected', String(isPlayerSelected(track.id)));
     el.classList.toggle('queue-selected', isPlayerSelected(track.id));
-    const icon = track.type_icon ? typeIcon(track.type_icon) : '';
     // Los tipos especiales no se resuelven hasta sonar: no hay duracion que
     // mostrar. Misma convencion que el Automatizador.
     const dur = track.type === 'audio' ? mmss(track.duration) : '--:--';
-    el.innerHTML = `<span class="player-row-title">${icon}
-            <span class="player-row-text">${track.name || track.label}</span>
-        </span>
+    el.innerHTML = `<span class="player-row-title"></span>
         <span class="player-row-dur">${dur}</span>`;
+    paintButtonContent(el.querySelector('.player-row-title'), track, 'player-row-text');
     // Doble clic: Rust decide segun suene o no (reproducir / marcar siguiente).
     // Un clic no hace nada: marcar sin querer al rozar una fila era problematico.
     el.addEventListener('click', e => {

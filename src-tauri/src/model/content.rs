@@ -6,6 +6,7 @@
 //! `ButtonData` es el ladrillo comun: lo usan la rejilla, el panel fijo y la cola
 //! del reproductor, por eso no cuelga de ningun modulo concreto.
 use crate::model::audio::AudioConfig;
+use crate::model::{ButtonVisual, MidiBinding};
 use serde::{Deserialize, Serialize};
 
 /// Un boton. Todos los campos nuevos llevan `#[serde(default)]` para que el LF
@@ -41,6 +42,10 @@ pub struct ButtonData {
     pub restart: bool,
     #[serde(default)]
     pub shortcut: String,
+    #[serde(default, skip_serializing_if = "MidiBinding::is_empty")]
+    pub midi: MidiBinding,
+    #[serde(default, skip_serializing_if = "ButtonVisual::is_default")]
+    pub visual: ButtonVisual,
 }
 fn default_type() -> String {
     "audio".to_string()
@@ -62,6 +67,8 @@ pub struct PaletaData {
     pub audio_out: String,
     #[serde(default)]
     pub shortcut: String,
+    #[serde(default, skip_serializing_if = "MidiBinding::is_empty")]
+    pub midi: MidiBinding,
     #[serde(default)]
     pub tab_bg: String,
     #[serde(default)]

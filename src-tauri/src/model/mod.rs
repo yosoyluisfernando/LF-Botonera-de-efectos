@@ -1,4 +1,5 @@
 pub mod audio;
+pub mod button_visual;
 pub mod config;
 pub mod console;
 pub mod content;
@@ -6,6 +7,7 @@ pub mod fade;
 pub mod fixed_panel;
 pub mod grid;
 pub mod locutions;
+pub mod midi;
 pub mod norm;
 pub mod playback;
 pub mod player;
@@ -15,12 +17,14 @@ pub mod track;
 pub mod waveform_cache;
 
 pub use audio::AudioConfig;
+pub use button_visual::ButtonVisual;
 pub use config::AppConfig;
 pub use content::{ButtonData, PaletaData, ProfileData};
 pub use fade::FadeConfig;
 pub use fixed_panel::FixedPanelConfig;
 pub use grid::{ButtonView, GridState};
 pub use locutions::LocutionConfig;
+pub use midi::{MidiBinding, MidiConfig, MidiDeviceRef};
 pub use norm::{CueDetectConfig, NormConfig};
 pub use playback::PlaybackProgressConfig;
 pub use player::PlayerConfig;

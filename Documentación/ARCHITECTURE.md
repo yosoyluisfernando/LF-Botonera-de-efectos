@@ -20,7 +20,7 @@ LF Botonera de Efectos sigue una arquitectura **frontend ligero / backend pesado
 │  Backend Rust (Tauri v2)                                    │
 │  Audio (rodio/cpal), DSP (ebur128, symphonia), config       │
 │  (serde_json), base de datos (rusqlite/SQLite), HTTP        │
-│  (ureq), atajos globales del SO.                            │
+│  (ureq), atajos globales del SO y entrada MIDI.             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -52,7 +52,9 @@ BOTONERA/
 │   │   └── util/            Helpers y utilidades
 │   ├── css/                 Hojas de estilo por componente
 │   └── public/
-│       └── i18n/            Traducciones: es.json (fuente), en, pt-BR, pt-PT
+│       ├── i18n/            Traducciones: es.json (fuente), en, pt-BR, pt-PT
+│       ├── fonts/           Noto Emoji y subconjunto Material Symbols
+│       └── visuals/         Sprites SVG locales por colección y categoría
 │
 ├── src-tauri/               Backend Rust + configuración Tauri
 │   ├── Cargo.toml           Dependencias Rust
@@ -104,8 +106,9 @@ Los motores actuales son:
 | `engine/dsp/` | Análisis de audio, LUFS, cue, fade, waveform y análisis del editor |
 | `engine/cache/` | Precarga RAM, caché de análisis, caché persistente de waveforms |
 | `engine/persist/` | `botonera_config.json`, `tracks.db`, historial y últimos reproducidos |
-| `engine/input/` | Atajos globales/locales, reglas de conflicto y acciones de teclado |
+| `engine/input/` | Atajos globales/locales, MIDI, reglas de conflicto y acciones de entrada |
 | `engine/weather/` | Geocoding, clima, locuciones dinámicas y reproducción asociada |
+| `engine/visuals/` | Catálogos locales Emoji/Básicos, búsqueda multilingüe paginada y validación de identificadores |
 
 El frontend está organizado en 3 capas:
 
@@ -130,10 +133,68 @@ El frontend está organizado en 3 capas:
 - DSP: análisis de loudness LUFS (ebur128), envolvente de onda (symphonia).
 - Precarga RAM (caché LRU).
 - Persistencia de configuración (JSON) y metadatos de pistas (SQLite).
-- Atajos de teclado globales del SO.
+- Atajos de teclado globales del SO y entradas MIDI seleccionadas.
 - Locuciones dinámicas de hora y clima (open-meteo).
 - Export/import de formatos `.bdelf` / `.bdeplf` / `.LFPlay`.
+- Búsqueda y validación de identificadores visuales mediante catálogos locales.
 - Verificación de actualizaciones (GitHub Releases API).
+
+### Identificador visual de un botón
+
+`ButtonData.visual` es un `ButtonVisual { kind, value, mode }`. `kind` admite
+`auto`, `emoji` y `basic`; `mode` admite `text`, `visual_text` y
+`visual`. Su valor predeterminado, `auto + visual_text`, reproduce la presentación
+histórica y se omite al serializar. Los valores personalizados viajan con
+`ButtonData`, incluidos los formatos compartidos.
+
+Rust carga bajo demanda los catálogos incorporados, busca en el idioma activo y
+valida el valor antes de persistirlo. El frontend consulta ventanas de hasta 300
+resultados y dibuja el recurso validado. `Básicos` reúne Material Symbols, Tabler y
+Game Icons monocromáticos. Los SVG se dividen por categoría y se cargan mediante
+`<use>` desde recursos locales. No existe acceso de red durante la selección ni el
+renderizado.
+
+---
+
+### Entrada MIDI para atajos
+
+La entrada MIDI vive en `engine/input/`, junto al sistema de atajos, porque comparte
+las mismas acciones de producto: disparar un botón, activar una pestaña o ejecutar
+Stop / pestaña siguiente / pestaña anterior. La UI solo captura y muestra el mapeo;
+Rust enumera dispositivos, mantiene conexiones abiertas, resuelve conflictos y
+despacha las acciones.
+
+`AppConfig.midi` guarda si MIDI está activo y qué entradas están seleccionadas.
+`ButtonData`, `PaletaData` y las acciones globales de `AudioConfig` guardan un
+`MidiBinding` opcional. Los campos nuevos tienen `#[serde(default)]` y se omiten si
+están vacíos, para que los archivos antiguos sigan cargando igual.
+
+En Windows el backend usa WinMM mediante `windows-sys`. Todo acceso nativo está
+aislado en `midi_backend_windows.rs` y `midi_ports_windows.rs`, compilados únicamente
+con `#[cfg(target_os = "windows")]`; `windows-sys` también es una dependencia exclusiva
+del target Windows. Linux conserva el modelo y la interfaz común, pero actualmente
+expone un backend MIDI vacío y no compila ni enlaza WinMM.
+
+El motor reconcilia los puertos cada segundo: abre dispositivos seleccionados que
+aparezcan, cierra los que desaparezcan y conserva en la UI los seleccionados aunque
+estén desconectados. Si hay dos dispositivos iguales conectados a la vez, se
+distinguen por el índice del puerto WinMM además de fabricante/producto. Esto permite
+usarlos simultáneamente; si dos unidades idénticas se desconectan y Windows cambia el
+orden de puertos al volver a conectarlas, WinMM no garantiza identificar físicamente
+cuál era cuál.
+
+La espera de captura se ejecuta como tarea bloqueante fuera del hilo de la ventana.
+`midi_capture_cancel` elimina el emisor pendiente, despierta esa tarea de inmediato y
+deja libre el único cupo de captura. Escape y los controles de cerrar/cancelar llaman
+al mismo comando; cerrar un modal nunca deja una captura huérfana.
+
+Mensajes admitidos como disparadores:
+
+- Note On con velocidad mayor que cero.
+- Control Change con valor mayor que cero.
+- Program Change.
+
+Note Off y Note On con velocidad cero se ignoran para evitar disparos dobles.
 
 ---
 
@@ -609,6 +670,7 @@ No existen tests de UI (Tauri no expone un harness de integración para el webvi
 | `tauri-plugin-global-shortcut` | 2.3.2 | Atajos de teclado del SO |
 | `tauri-plugin-window-state` | 2 | Recuerda tamaño/posición de ventana |
 | `tauri-plugin-dialog` | 2.7.1 | Diálogos de abrir/guardar archivo |
+| `windows-sys` | 0.59 | Backend MIDI WinMM en Windows |
 
 ---
 

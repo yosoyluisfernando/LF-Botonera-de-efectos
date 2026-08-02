@@ -97,6 +97,18 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
     // Hilo que vuelca el historial de reproducción a tracks.db (debounce)
     last_played::start_flusher(state.last_played.handle(), Arc::clone(&state.tracks));
 
+    // Registrar raíces recursivas con notify puede tardar varios segundos en
+    // Windows. Debe ocurrir después de entregar el control al bucle de ventana:
+    // la Biblioteca ya reconcilia su catálogo en su propio worker.
+    let library = Arc::clone(&state.library);
+    let _ = std::thread::Builder::new()
+        .name("library-startup".into())
+        .spawn(move || {
+            if let Err(error) = library.start_monitoring() {
+                eprintln!("library monitor unavailable: {error}");
+            }
+        });
+
     // Precarga proactiva según la estrategia (perfil completo / pestaña visible)
     preload_warm::warm_for_strategy(&state);
     // Recalentado OnPlay: precarga lo reproducido recientemente (TTL)
@@ -115,6 +127,7 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
 
     // Hilo de clima: refresca cada 15 min y emite "weather-updated"
     weather::start_auto_refresh(app.handle().clone());
+    state.midi.start(app.handle().clone());
     let _ = global_shortcuts::sync(app.handle());
     Ok(())
 }

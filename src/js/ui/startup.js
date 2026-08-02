@@ -33,10 +33,12 @@ import { applyToolbarButtons } from './toolbarButtons.js';
 import { wireRuntimeEvents } from './runtimeEvents.js';
 import { initLibraryWindowOpen } from './libraryWindowOpen.js';
 import { initBackupRestore } from './backupRestoreModal.js';
+import { startupReady, startupStage } from './startupProgress.js';
 let _closeWired = false;
 /** Punto único de arranque llamado desde main.js al cargar el DOM. */
 export async function startApp() {
     try {
+        await startupStage('connecting');
         await waitForTauri();
         // Ventanas "pop-out": si la URL lo pide, arranca SOLO esa herramienta.
         const params = new URLSearchParams(location.search);
@@ -48,10 +50,13 @@ export async function startApp() {
         initNumberInputs();
         _blockNativeContextMenu();
 
+        await startupStage('config');
         const config = await _loadConfig();
         applyTheme(config.theme || 'dark');
         _applyButtonTextSize(config.button_text_size);
+        await startupStage('language');
         await loadLanguage(config.language || 'es');
+        await startupStage('interface');
         _wireCloseButtons();
 
         if (config.is_first_boot) {
@@ -60,13 +65,17 @@ export async function startApp() {
             return;
         }
 
+        await startupStage('buttons');
         const [grid, fixedPanel] = await Promise.all([
             invoke('get_grid_state'), initialFixedPanel(),
         ]);
+        await startupStage('modules');
         _initModules(config, grid, fixedPanel);
         initStartupPrompts();
+        await startupStage('events');
         await wireRuntimeEvents({ onRefresh: _refresh, onDockEditor: _openDockedEditor });
-        _show('app-section');
+        await startupStage('ready');
+        startupReady();
         const restoreResultShown = await initBackupRestore({ checkResult: true });
         checkAudioDevicesOnStartup();
         await maybeShowPreloadDialog(); // Rust decide si toca (primer arranque)

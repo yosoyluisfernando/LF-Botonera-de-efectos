@@ -34,21 +34,28 @@ export function invoke(cmd, args) {
             weather_module_enabled: false,
             lf_automatizador_link: false,
             active_profile_id: 'demo_profile',
+            midi: { enabled: false, inputs: [] },
             profiles: [{
                 id: 'demo_profile',
                 name: 'Demo',
                 bg: '#008c3a',
                 text: '#ffffff',
                 active_paleta_id: 'demo_tab',
-                audio: { out_main: 'default', out_pre: 'default', key_stop: '', key_next: '', key_prev: '' },
+                audio: {
+                    out_main: 'default', out_pre: 'default',
+                    key_stop: '', key_next: '', key_prev: '',
+                    midi_stop: {}, midi_next: {}, midi_prev: {},
+                },
                 paletas: [{
                     id: 'demo_tab', nombre: 'BOTONERA 1', rows: 5, cols: 5,
                     audio_out: '', shortcut: '', tab_bg: '#3a3f44',
+                    midi: {},
                     tab_text: '#ffffff', botones: [],
                 }],
             }],
         });
     }
+    if (cmd === 'midi_devices') return Promise.resolve([]);
     if (cmd === 'get_grid_state') {
         return Promise.resolve({ columns: 5, rows: 5, buttons: [] });
     }

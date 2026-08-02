@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "emoji_version": "17.0",
+  "cldr_version": "48.2.0",
+  "count": 3953,
+  "sources": {
+    "emoji_test": "https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt",
+    "cldr_json_tag": "48.2.0",
+    "license": "https://raw.githubusercontent.com/unicode-org/cldr-json/48.2.0/LICENSE"
+  },
+  "files": [
+    {
+      "name": "es.ndjson",
+      "bytes": 778979,
+      "sha256": "f76c48d0d8598682896bb12d2e58bd417c5405720806e5cd6f362a9f50c9ce93"
+    },
+    {
+      "name": "en.ndjson",
+      "bytes": 789499,
+      "sha256": "e4266583f0abab4d3cb285d4a92b610bab9432625156b069ad0efcad07c66951"
+    },
+    {
+      "name": "pt-BR.ndjson",
+      "bytes": 794912,
+      "sha256": "41f322d17449dff5e35fb681da4e4aa517e578f00a2408c89e6b350efeeec6db"
+    },
+    {
+      "name": "pt-PT.ndjson",
+      "bytes": 828552,
+      "sha256": "f44c3de98c567e34c82cd84eba22f77c7797c3c5e003b8a7b6bb48475efbca94"
+    }
+  ]
+}

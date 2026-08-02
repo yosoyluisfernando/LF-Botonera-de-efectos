@@ -21,5 +21,7 @@ pub fn new_button(paleta_id: &str, index: u32, label: &str, bg: &str, text: &str
         overlap: false,
         restart: false,
         shortcut: String::new(),
+        midi: Default::default(),
+        visual: Default::default(),
     }
 }

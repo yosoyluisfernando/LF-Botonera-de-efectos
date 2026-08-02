@@ -10,8 +10,9 @@ import { showContextMenu } from './contextMenu.js';
 import { setPlaybackButtons } from './gridPlayback.js';
 import { isMapping, captureButton } from './mapping.js';
 import { paintAdaptive } from '../util/colorAdapter.js';
-import { typeIcon } from '../util/typeIcons.js';
 import { t } from '../util/i18n.js';
+import { paintButtonContent } from './buttonVisual.js';
+import { display as midiDisplay } from './midiControls.js';
 
 let _onRefresh = null;
 
@@ -54,18 +55,23 @@ function _makeCell(index, btnData) {
         btn.dataset.id            = btnData.id;
         paintAdaptive(btn, btnData.color_bg, btnData.color_text, 'button');
         const shortcutHtml = btnData.shortcut
-            ? `<span class="shortcut-badge">${btnData.shortcut}</span>`
+            ? `<span class="shortcut-badge">${_escapeHtml(btnData.shortcut)}</span>`
             : '';
-        const icon = btnData.type_icon ? typeIcon(btnData.type_icon) : '';
+        const midi = midiDisplay(btnData.midi);
+        const midiHtml = midi
+            ? `<span class="shortcut-badge">${_escapeHtml(midi)}</span>`
+            : '';
         const timerText = _staticTimer(btnData);
         btn.innerHTML = `
             <span class="index">${btnData.index}</span>
             ${shortcutHtml}
-            <span class="label">${icon}${btnData.name || btnData.label}</span>
+            ${midiHtml}
+            <span class="label"></span>
             <span class="timer">${timerText}</span>
             <div class="progress-container">
               <div class="progress-bar"></div>
             </div>`;
+        paintButtonContent(btn.querySelector('.label'), btnData);
 
         btn.addEventListener('click', e => {
             if (e.altKey) return; // Alt+clic = reordenar (gridDnd.js)
@@ -96,4 +102,10 @@ function _makeCell(index, btnData) {
 function _staticTimer(btnData) {
     if (btnData.timer_label_key) return t(btnData.timer_label_key);
     return btnData.duration_str || '';
+}
+
+function _escapeHtml(text) {
+    const span = document.createElement('span');
+    span.textContent = text;
+    return span.innerHTML;
 }

@@ -48,6 +48,7 @@ pub fn create_profile(name: String, state: tauri::State<AppState>) -> Result<App
         cols: 5,
         audio_out: String::new(),
         shortcut: String::new(),
+        midi: Default::default(),
         tab_bg: String::new(),
         tab_text: String::new(),
         botones: Vec::new(),

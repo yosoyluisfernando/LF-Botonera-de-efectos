@@ -113,6 +113,9 @@ pub fn update_fixed_button(
     folder: Option<String>,
     vol: Option<f32>,
     shortcut: Option<String>,
+    midi: Option<crate::model::MidiBinding>,
+    replace_shortcut: Option<bool>,
+    visual: Option<crate::model::ButtonVisual>,
     app: tauri::AppHandle,
     state_: tauri::State<AppState>,
 ) -> Result<FixedPanelState, String> {
@@ -124,6 +127,17 @@ pub fn update_fixed_button(
         if !value.is_finite() || !(0.0..=16.0).contains(&value) {
             return Err("invalid_volume".into());
         }
+    }
+    if let Some(value) = visual.as_ref() {
+        crate::engine::visuals::validate_button_visual(value)?;
+    }
+    if let Some(value) = midi.as_ref() {
+        crate::engine::input::midi_rules::apply_fixed(
+            &mut cfg,
+            index,
+            value,
+            replace_shortcut.unwrap_or(false),
+        )?;
     }
     if let Some(value) = path.as_deref() {
         if !value.is_empty() {
@@ -170,6 +184,12 @@ pub fn update_fixed_button(
     }
     if let Some(value) = shortcut {
         btn.shortcut = value;
+    }
+    if let Some(value) = midi {
+        btn.midi = value;
+    }
+    if let Some(value) = visual {
+        btn.visual = value;
     }
     config_io::save_config(&cfg)?;
     let next = state(&cfg);

@@ -6,7 +6,7 @@ use crate::engine::input::actions as input_actions;
 use crate::engine::input::keyboard as global_shortcuts;
 use crate::engine::input::rules as shortcut_rules;
 use crate::engine::persist::config_io as config;
-use crate::model::AppConfig;
+use crate::model::{AppConfig, MidiBinding};
 
 /// Guarda los atajos globales (detener todo / pestaña siguiente / anterior)
 /// en el perfil activo.
@@ -15,6 +15,9 @@ pub fn set_global_keys(
     key_stop: String,
     key_next: String,
     key_prev: String,
+    midi_stop: Option<MidiBinding>,
+    midi_next: Option<MidiBinding>,
+    midi_prev: Option<MidiBinding>,
     global_keys: Option<bool>,
     app: tauri::AppHandle,
     state: tauri::State<AppState>,
@@ -26,18 +29,31 @@ pub fn set_global_keys(
     {
         return Err("reserved_system_shortcut".to_string());
     }
+    crate::ipc::cmd_midi::validate_global(&cfg, "stop", midi_stop.as_ref())?;
+    crate::ipc::cmd_midi::validate_global(&cfg, "next", midi_next.as_ref())?;
+    crate::ipc::cmd_midi::validate_global(&cfg, "prev", midi_prev.as_ref())?;
     let profile = cfg
         .active_profile_mut()
         .ok_or("Perfil activo no encontrado")?;
     profile.audio.key_stop = key_stop;
     profile.audio.key_next = key_next;
     profile.audio.key_prev = key_prev;
+    if let Some(value) = midi_stop {
+        profile.audio.midi_stop = value;
+    }
+    if let Some(value) = midi_next {
+        profile.audio.midi_next = value;
+    }
+    if let Some(value) = midi_prev {
+        profile.audio.midi_prev = value;
+    }
     if let Some(v) = global_keys {
         profile.audio.global_keys = v;
     }
     config::save_config(&cfg)?;
     drop(cfg);
     global_shortcuts::sync(&app)?;
+    state.midi.sync();
     let cfg = state.config.lock().unwrap();
     Ok(cfg.clone())
 }

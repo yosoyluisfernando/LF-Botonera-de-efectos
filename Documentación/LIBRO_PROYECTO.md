@@ -134,6 +134,9 @@ src/js/
 │   ├── trackEditor.js       ← Orquestador del editor de pistas
 │   ├── runtimeEvents.js     ← Suscribe "audio-tick" (efectos) y "player-tick" (reproductor)
 │   ├── playerView.js        ← Modo reproductor: cola + transporte del panel lateral
+│   ├── visualSelector.js    ← Selector virtual de Emoji/Básicos
+│   ├── visualVirtualGrid.js ← Ventana DOM bidireccional de hasta 300 visuales
+│   ├── visualSvg.js         ← Referencias seguras a sprites SVG locales
 │   └── ...                  ← Modales, pestañas, perfiles, VU, pre-escucha, etc.
 └── util/                    ← Helpers sin estado crítico
     ├── i18n.js              ← loadLanguage(), t(key), data-i18n
@@ -234,6 +237,7 @@ Contiene todo el estado de la app: perfiles, paletas, botones, ajustes de audio,
 
 ```
 AppConfig
+  ├── midi: MidiConfig — activación y entradas MIDI globales seleccionadas
   ├── fixed_panel: alcance, vista ("player"|"buttons"), lado, visibilidad y botones globales
   │     └── playback_mode + solo_mode: reproducción independiente del panel
   │     └── columns, row_mode, rows, width: distribución y capacidad persistentes
@@ -245,14 +249,20 @@ AppConfig
   └── profiles[]
         └── ProfileData
               ├── fixed_buttons: botones laterales específicos del perfil
-              ├── audio: AudioConfig  (dispositivos, atajos globales, modo reproducción)
+              ├── audio: AudioConfig  (dispositivos, atajos globales de teclado/MIDI, modo reproducción)
               └── paletas[]
                     └── PaletaData
                           └── botones[]
-                                └── ButtonData (id, type, path, vol, loop_mode, shortcut…)
+                                 └── ButtonData (id, type, path, vol, visual, shortcut, midi…)
 ```
 
 La función `config::save_config()` escribe este JSON en cada cambio. La lectura es con `config::load_config()`, que incluye migración automática desde formatos anteriores.
+
+`ButtonData.visual` guarda por separado el identificador gráfico y su modo de
+presentación. Rust consulta localmente 3.953 emojis Unicode/CLDR y 8.388 iconos
+monocromáticos de Material Symbols, Tabler y Game Icons. El frontend pagina el
+selector, carga sprites por categoría y usa el mismo pintor en rejilla, panel fijo y
+reproductor.
 
 ### tracks.db — metadatos por archivo
 
@@ -285,6 +295,8 @@ metadatos fuera de los hilos de UI y audio, y omite esa lectura cuando tamaño y
 `engine/library/monitor.rs` mantiene la observación recursiva nativa. Agrupa ráfagas
 durante 250 ms y delega cada archivo en `incremental.rs`; un directorio o un error
 activa reconciliación. Al iniciar, la reconciliación completa corre en segundo plano.
+El registro recursivo inicial también se ejecuta en el hilo `library-startup`, después
+del setup de Tauri, para que una raíz grande o lenta no bloquee el bucle de la ventana.
 El observador acelera lo normal, pero nunca reemplaza esa garantía de consistencia.
 
 El esquema 4 añade índices derivados de recorrido por colección, presencia, nombre y
@@ -387,6 +399,7 @@ AppState {
   config:         Arc<Mutex<AppConfig>>      ← configuración completa
   audio:          Mutex<AudioEngine>         ← fachada del motor de audio (efectos)
   player:         Mutex<PlayerEngine>        ← fachada del reproductor auxiliar (motor propio)
+  midi:           MidiEngine                 ← entradas, conexión en caliente y captura
   history:        Mutex<ConfigHistory>       ← pila undo/redo
   random_folders: Arc<Mutex<RandomFolderState>>  ← Arc: lo comparte el resolvedor del reproductor
   tracks:         Arc<Mutex<TrackStore>>     ← acceso a tracks.db (Arc para compartir con flusher)
@@ -395,6 +408,13 @@ AppState {
   last_played:    LastPlayed                 ← buffer de última reproducción (debounce)
 }
 ```
+
+`MidiEngine` mantiene un hilo de entrada independiente del audio. En Windows abre los
+puertos seleccionados mediante WinMM, reconcilia cada segundo los dispositivos que se
+conectan o desconectan y entrega cada Note On, Control Change o Program Change al
+despachador común de acciones. Durante una captura, el siguiente mensaje se devuelve
+al modal en vez de ejecutar una acción; cancelar elimina esa espera inmediatamente.
+Los módulos WinMM se compilan solo en Windows y Linux conserva un backend vacío.
 
 El orden de construcción importa: `config`, `random_folders` y `tracks` se crean **antes** que el
 `PlayerEngine`, porque su resolvedor necesita esos `Arc` ya montados. Nunca se le pasa el
@@ -421,6 +441,7 @@ main.js
         ├── tabDnd.js                                                      │
         ├── profiles.js          ◄─── profileModal.js                     │
         ├── shortcuts.js         ◄─── keyInputs.js, shortcutSave.js       │
+        │                              midiControls.js, settingsMidi.js    │
         ├── grid.js              ◄─── contextMenu.js ◄─── editModal.js    │
         ├── gridDnd.js                               ◄─── editTypes.js    │
         ├── gridPlayback.js                          ◄─── editVolumeControl.js
@@ -448,6 +469,7 @@ main.js
         ├── 'meter-tick'    → vuMeter.js + consoleView.js
         ├── 'weather-updated' → settingsLocutions.js                      │
         ├── 'global-shortcut-refresh' → _refresh()                        │
+        ├── 'midi-devices-changed' → settingsMidi.js                     │
         ├── 'track-editor-dock' → trackEditor.js (lazy import)            │
         └── 'track-analysis-progress' → trackEditor.js                    │
 ```
@@ -860,7 +882,9 @@ Al lanzar la aplicación, ocurre la siguiente secuencia:
 4. Tauri llama `core::setup::on_setup()`:
    - Aplica el dispositivo de audio del perfil activo
    - Fija el presupuesto de RAM de la caché de precarga
-   - Arranca 4 hilos: monitor de audio, reloj, flusher de historial, refresco de clima
+   - Arranca los hilos de monitor de audio, reloj, flusher de historial, clima y
+     observación de Biblioteca
+   - El observador registra las raíces recursivas fuera del hilo de ventana
    - Ejecuta la precarga caliente según la estrategia configurada
    - Registra el hook de cierre para volcar el historial pendiente
 
@@ -869,8 +893,10 @@ Al lanzar la aplicación, ocurre la siguiente secuencia:
 2. `startup.js::startApp()` espera que `window.__TAURI__` esté disponible
 3. Detecta si la URL contiene `?editor=path` (modo ventana pop-out del editor)
 4. Invoca `get_config` → aplica tema y carga el idioma
-5. Si `is_first_boot` → muestra el wizard; si no → carga todos los módulos y la rejilla
-6. Suscribe eventos Rust: `clock-tick`, `audio-tick`, `weather-updated`, etc.
+5. Muestra el estado real de cada etapa y cede cuadros al WebView para que la ventana
+   pueda repintarse durante la espera
+6. Si `is_first_boot` → muestra el wizard; si no → carga todos los módulos y la rejilla
+7. Suscribe eventos Rust: `clock-tick`, `audio-tick`, `weather-updated`, etc.
 
 > Ver glosario: [AppState](#), [is_first_boot](#), [wizard](#), [pop-out](#)
 

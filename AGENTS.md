@@ -101,6 +101,7 @@ AppConfig
   ├── theme, language, button_text_size, editor_mode
   ├── preload: PreloadConfig
   ├── locutions: LocutionConfig
+  ├── midi: MidiConfig {enabled, inputs}  ← entradas MIDI globales seleccionadas
   ├── fixed_panel: FixedPanelConfig {scope, view: "player"|"buttons"|"search", side, columns, rows, width, ...}
   ├── player: PlayerConfig          ← reproductor auxiliar, global (uno solo)
   │     ├── tracks: Vec<ButtonData>   (la cola; reutiliza ButtonData, admite todos los tipos)
@@ -110,12 +111,12 @@ AppConfig
   └── profiles: Vec<ProfileData>
         └── ProfileData
               ├── id, name, bg, text
-              ├── audio: AudioConfig {out_main, out_pre, playback_mode, master_volume, ...}
+              ├── audio: AudioConfig {out_main, out_pre, playback_mode, master_volume, atajos globales, ...}
               ├── active_paleta_id
               ├── fixed_buttons: Vec<ButtonData>
               └── paletas: Vec<PaletaData>
                     └── PaletaData
-                          ├── id, nombre, rows, cols, audio_out, shortcut, tab_bg, tab_text
+                          ├── id, nombre, rows, cols, audio_out, shortcut, midi, tab_bg, tab_text
                           └── botones: Vec<ButtonData>
                                 └── ButtonData
                                       ├── id: "{paleta_id}_btn_{index}"
@@ -125,7 +126,9 @@ AppConfig
                                       ├── vol: f32   (multiplicador lineal, NO en dB)
                                       ├── duration: f64, duration_str: String
                                       ├── loop_mode, stop_other, overlap, restart: bool
-                                      └── shortcut: String
+                                      ├── shortcut: String
+                                      ├── midi: MidiBinding
+                                      └── visual: ButtonVisual {kind, value, mode}
 ```
 
 ### Metadatos de pista (SQLite `tracks.db`)
@@ -212,6 +215,7 @@ el CUE a `Program` aunque se pida.
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | — | startup.js → recarga la UI |
+| `"midi-devices-changed"` | — | settingsMidi.js → actualiza entradas y estado de conexión |
 | `"track-editor-dock"` | `{path, name, zoom}` | startup.js → abre editor en modal |
 | `"track-analysis-progress"` | `{path, stage}` | trackEditor.js → actualiza progreso del análisis |
 | `"theme-changed"` | `{theme}` | ventana pop-out del editor |
@@ -237,6 +241,8 @@ Para la lista completa ver [`CLAUDE.md §9`](CLAUDE.md).
 - `update_button_data(paleta_id, index, data)` → guarda edición de botón
 - `export_tab_by_id(paleta_id)` / `import_tab()` → formatos .bdelf
 - `set_editor_mode(mode)` → "modal" | "window"; persiste en AppConfig
+- `midi_devices()` / `midi_set_config(enabled, input_ids)` → consulta y aplica entradas MIDI en caliente
+- `midi_capture_next()` / `midi_capture_cancel()` → captura asíncrona cancelable
 
 **Reproductor auxiliar** (motor propio; los índices son POSICIONES 0-based en la cola):
 - `get_player` → cola + ajustes + estado; `get_player_snapshot` → solo el estado en vivo
@@ -360,7 +366,11 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 
 ## 12. Estado del proyecto y pendientes
 
-**Código actual: 1.3.0, rama `codex/buscador-interno`.**
+**Código actual: 1.3.0, rama `codex/midi-input`.**
+
+Las ramas locales `codex/buscador-interno` y `codex/midi-input` parten exactamente
+del mismo commit (`43e67b0`). Todo el trabajo cerrado de Biblioteca y Buscador ya
+forma parte de la rama actual; no hay una fusión pendiente entre ellas.
 
 - La publicación y actualización 1.3.0 están cerradas. El release de GitHub
   `v1.3.0` se publicó el 2026-07-28. No reabrirlas como continuidad activa.
@@ -383,16 +393,26 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 - Enter y doble clic en Biblioteca siguen sin acción; el menú contextual es la única
   puerta a las acciones de pista.
 
-**Pendiente inmediato: emojis en los botones.**
+**Trabajo actual: entrada MIDI e identificadores visuales en los botones.**
 
-El autor está cerrando el diseño en otra conversación. Antes de modificar código hay
-que incorporar esas decisiones y aprobar cualquier cambio de `ButtonData`, IPC o
-formatos compartidos. El objetivo confirmado es mejorar la identificación visual a
-distancia sin perder accesibilidad para lector de pantalla.
+La entrada MIDI para Windows está implementada mediante WinMM, aislada de Linux.
+Permite seleccionar varios puertos, reconcilia conexiones y desconexiones en caliente
+y asigna Note On, Control Change o Program Change a botones, botones fijos, pestañas y
+acciones globales. La captura compartida es asíncrona y cancelable sin bloquear la
+ventana.
+
+El modelo, los catálogos offline, el selector y el pintor compartido están
+implementados localmente y pendientes de prueba funcional del autor. `ButtonVisual`
+usa `kind`, `value` y `mode`; el valor predeterminado conserva la presentación
+anterior y se omite del JSON. Emojis es la colección principal con 3.953 valores;
+`Básicos` contiene 8.388 iconos monocromáticos de Material Symbols, Tabler y Game
+Icons. La búsqueda y el renderizado son completamente locales. El visual es
+decorativo para tecnologías de asistencia y el nombre textual se conserva.
 
 **Pendientes conocidos no bloqueantes:**
 
 - Prueba física en Linux de `.deb` y `.AppImage`.
+- Prueba funcional final del autor con su controlador MIDI y con el selector visual.
 - Deuda menor: `master_volume` y `ButtonData.vol` son `f32`; su representación JSON
   puede crecer (`0.45` → `0.4499999…`).
 

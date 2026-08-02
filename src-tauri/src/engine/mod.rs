@@ -7,4 +7,5 @@ pub mod input;
 pub mod library;
 pub mod persist;
 pub mod player;
+pub mod visuals;
 pub mod weather;

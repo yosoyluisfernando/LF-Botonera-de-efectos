@@ -15,6 +15,7 @@ import { appAlert } from './appDialog.js';
 import { initFixedPanelSettings, loadFixedPanelSettings, saveFixedPanelSettings } from './settingsFixedPanel.js';
 import { loadToolbarButtons, saveToolbarButtons } from './toolbarButtons.js';
 import { loadAboutInfo } from './aboutInfo.js';
+import { globalMidiBindings, initSettingsMidi, loadSettingsMidi, saveSettingsMidi } from './settingsMidi.js';
 
 let _onSaved         = null;
 let _currentOutMain  = null; // Tarjeta vigente al abrir el modal
@@ -44,6 +45,7 @@ export function initSettingsModal(onSaved) {
 
     initLocutionsPanel();
     initPreloadPanel();
+    initSettingsMidi();
     initKeyInputs();
     _wireDonateButton();
 
@@ -87,6 +89,7 @@ async function _openSettings() {
     loadLocutionsPanel(config);
     loadPreloadPanel();
     loadPlaybackPanel(config);
+    await loadSettingsMidi(config);
     await loadFixedPanelSettings(config, devices);
     _renderOrphanedShortcuts(config);
     document.getElementById('settings-modal').classList.remove('hidden');
@@ -105,8 +108,10 @@ async function _saveSettings() {
             keyStop: document.getElementById('config-key-stop').value,
             keyNext: document.getElementById('config-key-next').value,
             keyPrev: document.getElementById('config-key-prev').value,
+            ...globalMidiBindings(),
             globalKeys: document.getElementById('config-global-keys').checked,
         });
+        await saveSettingsMidi();
         await saveLocutions();
         await savePreload();
         await savePlaybackPanel();

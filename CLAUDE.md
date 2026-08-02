@@ -162,8 +162,15 @@ ButtonData {
   overlap: bool,
   restart: bool,
   shortcut: String,
+  visual: ButtonVisual, // default: auto + visual_text; se omite del JSON si no cambia
 }
 ```
+
+`ButtonVisual` separa el identificador del nombre: `kind` es
+`"auto"|"emoji"|"basic"`, `value` contiene el emoji o identificador
+estable y `mode` es `"text"|"visual_text"|"visual"`. Los SVG usan valores
+`colección:categoría:nombre`. Rust valida el contrato antes de guardarlo. Un archivo
+antiguo conserva exactamente la presentación automática actual.
 
 **Notas de IDs de botón:** formato `{paleta_id}_btn_{index}`. `config_io.rs` normaliza al cargar para migrar el formato antiguo `btn_{index}` que colisionaba entre paletas.
 
@@ -478,6 +485,7 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | (vacío) | startup.js → `_refresh()` |
+| `"midi-devices-changed"` | (vacío) | settingsMidi.js → refresca dispositivos |
 | `"track-editor-dock"` | `{path, name, zoom}` | startup.js → abre editor en modo modal |
 | `"console-dock"` | (vacío) | runtimeEvents.js → devuelve la consola al modal |
 | `"track-analysis-progress"` | `{path, stage}` | trackEditor.js → actualiza progreso del análisis |
@@ -538,14 +546,22 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `toggle_button_flag(paleta_id, index, flag)` — flag ∈ {loop_mode, stop_other, overlap, restart}
 - `get_edit_button_types`
 - `update_button_data(paleta_id, index, data)`
+- `visuals_search_emojis(language, query, group?, offset, limit)` → página local
+- `visuals_emoji_groups(language)` → categorías y cantidades del catálogo local
+- `visuals_search_basics(language, query, group?, offset, limit)` → colección Básicos
+- `visuals_basic_groups(language)` → categorías de Básicos
 - `move_button_to_paleta(from_paleta_id, from_index, to_paleta_id, to_index)`
 - `reorder_buttons(paleta_id, from_id, to_id)`
 
 ### Atajos de teclado
-- `set_global_keys(stop?, next?, prev?)`
+- `set_global_keys(stop?, next?, prev?, midi_stop?, midi_next?, midi_prev?)`
 - `cycle_paleta(direction)` — "next" | "prev"
 - `handle_local_shortcut(combo)` → dispara el botón o acción asignada
 - `clear_button_shortcut(paleta_id, index)`
+- `midi_devices()` → entradas MIDI visibles y seleccionadas/desconectadas
+- `midi_set_config(enabled, input_ids)` → activa MIDI y selecciona puertos
+- `midi_capture_next()` → espera de forma asíncrona el siguiente Note On / CC / Program Change
+- `midi_capture_cancel()` → cancela inmediatamente la captura MIDI pendiente
 
 ### Locuciones (Fase 6)
 - `set_locution_config(config)`
@@ -789,11 +805,15 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
    - Aplica dispositivo de audio (out_main del perfil activo)
    - Aplica dispositivo de pre-escucha (out_pre, si difiere del principal)
    - Fija presupuesto de RAM de la caché
-   - Arranca 4 hilos: monitor, reloj, historial, clima
+   - Arranca los hilos de monitor, reloj, historial, clima y observación de Biblioteca
+   - La observación recursiva de raíces se registra en `library-startup`, nunca en el
+     hilo que debe entregar la ventana a Windows
    - Precarga caliente según estrategia
    - Registra `on_window_event` CloseRequested → flush de historial
 4. Frontend (`main.js`) espera `DOMContentLoaded` → `startup::startApp()`
-5. `startApp()` espera `window.__TAURI__` → invoca `get_config` → aplica tema/idioma → inicia módulos → suscribe eventos Rust
+5. `startApp()` mantiene una pantalla de estado actualizada entre etapas, espera
+   `window.__TAURI__` → invoca `get_config` → aplica tema/idioma → inicia módulos →
+   suscribe eventos Rust
 
 **Detección de pop-out:** si la URL contiene `?editor=<path>`, `startup.js` arranca en modo editor exclusivo (sin rejilla, sin barra inferior), carga solo el módulo `trackEditor.js`.
 
@@ -802,9 +822,14 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 298 passed, 19 ignored)
+# Backend Rust (suite actual: 313 passed, 19 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
+
+# Ejecutable autónomo para prueba real. No sustituir por `cargo build --release`:
+# solo el CLI de Tauri activa el protocolo de producción e incrusta `src/dist`.
+cd ..
+npm run tauri build -- --no-bundle
 
 # Colchón del reproductor contra un ARCHIVO de verdad (necesita un audio en el
 # equipo, por eso va #[ignore]; no necesita tarjeta, la app puede seguir abierta).
@@ -858,14 +883,16 @@ No lanzar la app por computer-use. El usuario prueba en su PC.
 
 ## 15. Pendientes reales (en orden de prioridad)
 
-### A) Emojis opcionales en los botones
+### A) Verificación funcional de MIDI e identificadores visuales
 
-- Objetivo confirmado: reconocer los botones con mayor facilidad a distancia.
-- El diseño detallado se está cerrando en otra conversación. Incorporarlo y aprobarlo
-  antes de cambiar `ButtonData`, IPC o los formatos compartidos.
-- Debe conservar un nombre accesible para lector de pantalla y compatibilidad hacia
-  atrás mediante `#[serde(default)]`.
-- Estado: no iniciado en esta rama.
+- Ambas funciones están implementadas localmente en `codex/midi-input` y todavía no
+  tuvieron beta ni versión pública. En el changelog se describen como funciones
+  nuevas, nunca como correcciones de problemas internos de desarrollo.
+- MIDI usa WinMM solo en Windows; Linux conserva un backend vacío. La selección de
+  puertos, la conexión en caliente y la captura asíncrona están implementadas.
+- Los identificadores visuales incluyen 3.953 emojis y 8.388 iconos Básicos offline,
+  con nombre accesible y compatibilidad hacia atrás mediante `#[serde(default)]`.
+- Falta la prueba funcional final del autor con su controlador MIDI y el selector.
 
 ### B) Prueba física en Linux
 - El código es agnóstico del SO (rutas vía `config::get_data_dir()`, SQLite bundled, rodio/ALSA).

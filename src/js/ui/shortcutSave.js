@@ -23,11 +23,19 @@ export async function invokeShortcutSave(command, payload) {
             await appAlert(_format(t('shortcuts.reserved_system'), conflict));
             throw error;
         }
+        if (conflict.code === 'midi_blocked_global') {
+            await appAlert(_format(t('midi.blocked_global'), conflict));
+            throw error;
+        }
 
         const messageKey = {
             shortcut_conflict_button: 'shortcuts.replace_button',
             shortcut_conflict_tab: 'shortcuts.replace_tab',
             shortcut_conflict_button_any: 'shortcuts.replace_button_any',
+            midi_conflict_button: 'midi.replace_button',
+            midi_conflict_tab: 'midi.replace_tab',
+            midi_conflict_button_any: 'midi.replace_button_any',
+            midi_conflict_fixed: 'midi.replace_fixed',
         }[conflict.code];
         if (!messageKey || !await appConfirm(_format(t(messageKey), conflict))) throw error;
         return await invoke(command, { ...payload, replaceShortcut: true });
@@ -36,7 +44,7 @@ export async function invokeShortcutSave(command, payload) {
 
 function _parseConflict(error) {
     const parts = String(error ?? '').split('|');
-    if (!parts[0]?.startsWith('shortcut_')) return null;
+    if (!parts[0]?.startsWith('shortcut_') && !parts[0]?.startsWith('midi_')) return null;
     return { code: parts[0], key: parts[1] ?? '', target: parts[2] ?? '' };
 }
 

@@ -29,6 +29,13 @@ pub struct LfaButton {
     pub restart: bool,
     #[serde(default)]
     pub shortcut: String,
+    #[serde(default, skip_serializing_if = "crate::model::MidiBinding::is_empty")]
+    pub midi: crate::model::MidiBinding,
+    #[serde(
+        default,
+        skip_serializing_if = "crate::model::ButtonVisual::is_default"
+    )]
+    pub visual: crate::model::ButtonVisual,
 }
 
 pub(super) fn default_type() -> String {
@@ -52,6 +59,8 @@ pub struct LfaPaleta {
     pub audio_out: String,
     #[serde(default)]
     pub shortcut: String,
+    #[serde(default, skip_serializing_if = "crate::model::MidiBinding::is_empty")]
+    pub midi: crate::model::MidiBinding,
     #[serde(default, rename = "tabBg")]
     pub tab_bg: String,
     #[serde(default, rename = "tabText")]

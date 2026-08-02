@@ -134,6 +134,8 @@ fn migrate(old: LegacyConfig) -> AppConfig {
                         overlap: false,
                         restart: false,
                         shortcut: String::new(),
+                        midi: Default::default(),
+                        visual: Default::default(),
                     })
                     .collect();
             }

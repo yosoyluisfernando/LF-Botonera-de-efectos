@@ -18,6 +18,8 @@ import {
 import {
     currentEditVolumeLinear, setEditVolumeFromLinear, syncEditVolumeControl,
 } from './editVolumeControl.js';
+import { currentEditVisual, initEditVisual, refreshEditVisualPreview } from './visualSelector.js';
+import { getMidiField, initMidiField, setMidiField } from './midiControls.js';
 
 /**
  * Abre el modal de edición para el botón indicado.
@@ -48,6 +50,9 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
     document.getElementById('edit-bg-color').value   = btnData?.color_bg   ?? '#444444';
     document.getElementById('edit-text-color').value = btnData?.color_text ?? '#ffffff';
     document.getElementById('edit-shortcut').value   = btnData?.shortcut   ?? '';
+    initMidiField('edit-midi', 'edit-midi-capture', 'edit-midi-clear');
+    setMidiField('edit-midi', btnData?.midi);
+    initEditVisual(btnData?.visual);
     await attachPalette(
         document.getElementById('edit-bg-color'),
         document.getElementById('edit-text-color'),
@@ -76,6 +81,7 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
         setEditVolumeFromLinear(sel === type0 ? (btnData?.vol ?? 1.0) : 1.0);
         _applyPathHint(sel, pathEl);
         syncEditVolumeControl(sel);
+        refreshEditVisualPreview();
     };
 
     // "..." → audio: explorador de ARCHIVOS filtrado a audio (vía Rust/rfd);
@@ -142,6 +148,8 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
                 folder:    isFolder ? pathEl.value : '',
                 vol:       currentEditVolumeLinear(sel),
                 shortcut:  document.getElementById('edit-shortcut').value,
+                midi:      getMidiField('edit-midi'),
+                visual:    currentEditVisual(),
             });
             modal.classList.add('hidden');
             onSave?.();

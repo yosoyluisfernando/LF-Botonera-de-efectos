@@ -1,0 +1,138 @@
+{
+  "format": 2,
+  "kind": "basic",
+  "count": 8388,
+  "sources": {
+    "material": {
+      "count": 24,
+      "source": "Material Symbols Rounded"
+    },
+    "tabler": {
+      "count": 4231,
+      "version": "3.46.0",
+      "commit": "8ac7d81b72ece11072ef25ea9fd92e80c6f3c9fc"
+    },
+    "gameIcons": {
+      "count": 4133,
+      "commit": "82d948812bfe3f269ef8f731dcdb07b08160edc4"
+    }
+  },
+  "catalogs": {
+    "es.ndjson": "39d29ad15f12fd932cacda7df50f0ffdd123e6fa03611b5a53e401ecac9343db",
+    "en.ndjson": "c1f7220abd71abebc450f9ab31b2367cc82ba99ac5f5abcaac6455e2b6068c56",
+    "pt-BR.ndjson": "80d7a5a48f50980eca6b1da5690a93d361e6765ffb85386e7ae723182f20f360",
+    "pt-PT.ndjson": "26393aa6f07ece11c92053e80fc8e87219f5fb398623dd08fd9cea8290c4fec4"
+  },
+  "sprites": {
+    "audio.svg": {
+      "count": 234,
+      "bytes": 202928,
+      "sha256": "dcd8fb33543e6a378f6e6b129c97dd7cf51267ccf15ff53d16771a3b2205a62a"
+    },
+    "reactions.svg": {
+      "count": 89,
+      "bytes": 74647,
+      "sha256": "2565d4aca6efca88aff536c2ba99329cff47a4d4f078c1b9288a9a560a62f821"
+    },
+    "alerts.svg": {
+      "count": 128,
+      "bytes": 186282,
+      "sha256": "56e04baccf7d0f88d552dc71f5ae29a824e55d33b725e2bf4e8f2cfa6a1959aa"
+    },
+    "office.svg": {
+      "count": 449,
+      "bytes": 221813,
+      "sha256": "62dbecd5b9e16df5cf677d55895aa1143e90c72133975d720c27908b1a805ae3"
+    },
+    "communication.svg": {
+      "count": 109,
+      "bytes": 42660,
+      "sha256": "0050b0c6640bfcef2e0658ba30256117bacda02cf6787097af6b5523dc7a575f"
+    },
+    "people.svg": {
+      "count": 338,
+      "bytes": 560140,
+      "sha256": "9ab05f5607d357fd29fb571500d5be6daa3ad938bfe0cfca332b5b315a6440ab"
+    },
+    "animals.svg": {
+      "count": 486,
+      "bytes": 990812,
+      "sha256": "23084dbd595f5cee5a4fd3d5da5da359dd53ba6f7a5fefe159f0237d4988e884"
+    },
+    "nature.svg": {
+      "count": 600,
+      "bytes": 1030312,
+      "sha256": "447cd6165e85f067bbb28dc4e621eb52b66ec35b228a2b4782d573b623419e17"
+    },
+    "objects.svg": {
+      "count": 412,
+      "bytes": 393099,
+      "sha256": "a135f7555b437bb76cb865611db99eddce9cd04b817ac816da8f390d767e438f"
+    },
+    "food.svg": {
+      "count": 288,
+      "bytes": 412879,
+      "sha256": "f4f05ca7d49e969b03f81fabb29c0d5ad644383f713eda8ff64f39fe94cbe8e1"
+    },
+    "transport.svg": {
+      "count": 172,
+      "bytes": 188207,
+      "sha256": "00a6bae0a7c18e3eff00b8cec7533884dcf2f62ef5482949f5f642cfa63bbb17"
+    },
+    "weather.svg": {
+      "count": 211,
+      "bytes": 240848,
+      "sha256": "61a57eae704a45d622dbe548ba3170e5c5832a53589e560bf3e52bc80bafd8a3"
+    },
+    "sports.svg": {
+      "count": 252,
+      "bytes": 324234,
+      "sha256": "a23bca4288165f9651f2276fc3e934eaa6deb521fce3d2848ee3458d88e6ac6c"
+    },
+    "places.svg": {
+      "count": 590,
+      "bytes": 472385,
+      "sha256": "937f9e4199ea8feabfd319f743d5fa6bc7c3d9997c69fa1ecbd9ff60f3881f36"
+    },
+    "technology.svg": {
+      "count": 640,
+      "bytes": 462762,
+      "sha256": "8ad6681a942e6d98c5105cec9154ad38b081529a983aeb945676c5f19f717209"
+    },
+    "creative.svg": {
+      "count": 510,
+      "bytes": 450597,
+      "sha256": "d78fa9dc8f284b35c722ecb081f014acfe9516d4c15605e02f104152a0200aa3"
+    },
+    "science.svg": {
+      "count": 264,
+      "bytes": 238428,
+      "sha256": "d2d5df008728e975debc43c6596f6027aea4fd8779c4f9d3ec7871a9f13e6c82"
+    },
+    "fantasy.svg": {
+      "count": 234,
+      "bytes": 332917,
+      "sha256": "d779246c3a59a05062d93394f1f2186760b55ee951386349595b9a6a7b133ed2"
+    },
+    "weapons.svg": {
+      "count": 316,
+      "bytes": 406266,
+      "sha256": "ce98691518a97b03ca8c02524ab7a458b6421cb59069702ca31654da5f101480"
+    },
+    "symbols.svg": {
+      "count": 1302,
+      "bytes": 926328,
+      "sha256": "876c4acd5efc1022af0cef6d675ab9d0b04e3b73d60b6605e11141446801e13d"
+    },
+    "actions.svg": {
+      "count": 738,
+      "bytes": 325279,
+      "sha256": "6c983bf425f90196e2d7d8023ee7c963905358c4da4b490ccbec0a3b2795ad15"
+    },
+    "other.svg": {
+      "count": 2,
+      "bytes": 7356,
+      "sha256": "5fd015e93fddfeafa7fd59d2b1992e696b84ee8490cc23df9c4ba6c1a1ef6e89"
+    }
+  }
+}

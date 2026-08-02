@@ -24,6 +24,7 @@ pub mod cmd_local_shortcuts;
 pub mod cmd_locutions;
 pub mod cmd_master_volume;
 pub mod cmd_meta;
+pub mod cmd_midi;
 pub mod cmd_norm;
 pub mod cmd_paletas;
 pub mod cmd_playback;
@@ -40,6 +41,7 @@ pub mod cmd_profiles;
 pub mod cmd_startup_prompts;
 pub mod cmd_tracks;
 pub mod cmd_updates;
+pub mod cmd_visuals;
 
 #[macro_use]
 pub mod register;

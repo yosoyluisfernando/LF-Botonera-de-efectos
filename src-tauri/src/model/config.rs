@@ -8,6 +8,7 @@ use crate::model::content::{PaletaData, ProfileData};
 use crate::model::fade::FadeConfig;
 use crate::model::fixed_panel::FixedPanelConfig;
 use crate::model::locutions::LocutionConfig;
+use crate::model::midi::MidiConfig;
 use crate::model::norm::{CueDetectConfig, NormConfig};
 use crate::model::playback::PlaybackProgressConfig;
 use crate::model::player::PlayerConfig;
@@ -55,6 +56,8 @@ pub struct AppConfig {
     pub last_update_check: i64,
     #[serde(default)]
     pub locutions: LocutionConfig,
+    #[serde(default, skip_serializing_if = "MidiConfig::is_default")]
+    pub midi: MidiConfig,
     #[serde(default)]
     pub preload: PreloadConfig,
     #[serde(default)]
@@ -115,6 +118,7 @@ impl Default for AppConfig {
             cols: 5,
             audio_out: String::new(),
             shortcut: String::new(),
+            midi: Default::default(),
             tab_bg: String::new(),
             tab_text: String::new(),
             botones: Vec::new(),
@@ -144,6 +148,7 @@ impl Default for AppConfig {
             clock_24h: true,
             last_update_check: 0,
             locutions: LocutionConfig::default(),
+            midi: MidiConfig::default(),
             preload: PreloadConfig::default(),
             norm: NormConfig::default(),
             cue_detect: CueDetectConfig::default(),
