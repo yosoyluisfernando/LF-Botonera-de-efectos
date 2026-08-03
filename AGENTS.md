@@ -393,11 +393,13 @@ forma parte de la rama actual; no hay una fusión pendiente entre ellas.
 - Enter y doble clic en Biblioteca siguen sin acción; el menú contextual es la única
   puerta a las acciones de pista.
 
-**Trabajo actual: publicación coordinada de 1.4.0.**
+**Estado actual: versión 1.4.0 publicada.**
 
-Microsoft Store publicó Submission 4 el 2026-08-02. `main` contiene el código cerrado;
-GitHub Actions compiló y adjuntó los paquetes de Windows y Linux al release 1.4.0. La
-publicación de GitHub se coordina con ese mismo estado y número de versión.
+Microsoft Store publicó Submission 4 el 2026-08-02 y GitHub publicó el release
+`v1.4.0` desde el mismo estado final del código. Los cinco paquetes de Windows y Linux
+están adjuntos al release. No hay una implementación activa; la próxima etapa prevista
+será una reorganización y mejora visual de la interfaz, que debe planearse y aprobarse
+antes de modificarla.
 
 Windows usa WinMM y Linux usa `midir 0.11` sobre ALSA Sequencer; cada adaptador y
 dependencia se compila solo en su plataforma. Permite seleccionar varios puertos,

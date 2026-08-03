@@ -9,12 +9,12 @@
 Este archivo no es un historial. Conserva únicamente el trabajo activo, las
 decisiones cerradas, la evidencia vigente y el siguiente paso real.
 
-## 1. Objetivo activo
+## 1. Estado actual
 
-Publicar en GitHub la versión 1.4.0 ya disponible en Microsoft Store, usando el release
-en borrador y los cinco paquetes previamente verificados.
-
-No añadir funciones nuevas ni cambiar el número de versión durante esta etapa.
+La publicación coordinada de 1.4.0 está cerrada en Microsoft Store y GitHub. No hay
+una implementación activa. La próxima etapa prevista será una reorganización y mejora
+visual de la interfaz; antes de construirla se debe revisar el alcance y aprobar su
+plan.
 
 ## 2. Estado de Microsoft Store
 
@@ -86,24 +86,24 @@ Archivo local:
 Sigue pendiente la prueba física final del autor con controlador MIDI en Linux y en
 los distintos canales de instalación Windows. No bloquea la certificación ya enviada.
 
-## 7. GitHub preparado
+## 7. GitHub publicado
 
 - `main` contiene el estado cerrado de 1.4.0.
 - La rama temporal `codex/midi-linux-build` fue eliminada localmente y del remoto
   después de comprobar que estaba completamente integrada.
-- Existe un release `v1.4.0` en borrador, dirigido a `main`, con notas para usuarios
-  finales y una nota sobre la siguiente actualización visual.
-- El borrador tiene adjuntos cinco paquetes: `.exe`, `.msi`, `.deb`, `.rpm` y
-  `.AppImage`.
+- El release público `v1.4.0` contiene notas para usuarios finales y una nota sobre la
+  siguiente actualización visual.
+- Tiene adjuntos cinco paquetes: `.exe`, `.msi`, `.deb`, `.rpm` y `.AppImage`.
 - Las copias locales verificadas están en `Compilados/GitHub-1.4.0/`.
-- No existe todavía `refs/tags/v1.4.0`; publicar el borrador creará la etiqueta cuando
-  corresponda.
+- La etiqueta `v1.4.0` apunta al commit `75c3da7`, el mismo estado final usado para
+  cerrar el changelog y publicar la versión.
 
 ## 8. Siguiente paso
 
-1. Confirmar el cierre de documentación en `main`.
-2. Publicar el release de GitHub y comprobar que la etiqueta `v1.4.0` apunta al estado
-   final de `main` y que conserva los cinco instaladores.
-3. Mantener `[Sin publicar]` vacío para el siguiente ciclo.
+1. Mantener `[Sin publicar]` vacío hasta iniciar el próximo ciclo.
+2. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
+   antes de modificar la interfaz.
+3. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
+   Linux y en los distintos canales de instalación Windows.
 
 No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.
