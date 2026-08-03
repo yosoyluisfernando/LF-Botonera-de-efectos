@@ -395,11 +395,9 @@ forma parte de la rama actual; no hay una fusión pendiente entre ellas.
 
 **Trabajo actual: publicación coordinada de 1.4.0.**
 
-Microsoft Store tiene Submission 4 en certificación y publicará automáticamente al
-aprobar. GitHub debe permanecer en borrador hasta confirmar que la versión ya es
-pública en Store. `main` contiene el código cerrado; GitHub Actions ya compiló y
-adjuntó los paquetes de Windows y Linux al release 1.4.0 en borrador, sin crear todavía
-la etiqueta pública.
+Microsoft Store publicó Submission 4 el 2026-08-02. `main` contiene el código cerrado;
+GitHub Actions compiló y adjuntó los paquetes de Windows y Linux al release 1.4.0. La
+publicación de GitHub se coordina con ese mismo estado y número de versión.
 
 Windows usa WinMM y Linux usa `midir 0.11` sobre ALSA Sequencer; cada adaptador y
 dependencia se compila solo en su plataforma. Permite seleccionar varios puertos,

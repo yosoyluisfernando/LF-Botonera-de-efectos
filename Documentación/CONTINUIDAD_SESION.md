@@ -11,9 +11,8 @@ decisiones cerradas, la evidencia vigente y el siguiente paso real.
 
 ## 1. Objetivo activo
 
-Esperar la certificación de Microsoft Store para la versión 1.4.0. GitHub se prepara
-por separado en `main`, con compilaciones de Windows y Linux y un release en borrador,
-pero no debe publicarse hasta confirmar que Microsoft hizo pública la actualización.
+Publicar en GitHub la versión 1.4.0 ya disponible en Microsoft Store, usando el release
+en borrador y los cinco paquetes previamente verificados.
 
 No añadir funciones nuevas ni cambiar el número de versión durante esta etapa.
 
@@ -21,12 +20,12 @@ No añadir funciones nuevas ni cambiar el número de versión durante esta etapa
 
 - Producto: LF Botonera de Efectos (`9NJ8ST39QP7V`).
 - Entrega: Submission 4 (`1152921505701566131`).
-- Estado confirmado en Partner Center: `Actualización en certificación`.
-- Fase mostrada al enviar: `Preprocesando`, paso 2 de 4.
-- Publicación: automática tan pronto como supere la certificación; no hay una fecha
-  programada ni una retención manual.
-- El paquete 1.4.0 fue aceptado y marcado como `Validated` para Windows Desktop x64.
-- La versión 1.3.0 continúa pública mientras Microsoft procesa la actualización.
+- Estado confirmado en Partner Center: `¡Felicidades! El producto ya está actualizado`.
+- Partner Center indica que el producto más reciente ya está disponible en Microsoft
+  Store y muestra Submission 4 como la presencia actual.
+- Fecha pública adoptada para el proyecto: 2026-08-02, según la zona horaria del autor.
+- El paquete 1.4.0 está publicado para Windows Desktop x64 y Microsoft Store administra
+  su firma y sus actualizaciones.
 
 ## 3. Paquete definitivo enviado
 
@@ -60,8 +59,8 @@ Archivo local:
 
 ## 5. Changelog y versión
 
-- `CHANGELOG.md` conserva `[Sin publicar]` vacío y las novedades bajo `[1.4.0]`, sin
-  fecha mientras la versión no esté publicada.
+- `CHANGELOG.md` conserva `[Sin publicar]` vacío y cierra las novedades bajo
+  `[1.4.0] — 2026-08-02`.
 - La ventana de bienvenida busca primero contenido en `[Sin publicar]`; al estar vacío,
   carga la sección que coincide con `CARGO_PKG_VERSION`, por lo que mostrará 1.4.0.
 - Se preservó el cambio manual del autor que eliminó una segunda viñeta técnica del
@@ -102,14 +101,9 @@ los distintos canales de instalación Windows. No bloquea la certificación ya e
 
 ## 8. Siguiente paso
 
-1. Consultar el estado de Submission 4 hasta que Microsoft apruebe y publique 1.4.0.
-2. Confirmar la versión desde la ficha pública y una instalación de Microsoft Store.
-3. Añadir la fecha pública real a `[1.4.0]` en `CHANGELOG.md`, confirmar ese cambio en
-   `main` y publicar el release de GitHub; su etiqueta `v1.4.0` debe apuntar a ese
-   estado final.
-4. Al completar ambas publicaciones, abrir una
-   nueva sección `[Sin publicar]` para el siguiente ciclo.
+1. Confirmar el cierre de documentación en `main`.
+2. Publicar el release de GitHub y comprobar que la etiqueta `v1.4.0` apunta al estado
+   final de `main` y que conserva los cinco instaladores.
+3. Mantener `[Sin publicar]` vacío para el siguiente ciclo.
 
-No hay pull request ni etiqueta pública para 1.4.0. El release continúa en borrador y
-sus archivos no están disponibles para el público. No tocar `Capturas_Tienda/`; es
-material ajeno a esta tarea.
+No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.

@@ -32,7 +32,7 @@ directamente desde Windows:
 
 ## [Sin publicar]
 
-## [1.4.0]
+## [1.4.0] — 2026-08-02
 
 ### Añadido
 - Control MIDI en Windows y Linux: conecta una o varias entradas y asígnalas a
