@@ -50,6 +50,18 @@ select option {
   color: var(--text-primary);
 }
 
+/* WebKitGTK puede conservar los colores nativos claros al deshabilitar un
+   control. Se fijan ambos colores sin quitar la apariencia ni la flecha nativa. */
+input[type="text"]:disabled,
+input[type="number"]:disabled,
+input[type="search"]:disabled,
+select:disabled {
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  -webkit-text-fill-color: var(--text-primary);
+}
+
 input[type="color"] {
   width: 100%;
   height: 30px;

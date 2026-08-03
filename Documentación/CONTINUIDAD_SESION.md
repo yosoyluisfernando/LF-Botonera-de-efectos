@@ -1,8 +1,8 @@
 # Continuidad de sesión — estado actual
 
-**Actualizado:** 2026-08-02
+**Actualizado:** 2026-08-03
 
-**Rama de trabajo:** `main`
+**Rama de trabajo:** `codex/fix-linux-dark-controls`
 
 **Versión del código:** 1.4.0
 
@@ -11,10 +11,12 @@ decisiones cerradas, la evidencia vigente y el siguiente paso real.
 
 ## 1. Estado actual
 
-La publicación coordinada de 1.4.0 está cerrada en Microsoft Store y GitHub. No hay
-una implementación activa. La próxima etapa prevista será una reorganización y mejora
-visual de la interfaz; antes de construirla se debe revisar el alcance y aprobar su
-plan.
+La publicación coordinada de 1.4.0 está cerrada en Microsoft Store y GitHub. Está en
+curso una corrección de presentación para los paquetes Linux de esa misma versión:
+los controles nativos claros de WebKitGTK podían conservar fondo blanco dentro del
+tema oscuro. No se sustituirán los paquetes Windows publicados. La próxima etapa
+prevista sigue siendo una reorganización y mejora visual de la interfaz; antes de
+construirla se debe revisar el alcance y aprobar su plan.
 
 ## 2. Estado de Microsoft Store
 
@@ -82,6 +84,12 @@ Archivo local:
 - Compilación Release del canal Store y creación del MSIX definitivo: correctas.
 - GitHub Actions `30785123248`, sobre el commit `48f411a`, completó correctamente las
   pruebas y compilaciones Release de Windows y Linux.
+- Corrección de controles nativos: `cargo test --lib` mantiene 321 aprobadas, 0
+  fallidas y 19 ignoradas; `cargo build --lib`, `npm run build`,
+  `npm run visuals:verify` y `tauri build --no-bundle` finalizaron correctamente.
+- Ejecutable Release para la prueba visual Windows:
+  `Compilados/Prueba-tema-1.4.0-Windows/LF-Botonera-1.4.0-prueba-tema.exe`;
+  SHA-256 `1545C0314E6A9C03620916E990BAFEAD919B769E0479B5CC7A0E16CC831330F3`.
 
 Sigue pendiente la prueba física final del autor con controlador MIDI en Linux y en
 los distintos canales de instalación Windows. No bloquea la certificación ya enviada.
@@ -100,10 +108,13 @@ los distintos canales de instalación Windows. No bloquea la certificación ya e
 
 ## 8. Siguiente paso
 
-1. Mantener `[Sin publicar]` vacío hasta iniciar el próximo ciclo.
-2. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
+1. Verificar la corrección de tema en Windows y compilar los tres paquetes Linux.
+2. Sustituir únicamente `.deb`, `.rpm` y `.AppImage` en el release `v1.4.0`; conservar
+   sin cambios `.exe` y `.msi`.
+3. Solicitar comprobación visual en Debian/KDE antes de cerrar el issue #5.
+4. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
    antes de modificar la interfaz.
-3. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
+5. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
    Linux y en los distintos canales de instalación Windows.
 
 No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.

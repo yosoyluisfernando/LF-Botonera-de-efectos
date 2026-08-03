@@ -145,7 +145,7 @@ src/js/
     └── ...
 ```
 
-**CSS** (`src/css/`): un archivo por componente principal. `theme.css` define todas las *custom properties* de color. `main.css` define el layout. El resto son estilos de componentes específicos.
+**CSS** (`src/css/`): un archivo por componente principal. `theme.css` define todas las *custom properties* de color y comunica el esquema claro u oscuro a los controles nativos de WebView2 y WebKitGTK. `main.css` define el layout. El resto son estilos de componentes específicos.
 
 **i18n** (`src/public/i18n/`): `es.json` es la fuente de verdad. Los cuatro idiomas (es, en, pt-BR, pt-PT) deben tener exactamente las mismas claves.
 
@@ -924,8 +924,8 @@ SQLite viva ni motor puede observar un estado parcial. Ver
 | `src-tauri/tauri.conf.json` | Nombre de app, versión, ventanas, bundle (icon, msi upgradeCode, nsis) |
 | `src-tauri/capabilities/default.json` | Permisos del webview Tauri (⚠ sin BOM) |
 | `src-tauri/build.rs` | Script de build Tauri (no tocar) |
-| `.github/workflows/build.yml` | CI de desarrollo: compila en push/PR |
-| `.github/workflows/release-builds.yml` | CI de release: al publicar tag `v*`, compila y sube artefactos |
+| `.github/workflows/build.yml` | CI de desarrollo y release: compila en push/PR y publica al recibir un tag `v*` |
+| `.github/workflows/release-builds.yml` | Reconstrucción manual por plataforma; conserva artefactos y solo publica con confirmación explícita |
 | `src-tauri/src/domain/distribution.rs` | Fuente única del canal, plataforma y administrador de actualizaciones incorporados al build |
 | `scripts/build-store-msix.ps1` | Compila el canal `store` y genera el MSIX con la identidad oficial |
 | `DEV.bat` | Arranca la app en modo desarrollo (`npm run tauri dev`); doble clic para usar |
