@@ -14,7 +14,7 @@ Lee este archivo completo antes de proponer o escribir código.
 
 **LF Botonera de Efectos** es una botonera de sonidos (*soundboard*) para radio y *streaming* en directo. Los operadores de radio asignan archivos de audio a botones en una rejilla, organizados en pestañas (paletas) dentro de perfiles, y los disparan en tiempo real durante transmisiones.
 
-- **Versión del código:** 1.3.0
+- **Versión del código:** 1.4.0
 - **Stack:** Tauri v2 (backend Rust) + Vanilla JS + Vite (frontend)
 - **Repositorio local:** `C:\OVERLAY\BOTONERA`
 - **GitHub:** https://github.com/yosoyluisfernando/LF-Botonera-de-efectos
@@ -366,7 +366,7 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 
 ## 12. Estado del proyecto y pendientes
 
-**Código actual: 1.3.0, rama `codex/midi-input`.**
+**Código actual: 1.4.0, rama `main`.**
 
 Las ramas locales `codex/buscador-interno` y `codex/midi-input` parten exactamente
 del mismo commit (`43e67b0`). Todo el trabajo cerrado de Biblioteca y Buscador ya
@@ -393,7 +393,12 @@ forma parte de la rama actual; no hay una fusión pendiente entre ellas.
 - Enter y doble clic en Biblioteca siguen sin acción; el menú contextual es la única
   puerta a las acciones de pista.
 
-**Trabajo actual: entrada MIDI en Windows y Linux.**
+**Trabajo actual: publicación coordinada de 1.4.0.**
+
+Microsoft Store tiene Submission 4 en certificación y publicará automáticamente al
+aprobar. GitHub debe permanecer en borrador hasta confirmar que la versión ya es
+pública en Store. `main` contiene el código cerrado; las compilaciones de Windows y
+Linux se preparan mediante GitHub Actions sin crear todavía la etiqueta pública.
 
 Windows usa WinMM y Linux usa `midir 0.11` sobre ALSA Sequencer; cada adaptador y
 dependencia se compila solo en su plataforma. Permite seleccionar varios puertos,
@@ -407,7 +412,7 @@ activo. `ButtonVisual` usa `kind`, `value` y `mode`; Emojis contiene 3.953 valor
 
 **Pendientes conocidos no bloqueantes:**
 
-- Compilación y prueba física MIDI en Linux de `.deb`, `.rpm` y `.AppImage`.
+- Prueba física MIDI en Linux de `.deb`, `.rpm` y `.AppImage`.
 - Prueba funcional final del autor con su controlador MIDI en Windows y Linux.
 - Deuda menor: `master_volume` y `ButtonData.vol` son `f32`; su representación JSON
   puede crecer (`0.45` → `0.4499999…`).

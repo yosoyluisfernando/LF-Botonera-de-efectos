@@ -32,6 +32,8 @@ directamente desde Windows:
 
 ## [Sin publicar]
 
+## [1.4.0]
+
 ### Añadido
 - Control MIDI en Windows y Linux: conecta una o varias entradas y asígnalas a
   botones, botones fijos, pestañas o acciones como Detener todos, Pestaña siguiente y
@@ -45,11 +47,6 @@ directamente desde Windows:
   8.388 iconos monocromáticos buscables en español, inglés y las dos variantes de
   portugués. Cada botón puede conservar su icono original o presentarse como Solo
   texto, Visual y texto o Solo visual sin perder su nombre accesible.
-- El selector visual ofrece las colecciones Emojis y Básicos, búsqueda y categorías
-  localizadas, desplazamiento continuo con carga limitada en memoria y una opción
-  para mostrar las variantes de tono de piel, ocultas inicialmente. El editor reúne
-  la vista previa, la elección del visual y el modo de presentación en una fila
-  compacta.
 - El Centro de procesamiento permite retirar rutas ya indexadas con confirmación,
   conservarlas entre 30 y 365 días y restaurarlas antes de su vencimiento.
 - La Biblioteca permite crear y restaurar un respaldo completo `.lfbackup` con la
@@ -287,7 +284,8 @@ reducción de permisos innecesarios.
 
 ---
 
-[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.3.0...HEAD
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.1.3...v1.2.0

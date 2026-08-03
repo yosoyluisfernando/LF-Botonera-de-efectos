@@ -2,111 +2,101 @@
 
 **Actualizado:** 2026-08-02
 
-**Rama de trabajo:** `codex/midi-linux-build`
+**Rama de trabajo:** `main`
 
-**Versión del código:** 1.3.0
+**Versión del código:** 1.4.0
 
 Este archivo no es un historial. Conserva únicamente el trabajo activo, las
-decisiones aprobadas, la evidencia disponible y el siguiente paso real.
+decisiones cerradas, la evidencia vigente y el siguiente paso real.
 
 ## 1. Objetivo activo
 
-Completar la entrada MIDI de la próxima versión para Windows y Linux. No hay otro
-trabajo activo en esta sesión.
+Esperar la certificación de Microsoft Store para la versión 1.4.0. GitHub se prepara
+por separado en `main`, con compilaciones de Windows y Linux y un release en borrador,
+pero no debe publicarse hasta confirmar que Microsoft hizo pública la actualización.
 
-La función todavía no ha llegado al público. Todo cambio relacionado con MIDI debe
-describirse en `CHANGELOG.md` dentro de `Añadido`, nunca como corrección.
+No añadir funciones nuevas ni cambiar el número de versión durante esta etapa.
 
-## 2. Decisiones aprobadas
+## 2. Estado de Microsoft Store
 
-- Windows conserva el backend WinMM existente sin cambios.
-- Linux usa `midir 0.11` sobre ALSA Sequencer.
-- `midir` es una dependencia exclusiva del target Linux.
-- Se descartó implementar directamente sobre el crate `alsa`.
-- Captura, conflictos, asignaciones, acciones, IPC, persistencia y reconexión en
-  caliente siguen siendo lógica común para ambas plataformas.
-- Los paquetes Linux en alcance son `.deb`, `.rpm` y `.AppImage`.
-- No crear un plan temporal separado: la arquitectura permanente está en
-  `ARCHITECTURE.md` y este archivo conserva el punto de reanudación.
-- No crear commits, preparar staging ni hacer push hasta que el autor lo pida.
-- No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.
+- Producto: LF Botonera de Efectos (`9NJ8ST39QP7V`).
+- Entrega: Submission 4 (`1152921505701566131`).
+- Estado confirmado en Partner Center: `Actualización en certificación`.
+- Fase mostrada al enviar: `Preprocesando`, paso 2 de 4.
+- Publicación: automática tan pronto como supere la certificación; no hay una fecha
+  programada ni una retención manual.
+- El paquete 1.4.0 fue aceptado y marcado como `Validated` para Windows Desktop x64.
+- La versión 1.3.0 continúa pública mientras Microsoft procesa la actualización.
 
-## 3. Implementación actual
+## 3. Paquete definitivo enviado
 
-Se añadieron dos adaptadores exclusivos de Linux:
+Archivo local:
 
-- `engine/input/midi_ports_linux.rs` enumera entradas mediante `midir`.
-- `engine/input/midi_backend_linux.rs` abre cada entrada seleccionada y entrega sus
-  bytes al analizador MIDI común.
+`Compilados/Microsoft-Store-1.4.0/LF-Botonera-1.4.0.0-x64-unsigned.msix`
 
-El adaptador Windows continúa en `midi_ports_windows.rs` y
-`midi_backend_windows.rs`. `midi_ports.rs` y `midi_backend.rs` eligen el adaptador con
-`cfg(target_os)`; otros sistemas conservan el backend vacío.
+- Tamaño: 17.394.512 bytes.
+- SHA-256: `DB506CD721AFFB7118342360DD911E458257FE9929B0A33ADB0B5A26575344D1`.
+- Identidad: `LuisFernandoVelasquez.LFBotoneradeEfectos`.
+- Publisher: `CN=AD90DE58-447F-47AE-AC1A-3D369955282B`.
+- Versión MSIX: `1.4.0.0`.
+- Arquitectura: x64.
+- Familia: Windows Desktop, versión mínima `10.0.19041.0`.
+- El paquete se envió sin firma local; Microsoft Store lo firma durante su proceso.
 
-Linux no persiste directamente la dirección ALSA `cliente:puerto`, porque puede
-cambiar al reconectar. Guarda un identificador derivado del nombre estable y de la
-posición entre puertos con el mismo nombre. La dirección ALSA actual solo sirve para
-abrir el puerto durante esa sesión. Dos controladores iguales pueden usarse a la vez;
-si el sistema invierte su orden, no se puede distinguir cuál unidad física era cada
-una, la misma limitación práctica documentada para WinMM.
+## 4. Contenido cerrado de 1.4.0
 
-`Cargo.toml` declara `midir = "0.11"` únicamente para Linux. El árbol resuelto usa la
-misma dependencia `alsa 0.9.1` que ya incorporaba `rodio` mediante `cpal`, por lo que
-MIDI no añade otra biblioteca nativa al sistema. `Cargo.lock` y los avisos de
-licencias fueron regenerados.
+- Entrada MIDI para Windows mediante WinMM y para Linux mediante `midir 0.11` sobre
+  ALSA Sequencer.
+- Selección de varias entradas, reconexión en caliente y asignación de Note On,
+  Control Change y Program Change a botones, botones fijos, pestañas y acciones.
+- La lista MIDI puede actualizarse con el control desactivado; las casillas de
+  selección quedan bloqueadas hasta permitir los disparos. Rust conserva la
+  selección previa ante un intento IPC mientras MIDI está desactivado.
+- Identificadores visuales offline para los botones mediante las colecciones Emojis y
+  Básicos. La categoría Coloridos se descartó antes de publicar y no se menciona como
+  corrección.
+- Respaldo `.lfbackup`, retiro seguro de rutas y edición de metadatos de la Biblioteca,
+  según las notas públicas cerradas en `CHANGELOG.md`.
 
-## 4. Alcance funcional compartido
+## 5. Changelog y versión
 
-- Activar MIDI y seleccionar una o varias entradas desde Ajustes.
-- Aplicar la selección y las conexiones o desconexiones sin reiniciar.
-- Asignar Note On, Control Change y Program Change a botones, botones fijos,
-  pestañas y acciones globales.
-- Ignorar Note Off y Note On con velocidad cero para evitar dobles disparos.
-- Capturar la siguiente orden MIDI sin bloquear la ventana y cancelar de inmediato.
-- Conservar en la interfaz una entrada seleccionada aunque esté temporalmente
-  desconectada.
-- Mostrar y actualizar los dispositivos aunque MIDI esté desactivado, pero bloquear
-  sus casillas de selección hasta permitir los disparos. Rust conserva la selección
-  anterior si un IPC intenta cambiarla mientras MIDI está desactivado.
+- `CHANGELOG.md` conserva `[Sin publicar]` vacío y las novedades bajo `[1.4.0]`, sin
+  fecha mientras la versión no esté publicada.
+- La ventana de bienvenida busca primero contenido en `[Sin publicar]`; al estar vacío,
+  carga la sección que coincide con `CARGO_PKG_VERSION`, por lo que mostrará 1.4.0.
+- Se preservó el cambio manual del autor que eliminó una segunda viñeta técnica del
+  selector visual.
+- `package.json`, `package-lock.json`, `Cargo.toml`, `Cargo.lock` y
+  `tauri.conf.json` están sincronizados en 1.4.0.
+- `SET-VERSION.ps1` ahora lee los archivos UTF-8 explícitamente para no alterar
+  acentos en futuras actualizaciones.
 
-## 5. Documentación y texto público
+## 6. Evidencia vigente
 
-- `ARCHITECTURE.md`, `LIBRO_PROYECTO.md`, `GLOSARIO.md` y `AGENTS.md` describen los
-  backends WinMM y ALSA y la separación por plataforma.
-- `CHANGELOG.md` presenta MIDI como una función nueva para Windows y Linux con texto
-  orientado al público.
-- La única modificación relativa al respaldo fue aclarar en `CHANGELOG.md` qué
-  contiene `.lfbackup` y que los audios deben conservarse por separado. No se cambió
-  código de respaldo, pistas, cue, ganancia ni normalización.
-
-## 6. Evidencia disponible
-
-- `cargo test --lib`: 321 aprobadas, 0 fallidas y 19 ignoradas; incluye la protección
-  backend de la selección cuando MIDI está desactivado.
+- `cargo check`: correcto.
+- `cargo test --lib`: 321 aprobadas, 0 fallidas y 19 ignoradas.
+- Prueba específica de notas de versión 1.4.0: correcta.
 - `cargo build --lib`: correcto.
 - `npm run build`: correcto.
-- `npm run licenses`: correcto después de descargar el contenido ya fijado por
-  `Cargo.lock`.
-- `cargo tree --target x86_64-unknown-linux-gnu -i alsa`: `rodio/cpal` y `midir`
-  convergen en `alsa 0.9.1`.
-- Los dos módulos Linux tienen menos de 200 líneas.
-- GitHub Actions `30782348034`, sobre el commit `7472eaa`, compiló correctamente los
-  instaladores Windows `.exe` y `.msi` y los paquetes Linux `.deb`, `.rpm` y
-  `.AppImage` en Ubuntu 22.04.
-- `scripts/build-store-msix.ps1` generó correctamente el MSIX 1.3.0.0 sin firma con
-  la identidad oficial de Microsoft Store.
-- Los seis paquetes y sus hashes SHA-256 están en
-  `Compilados/MIDI-1.3.0-7472eaa/`. Esta carpeta es local y está ignorada por git.
+- `npm run visuals:verify`: correcto.
+- `npm run licenses`: correcto.
+- Compilación Release del canal Store y creación del MSIX definitivo: correctas.
+- GitHub Actions `30782348034`, sobre el commit `7472eaa`, compiló correctamente
+  `.exe`, `.msi`, `.deb`, `.rpm` y `.AppImage` con la implementación MIDI.
 
-La compilación nativa de Linux está verificada. Todavía no se ha realizado una prueba
-funcional con controlador físico en Linux ni en cada canal de instalación Windows.
+Sigue pendiente la prueba física final del autor con controlador MIDI en Linux y en
+los distintos canales de instalación Windows. No bloquea la certificación ya enviada.
 
 ## 7. Siguiente paso
 
-1. Probar en Linux con un controlador real: selección, captura, disparo, desconexión y
-   reconexión sin reiniciar.
-2. Probar en Windows los canales `.exe`, `.msi` y Microsoft Store; todos comparten el
-   backend WinMM, pero la confirmación física sigue siendo necesaria.
+1. Consultar el estado de Submission 4 hasta que Microsoft apruebe y publique 1.4.0.
+2. Confirmar la versión desde la ficha pública y una instalación de Microsoft Store.
+3. Comprobar que las compilaciones de GitHub para Windows y Linux terminaron y que sus
+   paquetes quedaron adjuntos al release 1.4.0 en borrador.
+4. Solo entonces publicar el release de GitHub y crear o confirmar la etiqueta
+   `v1.4.0` con el mismo estado de `main`.
+5. Al completar ambas publicaciones, añadir la fecha real a `[1.4.0]` y abrir una
+   nueva sección `[Sin publicar]` para el siguiente ciclo.
 
-La implementación y los paquetes están listos; la etapa pendiente es la prueba física
-del autor.
+No se ha creado todavía commit, etiqueta, pull request ni release de GitHub para
+1.4.0. No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.

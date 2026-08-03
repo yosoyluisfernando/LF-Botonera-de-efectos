@@ -25,7 +25,7 @@ if ($LASTEXITCODE -ne 0) {
 # 2. Cargo.toml - solo primera ocurrencia (seccion [package])
 Write-Host "[2/3] src-tauri\Cargo.toml ..."
 $cargoPath = Join-Path $root "src-tauri\Cargo.toml"
-$cargo = Get-Content $cargoPath -Raw
+$cargo = Get-Content $cargoPath -Raw -Encoding UTF8
 $cargo = [regex]::Replace(
     $cargo,
     '(\[package\][\s\S]*?version = )"\d+\.\d+\.\d+"',
@@ -37,7 +37,7 @@ $cargo = [regex]::Replace(
 # 3. tauri.conf.json
 Write-Host "[3/3] src-tauri\tauri.conf.json ..."
 $tauriPath = Join-Path $root "src-tauri\tauri.conf.json"
-$tauri = Get-Content $tauriPath -Raw
+$tauri = Get-Content $tauriPath -Raw -Encoding UTF8
 $tauri = $tauri -replace '"version":\s*"\d+\.\d+\.\d+"', "`"version`": `"$Version`""
 [System.IO.File]::WriteAllText($tauriPath, $tauri, [System.Text.UTF8Encoding]::new($false))
 
