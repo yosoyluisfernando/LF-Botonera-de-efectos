@@ -81,8 +81,6 @@ licencias fueron regenerados.
 
 ## 6. Evidencia disponible
 
-Completado en Windows:
-
 - `cargo test --lib`: 321 aprobadas, 0 fallidas y 19 ignoradas; incluye la protección
   backend de la selección cuando MIDI está desactivado.
 - `cargo build --lib`: correcto.
@@ -91,23 +89,24 @@ Completado en Windows:
   `Cargo.lock`.
 - `cargo tree --target x86_64-unknown-linux-gnu -i alsa`: `rodio/cpal` y `midir`
   convergen en `alsa 0.9.1`.
-- El intento de `cargo check --target x86_64-unknown-linux-gnu` desde Windows llegó
-  hasta las dependencias nativas de Tauri y se detuvo antes del código de la app por
-  falta de `pkg-config`, GLib y GObject de Linux. No equivale a una compilación Linux.
 - Los dos módulos Linux tienen menos de 200 líneas.
+- GitHub Actions `30782348034`, sobre el commit `7472eaa`, compiló correctamente los
+  instaladores Windows `.exe` y `.msi` y los paquetes Linux `.deb`, `.rpm` y
+  `.AppImage` en Ubuntu 22.04.
+- `scripts/build-store-msix.ps1` generó correctamente el MSIX 1.3.0.0 sin firma con
+  la identidad oficial de Microsoft Store.
+- Los seis paquetes y sus hashes SHA-256 están en
+  `Compilados/MIDI-1.3.0-7472eaa/`. Esta carpeta es local y está ignorada por git.
 
-La compilación Windows no compila el adaptador Linux por diseño. Este equipo no tiene
-una distribución WSL disponible; por tanto, la compilación nativa Linux y las pruebas
-de hardware no deben declararse realizadas.
+La compilación nativa de Linux está verificada. Todavía no se ha realizado una prueba
+funcional con controlador físico en Linux ni en cada canal de instalación Windows.
 
 ## 7. Siguiente paso
 
-1. Compilar en Linux y comprobar `.deb`, `.rpm` y `.AppImage`.
-2. Probar con un controlador real: selección, captura, disparo, desconexión y
+1. Probar en Linux con un controlador real: selección, captura, disparo, desconexión y
    reconexión sin reiniciar.
-3. Probar en Windows los canales `.exe`, `.msi` y Microsoft Store; todos comparten el
+2. Probar en Windows los canales `.exe`, `.msi` y Microsoft Store; todos comparten el
    backend WinMM, pero la confirmación física sigue siendo necesaria.
 
-La etapa no está cerrada hasta completar al menos la compilación Linux. Si esta tarea
-se reanuda en Windows antes de disponer de Linux, no rediseñar la arquitectura:
-continuar desde la validación de plataforma pendiente.
+La implementación y los paquetes están listos; la etapa pendiente es la prueba física
+del autor.
