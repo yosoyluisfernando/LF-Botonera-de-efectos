@@ -90,6 +90,16 @@ Archivo local:
 - Ejecutable Release para la prueba visual Windows:
   `Compilados/Prueba-tema-1.4.0-Windows/LF-Botonera-1.4.0-prueba-tema.exe`;
   SHA-256 `1545C0314E6A9C03620916E990BAFEAD919B769E0479B5CC7A0E16CC831330F3`.
+- GitHub Actions `30844689983`, sobre el commit `59a7587`, ejecutó únicamente el job
+  Ubuntu y finalizó correctamente. La publicación estaba desactivada; Windows se
+  omitió y el release público no se modificó.
+- Los paquetes privados descargados están en
+  `Compilados/Linux-tema-1.4.0-run-30844689983/`: AppImage de 106.109.432 bytes
+  (`205AD151DE73AEDDFD2630AF29ABDAA329CA53D449A329B0AB87E12235D4FD62`),
+  DEB de 18.274.610 bytes
+  (`0EFAF1ED157D9D881322321EAB0759E4410F4A04797FB1CEEF4926B588B12BF5`) y
+  RPM de 18.278.577 bytes
+  (`0427A85A9A7B9C563318F1CE72A79BF7A0CD0C5DDA91DADC81D9BC2774FCB5`).
 
 Sigue pendiente la prueba física final del autor con controlador MIDI en Linux y en
 los distintos canales de instalación Windows. No bloquea la certificación ya enviada.
@@ -108,13 +118,14 @@ los distintos canales de instalación Windows. No bloquea la certificación ya e
 
 ## 8. Siguiente paso
 
-1. Verificar la corrección de tema en Windows y compilar los tres paquetes Linux.
-2. Sustituir únicamente `.deb`, `.rpm` y `.AppImage` en el release `v1.4.0`; conservar
+1. Verificar la corrección de tema en Windows con el ejecutable Release preparado.
+2. Integrar el PR #8 en `main` cuando la prueba Windows sea correcta.
+3. Sustituir únicamente `.deb`, `.rpm` y `.AppImage` en el release `v1.4.0`; conservar
    sin cambios `.exe` y `.msi`.
-3. Solicitar comprobación visual en Debian/KDE antes de cerrar el issue #5.
-4. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
+4. Solicitar comprobación visual en Debian/KDE antes de cerrar el issue #5.
+5. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
    antes de modificar la interfaz.
-5. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
+6. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
    Linux y en los distintos canales de instalación Windows.
 
 No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.
