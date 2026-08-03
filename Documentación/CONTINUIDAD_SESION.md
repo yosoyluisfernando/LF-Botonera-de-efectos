@@ -90,6 +90,8 @@ Archivo local:
 - Ejecutable Release para la prueba visual Windows:
   `Compilados/Prueba-tema-1.4.0-Windows/LF-Botonera-1.4.0-prueba-tema.exe`;
   SHA-256 `1545C0314E6A9C03620916E990BAFEAD919B769E0479B5CC7A0E16CC831330F3`.
+- El autor confirmó en Windows que los controles se ven correctamente y funcionan
+  sin problemas tanto en modo claro como en modo oscuro.
 - GitHub Actions `30844689983`, sobre el commit `59a7587`, ejecutó únicamente el job
   Ubuntu y finalizó correctamente. La publicación estaba desactivada; Windows se
   omitió y el release público no se modificó.
@@ -118,14 +120,13 @@ los distintos canales de instalación Windows. No bloquea la certificación ya e
 
 ## 8. Siguiente paso
 
-1. Verificar la corrección de tema en Windows con el ejecutable Release preparado.
-2. Integrar el PR #8 en `main` cuando la prueba Windows sea correcta.
-3. Sustituir únicamente `.deb`, `.rpm` y `.AppImage` en el release `v1.4.0`; conservar
+1. Integrar el PR #8 en `main`.
+2. Sustituir únicamente `.deb`, `.rpm` y `.AppImage` en el release `v1.4.0`; conservar
    sin cambios `.exe` y `.msi`.
-4. Solicitar comprobación visual en Debian/KDE antes de cerrar el issue #5.
-5. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
+3. Solicitar comprobación visual en Debian/KDE antes de cerrar el issue #5.
+4. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
    antes de modificar la interfaz.
-6. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
+5. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
    Linux y en los distintos canales de instalación Windows.
 
 No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.
