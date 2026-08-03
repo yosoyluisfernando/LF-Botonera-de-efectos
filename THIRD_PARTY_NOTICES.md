@@ -6,9 +6,9 @@ sus titulares de derechos y sus condiciones originales.
 
 ## Inventario auditado
 
-Inventario obtenido el 2026-07-20 desde los archivos bloqueados de la versión 1.2.0:
+Inventario actualizado el 2026-08-02 desde los archivos bloqueados de la versión 1.3.0:
 
-- 585 paquetes en la resolución completa de Cargo para todas las plataformas y
+- 601 paquetes en la resolución completa de Cargo para todas las plataformas y
   herramientas de compilación.
 - 61 paquetes en `package-lock.json` para el frontend y la herramienta de compilación.
 - Todos los paquetes resueltos declaran una licencia SPDX o una expresión de licencia.

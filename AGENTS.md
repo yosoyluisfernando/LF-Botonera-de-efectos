@@ -393,26 +393,22 @@ forma parte de la rama actual; no hay una fusión pendiente entre ellas.
 - Enter y doble clic en Biblioteca siguen sin acción; el menú contextual es la única
   puerta a las acciones de pista.
 
-**Trabajo actual: entrada MIDI e identificadores visuales en los botones.**
+**Trabajo actual: entrada MIDI en Windows y Linux.**
 
-La entrada MIDI para Windows está implementada mediante WinMM, aislada de Linux.
-Permite seleccionar varios puertos, reconcilia conexiones y desconexiones en caliente
-y asigna Note On, Control Change o Program Change a botones, botones fijos, pestañas y
-acciones globales. La captura compartida es asíncrona y cancelable sin bloquear la
-ventana.
+Windows usa WinMM y Linux usa `midir 0.11` sobre ALSA Sequencer; cada adaptador y
+dependencia se compila solo en su plataforma. Permite seleccionar varios puertos,
+reconcilia conexiones y desconexiones en caliente y asigna Note On, Control Change o
+Program Change a botones, botones fijos, pestañas y acciones globales. La captura
+compartida es asíncrona y cancelable sin bloquear la ventana.
 
-El modelo, los catálogos offline, el selector y el pintor compartido están
-implementados localmente y pendientes de prueba funcional del autor. `ButtonVisual`
-usa `kind`, `value` y `mode`; el valor predeterminado conserva la presentación
-anterior y se omite del JSON. Emojis es la colección principal con 3.953 valores;
-`Básicos` contiene 8.388 iconos monocromáticos de Material Symbols, Tabler y Game
-Icons. La búsqueda y el renderizado son completamente locales. El visual es
-decorativo para tecnologías de asistencia y el nombre textual se conserva.
+Los identificadores visuales ya están implementados y no forman parte del trabajo
+activo. `ButtonVisual` usa `kind`, `value` y `mode`; Emojis contiene 3.953 valores y
+`Básicos` 8.388 iconos monocromáticos locales.
 
 **Pendientes conocidos no bloqueantes:**
 
-- Prueba física en Linux de `.deb` y `.AppImage`.
-- Prueba funcional final del autor con su controlador MIDI y con el selector visual.
+- Compilación y prueba física MIDI en Linux de `.deb`, `.rpm` y `.AppImage`.
+- Prueba funcional final del autor con su controlador MIDI en Windows y Linux.
 - Deuda menor: `master_volume` y `ButtonData.vol` son `f32`; su representación JSON
   puede crecer (`0.45` → `0.4499999…`).
 

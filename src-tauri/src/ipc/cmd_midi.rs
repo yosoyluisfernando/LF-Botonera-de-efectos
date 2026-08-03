@@ -2,7 +2,7 @@ use super::AppState;
 use crate::engine::input::midi_ports::selected_refs;
 use crate::engine::input::midi_rules;
 use crate::engine::persist::config_io;
-use crate::model::{AppConfig, MidiBinding};
+use crate::model::{AppConfig, MidiBinding, MidiDeviceRef};
 use serde::Serialize;
 use std::time::Duration;
 
@@ -29,7 +29,23 @@ pub fn midi_set_config(
     let mut cfg = state.config.lock().unwrap();
     let previous = cfg.midi.inputs.clone();
     cfg.midi.enabled = enabled;
-    cfg.midi.inputs = selected_refs(&input_ids)
+    cfg.midi.inputs = selected_inputs(enabled, &input_ids, &previous);
+    config_io::save_config(&cfg)?;
+    let next = cfg.clone();
+    drop(cfg);
+    state.midi.sync();
+    Ok(next)
+}
+
+fn selected_inputs(
+    enabled: bool,
+    input_ids: &[String],
+    previous: &[MidiDeviceRef],
+) -> Vec<MidiDeviceRef> {
+    if !enabled {
+        return previous.to_vec();
+    }
+    selected_refs(input_ids)
         .into_iter()
         .map(|mut item| {
             if item.name == item.id {
@@ -39,12 +55,7 @@ pub fn midi_set_config(
             }
             item
         })
-        .collect();
-    config_io::save_config(&cfg)?;
-    let next = cfg.clone();
-    drop(cfg);
-    state.midi.sync();
-    Ok(next)
+        .collect()
 }
 
 #[tauri::command]
@@ -80,4 +91,20 @@ pub fn validate_global(
         midi_rules::validate_global(cfg, key, value)?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::selected_inputs;
+    use crate::model::MidiDeviceRef;
+
+    #[test]
+    fn disabled_midi_preserves_selection_even_if_ipc_requests_changes() {
+        let previous = vec![MidiDeviceRef {
+            id: "saved".into(),
+            name: "Controller".into(),
+        }];
+        let requested = vec!["other".into()];
+        assert_eq!(selected_inputs(false, &requested, &previous), previous);
+    }
 }

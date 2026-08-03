@@ -367,7 +367,7 @@ a un botón, botón fijo, pestaña o acción global y se omite del JSON cuando e
 **`MidiConfig`**
 Configuración MIDI global de `AppConfig`: indica si la entrada está activa y qué
 puertos debe escuchar la aplicación. El motor reconcilia esa selección en caliente.
-En Windows usa WinMM; en Linux la misma interfaz existe con un backend vacío.
+En Windows usa WinMM y en Linux `midir` sobre ALSA Sequencer.
 
 **`MasterBus`** — *eliminado*
 Combinaba un `DynamicMixer<f32>`, un `LevelSource` y un `Sink` en un solo objeto. Ese era justo el problema: fundía la *señal* con el *conector*. Su sustituto es [`Bus`](#b), que es lo mismo **menos el `Sink`** y se enchufa a un [`OutputEndpoint`](#o) con `play_raw`. Un bus nunca se pausa, así que la capa de control del `Sink` sobraba.

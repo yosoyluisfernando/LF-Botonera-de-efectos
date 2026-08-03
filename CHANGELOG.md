@@ -33,15 +33,14 @@ directamente desde Windows:
 ## [Sin publicar]
 
 ### Añadido
-- Los atajos ahora aceptan entradas MIDI en Windows. Desde Ajustes se pueden activar
-  y seleccionar uno o varios puertos, incluso cuando Windows muestra varias entradas
-  del mismo modelo, y asignar Note On, Control Change o Program Change a botones,
-  botones fijos, pestañas y las acciones globales Detener todos, Pestaña siguiente y
+- Control MIDI en Windows y Linux: conecta una o varias entradas y asígnalas a
+  botones, botones fijos, pestañas o acciones como Detener todos, Pestaña siguiente y
   Pestaña anterior.
-- La selección MIDI se aplica en caliente: la aplicación detecta conexiones y
-  desconexiones sin reiniciar. La misma captura se usa desde Ajustes, el modo de mapeo
-  y la edición directa de un botón; no bloquea la ventana y puede cancelarse de
-  inmediato con Escape, el ratón o los controles del modal.
+- Los dispositivos MIDI pueden conectarse o desconectarse sin reiniciar la
+  aplicación. Puedes actualizar la lista para comprobar cuáles detecta antes de
+  activar el control; al permitir los disparos podrás elegir cuáles usar. Las
+  asignaciones se pueden crear desde Ajustes, el modo de mapeo o la edición de un
+  botón, y cancelar fácilmente con Escape o con el ratón.
 - Los botones admiten identificadores visuales completamente offline: 3.953 emojis y
   8.388 iconos monocromáticos buscables en español, inglés y las dos variantes de
   portugués. Cada botón puede conservar su icono original o presentarse como Solo
@@ -54,7 +53,9 @@ directamente desde Windows:
 - El Centro de procesamiento permite retirar rutas ya indexadas con confirmación,
   conservarlas entre 30 y 365 días y restaurarlas antes de su vencimiento.
 - La Biblioteca permite crear y restaurar un respaldo completo `.lfbackup` con la
-  configuración, perfiles, paletas, catálogo y ajustes de pistas en un solo archivo.
+  configuración, los perfiles, las paletas, la Biblioteca y los ajustes de las pistas
+  en un único archivo. Los archivos de audio no están incluidos y deben conservarse
+  por separado.
 - La Biblioteca y el Buscador del panel fijo incorporan un editor de metadatos
   adaptado a Música y Efectos y a los temas claro y oscuro, con tags o palabras clave
   buscables y edición por lotes.

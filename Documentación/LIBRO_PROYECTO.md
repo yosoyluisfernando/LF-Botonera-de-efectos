@@ -409,12 +409,13 @@ AppState {
 }
 ```
 
-`MidiEngine` mantiene un hilo de entrada independiente del audio. En Windows abre los
-puertos seleccionados mediante WinMM, reconcilia cada segundo los dispositivos que se
-conectan o desconectan y entrega cada Note On, Control Change o Program Change al
-despachador común de acciones. Durante una captura, el siguiente mensaje se devuelve
-al modal en vez de ejecutar una acción; cancelar elimina esa espera inmediatamente.
-Los módulos WinMM se compilan solo en Windows y Linux conserva un backend vacío.
+`MidiEngine` mantiene un hilo de entrada independiente del audio. Abre los puertos
+seleccionados mediante WinMM en Windows y mediante `midir` sobre ALSA Sequencer en
+Linux. Cada segundo reconcilia los dispositivos que se conectan o desconectan y
+entrega cada Note On, Control Change o Program Change al despachador común de
+acciones. Durante una captura, el siguiente mensaje se devuelve al modal en vez de
+ejecutar una acción; cancelar elimina esa espera inmediatamente. Los adaptadores y
+dependencias de cada plataforma se compilan únicamente en su sistema.
 
 El orden de construcción importa: `config`, `random_folders` y `tracks` se crean **antes** que el
 `PlayerEngine`, porque su resolvedor necesita esos `Arc` ya montados. Nunca se le pasa el

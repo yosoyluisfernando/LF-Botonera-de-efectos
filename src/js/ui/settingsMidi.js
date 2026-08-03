@@ -7,7 +7,10 @@ export function initSettingsMidi() {
     initMidiField('config-midi-next', 'config-midi-next-capture', 'config-midi-next-clear');
     initMidiField('config-midi-prev', 'config-midi-prev-capture', 'config-midi-prev-clear');
     document.getElementById('config-midi-refresh')?.addEventListener('click', loadMidiDevices);
-    document.getElementById('config-midi-enabled')?.addEventListener('change', saveSettingsMidi);
+    document.getElementById('config-midi-enabled')?.addEventListener('change', () => {
+        updateDeviceSelectionState();
+        saveSettingsMidi();
+    });
 }
 
 export async function loadSettingsMidi(config) {
@@ -48,6 +51,7 @@ async function loadMidiDevices() {
         return;
     }
     devices.forEach(device => host.appendChild(deviceRow(device)));
+    updateDeviceSelectionState();
 }
 
 function deviceRow(device) {
@@ -65,4 +69,10 @@ function deviceRow(device) {
     span.textContent = `${device.label} — ${status}`;
     label.append(input, span);
     return label;
+}
+
+function updateDeviceSelectionState() {
+    const enabled = !!document.getElementById('config-midi-enabled')?.checked;
+    document.querySelectorAll('[data-midi-device]')
+        .forEach(input => { input.disabled = !enabled; });
 }

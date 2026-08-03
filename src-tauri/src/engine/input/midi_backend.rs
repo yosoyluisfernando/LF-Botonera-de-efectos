@@ -6,7 +6,11 @@ use std::sync::mpsc::Sender;
 #[path = "midi_backend_windows.rs"]
 mod platform;
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(target_os = "linux")]
+#[path = "midi_backend_linux.rs"]
+mod platform;
+
+#[cfg(not(any(target_os = "windows", target_os = "linux")))]
 mod platform {
     use super::*;
 

@@ -17,18 +17,24 @@ pub struct MidiPortInfo {
     pub id: String,
     pub name: String,
     pub index: u32,
+    #[cfg(target_os = "linux")]
+    pub native_id: String,
 }
 
 #[cfg(target_os = "windows")]
 #[path = "midi_ports_windows.rs"]
 mod platform;
 
-#[cfg(target_os = "windows")]
+#[cfg(target_os = "linux")]
+#[path = "midi_ports_linux.rs"]
+mod platform;
+
+#[cfg(any(target_os = "windows", target_os = "linux"))]
 pub fn available_ports() -> Vec<MidiPortInfo> {
     platform::available_ports()
 }
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(not(any(target_os = "windows", target_os = "linux")))]
 pub fn available_ports() -> Vec<MidiPortInfo> {
     Vec::new()
 }

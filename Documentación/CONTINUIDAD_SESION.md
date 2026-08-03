@@ -2,203 +2,112 @@
 
 **Actualizado:** 2026-08-02
 
-**Rama de trabajo:** `codex/midi-input`
+**Rama de trabajo:** `codex/midi-linux-build`
 
 **Versión del código:** 1.3.0
 
-Este archivo no es un historial. Conserva el punto real de reanudación, las decisiones
-que evitan repetir trabajo y la evidencia técnica reciente. Las decisiones
-permanentes viven en los documentos de arquitectura y planes temáticos.
+Este archivo no es un historial. Conserva únicamente el trabajo activo, las
+decisiones aprobadas, la evidencia disponible y el siguiente paso real.
 
-## 1. Trabajo activo
+## 1. Objetivo activo
 
-Las ramas locales `codex/buscador-interno` y `codex/midi-input` apuntan al mismo
-commit base, `43e67b0`. La rama actual ya contiene todo el historial de Biblioteca y
-Buscador; no hay commits que fusionar entre ambas. MIDI e identificadores visuales
-son cambios locales posteriores todavía sin commit y sin publicación pública.
+Completar la entrada MIDI de la próxima versión para Windows y Linux. No hay otro
+trabajo activo en esta sesión.
 
-### Entrada MIDI para atajos
+La función todavía no ha llegado al público. Todo cambio relacionado con MIDI debe
+describirse en `CHANGELOG.md` dentro de `Añadido`, nunca como corrección.
 
-En la rama `codex/midi-input` está implementado el soporte MIDI para atajos en Windows
-sobre WinMM. La función y los identificadores visuales forman parte del mismo estado
-de desarrollo local y se documentan como funciones nuevas de la próxima versión.
+## 2. Decisiones aprobadas
 
-Alcance implementado:
+- Windows conserva el backend WinMM existente sin cambios.
+- Linux usa `midir 0.11` sobre ALSA Sequencer.
+- `midir` es una dependencia exclusiva del target Linux.
+- Se descartó implementar directamente sobre el crate `alsa`.
+- Captura, conflictos, asignaciones, acciones, IPC, persistencia y reconexión en
+  caliente siguen siendo lógica común para ambas plataformas.
+- Los paquetes Linux en alcance son `.deb`, `.rpm` y `.AppImage`.
+- No crear un plan temporal separado: la arquitectura permanente está en
+  `ARCHITECTURE.md` y este archivo conserva el punto de reanudación.
+- No crear commits, preparar staging ni hacer push hasta que el autor lo pida.
+- No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.
 
-- Ajustes generales → Atajos permite activar MIDI y seleccionar entradas.
-- La selección se aplica en caliente y el motor reconcilia dispositivos conectados y
-  desconectados cada segundo.
-- Botones, botones fijos, pestañas y acciones globales pueden tener un `MidiBinding`.
-- La captura MIDI se reutiliza en Ajustes y en los modales directos de edición/mapeo.
-- La espera de captura no bloquea el hilo de la ventana y se puede cancelar con
-  Escape o con el ratón sin dejar una captura pendiente.
-- Se admiten Note On con velocidad mayor que cero, Control Change con valor mayor que
-  cero y Program Change. Note Off se ignora para evitar dobles disparos.
-- Varios dispositivos pueden estar seleccionados a la vez. Dos dispositivos iguales
-  se distinguen simultáneamente por índice de puerto WinMM; si Windows reordena dos
-  unidades idénticas tras una desconexión, WinMM no garantiza identidad física
-  persistente.
-- WinMM vive en dos módulos compilados solo para Windows. Linux conserva la interfaz
-  común con un backend vacío y no recibe la dependencia nativa de Windows.
+## 3. Implementación actual
 
-Evidencia técnica de esta fase:
+Se añadieron dos adaptadores exclusivos de Linux:
 
-- i18n: 738 claves idénticas en `es`, `en`, `pt-BR` y `pt-PT`.
-- `cargo build --lib --offline`: correcto.
-- `cargo test --lib --offline`: 320 aprobadas, 0 fallidas y 19 ignoradas; incluye
-  regresiones de cancelación inmediata y liberación después del timeout.
+- `engine/input/midi_ports_linux.rs` enumera entradas mediante `midir`.
+- `engine/input/midi_backend_linux.rs` abre cada entrada seleccionada y entrega sus
+  bytes al analizador MIDI común.
+
+El adaptador Windows continúa en `midi_ports_windows.rs` y
+`midi_backend_windows.rs`. `midi_ports.rs` y `midi_backend.rs` eligen el adaptador con
+`cfg(target_os)`; otros sistemas conservan el backend vacío.
+
+Linux no persiste directamente la dirección ALSA `cliente:puerto`, porque puede
+cambiar al reconectar. Guarda un identificador derivado del nombre estable y de la
+posición entre puertos con el mismo nombre. La dirección ALSA actual solo sirve para
+abrir el puerto durante esa sesión. Dos controladores iguales pueden usarse a la vez;
+si el sistema invierte su orden, no se puede distinguir cuál unidad física era cada
+una, la misma limitación práctica documentada para WinMM.
+
+`Cargo.toml` declara `midir = "0.11"` únicamente para Linux. El árbol resuelto usa la
+misma dependencia `alsa 0.9.1` que ya incorporaba `rodio` mediante `cpal`, por lo que
+MIDI no añade otra biblioteca nativa al sistema. `Cargo.lock` y los avisos de
+licencias fueron regenerados.
+
+## 4. Alcance funcional compartido
+
+- Activar MIDI y seleccionar una o varias entradas desde Ajustes.
+- Aplicar la selección y las conexiones o desconexiones sin reiniciar.
+- Asignar Note On, Control Change y Program Change a botones, botones fijos,
+  pestañas y acciones globales.
+- Ignorar Note Off y Note On con velocidad cero para evitar dobles disparos.
+- Capturar la siguiente orden MIDI sin bloquear la ventana y cancelar de inmediato.
+- Conservar en la interfaz una entrada seleccionada aunque esté temporalmente
+  desconectada.
+- Mostrar y actualizar los dispositivos aunque MIDI esté desactivado, pero bloquear
+  sus casillas de selección hasta permitir los disparos. Rust conserva la selección
+  anterior si un IPC intenta cambiarla mientras MIDI está desactivado.
+
+## 5. Documentación y texto público
+
+- `ARCHITECTURE.md`, `LIBRO_PROYECTO.md`, `GLOSARIO.md` y `AGENTS.md` describen los
+  backends WinMM y ALSA y la separación por plataforma.
+- `CHANGELOG.md` presenta MIDI como una función nueva para Windows y Linux con texto
+  orientado al público.
+- La única modificación relativa al respaldo fue aclarar en `CHANGELOG.md` qué
+  contiene `.lfbackup` y que los audios deben conservarse por separado. No se cambió
+  código de respaldo, pistas, cue, ganancia ni normalización.
+
+## 6. Evidencia disponible
+
+Completado en Windows:
+
+- `cargo test --lib`: 321 aprobadas, 0 fallidas y 19 ignoradas; incluye la protección
+  backend de la selección cuando MIDI está desactivado.
+- `cargo build --lib`: correcto.
 - `npm run build`: correcto.
-- `$env:LF_DISTRIBUTION_CHANNEL='store'; npm run tauri build -- --no-bundle`:
-  correcto.
-- El ejecutable Release conjunto más reciente se identifica en la sección 5.
+- `npm run licenses`: correcto después de descargar el contenido ya fijado por
+  `Cargo.lock`.
+- `cargo tree --target x86_64-unknown-linux-gnu -i alsa`: `rodio/cpal` y `midir`
+  convergen en `alsa 0.9.1`.
+- El intento de `cargo check --target x86_64-unknown-linux-gnu` desde Windows llegó
+  hasta las dependencias nativas de Tauri y se detuvo antes del código de la app por
+  falta de `pkg-config`, GLib y GObject de Linux. No equivale a una compilación Linux.
+- Los dos módulos Linux tienen menos de 200 líneas.
 
-### Identificadores visuales
+La compilación Windows no compila el adaptador Linux por diseño. Este equipo no tiene
+una distribución WSL disponible; por tanto, la compilación nativa Linux y las pruebas
+de hardware no deben declararse realizadas.
 
-La ampliación de identificadores visuales está implementada y se encuentra en
-verificación final. El diseño definitivo está en
-[`PLAN_EMOJIS_BOTONES.md`](PLAN_EMOJIS_BOTONES.md).
+## 7. Siguiente paso
 
-Colecciones:
+1. Compilar en Linux y comprobar `.deb`, `.rpm` y `.AppImage`.
+2. Probar con un controlador real: selección, captura, disparo, desconexión y
+   reconexión sin reiniciar.
+3. Probar en Windows los canales `.exe`, `.msi` y Microsoft Store; todos comparten el
+   backend WinMM, pero la confirmación física sigue siendo necesaria.
 
-- `Emojis`: 3.953 valores de Unicode Emoji 17.0 y CLDR 48.2; 1.918 se muestran por
-  defecto al ocultar 2.035 variantes con modificador de piel.
-- `Básicos`: 8.388 monocromáticos: 24 Material Symbols, 4.231 Tabler Icons y 4.133
-  Game Icons.
-
-Todo funciona sin Internet. Los nombres y palabras clave existen en español, inglés,
-portugués de Brasil y portugués de Portugal. Se generaron traducciones auxiliares
-para 5.149 palabras y las correcciones manuales de vocabulario importante tienen
-prioridad.
-
-## 2. Arquitectura cerrada
-
-`ButtonData.visual` contiene:
-
-```text
-ButtonVisual {
-  kind: "auto" | "emoji" | "basic"
-  value: identificador estable
-  mode: "text" | "visual_text" | "visual"
-}
-```
-
-- `auto + visual_text` es el valor predeterminado y se omite del JSON.
-- Los archivos antiguos conservan su icono según el tipo.
-- Los valores históricos de los 24 Material Symbols no cambiaron.
-- Tabler y Game Icons usan
-  `colección:categoría:nombre`, por ejemplo `tabler:animals:dog`.
-- Rust busca, pagina, valida y persiste. JavaScript presenta y dibuja.
-- Los recursos SVG se dividen por categoría; ninguno puede superar
-  1.250.000 bytes.
-- El mismo pintor sirve a rejilla, panel fijo y reproductor.
-- El dibujo es decorativo (`aria-hidden`) y el nombre textual del sonido se conserva.
-
-No crear una base de datos para estos catálogos estáticos ni un `kind` distinto por
-cada paquete. `basic` significa monocromático.
-
-## 3. Selector
-
-- Pestañas visibles: `Emojis` y `Básicos`.
-- No existe `Mostrar más`.
-- La cuadrícula virtual conserva como máximo 300 elementos y un colchón de 100.
-- Hay desplazamiento bidireccional, separadores e indicador de categoría.
-- La búsqueda ignora acentos y permite términos localizados de categoría.
-- `animal` y `animales` encuentran la categoría completa.
-- Los tonos de piel se muestran solo cuando el usuario activa la casilla.
-- El modal de edición usa una fila compacta con vista previa, selector y un único
-  desplegable para `Restaurar icono original`, `Solo texto`, `Visual y texto` y
-  `Solo visual`.
-- Favoritos y recientes quedan para una ampliación posterior.
-
-## 4. Recursos y selección
-
-- Tabler está fijado a `v3.46.0`, commit
-  `8ac7d81b72ece11072ef25ea9fd92e80c6f3c9fc`; se excluyen marcas y variantes
-  terminadas en `-off`.
-- Game Icons está fijado al commit
-  `82d948812bfe3f269ef8f731dcdb07b08160edc4`; se excluye `badges`, se deduplican
-  identificadores y se conserva su atribución CC BY 3.0.
-- Una instantánea local de las 134 etiquetas oficiales de Game Icons clasifica
-  4.131 de sus 4.133 conceptos; los dos restantes quedan en `Otros`.
-- Los recursos derivados se reproducen con `visuals:generate-emojis`,
-  `visuals:generate-basics` y `visuals:generate-packs`.
-- `npm run visuals:verify` comprueba hashes, orden, cantidades, seguridad SVG,
-  correspondencia catálogo/sprite, tamaño y cobertura de categorías.
-
-Cobertura monocromática actual:
-
-- Animales: 486.
-- Naturaleza: 600.
-- Oficina: 449.
-- Objetos: 412.
-- Audio: 247.
-- Acciones: 742; antes de usar las etiquetas oficiales concentraba erróneamente
-  3.396 elementos.
-
-## 5. Evidencia conjunta más reciente
-
-Verificación completada:
-
-- generación determinista: Básicos 8.388;
-- `npm run visuals:verify`: correcto;
-- `cargo test --lib`: 320 aprobadas, 0 fallidas y 19 ignoradas;
-- `cargo build --lib`: correcto;
-- `npm run build`: correcto;
-- 130 archivos JavaScript con sintaxis válida;
-- i18n: 738 claves idénticas y no vacías en los cuatro idiomas;
-- 27 módulos nuevos auditados, todos con un máximo de 200 líneas;
-- prueba local Chromium: Tabler y Game Icons renderizaron correctamente
-  desde sprites offline;
-- `npm run tauri build -- --no-bundle`: correcto.
-
-Ejecutable Release final:
-
-- ruta: `src-tauri/target/release/tauri-app.exe`;
-- tamaño: 42.848.768 bytes, 40,86 MiB;
-- fecha local: 2026-08-02 07:39:45;
-- versiones de producto y archivo: 1.3.0;
-- SHA-256:
-  `A782C4E988239B2BF22507A73319D7EBC84C2AE617E5113F9881E6A63D036269`;
-- el binario contiene el recurso de producción `main-bmZx2EC-.js`.
-
-Para crear el ejecutable autónomo se debe usar siempre:
-
-```powershell
-npm run tauri build -- --no-bundle
-```
-
-No usar `cargo build --release` como entrega: conserva el destino de desarrollo y
-puede mostrar `localhost rechazó la conexión` sin Vite abierto.
-
-## 6. Estado de las etapas anteriores
-
-La Biblioteca y el Buscador fijo comparten un único catálogo en `tracks.db`, esquema
-6. Están cerrados:
-
-- raíces de Música y Efectos, observación incremental y lista virtual;
-- Centro de procesamiento, retiro reversible, retención y purga segura;
-- respaldo/restauración `.lfbackup`;
-- metadatos, tags, renombrado físico opcional y escritura opcional en una pista;
-- inicio informativo y activación de la observación de Biblioteca en segundo plano.
-
-No reabrir la publicación 1.3.0, la Biblioteca, el retiro, el respaldo ni los
-metadatos como continuidad activa.
-
-## 7. Reglas de reanudación
-
-1. Leer `AGENTS.md`, este archivo y `PLAN_EMOJIS_BOTONES.md`.
-2. Continuar por la verificación pendiente; no rediseñar los catálogos.
-3. No tocar `Capturas_Tienda/`: es material ajeno a esta fase.
-4. No introducir parches ni mecanismos duplicados; resolver cualquier fallo desde su
-   causa.
-5. No crear commits, no preparar staging y no hacer push. El autor indicó que solo
-   habrá commit cuando lo solicite expresamente.
-6. MIDI e identificadores visuales no tuvieron beta ni versión pública anterior:
-   describirlos en `CHANGELOG.md` como funciones nuevas, no como correcciones.
-
-## 8. Pendientes no bloqueantes
-
-- Prueba física del selector por el autor en el ejecutable Windows Release.
-- Prueba posterior en Linux de `.deb`, `.AppImage` y WebKitGTK.
-- Auditoría integral futura con lector de pantalla.
-- Representación extensa de `master_volume` y `ButtonData.vol` por usar `f32` en JSON.
+La etapa no está cerrada hasta completar al menos la compilación Linux. Si esta tarea
+se reanuda en Windows antes de disponer de Linux, no rediseñar la arquitectura:
+continuar desde la validación de plataforma pendiente.

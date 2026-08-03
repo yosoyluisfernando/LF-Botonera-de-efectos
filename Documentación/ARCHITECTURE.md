@@ -170,18 +170,24 @@ despacha las acciones.
 están vacíos, para que los archivos antiguos sigan cargando igual.
 
 En Windows el backend usa WinMM mediante `windows-sys`. Todo acceso nativo está
-aislado en `midi_backend_windows.rs` y `midi_ports_windows.rs`, compilados únicamente
-con `#[cfg(target_os = "windows")]`; `windows-sys` también es una dependencia exclusiva
-del target Windows. Linux conserva el modelo y la interfaz común, pero actualmente
-expone un backend MIDI vacío y no compila ni enlaza WinMM.
+aislado en `midi_backend_windows.rs` y `midi_ports_windows.rs`. En Linux,
+`midi_backend_linux.rs` y `midi_ports_linux.rs` usan `midir 0.11` sobre ALSA
+Sequencer. Cada backend y su dependencia se compilan solo para su sistema mediante
+`cfg(target_os)`; otros sistemas conservan la interfaz común con un backend vacío.
+`midir` reutiliza `alsa 0.9.1`, que ya forma parte del árbol Linux por el motor de
+audio, por lo que no añade otra biblioteca nativa a los paquetes.
+Se eligió por su adaptación mantenida a ALSA y su licencia MIT compatible; no usa red
+ni amplía la persistencia. La alternativa de mantener llamadas ALSA directas se
+descartó para no duplicar en la aplicación la capa de conexión y decodificación MIDI.
 
 El motor reconcilia los puertos cada segundo: abre dispositivos seleccionados que
 aparezcan, cierra los que desaparezcan y conserva en la UI los seleccionados aunque
-estén desconectados. Si hay dos dispositivos iguales conectados a la vez, se
-distinguen por el índice del puerto WinMM además de fabricante/producto. Esto permite
-usarlos simultáneamente; si dos unidades idénticas se desconectan y Windows cambia el
-orden de puertos al volver a conectarlas, WinMM no garantiza identificar físicamente
-cuál era cuál.
+estén desconectados. Windows distingue duplicados por fabricante, producto e índice
+WinMM. Linux persiste el nombre estable del puerto y su posición entre nombres
+duplicados; la dirección ALSA cambiante `cliente:puerto` solo se usa durante la
+sesión. Así una reconexión no pierde la selección por un nuevo número ALSA. En ambos
+sistemas dos unidades con el mismo nombre pueden usarse a la vez, pero si el sistema
+invierte su orden no se puede garantizar cuál unidad física era cada una.
 
 La espera de captura se ejecuta como tarea bloqueante fuera del hilo de la ventana.
 `midi_capture_cancel` elimina el emisor pendiente, despierta esa tarea de inmediato y
@@ -671,6 +677,7 @@ No existen tests de UI (Tauri no expone un harness de integración para el webvi
 | `tauri-plugin-window-state` | 2 | Recuerda tamaño/posición de ventana |
 | `tauri-plugin-dialog` | 2.7.1 | Diálogos de abrir/guardar archivo |
 | `windows-sys` | 0.59 | Backend MIDI WinMM en Windows |
+| `midir` | 0.11 | Backend MIDI ALSA exclusivo de Linux |
 
 ---
 
