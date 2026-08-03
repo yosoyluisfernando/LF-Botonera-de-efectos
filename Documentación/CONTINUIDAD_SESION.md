@@ -81,22 +81,35 @@ Archivo local:
 - `npm run visuals:verify`: correcto.
 - `npm run licenses`: correcto.
 - Compilación Release del canal Store y creación del MSIX definitivo: correctas.
-- GitHub Actions `30782348034`, sobre el commit `7472eaa`, compiló correctamente
-  `.exe`, `.msi`, `.deb`, `.rpm` y `.AppImage` con la implementación MIDI.
+- GitHub Actions `30785123248`, sobre el commit `48f411a`, completó correctamente las
+  pruebas y compilaciones Release de Windows y Linux.
 
 Sigue pendiente la prueba física final del autor con controlador MIDI en Linux y en
 los distintos canales de instalación Windows. No bloquea la certificación ya enviada.
 
-## 7. Siguiente paso
+## 7. GitHub preparado
+
+- `main` contiene el estado cerrado de 1.4.0.
+- La rama temporal `codex/midi-linux-build` fue eliminada localmente y del remoto
+  después de comprobar que estaba completamente integrada.
+- Existe un release `v1.4.0` en borrador, dirigido a `main`, con notas para usuarios
+  finales y una nota sobre la siguiente actualización visual.
+- El borrador tiene adjuntos cinco paquetes: `.exe`, `.msi`, `.deb`, `.rpm` y
+  `.AppImage`.
+- Las copias locales verificadas están en `Compilados/GitHub-1.4.0/`.
+- No existe todavía `refs/tags/v1.4.0`; publicar el borrador creará la etiqueta cuando
+  corresponda.
+
+## 8. Siguiente paso
 
 1. Consultar el estado de Submission 4 hasta que Microsoft apruebe y publique 1.4.0.
 2. Confirmar la versión desde la ficha pública y una instalación de Microsoft Store.
-3. Comprobar que las compilaciones de GitHub para Windows y Linux terminaron y que sus
-   paquetes quedaron adjuntos al release 1.4.0 en borrador.
-4. Solo entonces publicar el release de GitHub y crear o confirmar la etiqueta
-   `v1.4.0` con el mismo estado de `main`.
-5. Al completar ambas publicaciones, añadir la fecha real a `[1.4.0]` y abrir una
+3. Añadir la fecha pública real a `[1.4.0]` en `CHANGELOG.md`, confirmar ese cambio en
+   `main` y publicar el release de GitHub; su etiqueta `v1.4.0` debe apuntar a ese
+   estado final.
+4. Al completar ambas publicaciones, abrir una
    nueva sección `[Sin publicar]` para el siguiente ciclo.
 
-No se ha creado todavía commit, etiqueta, pull request ni release de GitHub para
-1.4.0. No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.
+No hay pull request ni etiqueta pública para 1.4.0. El release continúa en borrador y
+sus archivos no están disponibles para el público. No tocar `Capturas_Tienda/`; es
+material ajeno a esta tarea.
