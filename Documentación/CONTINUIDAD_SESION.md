@@ -2,7 +2,7 @@
 
 **Actualizado:** 2026-08-03
 
-**Rama de trabajo:** `codex/fix-linux-dark-controls`
+**Rama de trabajo:** `codex/close-linux-theme-release`
 
 **Versión del código:** 1.4.0
 
@@ -11,12 +11,13 @@ decisiones cerradas, la evidencia vigente y el siguiente paso real.
 
 ## 1. Estado actual
 
-La publicación coordinada de 1.4.0 está cerrada en Microsoft Store y GitHub. Está en
-curso una corrección de presentación para los paquetes Linux de esa misma versión:
-los controles nativos claros de WebKitGTK podían conservar fondo blanco dentro del
-tema oscuro. No se sustituirán los paquetes Windows publicados. La próxima etapa
-prevista sigue siendo una reorganización y mejora visual de la interfaz; antes de
-construirla se debe revisar el alcance y aprobar su plan.
+La publicación coordinada de 1.4.0 está cerrada en Microsoft Store y GitHub. Los tres
+paquetes Linux de esa misma versión recibieron una corrección de presentación: los
+controles nativos claros de WebKitGTK podían conservar fondo blanco dentro del tema
+oscuro. EXE y MSI no se sustituyeron. El issue #5 permanece abierto únicamente para
+recibir la comprobación física del reportante en Debian/KDE. La próxima etapa prevista
+sigue siendo una reorganización y mejora visual de la interfaz; antes de construirla
+se debe revisar el alcance y aprobar su plan.
 
 ## 2. Estado de Microsoft Store
 
@@ -58,6 +59,9 @@ Archivo local:
   corrección.
 - Respaldo `.lfbackup`, retiro seguro de rutas y edición de metadatos de la Biblioteca,
   según las notas públicas cerradas en `CHANGELOG.md`.
+- Los controles nativos reciben el esquema claro u oscuro de la aplicación; en Linux
+  los desplegables activos y deshabilitados dejan de conservar el fondo claro de
+  WebKitGTK dentro del tema oscuro.
 
 ## 5. Changelog y versión
 
@@ -102,6 +106,10 @@ Archivo local:
   (`0EFAF1ED157D9D881322321EAB0759E4410F4A04797FB1CEEF4926B588B12BF5`) y
   RPM de 18.278.577 bytes
   (`0427A85A9A7B9C563318F1CE72A79BF7A0CD0C5DDA91DADC81D9BC2774FCB5`).
+- Esos tres hashes coinciden con los assets Linux públicos sustituidos el 2026-08-03.
+  Los paquetes Windows públicos permanecen intactos: EXE
+  `A7F7AAD9FA462452607941ADE493C67FB5D1D6C3D829B94EAAF59D4588A61979` y MSI
+  `1759718E576A69AA2577E8764EFDB026B581125BB1DE789A1B14A2BE096E1479`.
 
 Sigue pendiente la prueba física final del autor con controlador MIDI en Linux y en
 los distintos canales de instalación Windows. No bloquea la certificación ya enviada.
@@ -109,24 +117,30 @@ los distintos canales de instalación Windows. No bloquea la certificación ya e
 ## 7. GitHub publicado
 
 - `main` contiene el estado cerrado de 1.4.0.
+- El PR #8 integró la corrección de controles en `main` mediante `1b1955a`; su rama
+  temporal fue eliminada localmente y del remoto.
 - La rama temporal `codex/midi-linux-build` fue eliminada localmente y del remoto
   después de comprobar que estaba completamente integrada.
 - El release público `v1.4.0` contiene notas para usuarios finales y una nota sobre la
   siguiente actualización visual.
 - Tiene adjuntos cinco paquetes: `.exe`, `.msi`, `.deb`, `.rpm` y `.AppImage`.
-- Las copias locales verificadas están en `Compilados/GitHub-1.4.0/`.
+- Las copias originales están en `Compilados/GitHub-1.4.0/`; los tres paquetes Linux
+  renovados y verificados están en `Compilados/Linux-tema-1.4.0-run-30844689983/`.
 - La etiqueta `v1.4.0` apunta al commit `75c3da7`, el mismo estado final usado para
-  cerrar el changelog y publicar la versión.
+  cerrar el changelog y publicar originalmente la versión. Los assets Linux renovados
+  fueron compilados de forma controlada desde `59a7587` sin mover la etiqueta.
+- Las notas del release incluyen la mejora Linux y recomiendan volver a descargar el
+  paquete a quien lo hubiera obtenido antes del 2026-08-03.
+- El issue #5 recibió el comentario de seguimiento `5171062242` y no se cerrará hasta
+  conocer el resultado real en Debian 13, KDE Plasma y Brisa oscuro.
 
 ## 8. Siguiente paso
 
-1. Integrar el PR #8 en `main`.
-2. Sustituir únicamente `.deb`, `.rpm` y `.AppImage` en el release `v1.4.0`; conservar
-   sin cambios `.exe` y `.msi`.
-3. Solicitar comprobación visual en Debian/KDE antes de cerrar el issue #5.
-4. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
+1. Esperar la comprobación visual del reportante en Debian/KDE y cerrar el issue #5
+   solo si confirma que el contraste quedó corregido.
+2. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
    antes de modificar la interfaz.
-5. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
+3. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
    Linux y en los distintos canales de instalación Windows.
 
 No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.
