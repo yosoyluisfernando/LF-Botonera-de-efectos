@@ -551,8 +551,11 @@ build_play_source(cache, path, loop, cue_start, cue_end)
 ## Sistema de temas
 
 - Las custom properties CSS en `theme.css` definen todas las variables de color.
-- La clase `html.theme-dark` / `html.theme-light` selecciona el conjunto de variables.
-- `theme.js::applyTheme()` añade la clase antes de que el navegador pinte; sin parpadeo blanco.
+- El atributo `data-theme="dark"|"light"` de `<html>` selecciona el conjunto de variables.
+- `theme.js::applyTheme()` fija el atributo antes de que el navegador pinte; sin parpadeo blanco.
+- Cada conjunto declara también su `color-scheme`. Así WebView2 y WebKitGTK pintan
+  desplegables y demás controles nativos con el mismo tema que la aplicación, incluso
+  cuando están deshabilitados.
 - `colorAdapter.js` ajusta colores de usuario (fondo/texto) para mantener contraste en cualquier tema.
 
 ---
@@ -688,7 +691,11 @@ Ver `Documentación/COMPILACION_Y_VERSIONES.md` para el procedimiento completo, 
 - Cómo sincronizar la versión en los 3 archivos (package.json, Cargo.toml, tauri.conf.json).
 - El `upgradeCode` MSI no debe cambiar entre versiones.
 
-Al publicar un tag `v*`, el CI (`release-builds.yml`) compila automáticamente para Windows y Linux y sube los artefactos al release de GitHub.
+Al publicar un tag `v*`, el CI (`build.yml`) compila automáticamente para Windows y
+Linux y sube los artefactos al release de GitHub. `release-builds.yml` es el flujo
+manual para reconstrucciones controladas: permite elegir todas las plataformas o
+solo una, conserva primero los paquetes como artefactos de la ejecución y únicamente
+reemplaza los archivos de un release cuando se activa expresamente `publish`.
 
 ### Canal de distribución incorporado al ejecutable
 

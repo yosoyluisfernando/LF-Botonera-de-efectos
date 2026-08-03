@@ -60,6 +60,10 @@ directamente desde Windows:
   Música individual, escribir opcionalmente los campos compatibles dentro del
   archivo.
 
+### Corregido
+- Los menús desplegables respetan el tema claro u oscuro en Linux, incluidos los de
+  la bienvenida inicial y los controles deshabilitados.
+
 ### Seguridad
 - La purga de una ruta vencida conserva cue, ganancia, normalización y demás datos
   técnicos de cualquier pista que siga asignada a una rejilla, botón fijo o cola del

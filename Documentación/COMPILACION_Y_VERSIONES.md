@@ -95,9 +95,12 @@ Compilación directa en Linux:
 LF_DISTRIBUTION_CHANNEL=direct npm run tauri build
 ```
 
-GitHub Actions usa `.github/workflows/release-builds.yml` y actualmente obtiene el
-mismo resultado directo por el valor predeterminado. Sus EXE, MSI, DEB, RPM y
-AppImage pertenecen todos a GitHub Releases.
+GitHub Actions obtiene el mismo resultado directo por el valor predeterminado. El
+flujo automático `.github/workflows/build.yml` crea EXE, MSI, DEB, RPM y AppImage al
+publicar un tag. Para una reconstrucción controlada, `release-builds.yml` recibe la
+etiqueta, la referencia exacta y el destino `all`, `linux` o `windows`; primero guarda
+los paquetes como artefactos privados. Solo reemplaza los archivos del release si se
+ejecuta expresamente con `publish=true`.
 
 Microsoft Store **no** se compila con el comando genérico. Se usa:
 

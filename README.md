@@ -226,7 +226,7 @@ Abre la app con hot-reload del frontend. Los cambios en `src/` se reflejan al in
 
 ## Publicación automática
 
-Al publicar un tag con formato `v*` (por ejemplo `v1.1.2`), el workflow `.github/workflows/release-builds.yml` compila para Windows y Linux y publica los instaladores como assets del release.
+Al publicar un tag con formato `v*` (por ejemplo `v1.1.2`), el workflow `.github/workflows/build.yml` compila para Windows y Linux y publica los instaladores como assets del release.
 
 La versión debe coincidir en estos tres archivos antes de publicar:
 
