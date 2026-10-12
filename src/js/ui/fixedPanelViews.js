@@ -46,8 +46,6 @@ async function selectView(view) {
         scope: settings.scope,
         view,
         side: settings.side,
-        visible: settings.visible,
-        showOnStart: settings.show_on_start,
         columns: settings.columns,
         rowMode: settings.row_mode,
         rows: settings.rows,

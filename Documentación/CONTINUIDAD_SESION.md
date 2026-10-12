@@ -1,8 +1,8 @@
 # Continuidad de sesión — estado actual
 
-**Actualizado:** 2026-08-03
+**Actualizado:** 2026-09-17
 
-**Rama de trabajo:** `codex/close-linux-theme-release`
+**Rama de trabajo:** `main`
 
 **Versión del código:** 1.4.0
 
@@ -10,6 +10,52 @@ Este archivo no es un historial. Conserva únicamente el trabajo activo, las
 decisiones cerradas, la evidencia vigente y el siguiente paso real.
 
 ## 1. Estado actual
+
+El volumen del reproductor auxiliar se controla únicamente desde el reproductor.
+Se retiró el deslizador duplicado de Panel fijo y su carga/guardado en
+`settingsPlayer.js`; guardar otros ajustes ya no escribe ese volumen.
+
+El panel fijo restaura ahora su última visibilidad guardada, sin la preferencia
+independiente `show_on_start`. Se retiraron las dos casillas de sus ajustes;
+Principal conserva la opción de mostrar el botón superior. Pendiente prueba del
+autor: reiniciar con el panel abierto/cerrado y guardar ajustes sin cambiarlo.
+
+Mic está implementado localmente tras aprobar el autor el [plan](PLAN_MIC.md):
+mantener pulsado, alternar y automático, con destinos combinables y nivel absoluto
+(60 → 20 → 60). Rust captura/mide la entrada, resuelve pulsaciones y aplica una
+atenuación temporal por bus, conservando los faders y el master. Mic es un botón
+compacto de la barra principal, entre Solo y Vol; abre sus ajustes
+con clic derecho. Configuración → Atajos solo contiene su atajo opcional por perfil.
+Automático requiere activación explícita con Mic; ante fallo
+de entrada restaura el nivel. No mezcla, graba ni transmite el micrófono.
+Falta la prueba funcional del autor con ratón, teclado y entrada física.
+La medición de ajustes comparte captura con automático al seleccionar el mismo
+micrófono por nombre o como predeterminado. La resolución ocurre al elegir/abrir
+la entrada, sin enumeración periódica. Pendiente comprobar ambas combinaciones
+con el dispositivo físico.
+
+El autor indicó expresamente no publicar hasta que lo solicite. Las mejoras se
+acumulan en `[Sin publicar]` de `CHANGELOG.md`, sin cambiar aún la versión.
+
+La barra inferior mantiene ahora hora y fecha permanentemente a la izquierda. El
+contador existente tiene un destino independiente, justo a la izquierda de Detener
+todo y en su misma fila; el botón permanece en el extremo derecho. Se eliminó la
+alternancia con el reloj y su temporizador de tres segundos. Rust sigue calculando
+el tiempo y el contador queda en cero al terminar. Falta la prueba visual del autor.
+
+Los atajos opcionales Reproducir, Detener y Siguiente pista del reproductor auxiliar
+están implementados localmente, sin publicar. Se configuran en el apartado existente
+de teclado, nacen vacíos, pertenecen al perfil y respetan `global_keys`. Rust comparte
+resolución y ejecución local/global, valida conflictos antes de guardar y reutiliza
+el transporte del reproductor. Los perfiles exportados conservan los tres campos
+opcionales. Falta la prueba funcional del autor con la interfaz real.
+
+El arrastre desde el Buscador fijo y la ventana Biblioteca hacia la aplicación
+principal está implementado. Las filas inician un arrastre nativo de sus rutas
+reales mediante `tauri-plugin-drag`; `fileDrop.js` continúa como receptor único y
+delega en las operaciones existentes para reproductor, botones fijos, celdas y
+pestañas. Las pestañas admiten lotes atómicos y una celda o botón fijo exige una sola
+pista. Falta únicamente la prueba funcional del autor entre las dos ventanas.
 
 La publicación coordinada de 1.4.0 está cerrada en Microsoft Store y GitHub. Los tres
 paquetes Linux de esa misma versión recibieron una corrección de presentación: los
@@ -65,10 +111,11 @@ Archivo local:
 
 ## 5. Changelog y versión
 
-- `CHANGELOG.md` conserva `[Sin publicar]` vacío y cierra las novedades bajo
-  `[1.4.0] — 2026-08-02`.
-- La ventana de bienvenida busca primero contenido en `[Sin publicar]`; al estar vacío,
-  carga la sección que coincide con `CARGO_PKG_VERSION`, por lo que mostrará 1.4.0.
+- `CHANGELOG.md` conserva el release `[1.4.0] — 2026-08-02` y ahora documenta en
+  `[Sin publicar]` el arrastre de Biblioteca, los atajos del reproductor auxiliar y
+  la separación del reloj y el contador de sonidos.
+- La ventana de bienvenida busca primero contenido en `[Sin publicar]`; esta copia
+  local mostrará esas mejoras. El release publicado conserva sus notas de 1.4.0.
 - Se preservó el cambio manual del autor que eliminó una segunda viñeta técnica del
   selector visual.
 - `package.json`, `package-lock.json`, `Cargo.toml`, `Cargo.lock` y
@@ -77,6 +124,69 @@ Archivo local:
   acentos en futuras actualizaciones.
 
 ## 6. Evidencia vigente
+
+- Captura compartida por entrada resuelta, 2026-10-11:
+  `cargo test --lib --locked --offline`, 349 aprobadas, 0 fallidas y 19 ignoradas;
+  `cargo build --lib --locked --offline`, correcto con el mensaje informativo MSVC;
+  `npm run build` y `git diff --check`, correctos. Captura y worker dentro del
+  límite de 200 líneas. Sin abrir la aplicación; pendiente comprobar la entrada
+  predeterminada y por nombre con hardware real.
+
+- Volumen único del reproductor, 2026-10-11: `npm run build`, correcto;
+  `cargo test --lib --locked --offline`, 347 aprobadas, 0 fallidas y 19 ignoradas;
+  `cargo build --lib --locked --offline`, correcto con el mensaje informativo MSVC.
+  Estructura de bloques HTML y retirada de referencias del volumen en ajustes
+  comprobadas; `git diff --check`, correcto. Sin abrir la aplicación.
+
+- Visibilidad del panel fijo, 2026-10-11: `cargo test --lib --locked --offline`,
+  347 aprobadas, 0 fallidas y 19 ignoradas; `cargo build --lib --locked --offline`,
+  correcto con el mensaje informativo MSVC; `npm run build`, correcto.
+  Configuraciones antiguas y persistencia de abierto/cerrado comprobadas por test;
+  claves i18n alineadas y `git diff --check` correcto. Sin abrir la aplicación.
+
+- Medición temporal de ajustes Mic, 2026-10-11: `cargo test --lib --locked --offline`,
+  346 aprobadas, 0 fallidas y 19 ignoradas; `cargo build --lib --locked --offline`,
+  correcto con el aviso informativo MSVC de creación de biblioteca; `npm run build`,
+  correcto. `git diff --check`, correcto; módulos tocados de Mic bajo 200 líneas.
+  No se abrió la aplicación. Pendiente la comprobación física del autor.
+
+- Mic, 2026-09-17: `cargo test --lib --locked --offline`, 345 aprobadas,
+  0 fallidas y 19 ignoradas. Las 13 pruebas añadidas cubren modos, niveles,
+  histéresis, rampas estéreo, destinos combinables, atajos y exportación compatible.
+  `cargo build --lib --locked --offline`, correcto; únicamente el mensaje
+  informativo del enlazador MSVC sobre creación de `.lib`/`.exp`.
+  `npm run build`, correcto. Claves de traducción de los cuatro idiomas alineadas;
+  XML de la plantilla MSIX válido y módulos de Mic por debajo de 200 líneas.
+  No se abrió la aplicación ni se probó la entrada física; esa validación queda
+  con el autor. No se publicaron cambios ni se incrementó la versión.
+
+- Separación de reloj y contador, 2026-09-17: `npm run build`, correcto;
+  `cargo test --lib --locked --offline`, 332 aprobadas, 0 fallidas y 19 ignoradas;
+  `cargo build --lib --locked --offline`, correcto con el mismo aviso informativo
+  de MSVC. `git diff --check` y claves i18n de los cuatro idiomas, correctos.
+  `clockWidget.js` tiene 95 líneas, `bottomBar.css` 165 y `playbackControls.css` 70.
+  No se abrió la aplicación ni se publicó; la comprobación visual queda con el autor.
+
+- Atajos del reproductor, 2026-09-17: `cargo test --lib --locked --offline`, correcto
+  con 332 aprobadas, 0 fallidas y 19 ignoradas. Incluye 11 pruebas nuevas de resolución
+  local/global, cambio de perfil, limpieza, conflictos y compatibilidad JSON/LFA.
+- `cargo build --lib --locked --offline` y `npm run build`, correctos. El build Rust
+  emitió únicamente el aviso informativo de MSVC al crear la biblioteca de enlace.
+- Formato Rust y `git diff --check`, correctos; claves i18n iguales en los cuatro
+  idiomas; módulos Rust/JS tocados por esta mejora dentro del máximo de 200 líneas.
+- Tras la reinstalación de Windows, se instaló Rust/Cargo estable con el instalador
+  oficial y rustfmt, por autorización del autor. Visual Studio C++ ya estaba
+  disponible. `npm ci` restauró las versiones fijadas; no se actualizaron dependencias.
+- No se ejecutó la aplicación. Se conservaron los cambios locales previos de arrastre
+  y no se tocó `Capturas_Tienda/`.
+
+- Arrastre de Biblioteca: `cargo test --lib`, correcto con 321 aprobadas, 0 fallidas
+  y 19 ignoradas; `cargo build --lib` y `npm run build`, correctos.
+- `npm run licenses`, correcto; los avisos incluyen `drag 2.1.1` y
+  `tauri-plugin-drag 2.1.1`, ambos MIT/Apache-2.0.
+- `npm run tauri build -- --no-bundle`, correcto. Ejecutable Release para la prueba
+  funcional: `src-tauri/target/release/tauri-app.exe`, 42.847.232 bytes y SHA-256
+  `8FFE58EF0EDACE7D21F4920877801918EF4ADB6F8852CA2A7D5D5B461A457200`.
 
 - `cargo check`: correcto.
 - `cargo test --lib`: 321 aprobadas, 0 fallidas y 19 ignoradas.
@@ -136,11 +246,29 @@ los distintos canales de instalación Windows. No bloquea la certificación ya e
 
 ## 8. Siguiente paso
 
-1. Esperar la comprobación visual del reportante en Debian/KDE y cerrar el issue #5
+Probar [Mic](PLAN_MIC.md): mantener/alternar/automático, atajos locales y globales,
+combinaciones de destinos, restauración desde 100/60/40%, desconexión de entrada y
+transiciones rápidas. En ajustes, el nivel es absoluto, no porcentaje relativo.
+Cuando se autorice publicar, sincronizar también la sección de micrófono de
+`PRIVACY.md` con su página web. La plantilla MSIX ya declara la entrada de micrófono.
+Conservar como pendientes las comprobaciones funcionales siguientes.
+
+Comprobar visualmente la barra inferior con sonidos cortos, largos y simultáneos,
+al terminar y al pulsar Detener todo: hora/fecha siempre visibles, contador junto
+al botón y posición de Detener todo conservada. Revisar también al reducir la ventana.
+
+1. Probar los atajos del reproductor: asignar y limpiar los tres campos; guardar y
+   reabrir; comprobar Play, Stop y Siguiente con el panel en sus tres vistas, con y
+   sin foco según la opción global, y cambiar de perfil. Comprobar que una combinación
+   en conflicto se rechaza sin reemplazar asignaciones.
+2. Probar el arrastre real desde la ventana Biblioteca hacia reproductor, botones
+   fijos, botones principales y pestañas; comprobar también una selección múltiple
+   sobre reproductor y pestaña.
+3. Esperar la comprobación visual del reportante en Debian/KDE y cerrar el issue #5
    solo si confirma que el contraste quedó corregido.
-2. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
+4. Cuando el autor lo indique, estudiar y acordar el plan de reorganización visual
    antes de modificar la interfaz.
-3. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
+5. Mantener como pruebas pendientes no bloqueantes la comprobación física MIDI en
    Linux y en los distintos canales de instalación Windows.
 
 No tocar `Capturas_Tienda/`; es material ajeno a esta tarea.

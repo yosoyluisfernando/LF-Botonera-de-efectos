@@ -1,8 +1,8 @@
 /**
  * Archivo: fileDrop.js
- * Proposito: soltar archivos del explorador (Windows/Linux) sobre la rejilla, el
- * panel fijo o la cola del reproductor. Es el UNICO oyente de los eventos
- * `tauri://drag-*`: decide el destino y delega. El arrastre interno entre botones
+ * Proposito: recibir archivos nativos del explorador o de Biblioteca sobre la
+ * rejilla, pestañas, panel fijo o reproductor. Es el UNICO oyente de los eventos
+ * `tauri://drag-*`: decide el destino y delega. El movimiento interno de botones
  * vive en gridDnd.js.
  */
 
@@ -28,11 +28,14 @@ export function initFileDrop(onRefresh) {
         const paths = e.payload.paths ?? [];
         if (!target || !paths.length) return;
         try {
-            // El reproductor admite carpetas y varios archivos a la vez; la
-            // botonera (rejilla y panel fijo) sigue siendo de UN archivo y sin
-            // carpetas. Son dos herramientas distintas, no una incoherencia.
             if (target.closest('#player-view')) await dropOnPlayer(target, paths);
-            else if (target.closest('#fixed-panel')) await _dropFileOnFixed(target, paths[0]);
+            else if (target.closest('#tabs-list .tab[data-paleta-id]')) {
+                await _dropFilesOnTab(target, paths);
+            } else if (paths.length !== 1) {
+                await appAlert(t('library.single_track_for_button'));
+            } else if (target.closest('#fixed-panel[data-view="buttons"]')) {
+                await dropFileOnFixed(target, paths[0]);
+            }
             else await dropFileOnGrid(target, paths[0]);
         } catch (err) {
             console.error('Error al asignar archivo soltado:', err);
@@ -43,7 +46,7 @@ export function initFileDrop(onRefresh) {
 
 // Soltar sobre un boton fijo existente pregunta reemplazar/anadir/cancelar; en
 // vacio anade al final. Rust asigna el indice final cuando no se envia.
-async function _dropFileOnFixed(target, path) {
+export async function dropFileOnFixed(target, path) {
     const button = target.closest('.fixed-panel-item[data-index]');
     let args = { path };
     if (button) {
@@ -54,6 +57,15 @@ async function _dropFileOnFixed(target, path) {
     }
     await invoke('assign_file_to_fixed_button', args);
     _onRefresh?.();
+}
+
+async function _dropFilesOnTab(target, paths) {
+    const tab = target.closest('#tabs-list .tab[data-paleta-id]');
+    await invoke('library_assign_to_paleta', {
+        paths,
+        paletaId: tab.dataset.paletaId,
+    });
+    await _onRefresh?.();
 }
 
 // Sobre una celda ocupada (con data-id) pregunta reemplazar/no; en vacio asigna.
@@ -68,11 +80,12 @@ function _dropTargetAt(pos) {
     if (!pos) return null;
     const scale = window.devicePixelRatio || 1;
     return document.elementFromPoint(pos.x / scale, pos.y / scale)
-        ?.closest('.grid-item, .fixed-panel-item, #fixed-panel, .player-row, #player-view') ?? null;
+        ?.closest('.grid-item, .fixed-panel-item, #fixed-panel[data-view="buttons"], .player-row, #player-view, #tabs-list .tab[data-paleta-id]') ?? null;
 }
 
 function _markFileTarget(el) {
-    document.querySelectorAll('.grid-item.drag-over, .fixed-panel-item.drag-over, #fixed-panel.drag-over, .player-row.drag-over, #player-view.drag-over')
-        .forEach(c => c.classList.remove('drag-over'));
-    el?.classList.add('drag-over');
+    document.querySelectorAll('.grid-item.drag-over, .fixed-panel-item.drag-over, #fixed-panel.drag-over, .player-row.drag-over, #player-view.drag-over, .tab.tab-drag-over')
+        .forEach(c => c.classList.remove('drag-over', 'tab-drag-over'));
+    if (el?.matches('#tabs-list .tab[data-paleta-id]')) el.classList.add('tab-drag-over');
+    else el?.classList.add('drag-over');
 }

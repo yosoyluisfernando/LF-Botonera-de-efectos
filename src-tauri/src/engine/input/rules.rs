@@ -101,19 +101,15 @@ fn active_profile_mut(cfg: &mut AppConfig) -> Result<&mut ProfileData, String> {
         .ok_or("Perfil activo no encontrado".to_string())
 }
 
-fn block_profile_keys(profile: &ProfileData, key: &str) -> Result<(), String> {
-    let audio = &profile.audio;
-    if same_key(&audio.key_stop, key)
-        || same_key(&audio.key_next, key)
-        || same_key(&audio.key_prev, key)
-    {
+pub fn block_profile_keys(profile: &ProfileData, key: &str) -> Result<(), String> {
+    if super::profile_shortcuts::resolve(&profile.audio, |saved| same_key(saved, key)).is_some() {
         return Err(conflict("shortcut_blocked_global", key, ""));
     }
     Ok(())
 }
 
 pub fn is_reserved_system_key(key: &str) -> bool {
-    ["Ctrl+Z", "Ctrl+Alt+Z"]
+    ["Escape", "Enter", "Ctrl+Z", "Ctrl+Alt+Z"]
         .iter()
         .any(|item| same_key(item, key))
 }
@@ -141,7 +137,7 @@ fn clear_tab_conflict(profile: &mut ProfileData, key: &str, replace: bool) -> Re
 }
 
 fn same_key(a: &str, b: &str) -> bool {
-    !a.trim().is_empty() && a.trim().eq_ignore_ascii_case(b.trim())
+    super::profile_shortcuts::same_key(a, b)
 }
 
 fn display_name(name: &str, label: &str) -> String {

@@ -22,6 +22,7 @@ pub struct AppState {
     pub audio: Mutex<AudioEngine>,
     pub player: Mutex<PlayerEngine>,
     pub midi: MidiEngine,
+    pub mic: crate::engine::mic::MicEngine,
     pub history: Mutex<ConfigHistory>,
     /// Arc porque lo comparte el resolvedor del reproductor: las bolsas de
     /// aleatorios son las mismas para los botones y para la cola.
@@ -78,6 +79,7 @@ impl AppState {
             audio: Mutex::new(audio),
             player: Mutex::new(player),
             midi: MidiEngine::new(),
+            mic: crate::engine::mic::MicEngine::new(),
             history: Mutex::new(ConfigHistory::default()),
             random_folders,
             tracks,

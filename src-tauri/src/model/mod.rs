@@ -7,6 +7,7 @@ pub mod fade;
 pub mod fixed_panel;
 pub mod grid;
 pub mod locutions;
+pub mod mic;
 pub mod midi;
 pub mod norm;
 pub mod playback;

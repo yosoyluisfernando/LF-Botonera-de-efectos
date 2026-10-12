@@ -37,6 +37,7 @@ chrono = "0.4"
 rusqlite = { version = "0.32", features = ["bundled", "backup"] }
 ebur128 = "0.1"
 tauri-plugin-window-state = "2"
+tauri-plugin-drag = "=2.1.1"
 thiserror = "2"
 unicode-normalization = "0.1"
 notify = "8.2"

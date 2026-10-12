@@ -1,7 +1,7 @@
 /**
  * Archivo: settingsPlayer.js
- * Propósito: los ajustes del reproductor en el modal de Ajustes. El modo y el
- * volumen viven en la pestaña **Panel fijo**; la **salida** vive en *Principal*,
+ * Propósito: los ajustes del reproductor en el modal de Ajustes. El modo
+ * vive en la pestaña **Panel fijo**; la **salida** vive en *Principal*,
  * junto a la principal y la de pre-escucha, para tener todas las salidas de
  * audio en un mismo sitio. Este módulo los gestiona todos porque son del mismo
  * dueño, estén en la pestaña que estén.
@@ -13,20 +13,14 @@
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
 
-// El backend admite hasta 1.5, pero ese margen extra solo existe en la app con
-// el modo boost del master. Aquí el recorrido es 0-100%, la convención del resto.
-const MAX_PERCENT = 100;
-
-let _loaded = { mode: 'normal', percent: 100, device: '', largeFolder: 'ask' };
+let _loaded = { mode: 'normal', device: '', largeFolder: 'ask' };
 
 export function initPlayerSettings() {
-    document.getElementById('player-volume')
-        ?.addEventListener('input', e => _paintVolume(e.target.value));
     document.getElementById('fixed-view')
         ?.addEventListener('change', syncPlayerSection);
 }
 
-/** Modo y volumen solo aplican con la presentación Reproductor: si no, se ocultan
+/** Los ajustes de modo solo aplican con la presentación Reproductor: si no, se ocultan
  *  (mismo criterio que "Columnas" y "Filas", que solo se ven en Botones). La
  *  salida NO se oculta: está en Principal y el reproductor puede seguir sonando
  *  aunque el panel esté enseñando los botones fijos. */
@@ -40,28 +34,17 @@ export function loadPlayerSettings(config, devices) {
     const player = config?.player ?? {};
     const mode = player.playback_mode || 'normal';
     const device = player.output_device ?? '';
-    const raw = Number(player.volume);
-    const percent = Math.min(
-        Math.round((Number.isFinite(raw) ? raw : 1) * 100), MAX_PERCENT);
-
     const largeFolder = player.large_folder_action || 'ask';
-    _loaded = { mode, percent, device, largeFolder };
+    _loaded = { mode, device, largeFolder };
     _value('player-large-folder', largeFolder);
     _value('player-mode', mode);
     _fillDevices(devices, device);
-    _value('player-volume', percent);
-    _paintVolume(percent);
     syncPlayerSection();
 }
 
 export async function savePlayerSettings() {
     const mode = document.getElementById('player-mode').value;
     if (mode !== _loaded.mode) await invoke('player_set_mode', { mode });
-
-    const percent = Number(document.getElementById('player-volume').value);
-    if (percent !== _loaded.percent) {
-        await invoke('player_set_volume', { volume: percent / 100 });
-    }
 
     // Re-aplicar el mismo dispositivo reabre la salida y CORTA la música: solo
     // se envía si cambió de verdad (mismo cuidado que la tarjeta principal).
@@ -75,7 +58,7 @@ export async function savePlayerSettings() {
         await invoke('player_set_large_folder_action', { action: largeFolder });
     }
 
-    _loaded = { mode, percent, device, largeFolder };
+    _loaded = { mode, device, largeFolder };
 }
 
 /** La primera opción, vacía, es "el mismo de los efectos": lo que Rust entiende
@@ -93,11 +76,6 @@ function _fillDevices(devices, current) {
         if (value === current) opt.selected = true;
         select.appendChild(opt);
     }
-}
-
-function _paintVolume(percent) {
-    const readout = document.getElementById('player-volume-readout');
-    if (readout) readout.textContent = `${percent}%`;
 }
 
 function _value(id, value) {

@@ -843,9 +843,11 @@ contextual es la única puerta a las acciones de pista.
   `Nombre del archivo`, seleccionables abajo a la derecha.
 - Enter y doble clic no ejecutan acciones. El menú contextual sigue siendo la única
   puerta a LIVE, CUE, reproductor y editor de pista.
-- El transporte del arrastre entre dos WebView se probará de forma aislada. Se
-  reutilizarán los destinos y órdenes existentes; no se creará otra lógica de
-  asignación.
+- El transporte entre los dos WebView quedó implementado como arrastre nativo de
+  las rutas reales mediante `tauri-plugin-drag`. La ventana principal lo recibe por
+  el mismo `tauri://drag-*` de Explorer y `fileDrop.js` reutiliza los destinos y
+  órdenes existentes, sin otra lógica de asignación. Admite reproductor, botones
+  fijos, celdas principales y lotes atómicos sobre pestañas.
 
 ### Retiro seguro de raíces — 2026-07-29
 

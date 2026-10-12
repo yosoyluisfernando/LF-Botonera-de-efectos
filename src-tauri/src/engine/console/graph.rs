@@ -92,6 +92,11 @@ fn open_bus(
         return;
     };
     let (level_l, level_r, gain) = atomics(state, bus);
+    let duck = bus.can_sum_into_program().then(|| super::duck::DuckStage {
+        control: Arc::clone(&state.slots[&bus].duck),
+        parent: (routing == Routing::Program)
+            .then(|| Arc::clone(&state.slots[&BusId::Programa].volume)),
+    });
     let opened = match device_of(&routing, program_device) {
         // Sin tarjeta propia: va sumado dentro del programa. Si el programa no
         // existe (su tarjeta fallo), este bus tampoco: no hay donde entregar.
@@ -100,11 +105,13 @@ fn open_bus(
                 .live
                 .get(&BusId::Programa)
                 .map(|p| p.controller().clone());
-            parent.and_then(|ctrl| Bus::open(BusOutput::Bus(&ctrl), level_l, level_r, gain))
+            parent.and_then(|ctrl| {
+                Bus::open_with_duck(BusOutput::Bus(&ctrl), level_l, level_r, gain, duck)
+            })
         }
-        Some(device) => endpoints
-            .ensure(&device)
-            .and_then(|handle| Bus::open(BusOutput::Endpoint(&handle), level_l, level_r, gain)),
+        Some(device) => endpoints.ensure(&device).and_then(|handle| {
+            Bus::open_with_duck(BusOutput::Endpoint(&handle), level_l, level_r, gain, duck)
+        }),
     };
     if let Some(opened) = opened {
         state.live.insert(bus, opened);

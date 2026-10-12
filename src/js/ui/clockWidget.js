@@ -1,8 +1,8 @@
 /**
  * Archivo: clockWidget.js
- * Propósito: Gestiona el reloj/contador de la barra inferior.
- * No registra listeners — main.js es el único punto de escucha de clock-tick y audio-tick.
- * Expone updateClockTick() y updateAudioTick() para que main.js las llame al recibir eventos.
+ * Propósito: Dibuja hora/fecha y tiempo restante en espacios independientes.
+ * runtimeEvents.js escucha clock-tick y audio-tick y llama a los dos pintores.
+ * JS solo presenta los valores de Rust; no mide ni simula el paso del tiempo.
  * El menú contextual de formato 24/12 h invoca a Rust; la lógica de formato vive allí (Regla 4).
  */
 
@@ -10,14 +10,13 @@ import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
 import { formatCountdown } from '../util/countdownFormat.js';
 
-let _showingAudio  = false;
-let _showCountdown = false;
-let _clearTimer    = null;
 let _is24h         = true;
+// Conserva solo el formato del último audio para mostrar su cero final.
 let _lastDuration  = 0;
 
 const _clockEl = () => document.getElementById('clock-time');
 const _dateEl  = () => document.getElementById('clock-date');
+const _countdownEl = () => document.getElementById('playback-countdown');
 
 // ─── Menú contextual de formato ──────────────────────────────────────────────
 
@@ -72,39 +71,25 @@ export function initClockWidget() {
     _wired = true;
     document.getElementById('clock-widget')
         ?.addEventListener('contextmenu', _showMenu);
+    if (_countdownEl()) _countdownEl().textContent = formatCountdown(0, 0);
 }
 
-// ─── Handlers de eventos (llamados desde main.js) ────────────────────────────
+// ─── Pintores de eventos (llamados desde runtimeEvents.js) ───────────────────
 
-/** Actualiza la hora/fecha. Llamar desde el handler de clock-tick en main.js. */
+/** La hora/fecha siempre siguen clock-tick, aunque esté sonando un audio. */
 export function updateClockTick(payload) {
     const { time_str, date_str, clock_24h } = payload ?? {};
     _is24h = clock_24h ?? true;
     if (_dateEl() && date_str) _dateEl().textContent = date_str;
-    if (!_showingAudio && !_showCountdown && _clockEl() && time_str) {
+    if (_clockEl() && time_str) {
         _clockEl().textContent = time_str;
     }
 }
 
-/** Actualiza el contador regresivo. Llamar desde el handler de audio-tick en main.js. */
+/** Tiempo restante calculado por Rust, junto a Detener todo. Sin temporizadores. */
 export function updateAudioTick(payload) {
     const rem = (payload ?? {}).display_remaining ?? 0;
     const dur = (payload ?? {}).display_duration ?? 0;
-    if (rem > 0.005) {
-        _showingAudio = true;
-        _showCountdown = false;
-        _lastDuration = dur || _lastDuration;
-        if (_clearTimer) { clearTimeout(_clearTimer); _clearTimer = null; }
-        if (_clockEl()) _clockEl().textContent = formatCountdown(rem, _lastDuration);
-    } else if (_showingAudio) {
-        _showingAudio = false;
-        _showCountdown = true;
-        if (_clockEl()) _clockEl().textContent = formatCountdown(0, dur || _lastDuration);
-        if (_clearTimer) clearTimeout(_clearTimer);
-        _clearTimer = setTimeout(() => {
-            _showCountdown = false;
-            _clearTimer = null;
-            _lastDuration = 0;
-        }, 3000);
-    }
+    _lastDuration = dur || _lastDuration;
+    if (_countdownEl()) _countdownEl().textContent = formatCountdown(rem, _lastDuration);
 }

@@ -11,6 +11,7 @@ import {
 import { showLibraryContextMenu } from './libraryContextMenu.js';
 import { libraryDisplayMode } from './libraryDisplayMode.js';
 import { initLibraryWindowKeyboard } from './libraryWindowKeyboard.js';
+import { startLibraryDrag } from './libraryDnd.js';
 
 const source = createLibraryWindowSource();
 let items = [];
@@ -131,6 +132,11 @@ function row(item, index) {
         const selection = selectionForLibraryContext(item, items);
         virtual.render();
         showLibraryContextMenu(event.clientX, event.clientY, selection);
+    });
+    element.addEventListener('mousedown', event => {
+        if (item.is_directory || event.button !== 0 || event.ctrlKey || event.shiftKey) return;
+        const selection = selectionForLibraryContext(item, items);
+        startLibraryDrag(event, selection);
     });
     return element;
 }

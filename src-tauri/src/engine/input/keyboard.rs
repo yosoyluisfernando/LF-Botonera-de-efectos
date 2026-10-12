@@ -1,3 +1,4 @@
+use super::profile_shortcuts::{self, ProfileAction};
 use crate::core::AppState;
 use crate::engine::input::actions as input_actions;
 use crate::engine::persist::config_io as config;
@@ -12,6 +13,15 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 pub fn plugin() -> tauri::plugin::TauriPlugin<tauri::Wry> {
     tauri_plugin_global_shortcut::Builder::new()
         .with_handler(|app, shortcut, event| {
+            if event.state() == ShortcutState::Released {
+                let _ = app
+                    .state::<AppState>()
+                    .mic
+                    .send(crate::engine::mic::Command::Input(
+                        format!("global:{}", shortcut.id()),
+                        false,
+                    ));
+            }
             if event.state() == ShortcutState::Pressed {
                 if let Err(e) = handle_pressed(app, shortcut) {
                     eprintln!("Error en atajo global: {e}");
@@ -41,11 +51,11 @@ fn handle_pressed(app: &AppHandle, shortcut: &Shortcut) -> Result<(), String> {
     let state = app.state::<AppState>();
     let action = find_action(&state, shortcut)?;
     match action {
-        ShortcutAction::StopAll => state.audio.lock().unwrap().stop_all(),
-        ShortcutAction::Cycle(offset) => {
-            cycle_paleta(&state, offset)?;
-            app.emit("global-shortcut-refresh", ())
-                .map_err(|e| e.to_string())?;
+        ShortcutAction::Profile(action) => {
+            if profile_shortcuts::execute(&state, action, &format!("global:{}", shortcut.id()))? {
+                app.emit("global-shortcut-refresh", ())
+                    .map_err(|e| e.to_string())?;
+            }
         }
         ShortcutAction::SetPaleta(id) => {
             set_paleta(&state, id)?;
@@ -57,28 +67,31 @@ fn handle_pressed(app: &AppHandle, shortcut: &Shortcut) -> Result<(), String> {
     Ok(())
 }
 
-enum ShortcutAction {
-    StopAll,
-    Cycle(i32),
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum ShortcutAction {
+    Profile(ProfileAction),
     SetPaleta(String),
     PlayButton(String),
 }
 
 fn find_action(state: &AppState, shortcut: &Shortcut) -> Result<ShortcutAction, String> {
     let cfg = state.config.lock().unwrap();
+    resolve_action(&cfg, shortcut)
+}
+
+pub(crate) fn resolve_action(
+    cfg: &crate::model::AppConfig,
+    shortcut: &Shortcut,
+) -> Result<ShortcutAction, String> {
     let profile = cfg.active_profile().ok_or("Perfil activo no encontrado")?;
     if !profile.audio.global_keys {
         return Err("Atajos globales desactivados".to_string());
     }
 
-    if matches_key(&profile.audio.key_stop, shortcut) {
-        return Ok(ShortcutAction::StopAll);
-    }
-    if matches_key(&profile.audio.key_next, shortcut) {
-        return Ok(ShortcutAction::Cycle(1));
-    }
-    if matches_key(&profile.audio.key_prev, shortcut) {
-        return Ok(ShortcutAction::Cycle(-1));
+    if let Some(action) =
+        profile_shortcuts::resolve(&profile.audio, |key| matches_key(key, shortcut))
+    {
+        return Ok(ShortcutAction::Profile(action));
     }
     for paleta in &profile.paletas {
         if matches_key(&paleta.shortcut, shortcut) {
@@ -109,7 +122,7 @@ fn find_action(state: &AppState, shortcut: &Shortcut) -> Result<ShortcutAction, 
     Err("Atajo no encontrado".to_string())
 }
 
-fn collect_keys(cfg: &crate::model::AppConfig) -> Vec<String> {
+pub(crate) fn collect_keys(cfg: &crate::model::AppConfig) -> Vec<String> {
     let Some(profile) = cfg.active_profile() else {
         return Vec::new();
     };
@@ -118,9 +131,9 @@ fn collect_keys(cfg: &crate::model::AppConfig) -> Vec<String> {
     }
 
     let mut keys = HashSet::new();
-    add_key(&mut keys, &profile.audio.key_stop);
-    add_key(&mut keys, &profile.audio.key_next);
-    add_key(&mut keys, &profile.audio.key_prev);
+    for (_, key) in profile_shortcuts::bindings(&profile.audio) {
+        add_key(&mut keys, key);
+    }
     for paleta in &profile.paletas {
         add_key(&mut keys, &paleta.shortcut);
         for btn in &paleta.botones {
@@ -154,24 +167,7 @@ fn matches_key(saved: &str, shortcut: &Shortcut) -> bool {
 }
 
 fn parse_shortcut(key: &str) -> Result<Shortcut, String> {
-    normalize_shortcut(key)
-        .parse::<Shortcut>()
-        .map_err(|e| format!("Atajo invalido {key}: {e}"))
-}
-
-fn normalize_shortcut(key: &str) -> String {
-    key.trim()
-        .replace("Ctrl+", "Control+")
-        .replace("Espacio", "Space")
-}
-
-fn cycle_paleta(state: &AppState, offset: i32) -> Result<(), String> {
-    let mut cfg = state.config.lock().unwrap();
-    input_actions::cycle_paleta(&mut cfg, offset)?;
-    config::save_config(&cfg)?;
-    drop(cfg);
-    crate::engine::cache::warm::warm_visible_tab(state);
-    Ok(())
+    profile_shortcuts::parse(key)
 }
 
 fn set_paleta(state: &AppState, paleta_id: String) -> Result<(), String> {

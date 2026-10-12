@@ -167,3 +167,23 @@ export function emit(event, payload) {
     }
     return Promise.resolve(null);
 }
+
+/** Inicia un arrastre nativo de archivos usando sus rutas absolutas. */
+export function startNativeFileDrag(paths, image, onEvent) {
+    const core = window.__TAURI__?.core;
+    if (core?.invoke && core?.Channel) {
+        const channel = new core.Channel();
+        channel.onmessage = onEvent;
+        return core.invoke('plugin:drag|start_drag', {
+            item: paths,
+            image,
+            options: { mode: 'copy' },
+            onEvent: channel,
+        });
+    }
+    if (!isBrowserFallback()) {
+        return Promise.reject(new Error('TAURI_NATIVE_DRAG_NOT_READY'));
+    }
+    onEvent?.({ result: 'Cancelled', cursorPos: { x: 0, y: 0 } });
+    return Promise.resolve(null);
+}

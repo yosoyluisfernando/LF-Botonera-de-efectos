@@ -16,6 +16,9 @@ export function initShortcuts(config, onRefresh) {
     _wired = true;
     document.addEventListener('keydown', _preventBrowserFunctionKeys, true);
     document.addEventListener('keydown', _handleKey);
+    document.addEventListener('keyup', e => {
+        invoke('handle_local_shortcut', { key: '', code: e.code, pressed: false }).catch(console.error);
+    }, true);
 }
 
 export function updateShortcuts(config, onRefresh) {
@@ -33,7 +36,7 @@ async function _handleKey(e) {
     e.preventDefault();
 
     try {
-        const result = await invoke('handle_local_shortcut', { key });
+        const result = await invoke('handle_local_shortcut', { key, code: e.code, pressed: true, repeat: e.repeat });
         if (!result?.handled) return;
         if (result.refresh) _onRefresh?.();
     } catch (err) {

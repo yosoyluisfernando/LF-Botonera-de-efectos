@@ -32,6 +32,25 @@ directamente desde Windows:
 
 ## [Sin publicar]
 
+### Añadido
+- **Pulsar para hablar (Mic):** baja el volumen de los sonidos mientras hablas
+  y lo recupera después. Puedes mantener pulsado el botón o un atajo, activar
+  y desactivar con una pulsación, o usar la detección automática del micrófono.
+  Elige qué sonidos bajar y a qué nivel. Encontrarás Mic entre Solo y Vol;
+  haz clic derecho para configurarlo y comprobar la señal del micrófono.
+- **Atajos del reproductor:** asigna teclas para reproducir, detener y pasar
+  a la siguiente pista.
+- **Arrastrar pistas:** lleva sonidos desde la Biblioteca o el Buscador
+  directamente a los botones, las pestañas o el reproductor.
+
+### Cambiado
+- **Panel fijo:** al abrir la aplicación, vuelve a estar abierto o cerrado
+  como lo dejaste. Ya no necesitas elegir «Mostrar al iniciar».
+- **Volumen del reproductor:** se ajusta desde su botón de altavoz.
+  Se retiró el control duplicado de los ajustes.
+- **Reloj y tiempo restante:** la hora y la fecha están siempre visibles.
+  El tiempo restante de los sonidos aparece por separado, junto a Detener todo.
+
 ## [1.4.0] — 2026-08-02
 
 ### Añadido

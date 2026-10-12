@@ -4,6 +4,48 @@ Documentación técnica para programadores que colaboran o estudian el proyecto.
 
 ---
 
+## Mic: control temporal de volumen
+
+`model/mic.rs` define las preferencias globales con defaults compatibles; el atajo
+opcional `AudioConfig.key_mic` pertenece al perfil y viaja en `LfaKeys.mic`.
+`domain/mic.rs` resuelve mantener/alternar/automático y el detector RMS con histéresis
+de 3 dB, confirmación y espera de silencio. `engine/mic/worker.rs` posee la captura
+nativa `rodio::cpal`, procesa las entradas y emite `mic-tick` a 10 Hz, independiente
+de los efectos. Las muestras solo se miden en RAM; no se enrutan ni persisten.
+
+Cada `BusSlot` conserva su `DuckControl`, incluso al reconstruir las salidas.
+`FaderSource` aplica una misma ganancia a ambos canales del fotograma, antes del
+medidor. `DuckStage` limita la ganancia normal de grupo al objetivo absoluto;
+considera el master solamente si la ruta efectiva es Programa. La rampa interpola
+la atenuación temporal, sin cambiar faders persistidos y sin duplicarla en Programa.
+Cue no recibe esta etapa. Las nuevas fuentes atraviesan el mismo bus ya atenuado.
+
+Los ajustes solicitan medición temporal con `mic_preview(input: Option<String>)`:
+`Some` mide la entrada del borrador y `None` libera esa solicitud al cerrar o salir
+del modo automático. Esta medición no habilita el detector ni la atenuación. Si la
+escucha automática usa la misma entrada, se reutiliza su captura; una entrada de
+borrador distinta se mide por separado sin alterar la escucha activa. `mic-tick`
+incluye `preview_level_db` y `preview_error` para los ajustes, separados del estado
+operativo. La entrada predeterminada se resuelve a su nombre al solicitar la
+medición y se compara con el nombre real conservado en la captura automática.
+Elegirla por nombre o como predeterminada comparte una única captura; no se
+enumeran dispositivos en cada tick. Los fallos liberan la captura; la medición no se persiste.
+
+IPC: `get_mic`, `set_mic_config`, `mic_devices`, `mic_preview`, `mic_pointer` y
+`mic_release_local`. `handle_local_shortcut` acepta además `code`, `pressed` y
+`repeat` opcionales; la liberación se identifica por tecla física aunque cambien
+los modificadores. El plugin global entrega Pressed/Released. Ambos reutilizan
+`profile_shortcuts::execute`, con propietario de la pulsación independiente del
+ratón. Los cambios de preferencias/perfil/atajo cancelan la activación anterior;
+la pérdida de foco libera entradas locales y mantiene las globales.
+
+Frontend: `micControl.js` representa estado y captura gestos; `micSettings.js` y
+`micSettingsView.js` editan preferencias validadas por Rust. No calculan audio ni
+transiciones. Mic es hijo directo de `playback-modes`, entre Solo y Vol;
+el margen automático del contador mantiene contador/Detener todo a la derecha.
+Detener todo conserva su posición. Los ajustes se abren con clic derecho en Mic;
+la sección de teclado contiene únicamente el campo de atajo.
+
 ## Visión general
 
 LF Botonera de Efectos sigue una arquitectura **frontend ligero / backend pesado**:
@@ -126,6 +168,15 @@ El frontend está organizado en 3 capas:
   `clock-tick`, `weather-updated`, `track-analysis-progress`) y actualizar la pantalla.
 - Mostrar modales de edición, configuración y el editor de pistas.
 
+La barra inferior separa dos destinos en `clockWidget.js`: `clock-tick` actualiza
+siempre `clock-time` y `clock-date`; `audio-tick` pinta `display_remaining` en
+`playback-countdown`, inmediatamente antes de Detener todo. Rust sigue seleccionando
+el audio y calculando su tiempo. El frontend conserva únicamente la duración para
+mantener el formato del cero final; no alterna vistas ni utiliza temporizadores.
+El margen flexible pertenece al contador y mantiene Detener todo en el extremo
+derecho, a su altura habitual. El contador lleva nombre accesible traducido y
+`aria-live="off"` para no anunciar cada décima de segundo.
+
 ### Lo que hace Rust
 
 - Todo el audio (reproducción, mezcla, enrutamiento, VU).
@@ -155,6 +206,31 @@ Game Icons monocromáticos. Los SVG se dividen por categoría y se cargan median
 renderizado.
 
 ---
+
+### Atajos de teclado del reproductor auxiliar
+
+Las asignaciones pertenecen al perfil: `AudioConfig.key_player_play`,
+`key_player_stop` y `key_player_next`. Nacen vacías, tienen `#[serde(default)]` y
+se omiten al serializar si están vacías. La cola y el motor siguen siendo globales.
+
+`engine/input/profile_shortcuts.rs` define las seis acciones de teclado del perfil,
+comparte su resolución local/global y ejecuta el transporte mediante los mismos
+métodos `resume`, `stop` y `next` del motor existente. `global_keys` elige el
+receptor: con registro nativo activo, `handle_local_shortcut` no vuelve a ejecutar.
+
+`set_global_keys` incorpora los argumentos opcionales `key_player_play`,
+`key_player_stop` y `key_player_next` (camelCase en JS). Omitirlos conserva la
+asignación previa; una cadena vacía la elimina. Rust valida el conjunto propuesto
+antes de mutarlo: sintaxis, teclas reservadas, duplicados entre acciones y conflictos
+con pestañas, rejillas y las dos colecciones de botones fijos. La protección inversa
+impide asignar teclas del reproductor a botones o pestañas.
+
+`settingsKeyboard.js` carga y guarda los campos dentro del apartado existente;
+`keyInputs.js` conserva la captura y limpieza. No se introduce otro listener de
+teclado ni otro comando de transporte. El repintado continúa por `player-tick`.
+Los perfiles `.bdeplf` conservan estas asignaciones mediante los campos opcionales
+`config.keys.playerPlay`, `playerStop` y `playerNext`. Los archivos antiguos cargan
+sin asignación y los campos existentes del formato LFA conservan su significado.
 
 ### Entrada MIDI para atajos
 
@@ -371,6 +447,18 @@ y archivos de audio compatibles mediante trabajo bloqueante fuera del hilo UI.
 Explorar nunca añade raíces ni escribe en `tracks.db`. La ventana separa esas dos
 clases de resultado: las carpetas alimentan únicamente el árbol izquierdo y el panel
 derecho presenta exclusivamente los archivos de audio de la ubicación seleccionada.
+
+El arrastre desde cualquiera de las dos superficies convierte las rutas reales en
+un arrastre nativo mediante `tauri-plugin-drag`. La ventana principal lo recibe por
+el mismo oyente `tauri://drag-*` usado para Explorer: `fileDrop.js` sigue siendo la
+única pieza que resuelve el destino y delega en los comandos existentes. Una pista
+puede caer en una celda o botón fijo; una o varias pueden entrar en el reproductor o
+en una pestaña, donde `library_assign_to_paleta` conserva la asignación atómica.
+Se eligió `tauri-plugin-drag 2.1.1` porque Tauri 2 no inicia por sí mismo arrastres
+de archivos entre WebViews. El plugin está mantenido para Tauri 2, usa los adaptadores
+nativos de Windows y GTK en Linux y tiene licencia MIT/Apache-2.0. Solo se añadió la
+dependencia Rust: la envoltura JavaScript local evita incorporar un paquete npm cuyo
+manifiesto publicado no declara licencia y conserva `api.js` como puente único.
 
 Enter y doble clic todavía no tienen acción. `Reproducir al aire` ya usa el id
 `__library_live__` por el bus Programa, separado del CUE. El documento rector es
@@ -677,6 +765,7 @@ No existen tests de UI (Tauri no expone un harness de integración para el webvi
 | `notify` | 8.2 | Observación incremental de las raíces de Biblioteca |
 | `rfd` | 0.17.2 | Selección nativa de carpetas para respaldos |
 | `tauri-plugin-global-shortcut` | 2.3.2 | Atajos de teclado del SO |
+| `tauri-plugin-drag` | 2.1.1 | Arrastres nativos de pistas desde Biblioteca en Windows y Linux |
 | `tauri-plugin-window-state` | 2 | Recuerda tamaño/posición de ventana |
 | `tauri-plugin-dialog` | 2.7.1 | Diálogos de abrir/guardar archivo |
 | `windows-sys` | 0.59 | Backend MIDI WinMM en Windows |
@@ -763,3 +852,13 @@ falla, se reinstala el respaldo de emergencia.
 
 Diseño completo y pruebas:
 [`PLAN_RESPALDO_RESTAURACION.md`](PLAN_RESPALDO_RESTAURACION.md).
+
+## Visibilidad persistente del panel fijo
+
+`FixedPanelConfig.visible` es la única fuente del estado abierto/cerrado. El botón
+superior guarda cada cambio mediante `set_fixed_panel_settings`; el arranque solo
+consulta `get_fixed_panel`, sin escribir ni sustituir la visibilidad. El argumento
+IPC `visible: Option<bool>` permite guardar otros ajustes sin tocar ese estado.
+La antigua preferencia `show_on_start` se ignora al leer configuraciones previas y
+ya no se escribe. Se retiraron ambas casillas de visibilidad del apartado Panel fijo.
+La opción de Principal sigue controlando únicamente el botón de la barra superior.

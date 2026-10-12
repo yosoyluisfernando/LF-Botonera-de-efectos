@@ -29,8 +29,6 @@ export async function loadFixedPanelSettings(config, devices) {
     document.getElementById('fixed-row-mode').value = settings.row_mode;
     document.getElementById('fixed-rows').value = settings.rows;
     document.getElementById('fixed-modes-position').value = settings.modes_position;
-    document.getElementById('fixed-visible').checked = settings.visible;
-    document.getElementById('fixed-show-start').checked = settings.show_on_start;
     // Despues de fijar `fixed-view`: la seccion Reproductor se muestra u oculta
     // segun esa presentacion, asi que necesita el valor ya puesto.
     loadPlayerSettings(config, devices);
@@ -47,8 +45,6 @@ export async function saveFixedPanelSettings() {
         scope,
         view: document.getElementById('fixed-view').value,
         side: document.getElementById('fixed-side').value,
-        visible: document.getElementById('fixed-visible').checked,
-        showOnStart: document.getElementById('fixed-show-start').checked,
         columns: Number(document.getElementById('fixed-columns').value),
         rowMode: document.getElementById('fixed-row-mode').value,
         rows: Number(document.getElementById('fixed-rows').value),

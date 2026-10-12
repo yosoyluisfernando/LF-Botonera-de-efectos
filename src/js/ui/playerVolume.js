@@ -2,7 +2,7 @@
  * Archivo: playerVolume.js
  * Propósito: el volumen propio del reproductor desde el panel. El panel es
  * estrecho, así que el control se despliega ENCIMA del botón, no a los lados.
- * El recorrido es 0–100 %, como en Ajustes.
+ * El recorrido es 0–100 %; este es el único control de su volumen.
  */
 
 import { invoke } from '../bridge/api.js';

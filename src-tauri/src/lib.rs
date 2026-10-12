@@ -29,6 +29,7 @@ pub fn run() {
                 .build(),
         )
         .plugin(engine::input::keyboard::plugin())
+        .plugin(tauri_plugin_drag::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(lf_invoke_handlers!())

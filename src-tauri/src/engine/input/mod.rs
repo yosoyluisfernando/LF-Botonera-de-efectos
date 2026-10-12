@@ -9,5 +9,13 @@ pub mod midi_dispatch;
 pub mod midi_message;
 pub mod midi_ports;
 pub mod midi_rules;
+pub mod profile_shortcuts;
+#[cfg(test)]
+mod profile_shortcuts_tests;
 pub mod rules;
 pub mod tab_reorder;
+
+#[cfg(test)]
+mod mic_shortcuts_tests;
+#[cfg(test)]
+mod profile_shortcuts_conflict_tests;

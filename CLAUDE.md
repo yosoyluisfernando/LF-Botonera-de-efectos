@@ -118,6 +118,9 @@ AudioConfig {
   key_stop: String,             // atajo global "Detener todo" (ej. "Ctrl+Space")
   key_next: String,             // siguiente pestaña
   key_prev: String,             // pestaña anterior
+  key_player_play: String,      // Play del reproductor auxiliar; vacío por defecto
+  key_player_stop: String,      // Stop del reproductor auxiliar; vacío por defecto
+  key_player_next: String,      // siguiente pista; vacío por defecto
   playback_mode: String,        // "normal" | "loop" | "overlap" | "restart"
   solo_mode: bool,              // true = Stop Others al reproducir
   master_volume: f32,           // 0.0–1.5 (1.5 solo en modo boost)
@@ -483,6 +486,7 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 | `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, loop_current, can_seek, volume, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"player-drop-progress"` | progreso al añadir una carpeta grande a la cola (lotes de 20) | playerDrop.js |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
+| `"mic-tick"` | `{mode, active, listening, level_db, error}` | micControl.js |
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | (vacío) | startup.js → `_refresh()` |
 | `"midi-devices-changed"` | (vacío) | settingsMidi.js → refresca dispositivos |
@@ -494,6 +498,12 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 ---
 
 ## 9. Comandos IPC (registro completo)
+
+Mic: `get_mic`, `set_mic_config`, `mic_devices`, `mic_pointer`,
+`mic_release_local`; `set_global_keys` acepta `key_mic` opcional y
+`handle_local_shortcut` admite `code`, `pressed`, `repeat`. La configuración es
+global; el atajo pertenece al perfil. Captura/detección en `engine/mic/`, reglas en
+`domain/mic.rs` y atenuación temporal en `engine/console/duck.rs`.
 
 ### Config y perfiles
 - `get_config` → `AppConfig`
@@ -554,7 +564,7 @@ es la regla: una escucha privada que se cuela en el aire no es una escucha priva
 - `reorder_buttons(paleta_id, from_id, to_id)`
 
 ### Atajos de teclado
-- `set_global_keys(stop?, next?, prev?, midi_stop?, midi_next?, midi_prev?)`
+- `set_global_keys(key_stop, key_next, key_prev, key_player_play?, key_player_stop?, key_player_next?, midi_stop?, midi_next?, midi_prev?, global_keys?)` — por perfil; Rust valida conflictos antes de guardar. Los tres campos nuevos son opcionales: omitir conserva y vacío elimina.
 - `cycle_paleta(direction)` — "next" | "prev"
 - `handle_local_shortcut(combo)` → dispara el botón o acción asignada
 - `clear_button_shortcut(paleta_id, index)`
@@ -822,7 +832,7 @@ El LFA usa nombres de campo distintos (`file`, `bg`, `text`, `loop`, `stopOther`
 ## 14. Cómo verificar sin tocar la pantalla
 
 ```bash
-# Backend Rust (suite actual: 313 passed, 19 ignored)
+# Backend Rust (suite actual: 332 passed, 19 ignored)
 cd C:\OVERLAY\BOTONERA\src-tauri
 cargo test --lib
 

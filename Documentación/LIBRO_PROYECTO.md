@@ -2,6 +2,13 @@
 
 Guía de lectura completa del repositorio. Lee esto primero si acabas de llegar al proyecto.
 
+**Mejora local sin publicar — Mic:** control para hablar con modos mantener,
+alternar y automático, destinos combinables y recuperación del volumen normal.
+La implementación recorre `model/mic.rs`, `domain/mic.rs`, `engine/mic/`,
+`engine/console/duck.rs` e `ipc/cmd_mic.rs`; la UI está en `micControl.js` y
+`micSettings*.js`. El estudio de referencia y decisiones están en
+[`PLAN_MIC.md`](PLAN_MIC.md); los detalles vigentes, en [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
 > **Documentos relacionados:**
 > - Reglas inmutables → [`REGLAS_PROYECTO.md`](REGLAS_PROYECTO.md)
 > - Detalles técnicos de arquitectura → [`ARCHITECTURE.md`](ARCHITECTURE.md)
@@ -217,7 +224,7 @@ Este es el flujo más importante del sistema. Entenderlo explica por qué existe
    ├─ engine/audio/monitor.rs, 100 ms → "audio-tick":
    │    ├─ gridPlayback.js: botón en verde + barra roja de progreso
    │    ├─ tabs.js: pestaña con indicador de audio
-   │    └─ clockWidget.js: cuenta regresiva en la barra inferior
+   │    └─ clockWidget.js: cuenta regresiva junto a Detener todo; hora/fecha independientes
    └─ engine/audio/meter_monitor.rs, 20 ms → "meter-tick":
         ├─ vuMeter.js: vúmetro L/R principal a 50 FPS
         └─ consoleView.js: todos los vúmetros de la consola a 50 FPS
@@ -353,6 +360,12 @@ el editor abre `trackEditor`, la cola recibe un lote mediante `player_add_tracks
 los botones se construyen con `domain/button/audio_file.rs`. LIVE comparte el control
 visual compacto de CUE, pero usa `__library_live__` en el bus Programa. Por eso CUE
 abajo a la derecha y LIVE abajo a la izquierda pueden sonar y controlarse a la vez.
+
+Las filas del Buscador y de `library.html` inician un arrastre nativo de las rutas
+reales. Al entrar en la ventana principal recorren el mismo `fileDrop.js` que los
+archivos soltados desde Explorer: no existe una segunda lógica de asignación. Una
+pista admite celda o botón fijo; una selección puede añadirse al reproductor o a una
+pestaña, cuya capacidad se valida de forma atómica en Rust.
 
 ---
 
@@ -668,6 +681,19 @@ La idea viene de los reproductores auxiliares del **LF Automatizador v1** (en Ja
 la arquitectura está tomada del motor de reproducción ya escrito en Rust del **2.0**. No se
 copió código: se tradujo y se adaptó (regla 1).
 
+### Atajos opcionales del transporte
+
+Reproducir, Detener y Siguiente pista pueden tener un atajo desde el apartado de
+teclado existente. No hay teclas predeterminadas. Aunque el reproductor es global,
+las asignaciones se guardan en `AudioConfig` del perfil activo, junto a los otros
+atajos, y obedecen a `global_keys`. No dependen de que la vista del reproductor esté
+visible.
+
+La captura local y la global comparten `engine/input/profile_shortcuts.rs`: ambas
+llegan a los mismos métodos del motor que los botones. Rust valida conflictos antes
+de guardar; la interfaz solo carga y envía campos mediante `settingsKeyboard.js`.
+La exportación de perfiles conserva los tres valores como campos opcionales.
+
 ### Los dos decks y el ping-pong
 
 El reproductor mantiene **dos decks** (`engine/player/deck.rs`), cada uno una envoltura de un
@@ -812,7 +838,7 @@ engine/player/monitor.rs ──"player-tick"──▶ runtimeEvents.js ──▶
 |---|---|
 | `src/js/ui/playerView.js` | Dibuja la cola y el transporte; Limpiar / Abrir / Guardar |
 | `src/js/ui/playerDnd.js` | Reordenar arrastrando y recibir lo que se suelta |
-| `src/js/ui/settingsPlayer.js` | Ajustes: modo, volumen propio y dispositivo propio |
+| `src/js/ui/settingsPlayer.js` | Ajustes: modo, acción de carpeta grande y dispositivo propio |
 | `src/js/ui/runtimeEvents.js` | Suscribe `"audio-tick"` y `"player-tick"` |
 | `src/css/player.css` | Verde `--player-playing-bg` (sonando) y naranja `--player-next-bg` (siguiente) |
 

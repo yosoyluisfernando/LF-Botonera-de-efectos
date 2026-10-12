@@ -122,11 +122,19 @@ El modo activo se muestra resaltado. **Stop All** no es un estado persistente, e
 
 ## 6. Barra de estado inferior
 
-### Reloj / Contador
+### Hora y fecha
 
-- Muestra la **hora actual** en formato digital.
-- Cuando hay audio sonando, muestra el **tiempo restante** del sonido más largo activo.
+- Muestra la **hora actual y la fecha** permanentemente, incluso al reproducir sonidos.
 - **Clic derecho** sobre el reloj para cambiar entre formato 12 h y 24 h.
+
+### Contador de los sonidos
+
+El **tiempo restante** aparece en su propio espacio, inmediatamente a la izquierda
+de **Detener todo**, en la misma fila de controles. El botón conserva su posición.
+Muestra el contador que selecciona el motor de audio: prioriza el último botón
+disparado y, cuando termina, puede continuar con el de mayor tiempo restante.
+Al terminar o detener la reproducción, queda en cero. La hora sigue visible y
+actualizándose durante todo el proceso.
 
 ### Vúmetro estéreo (L / R)
 
@@ -139,6 +147,42 @@ El modo activo se muestra resaltado. **Stop All** no es un estado persistente, e
 ---
 
 ## 7. Atajos de teclado y MIDI
+
+### Mic: pulsar para hablar
+
+El botón compacto **Mic**, entre Solo y Vol en la barra inferior,
+reduce los sonidos seleccionados para poder hablar. **Clic derecho en Mic** abre
+sus ajustes. En **Configuración Global → Atajos del Teclado → Mic** se configura
+únicamente su atajo opcional.
+
+- **Mantener pulsado:** mantén el botón o el atajo; al soltar recupera el volumen.
+- **Alternar:** pulsa una vez para bajar y otra para recuperar el volumen.
+- **Automático:** guarda este modo y pulsa Mic para empezar a escuchar la entrada
+  seleccionada. Baja cuando supera la sensibilidad configurada y recupera el
+  volumen después del tiempo de silencio. Otra pulsación suspende la escucha.
+
+Puedes marcar cualquier combinación de **Botonera principal**, **Botones del panel
+fijo** y **Reproductor auxiliar**. Para todos, marca las tres casillas. La preescucha
+no se incluye. Los ajustes de Mic son globales; su atajo es opcional, nace vacío,
+se guarda por perfil y respeta la opción de atajos sin foco.
+
+El nivel al hablar es absoluto: con volumen normal 60% y objetivo 20%, hace
+**60 → 20 → 60**. Si el volumen normal ya es menor, no lo aumenta. Mic conserva
+los ajustes normales; si cambias uno mientras hablas, respeta ese nuevo valor al
+terminar. Los volúmenes particulares de los botones conservan sus proporciones.
+
+Configura por separado el tiempo de bajada y subida. En automático también puedes
+elegir la entrada, sensibilidad, confirmación de señal y espera de silencio. El
+medidor muestra la entrada mientras el apartado automático está abierto, incluso
+con Mic desactivado. Al cerrar los ajustes o cambiar a un modo manual se libera
+esa medición; la captura continúa solo si la escucha automática está habilitada. El
+detector mide intensidad: un ruido fuerte también puede activarlo. El micrófono
+solo se analiza localmente; Mic no lo mezcla, graba ni transmite.
+
+Mic se inicia en reposo. Cambiar su configuración, perfil o atajo cancela la
+activación anterior; en automático vuelve a pulsar Mic para escuchar. Si falla la
+entrada, se recupera el volumen y el botón indica el error. Revisa la entrada y los
+permisos del sistema y pulsa Mic para reintentar.
 
 ### Teclas reservadas del sistema
 
@@ -157,6 +201,22 @@ En **Configuración Global → Atajos del Teclado** puedes asignar:
 - **Pestaña siguiente / anterior**: navegar entre pestañas desde el teclado.
 
 Haz clic en el cuadro de la tecla y pulsa la combinación deseada. Backspace o Supr limpia el atajo.
+
+### Atajos del reproductor auxiliar
+
+En **Configuración Global → Atajos del Teclado → Reproductor auxiliar** puedes
+asignar **Reproducir**, **Detener** y **Siguiente pista**. Los tres campos vienen
+vacíos: pulsa el campo, introduce la combinación y guarda los ajustes. Usa el botón
+para limpiar el campo si quieres desactivar ese atajo.
+
+Reproducir equivale al botón Play, incluida la reanudación desde pausa. Detener
+para únicamente el reproductor auxiliar y Siguiente pista utiliza su avance normal,
+respetando la pista marcada como siguiente. Funcionan aunque el panel esté mostrando
+los botones fijos o el Buscador.
+
+Se guardan en el perfil activo. La opción **Permitir atajos aunque la app no tenga
+foco** también se aplica a estas tres acciones. Una combinación ya asignada a otra
+acción, pestaña o botón debe liberarse antes de reutilizarla.
 
 ### Control mediante dispositivos MIDI
 
@@ -283,3 +343,14 @@ Menú de perfil → Eliminar Perfil actual. No se puede eliminar el único perfi
 En la carpeta de datos del usuario del sistema operativo:
 - **Windows**: `%APPDATA%\lf-botonera\config.json`
 - **Linux**: `~/.local/share/lf-botonera/config.json`
+
+## Visibilidad del panel fijo
+
+Abre o cierra el panel con su botón de la barra superior. La aplicación recuerda
+ese estado y lo restaura al iniciar: si lo dejaste cerrado, continúa cerrado;
+si lo dejaste abierto, vuelve a abrirse. No hace falta configurar una opción de
+inicio. En Configuración → Principal, «Mostrar el Panel fijo» controla si aparece
+el botón de la barra superior.
+
+El volumen del reproductor auxiliar se ajusta desde el botón de altavoz del propio
+reproductor. Configuración → Panel fijo no contiene un segundo control de volumen.

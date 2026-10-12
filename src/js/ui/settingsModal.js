@@ -15,7 +15,9 @@ import { appAlert } from './appDialog.js';
 import { initFixedPanelSettings, loadFixedPanelSettings, saveFixedPanelSettings } from './settingsFixedPanel.js';
 import { loadToolbarButtons, saveToolbarButtons } from './toolbarButtons.js';
 import { loadAboutInfo } from './aboutInfo.js';
-import { globalMidiBindings, initSettingsMidi, loadSettingsMidi, saveSettingsMidi } from './settingsMidi.js';
+import { initSettingsMidi, loadSettingsMidi, saveSettingsMidi } from './settingsMidi.js';
+
+import { loadKeyboardSettings, saveKeyboardSettings, renderOrphanedShortcuts } from './settingsKeyboard.js';
 
 let _onSaved         = null;
 let _currentOutMain  = null; // Tarjeta vigente al abrir el modal
@@ -74,11 +76,7 @@ async function _openSettings() {
     _fillDeviceSelect('config-out-main', devices, outMain);
     _fillDeviceSelect('config-out-pre',  devices, outPre);
 
-    // Atajos globales guardados en el perfil
-    document.getElementById('config-key-stop').value = profile?.audio?.key_stop || '';
-    document.getElementById('config-key-next').value = profile?.audio?.key_next || '';
-    document.getElementById('config-key-prev').value = profile?.audio?.key_prev || '';
-    document.getElementById('config-global-keys').checked = !!profile?.audio?.global_keys;
+    loadKeyboardSettings(profile?.audio);
 
     document.getElementById('config-theme').value    = config.theme    || 'dark';
     document.getElementById('config-language').value = config.language || 'es';
@@ -91,7 +89,7 @@ async function _openSettings() {
     loadPlaybackPanel(config);
     await loadSettingsMidi(config);
     await loadFixedPanelSettings(config, devices);
-    _renderOrphanedShortcuts(config);
+    renderOrphanedShortcuts(config);
     document.getElementById('settings-modal').classList.remove('hidden');
 }
 
@@ -104,13 +102,7 @@ async function _saveSettings() {
         }
         // Salida de pre-escucha: Rust aplica el fallback (vacía o = principal → principal)
         await invoke('set_pre_device', { deviceName: document.getElementById('config-out-pre').value });
-        await invoke('set_global_keys', {
-            keyStop: document.getElementById('config-key-stop').value,
-            keyNext: document.getElementById('config-key-next').value,
-            keyPrev: document.getElementById('config-key-prev').value,
-            ...globalMidiBindings(),
-            globalKeys: document.getElementById('config-global-keys').checked,
-        });
+        await saveKeyboardSettings();
         await saveSettingsMidi();
         await saveLocutions();
         await savePreload();
@@ -154,52 +146,5 @@ function _wireDonateButton() {
     document.getElementById('btn-donate')?.addEventListener('click', () => {
         window.__TAURI__?.opener?.openUrl('https://www.paypal.com/donate/?hosted_button_id=3JJVFFBVR4MQQ')
             .catch(console.error);
-    });
-}
-
-/** Muestra atajos asignados a botones sin archivo de audio en el panel Atajos. */
-function _renderOrphanedShortcuts(config) {
-    const section = document.getElementById('shortcuts-orphan-section');
-    if (!section) return;
-    section.innerHTML = '';
-
-    const profile = config.profiles?.find(p => p.id === config.active_profile_id);
-    const orphans = [];
-    for (const paleta of (profile?.paletas ?? [])) {
-        for (const btn of (paleta.botones ?? [])) {
-            if (btn.shortcut && !btn.path && !btn.folder) {
-                orphans.push({ paletaId: paleta.id, paletaNombre: paleta.nombre, btn });
-            }
-        }
-    }
-
-    if (!orphans.length) {
-        const p = document.createElement('p');
-        p.className = 'hint';
-        p.textContent = t('settings.no_orphaned');
-        section.appendChild(p);
-        return;
-    }
-
-    const hint = document.createElement('p');
-    hint.className = 'hint danger';
-    hint.textContent = t('settings.orphaned_hint');
-    section.appendChild(hint);
-
-    orphans.forEach(({ paletaId, paletaNombre, btn }) => {
-        const row = document.createElement('div');
-        row.className = 'orphan-row';
-        const lbl = document.createElement('span');
-        lbl.innerHTML = `${paletaNombre} — ${btn.label}: <code>${btn.shortcut}</code>`;
-        const clrBtn = document.createElement('button');
-        clrBtn.className = 'btn-xs-danger';
-        clrBtn.textContent = t('settings.clear_shortcut');
-        clrBtn.addEventListener('click', async () => {
-            await invoke('clear_button_shortcut', { paletaId, index: btn.index });
-            row.remove();
-        });
-        row.appendChild(lbl);
-        row.appendChild(clrBtn);
-        section.appendChild(row);
     });
 }

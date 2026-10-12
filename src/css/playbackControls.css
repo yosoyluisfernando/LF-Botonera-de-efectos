@@ -58,7 +58,8 @@
     background: var(--danger-bg);
     color: var(--danger-text);
     border-color: var(--danger-border);
-    margin-left: auto;
+    margin-left: 0;
+    flex-shrink: 0;
     min-width: 64px;
 }
 

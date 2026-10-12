@@ -11,23 +11,14 @@
 //! hilo guardian y reparte lo que si viaja: `OutputStreamHandle` (Clone + Send +
 //! Sync) y el controller de cada bus (Arc, Send + Sync).
 //!
-//! La topologia:
-//!
-//! ```text
-//!   Efectos ─┐
-//!            ├─► Programa ─► fader (master) ─► medidor ─► tarjeta
-//!   Panel ───┘
-//!
-//!   Cue ───────────────────► fader ─────────► medidor ─► tarjeta (la del
-//!                                                        programa si no tiene
-//!                                                        una propia, PERO sin
-//!                                                        sumar en el)
-//! ```
+//! Efectos, Panel y Reproductor tienen fader y atenuación Mic independientes.
+//! Suman en Programa o salen por su tarjeta. Cue conserva su ruta independiente.
 //!
 //! Las reglas de que va donde viven en `domain/console/`; aqui solo se obedecen.
 //! Guia: Documentacion/PLAN_CONSOLA_VIRTUAL.md.
 pub mod bus;
 pub mod device;
+pub mod duck;
 mod endpoint;
 mod fader;
 mod graph;
@@ -63,6 +54,7 @@ pub struct BusSlot {
     /// El fader del bus: una etapa por la que pasa toda su señal una vez. Se
     /// mueve mientras suena y afecta a lo que ya esta sonando.
     pub volume: Arc<AtomicU32>,
+    pub duck: Arc<duck::DuckControl>,
 }
 
 impl BusSlot {
@@ -72,6 +64,7 @@ impl BusSlot {
             level_l: Arc::new(AtomicU32::new(0)),
             level_r: Arc::new(AtomicU32::new(0)),
             volume: Arc::new(AtomicU32::new(1.0f32.to_bits())),
+            duck: Arc::new(duck::DuckControl::default()),
         }
     }
 }
@@ -174,6 +167,10 @@ impl ConsoleEngine {
     /// reproductor, 10 veces por segundo) y no quiera pagar el candado cada vez.
     pub fn volume_handle(&self, bus: BusId) -> Arc<AtomicU32> {
         Arc::clone(&self.state.lock().unwrap().slots[&bus].volume)
+    }
+
+    pub fn duck_handle(&self, bus: BusId) -> Arc<duck::DuckControl> {
+        Arc::clone(&self.state.lock().unwrap().slots[&bus].duck)
     }
 
     /// Mueve el fader del bus. Afecta a lo que YA esta sonando por el.

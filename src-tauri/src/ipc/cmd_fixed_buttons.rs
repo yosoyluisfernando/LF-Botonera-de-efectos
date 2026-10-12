@@ -6,7 +6,6 @@ use crate::domain::button::audio_file;
 use crate::domain::button::defaults::new_button;
 use crate::engine::audio::formats::{validate_audio_file, AUDIO_EXTENSIONS};
 use crate::engine::persist::config_io;
-
 #[tauri::command]
 pub fn assign_file_to_fixed_button(
     index: Option<u32>,
@@ -66,7 +65,6 @@ pub fn assign_file_to_fixed_button(
     config_io::save_config(&cfg)?;
     Ok(state(&cfg))
 }
-
 #[tauri::command]
 pub fn clear_fixed_button(
     index: u32,
@@ -77,7 +75,6 @@ pub fn clear_fixed_button(
     config_io::save_config(&cfg)?;
     Ok(state(&cfg))
 }
-
 /// Cambio atomico de bandera de reproduccion de un boton fijo. Hermano de
 /// `toggle_button_flag`, pero opera sobre la lista fija segun el alcance activo.
 #[tauri::command]
@@ -101,7 +98,6 @@ pub fn toggle_fixed_button_flag(
     config_io::save_config(&cfg)?;
     Ok(state(&cfg))
 }
-
 #[tauri::command]
 pub fn update_fixed_button(
     index: u32,
@@ -122,6 +118,10 @@ pub fn update_fixed_button(
     let mut cfg = state_.config.lock().unwrap();
     if let Some(kind) = btn_type.as_deref() {
         crate::domain::button::types::validate_enabled(&cfg, kind)?;
+    }
+    if let Some(key) = shortcut.as_deref() {
+        let profile = cfg.active_profile().ok_or("Perfil activo no encontrado")?;
+        crate::engine::input::rules::block_profile_keys(profile, key)?;
     }
     if let Some(value) = vol {
         if !value.is_finite() || !(0.0..=16.0).contains(&value) {

@@ -23,8 +23,8 @@ export function initFixedPanelResize() {
         handle.releasePointerCapture(event.pointerId);
         const current = await invoke('get_fixed_panel'); const s = current.settings;
         await invoke('set_fixed_panel_settings', {
-            scope: s.scope, view: s.view, side: s.side, visible: s.visible,
-            showOnStart: s.show_on_start, columns: s.columns, rowMode: s.row_mode,
+            scope: s.scope, view: s.view, side: s.side,
+            columns: s.columns, rowMode: s.row_mode,
             rows: s.rows, width: Math.round(panel.getBoundingClientRect().width),
             modesPosition: s.modes_position,
         });

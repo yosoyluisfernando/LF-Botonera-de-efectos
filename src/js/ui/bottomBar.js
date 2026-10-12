@@ -5,6 +5,7 @@
  */
 
 import { initClockWidget }   from './clockWidget.js';
+import { initMic } from './micControl.js';
 import { initMasterVolume, refreshMasterVolume } from './masterVolume.js';
 import { initPlaybackModes, refreshPlaybackModes } from './playbackModes.js';
 import { initPlaybackProgressBar, refreshPlaybackProgressBar } from './playbackProgressBar.js';
@@ -14,6 +15,7 @@ export function initBottomBar() {
     initClockWidget();
     initPlaybackModes();
     initMasterVolume();
+    initMic();
 }
 
 export function refreshBottomBar() {

@@ -19,6 +19,14 @@ pub struct AudioConfig {
     pub key_next: String,
     #[serde(default)]
     pub key_prev: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub key_player_play: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub key_player_stop: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub key_player_next: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub key_mic: String,
     #[serde(default, skip_serializing_if = "MidiBinding::is_empty")]
     pub midi_stop: MidiBinding,
     #[serde(default, skip_serializing_if = "MidiBinding::is_empty")]
@@ -56,6 +64,10 @@ impl Default for AudioConfig {
             key_stop: String::new(),
             key_next: String::new(),
             key_prev: String::new(),
+            key_player_play: String::new(),
+            key_player_stop: String::new(),
+            key_player_next: String::new(),
+            key_mic: String::new(),
             midi_stop: MidiBinding::default(),
             midi_next: MidiBinding::default(),
             midi_prev: MidiBinding::default(),

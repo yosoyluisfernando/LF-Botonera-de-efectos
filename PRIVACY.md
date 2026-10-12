@@ -2,7 +2,7 @@
 
 **LF Botonera de Efectos**
 
-Versión de esta política: 2026-07-20
+Versión de esta política: 2026-09-17 (copia local para la próxima versión)
 
 Versión web oficial: <https://lfbotonera.blogspot.com/p/privacidad.html>
 
@@ -36,6 +36,16 @@ En las instalaciones de escritorio actuales estos datos se encuentran normalment
 
 Los archivos de audio permanecen en la ubicación seleccionada por el usuario. La
 aplicación no los carga a ningún servidor.
+
+### Micrófono
+
+**Micrófono (Mic automático).** Al activar la escucha automática o abrir su apartado
+de ajustes, la aplicación lee la entrada elegida y mide localmente su intensidad.
+En ajustes, esta medición permite comprobar la señal; solo la escucha automática
+habilitada puede bajar los sonidos mientras se habla. No guarda, mezcla ni transmite
+esas muestras. Cerrar el apartado libera su medición; la entrada continúa en uso
+solo si la escucha automática está habilitada. Los modos manuales no necesitan
+micrófono. Se guardan únicamente la entrada elegida y las preferencias.
 
 ### Conexiones a Internet
 
@@ -134,6 +144,16 @@ These independent services apply their own privacy policies:
 - [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 - [Open-Meteo Terms and Privacy](https://open-meteo.com/en/terms)
 - [PayPal Privacy Statement](https://www.paypal.com/webapps/mpp/ua/privacy-full)
+
+### Microphone
+
+**Microphone (automatic Mic mode).** When automatic listening is enabled or its
+settings section is open, the application reads the selected input and measures
+its level locally. Settings measurement lets you check the signal; only enabled
+automatic listening can lower sounds while talking. Samples are not stored, mixed
+or transmitted. Closing the settings section releases its measurement; the input
+remains in use only if automatic listening is enabled. Manual modes do not require
+a microphone. Only the selected input and operating preferences are saved.
 
 ### Retention and deletion
 

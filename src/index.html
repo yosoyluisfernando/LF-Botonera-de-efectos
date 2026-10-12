@@ -211,6 +211,10 @@
               <span class="pb-icon">⊙</span>
               <span class="pb-label" data-i18n="playback.label_stop_others"></span>
             </button>
+            <button id="mic-button" type="button" class="pb-btn" aria-pressed="false" data-i18n-title="mic.configure_hint">
+              <span class="pb-icon" aria-hidden="true">🎙</span>
+              <span class="pb-label" data-i18n="mic.label"></span>
+            </button>
             <div id="master-volume" class="master-volume">
               <button id="master-volume-btn" class="pb-btn master-volume-btn" data-i18n-title="playback.master_volume">
                 <span class="pb-icon">&#128264;</span>
@@ -225,6 +229,8 @@
               <span class="pb-icon">&#8593;</span>
               <span class="pb-label" data-i18n="updates.reminder_label"></span>
             </button>
+            <div id="playback-countdown" class="clock-display" role="timer" aria-live="off"
+              data-i18n-title="playback.remaining_time" data-i18n-aria-label="playback.remaining_time">--:--</div>
             <button id="pb-btn-stop-all"    class="pb-btn pb-btn-stop" data-i18n-title="playback.stop_all">
               <span class="pb-icon">■</span>
               <span class="pb-label" data-i18n="playback.label_stop_all"></span>
@@ -634,6 +640,28 @@
               </div>
             </div>
             <hr class="modal-divider">
+            <p class="fade-section-title" data-i18n="settings.player_shortcuts"></p>
+            <div class="row">
+              <div class="col">
+                <label for="config-key-player-play" data-i18n="settings.key_player_play"></label>
+                <input type="text" id="config-key-player-play" class="key-input" readonly data-i18n-placeholder="settings.key_none">
+              </div>
+              <div class="col">
+                <label for="config-key-player-stop" data-i18n="settings.key_player_stop"></label>
+                <input type="text" id="config-key-player-stop" class="key-input" readonly data-i18n-placeholder="settings.key_none">
+              </div>
+              <div class="col">
+                <label for="config-key-player-next" data-i18n="settings.key_player_next"></label>
+                <input type="text" id="config-key-player-next" class="key-input" readonly data-i18n-placeholder="settings.key_none">
+              </div>
+            </div>
+            <hr class="modal-divider">
+            <p class="fade-section-title" data-i18n="mic.label"></p>
+            <div class="row"><div class="col">
+              <label for="config-key-mic" data-i18n="mic.shortcut"></label>
+              <input type="text" id="config-key-mic" class="key-input" readonly data-i18n-placeholder="settings.key_none">
+            </div></div>
+            <hr class="modal-divider">
             <p class="fade-section-title" data-i18n="midi.title">MIDI</p>
             <label class="checkbox-line">
               <input type="checkbox" id="config-midi-enabled">
@@ -704,8 +732,6 @@
             <div id="fixed-modes-row" class="row"><div class="col"><label data-i18n="fixed_panel.modes_position">Controles de reproducción:</label>
               <select id="fixed-modes-position"><option value="top" data-i18n="fixed_panel.modes_top">Arriba</option><option value="bottom" data-i18n="fixed_panel.modes_bottom">Abajo</option></select>
             </div></div>
-            <label class="checkbox-line"><input id="fixed-visible" type="checkbox"><span data-i18n="fixed_panel.visible">Mostrar panel ahora</span></label>
-            <label class="checkbox-line"><input id="fixed-show-start" type="checkbox"><span data-i18n="fixed_panel.show_start">Mostrar al iniciar</span></label>
             <!-- Ajustes del reproductor: solo aplican con la presentación Reproductor -->
             <div id="player-settings-section">
               <hr class="modal-divider">
@@ -716,11 +742,6 @@
                   <option value="repeat" data-i18n="player.mode_repeat">Repetir (al acabar vuelve al principio)</option>
                   <option value="random" data-i18n="player.mode_random">Aleatorio (al azar, sin repetir la actual)</option>
                 </select>
-              </div></div>
-              <div class="row"><div class="col">
-                <label for="player-volume"><span data-i18n="player.volume">Volumen del reproductor:</span>
-                  <span id="player-volume-readout" class="player-volume-readout">100%</span></label>
-                <input id="player-volume" type="range" min="0" max="100" step="1" value="100">
               </div></div>
               <div class="row"><div class="col"><label data-i18n="player.large_folder">Al soltar más de 250 canciones:</label>
                 <select id="player-large-folder">

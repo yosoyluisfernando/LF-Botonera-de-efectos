@@ -59,6 +59,8 @@ pub struct AppConfig {
     #[serde(default, skip_serializing_if = "MidiConfig::is_default")]
     pub midi: MidiConfig,
     #[serde(default)]
+    pub mic: crate::model::mic::MicConfig,
+    #[serde(default)]
     pub preload: PreloadConfig,
     #[serde(default)]
     pub norm: NormConfig,
@@ -149,6 +151,7 @@ impl Default for AppConfig {
             last_update_check: 0,
             locutions: LocutionConfig::default(),
             midi: MidiConfig::default(),
+            mic: Default::default(),
             preload: PreloadConfig::default(),
             norm: NormConfig::default(),
             cue_detect: CueDetectConfig::default(),

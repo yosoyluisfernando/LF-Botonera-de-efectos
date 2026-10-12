@@ -21,11 +21,25 @@ use std::time::Duration;
 pub struct FaderSource<S: Source<Item = f32>> {
     inner: S,
     gain: Arc<AtomicU32>,
+    duck: Option<super::duck::DuckStage>,
+    channel: u16,
+    frame_gain: f32,
 }
 
 impl<S: Source<Item = f32>> FaderSource<S> {
     pub fn new(inner: S, gain: Arc<AtomicU32>) -> Self {
-        Self { inner, gain }
+        Self {
+            inner,
+            gain,
+            duck: None,
+            channel: 0,
+            frame_gain: 1.0,
+        }
+    }
+
+    pub fn with_duck(mut self, duck: Option<super::duck::DuckStage>) -> Self {
+        self.duck = duck;
+        self
     }
 }
 
@@ -33,7 +47,16 @@ impl<S: Source<Item = f32>> Iterator for FaderSource<S> {
     type Item = f32;
     fn next(&mut self) -> Option<f32> {
         let s = self.inner.next()?;
-        Some(s * f32::from_bits(self.gain.load(Ordering::Relaxed)))
+        if self.channel == 0 {
+            let base = f32::from_bits(self.gain.load(Ordering::Relaxed));
+            self.frame_gain = self
+                .duck
+                .as_ref()
+                .map(|d| d.gain(base, self.inner.sample_rate()))
+                .unwrap_or(base);
+        }
+        self.channel = (self.channel + 1) % self.inner.channels();
+        Some(s * self.frame_gain)
     }
 }
 

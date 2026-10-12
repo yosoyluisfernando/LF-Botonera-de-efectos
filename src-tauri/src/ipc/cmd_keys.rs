@@ -4,17 +4,21 @@
 use super::AppState;
 use crate::engine::input::actions as input_actions;
 use crate::engine::input::keyboard as global_shortcuts;
-use crate::engine::input::rules as shortcut_rules;
+use crate::engine::input::profile_shortcuts;
 use crate::engine::persist::config_io as config;
 use crate::model::{AppConfig, MidiBinding};
 
-/// Guarda los atajos globales (detener todo / pestaña siguiente / anterior)
-/// en el perfil activo.
+/// Guarda las acciones de teclado del perfil, incluido el transporte auxiliar.
+/// Los campos opcionales omitidos conservan su asignacion; vacios la eliminan.
 #[tauri::command]
 pub fn set_global_keys(
     key_stop: String,
     key_next: String,
     key_prev: String,
+    key_player_play: Option<String>,
+    key_player_stop: Option<String>,
+    key_player_next: Option<String>,
+    key_mic: Option<String>,
     midi_stop: Option<MidiBinding>,
     midi_next: Option<MidiBinding>,
     midi_prev: Option<MidiBinding>,
@@ -23,21 +27,34 @@ pub fn set_global_keys(
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
-    if [&key_stop, &key_next, &key_prev]
-        .iter()
-        .any(|key| shortcut_rules::is_reserved_system_key(key))
-    {
-        return Err("reserved_system_shortcut".to_string());
+    let mut audio = cfg
+        .active_profile()
+        .ok_or("Perfil activo no encontrado")?
+        .audio
+        .clone();
+    audio.key_stop = key_stop;
+    audio.key_next = key_next;
+    audio.key_prev = key_prev;
+    if let Some(key) = key_player_play {
+        audio.key_player_play = key;
     }
+    if let Some(key) = key_player_stop {
+        audio.key_player_stop = key;
+    }
+    if let Some(key) = key_player_next {
+        audio.key_player_next = key;
+    }
+    if let Some(key) = key_mic {
+        audio.key_mic = key;
+    }
+    profile_shortcuts::validate(&cfg, &audio)?;
     crate::ipc::cmd_midi::validate_global(&cfg, "stop", midi_stop.as_ref())?;
     crate::ipc::cmd_midi::validate_global(&cfg, "next", midi_next.as_ref())?;
     crate::ipc::cmd_midi::validate_global(&cfg, "prev", midi_prev.as_ref())?;
     let profile = cfg
         .active_profile_mut()
         .ok_or("Perfil activo no encontrado")?;
-    profile.audio.key_stop = key_stop;
-    profile.audio.key_next = key_next;
-    profile.audio.key_prev = key_prev;
+    profile.audio = audio;
     if let Some(value) = midi_stop {
         profile.audio.midi_stop = value;
     }

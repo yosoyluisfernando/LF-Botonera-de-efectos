@@ -351,6 +351,14 @@ Flag de `ButtonData`. Si está activo, el archivo se reproduce en bucle infinito
 
 ## M
 
+**Mic / pulsar para hablar**
+Control de atenuación temporal de `Efectos`, `Panel` y `Reproductor`, con destinos
+combinables. Modos mantener, alternar y automático por nivel de entrada. Su techo
+absoluto y rampa viven en Rust; no sobrescribe faders ni el master y excluye Cue.
+`MicConfig` son preferencias globales; `AudioConfig.key_mic` es un atajo opcional
+del perfil. `mic-tick` comunica estado y nivel aun sin efectos reproduciéndose.
+
+
 **`marcar siguiente`**
 Señalar qué pista de la cola sonará a continuación en el reproductor auxiliar. Se pinta en **naranja**. Es **ley**: si hay una pista marcada, se respeta siempre, sin importar el modo de avance. La marca sigue a **su canción**, no a la posición: al reordenar la lista se conserva por `id`, y si esa canción se borra, la marca se cae (no salta a otra). En Rust es el campo `marked` de `QueueState`, y la regla vive en `domain/player/advance.rs`. En el IPC, `player_mark_next`.
 

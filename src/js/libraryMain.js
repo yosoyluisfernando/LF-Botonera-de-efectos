@@ -15,6 +15,7 @@ import {
     initLibraryWindowTable, refreshLibraryWindowTable,
     repaintLibraryWindowTable, showCatalog, showDirectory,
 } from './ui/libraryWindowTable.js';
+import { initLibraryDnd } from './ui/libraryDnd.js';
 
 start().catch(showFatal);
 
@@ -30,6 +31,7 @@ async function start() {
         refreshLibraryWindowTable().catch(showStatusError));
     document.addEventListener('contextmenu', event => event.preventDefault(), true);
     initLibraryWindowTable();
+    initLibraryDnd();
     initLibraryWindowTree({
         onCatalog: scope => showCatalog(scope).catch(showStatusError),
         onDirectory: path => showDirectory(path).catch(showStatusError),

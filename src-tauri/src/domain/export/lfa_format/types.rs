@@ -77,12 +77,32 @@ pub(super) fn default_out() -> String {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct LfaKeys {
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub mic: String,
     #[serde(default, rename = "stopAll")]
     pub stop_all: String,
     #[serde(default)]
     pub next: String,
     #[serde(default)]
     pub prev: String,
+    #[serde(
+        default,
+        rename = "playerPlay",
+        skip_serializing_if = "String::is_empty"
+    )]
+    pub player_play: String,
+    #[serde(
+        default,
+        rename = "playerStop",
+        skip_serializing_if = "String::is_empty"
+    )]
+    pub player_stop: String,
+    #[serde(
+        default,
+        rename = "playerNext",
+        skip_serializing_if = "String::is_empty"
+    )]
+    pub player_next: String,
 }
 
 #[derive(Serialize, Deserialize, Default)]

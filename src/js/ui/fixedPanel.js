@@ -32,15 +32,8 @@ export function initFixedPanel(state, onRefresh) {
     drawFixedPanel(state);
 }
 
-export async function initialFixedPanel() {
-    const current = await invoke('get_fixed_panel');
-    const s = current.settings;
-    if (s.visible === s.show_on_start) return current;
-    return invoke('set_fixed_panel_settings', {
-        scope: s.scope, view: s.view, side: s.side, visible: s.show_on_start,
-        showOnStart: s.show_on_start, columns: s.columns, rowMode: s.row_mode,
-        rows: s.rows, width: s.width, modesPosition: s.modes_position,
-    });
+export function initialFixedPanel() {
+    return invoke('get_fixed_panel');
 }
 
 export function drawFixedPanel(state) {
@@ -76,7 +69,7 @@ export async function toggleFixedPanel() {
     const s = current.settings;
     const next = await invoke('set_fixed_panel_settings', {
         scope: s.scope, view: s.view, side: s.side, visible: !s.visible,
-        showOnStart: s.show_on_start, columns: s.columns, rowMode: s.row_mode,
+        columns: s.columns, rowMode: s.row_mode,
         rows: s.rows, width: s.width, modesPosition: s.modes_position,
     });
     drawFixedPanel(next);

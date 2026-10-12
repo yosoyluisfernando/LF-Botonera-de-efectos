@@ -5,6 +5,7 @@ pub mod console;
 pub mod dsp;
 pub mod input;
 pub mod library;
+pub mod mic;
 pub mod persist;
 pub mod player;
 pub mod visuals;

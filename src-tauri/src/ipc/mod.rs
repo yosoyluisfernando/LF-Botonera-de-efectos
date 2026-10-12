@@ -24,6 +24,7 @@ pub mod cmd_local_shortcuts;
 pub mod cmd_locutions;
 pub mod cmd_master_volume;
 pub mod cmd_meta;
+pub mod cmd_mic;
 pub mod cmd_midi;
 pub mod cmd_norm;
 pub mod cmd_paletas;

@@ -118,8 +118,13 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
     if let Some(win) = app.get_webview_window("main") {
         let pending = state.last_played.handle();
         let store = Arc::clone(&state.tracks);
+        let mic = state.mic.sender();
         win.on_window_event(move |event| {
+            if matches!(event, tauri::WindowEvent::Focused(false)) {
+                let _ = mic.send(crate::engine::mic::Command::ReleaseLocal);
+            }
             if let tauri::WindowEvent::CloseRequested { .. } = event {
+                let _ = mic.send(crate::engine::mic::Command::Reset);
                 last_played::flush_now(&pending, &store);
             }
         });
@@ -128,6 +133,11 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
     // Hilo de clima: refresca cada 15 min y emite "weather-updated"
     weather::start_auto_refresh(app.handle().clone());
     state.midi.start(app.handle().clone());
+    state.mic.start(
+        app.handle().clone(),
+        Arc::clone(&state.console),
+        Arc::clone(&state.config),
+    );
     let _ = global_shortcuts::sync(app.handle());
     Ok(())
 }

@@ -1,0 +1,14 @@
+#mic-button { touch-action: none; user-select: none; flex-shrink: 0; }
+#mic-button .pb-label { text-transform: none; }
+#mic-button.mic-active { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+#mic-button.mic-listening { background: var(--playback-active-bg); border-color: var(--soft-active-border); }
+#mic-button.mic-error { color: var(--error-color); border-color: var(--error-color); }
+#mic-settings-modal { z-index: 2100; }
+#mic-settings-modal .modal-content { width: min(560px, 95vw); max-height: 92vh; overflow-y: auto; }
+#mic-settings-modal .modal-header { cursor: default; }
+#mic-settings-modal fieldset { border: 1px solid var(--border-color); margin: 12px 0; }
+#mic-settings-modal .checkbox-line { display: flex; }
+.mic-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 12px 0; }
+#mic-settings-modal input[type=number], #mic-settings-modal select { box-sizing: border-box; width: 100%; }
+#mic-level-meter { width: 100%; }
+#mic-settings-error { color: var(--error-color); }

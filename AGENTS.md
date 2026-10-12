@@ -213,6 +213,7 @@ el CUE a `Program` aunque se pida.
 | `"meter-tick"` | `{master_level_l, master_level_r, buses, idle}` a 50 FPS | vuMeter.js y consoleView.js |
 | `"player-tick"` | `PlayerSnapshot {playing, path, position_s, duration_s, current_index, next_index, mode, stop_after, queue_len}` | runtimeEvents.js → playerView.js (verde = `current_index`, naranja = `next_index`) |
 | `"clock-tick"` | `{time_str, date_str}` | clockWidget.js |
+| `"mic-tick"` | `{mode, active, listening, level_db, error, preview_level_db, preview_error}` a 10 Hz | micControl.js |
 | `"weather-updated"` | datos de clima | settingsLocutions.js |
 | `"global-shortcut-refresh"` | — | startup.js → recarga la UI |
 | `"midi-devices-changed"` | — | settingsMidi.js → actualiza entradas y estado de conexión |
@@ -232,6 +233,8 @@ Para la lista completa ver [`CLAUDE.md §9`](CLAUDE.md).
 
 **Los más frecuentes:**
 - `get_config` → `AppConfig` completo
+- `get_mic` / `set_mic_config` / `mic_devices` → preferencias globales de Mic y entradas; `mic_pointer` / `mic_release_local` controlan sus gestos. El atajo opcional `key_mic` usa `set_global_keys`; pulsación/liberación se resuelven en Rust.
+- `set_global_keys` → guarda los atajos del perfil, incluidos `key_player_play`, `key_player_stop` y `key_player_next` opcionales y vacíos por defecto. Reutilizan el transporte del reproductor y la opción `global_keys`; Rust valida conflictos antes de guardar.
 - `get_grid_state` → rejilla de la paleta activa
 - `play_button(id)` → disparo principal de un botón
 - `play_audio(id, path, volume, ...)` → reproducción directa (pre-escucha, editor)
@@ -342,7 +345,7 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 ## 11. Cómo verificar un cambio
 
 ```bash
-# Tests unitarios Rust (suite actual: 298 passed, 19 ignored)
+# Tests unitarios Rust (suite actual: 345 passed, 19 ignored)
 cd src-tauri
 cargo test --lib
 
@@ -397,9 +400,9 @@ forma parte de la rama actual; no hay una fusión pendiente entre ellas.
 
 Microsoft Store publicó Submission 4 el 2026-08-02 y GitHub publicó el release
 `v1.4.0` desde el mismo estado final del código. Los cinco paquetes de Windows y Linux
-están adjuntos al release. No hay una implementación activa; la próxima etapa prevista
-será una reorganización y mejora visual de la interfaz, que debe planearse y aprobarse
-antes de modificarla.
+están adjuntos al release. La copia local incorpora atajos opcionales del reproductor
+auxiliar, sin publicar y pendientes de prueba funcional. Una futura reorganización
+y mejora visual de la interfaz debe planearse y aprobarse antes de modificarla.
 
 Windows usa WinMM y Linux usa `midir 0.11` sobre ALSA Sequencer; cada adaptador y
 dependencia se compila solo en su plataforma. Permite seleccionar varios puertos,

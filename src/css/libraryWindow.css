@@ -83,6 +83,7 @@
 .library-table-row:hover { background:var(--menu-hover-bg); }
 .library-table-row.selected { background:var(--soft-active-bg); }
 .library-table-row.active { box-shadow:inset 3px 0 var(--accent-color); }
+.library-table-row.drag-source { opacity:.45; }
 .library-table-cell.path { color:var(--text-secondary); }
 .library-table-cell.duration { justify-content:flex-end; font-variant-numeric:tabular-nums; }
 .library-folder-row { font-weight:600; }

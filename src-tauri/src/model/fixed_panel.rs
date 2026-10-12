@@ -11,8 +11,6 @@ pub struct FixedPanelConfig {
     pub side: String,
     #[serde(default = "default_true")]
     pub visible: bool,
-    #[serde(default = "default_true")]
-    pub show_on_start: bool,
     #[serde(default = "default_columns")]
     pub columns: u32,
     #[serde(default = "default_row_mode")]
@@ -40,7 +38,6 @@ impl Default for FixedPanelConfig {
             view: default_view(),
             side: default_side(),
             visible: true,
-            show_on_start: true,
             columns: default_columns(),
             row_mode: default_row_mode(),
             rows: default_rows(),
@@ -101,8 +98,23 @@ mod tests {
         assert_eq!(panel.columns, 1);
         assert_eq!(panel.row_mode, "unlimited");
         assert_eq!(panel.rows, 10);
-        assert!(panel.show_on_start);
+        assert!(panel.visible);
         assert_eq!(panel.library_display, "metadata");
+    }
+
+    #[test]
+    fn legacy_start_preference_does_not_override_saved_visibility() {
+        for visible in [false, true] {
+            let panel: FixedPanelConfig = serde_json::from_value(serde_json::json!({
+                "visible": visible, "show_on_start": !visible
+            }))
+            .unwrap();
+            assert_eq!(panel.visible, visible);
+            let saved = serde_json::to_value(&panel).unwrap();
+            assert!(saved.get("show_on_start").is_none());
+            let restored: FixedPanelConfig = serde_json::from_value(saved).unwrap();
+            assert_eq!(restored.visible, visible);
+        }
     }
 
     #[test]

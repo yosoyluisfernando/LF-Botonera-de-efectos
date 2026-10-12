@@ -62,8 +62,7 @@ pub fn set_fixed_panel_settings(
     scope: String,
     view: String,
     side: String,
-    visible: bool,
-    show_on_start: bool,
+    visible: Option<bool>,
     columns: u32,
     row_mode: String,
     rows: u32,
@@ -89,8 +88,9 @@ pub fn set_fixed_panel_settings(
     cfg.fixed_panel.scope = scope;
     cfg.fixed_panel.view = view;
     cfg.fixed_panel.side = side;
-    cfg.fixed_panel.visible = visible;
-    cfg.fixed_panel.show_on_start = show_on_start;
+    if let Some(visible) = visible {
+        cfg.fixed_panel.visible = visible;
+    }
     cfg.fixed_panel.columns = columns;
     cfg.fixed_panel.row_mode = row_mode;
     cfg.fixed_panel.rows = rows;

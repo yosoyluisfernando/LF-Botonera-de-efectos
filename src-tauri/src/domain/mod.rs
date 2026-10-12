@@ -7,6 +7,7 @@ pub mod export;
 pub mod grid;
 pub mod library;
 pub mod locution;
+pub mod mic;
 pub mod palette;
 pub mod playback;
 pub mod player;
