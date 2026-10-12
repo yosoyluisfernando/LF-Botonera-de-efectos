@@ -1,15 +1,19 @@
 # Continuidad de sesión — estado actual
 
-**Actualizado:** 2026-09-17
+**Actualizado:** 2026-10-11
 
 **Rama de trabajo:** `main`
 
-**Versión del código:** 1.4.0
+**Versión del código:** 1.5.0 (sin publicar)
 
 Este archivo no es un historial. Conserva únicamente el trabajo activo, las
 decisiones cerradas, la evidencia vigente y el siguiente paso real.
 
 ## 1. Estado actual
+
+El autor autorizó preparar 1.5.0 y compilar MSI, EXE, DEB, AppImage y RPM en
+GitHub Actions sin publicar release ni crear etiqueta. Las notas permanecen en
+`[Sin publicar]`; la última versión pública sigue siendo 1.4.0.
 
 El volumen del reproductor auxiliar se controla únicamente desde el reproductor.
 Se retiró el deslizador duplicado de Panel fijo y su carga/guardado en
@@ -119,7 +123,7 @@ Archivo local:
 - Se preservó el cambio manual del autor que eliminó una segunda viñeta técnica del
   selector visual.
 - `package.json`, `package-lock.json`, `Cargo.toml`, `Cargo.lock` y
-  `tauri.conf.json` están sincronizados en 1.4.0.
+  `tauri.conf.json` están sincronizados en 1.5.0, sin release ni etiqueta.
 - `SET-VERSION.ps1` ahora lee los archivos UTF-8 explícitamente para no alterar
   acentos en futuras actualizaciones.
 
