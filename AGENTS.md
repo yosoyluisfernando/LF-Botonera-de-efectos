@@ -369,11 +369,10 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 
 ## 12. Estado del proyecto y pendientes
 
-**Código actual: 1.5.0, rama `main`; pendiente de publicación.**
+**Código actual: 1.5.0, rama `main`.**
 
-Las ramas locales `codex/buscador-interno` y `codex/midi-input` parten exactamente
-del mismo commit (`43e67b0`). Todo el trabajo cerrado de Biblioteca y Buscador ya
-forma parte de la rama actual; no hay una fusión pendiente entre ellas.
+El trabajo cerrado de Biblioteca, Buscador y MIDI está integrado en `main`.
+Se retiraron las ramas auxiliares ya integradas; no hay una fusión pendiente.
 
 - La publicación y actualización 1.3.0 están cerradas. El release de GitHub
   `v1.3.0` se publicó el 2026-07-28. No reabrirlas como continuidad activa.
@@ -396,12 +395,13 @@ forma parte de la rama actual; no hay una fusión pendiente entre ellas.
 - Enter y doble clic en Biblioteca siguen sin acción; el menú contextual es la única
   puerta a las acciones de pista.
 
-**Estado actual: versión 1.4.0 publicada.**
+**Estado actual: versión 1.5.0 publicada en Microsoft Store; publicación coordinada en GitHub.**
 
-Microsoft Store publicó Submission 4 el 2026-08-02 y GitHub publicó el release
-`v1.4.0` desde el mismo estado final del código. Los cinco paquetes de Windows y Linux
-están adjuntos al release. La copia local incorpora atajos opcionales del reproductor
-auxiliar, sin publicar y pendientes de prueba funcional. Una futura reorganización
+Microsoft Store confirmó publicada Submission 5 con el paquete 1.5.0.0 x64.
+La versión 1.5.0 incorpora Mic, atajos del reproductor, arrastre de pistas,
+visibilidad recordada del panel y mejoras de la barra inferior y los ajustes.
+GitHub distribuye MSI, EXE, DEB, AppImage y RPM del mismo código de aplicación.
+Una futura reorganización
 y mejora visual de la interfaz debe planearse y aprobarse antes de modificarla.
 
 Windows usa WinMM y Linux usa `midir 0.11` sobre ALSA Sequencer; cada adaptador y

@@ -32,6 +32,8 @@ directamente desde Windows:
 
 ## [Sin publicar]
 
+## [1.5.0] — 2026-10-11
+
 ### Añadido
 - **Pulsar para hablar (Mic):** baja el volumen de los sonidos mientras hablas
   y lo recupera después. Puedes mantener pulsado el botón o un atajo, activar
@@ -307,7 +309,8 @@ reducción de permisos innecesarios.
 
 ---
 
-[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.4.0...HEAD
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.0...v1.2.1
