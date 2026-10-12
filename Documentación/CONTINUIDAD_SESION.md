@@ -10,6 +10,11 @@ Microsoft Store confirmó publicada Submission 5 (`1152921505702099923`),
 con el paquete 1.5.0.0 x64 y el mensaje de actualización disponible. La firma y
 las actualizaciones de ese canal las administra Microsoft Store. El autor
 autorizó publicar también `v1.5.0` en GitHub con MSI, EXE, DEB, AppImage y RPM.
+El release `v1.5.0` está publicado como última versión estable con cinco adjuntos,
+notas para usuarios con emojis y enlace a Microsoft Store. La etiqueta apunta a
+`ccd0fceb0e14f1c0cc462bbd8470649cdac72337`. Los hashes SHA-256 de los cinco
+adjuntos coinciden con las copias locales. La compilación duplicada `38197638896`
+disparada por la etiqueta se canceló para conservar los paquetes ya verificados.
 Los cinco paquetes proceden de GitHub Actions `38191218663`, compilado desde
 `0395023f78d8755a152b993131e2b65c3a57671e`; el cierre de versión modifica
 únicamente documentación y avisos de licencias, sin cambios en la aplicación.

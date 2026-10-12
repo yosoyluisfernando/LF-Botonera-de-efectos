@@ -395,7 +395,7 @@ Se retiraron las ramas auxiliares ya integradas; no hay una fusión pendiente.
 - Enter y doble clic en Biblioteca siguen sin acción; el menú contextual es la única
   puerta a las acciones de pista.
 
-**Estado actual: versión 1.5.0 publicada en Microsoft Store; publicación coordinada en GitHub.**
+**Estado actual: versión 1.5.0 publicada en Microsoft Store y GitHub.**
 
 Microsoft Store confirmó publicada Submission 5 con el paquete 1.5.0.0 x64.
 La versión 1.5.0 incorpora Mic, atajos del reproductor, arrastre de pistas,
