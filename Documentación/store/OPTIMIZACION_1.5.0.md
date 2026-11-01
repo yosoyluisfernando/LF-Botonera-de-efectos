@@ -2,8 +2,9 @@
 
 Preparada el 2026-11-01 en la Submission 6 (`1152921505702290816`).
 Estado: borrador; pendiente de envío a certificación y aprobación de Microsoft.
-El paquete sigue siendo 1.5.0.0. No se cambia el nombre, precio, disponibilidad,
-capturas ni notas de versión. Los archivos de 1.3.0 conservan su valor histórico.
+El paquete sigue siendo 1.5.0.0 y la aplicación instalada conserva el nombre
+español LF Botonera de Efectos. No se cambian precio, disponibilidad, capturas
+ni notas de versión. Los archivos de 1.3.0 conservan su valor histórico.
 
 La descripción mantiene el cuerpo existente desde el párrafo sobre el espacio de
 trabajo. Sustituye los dos primeros párrafos por la nueva apertura y añade la
@@ -11,6 +12,22 @@ sección Biblioteca/MIDI/Mic antes de la sección sobre el flujo de audio.
 
 Los keywords se introducen por separado: siete por idioma, hasta 40 caracteres por
 entrada y menos de 21 palabras en total. No contienen precios ni marcas ajenas.
+
+## Criterio de nombres solicitado por el autor
+
+La aplicación instalada conserva su nombre original en español. Se solicitan estos
+nombres para los títulos de la tienda. Los tres nombres adicionales se reservaron
+en Partner Center para el mismo producto:
+
+- Español: LF Botonera de Efectos (Soundboard).
+- Inglés: LF Soundboard.
+- Portugués de Brasil y Portugal: LF Painel de Efeitos Sonoros.
+
+Las descripciones localizadas mencionan el título traducido y el nombre original
+LF Botonera de Efectos. Cambiar la descripción no cambia el título automáticamente.
+Partner Center permite seleccionar estos nombres en el borrador existente.
+No se modifica ni reconstruye el MSIX; el nombre instalado continúa en español.
+La publicación de los títulos sigue pendiente de certificación de la Submission 6.
 
 ## Español
 
@@ -22,7 +39,7 @@ Botonera de efectos de sonido gratuita para radio, streaming y pódcast. Organiz
 
 Botonera gratuita para radio, streaming y pódcast.
 
-LF Botonera de Efectos es una botonera de efectos de sonido (soundboard) gratuita y de código abierto para Windows. Organiza efectos, cortinas, identificaciones, locuciones y música para tenerlos listos durante una emisión o producción en directo.
+LF Botonera de Efectos (Soundboard) es una botonera de efectos de sonido gratuita y de código abierto para Windows. Organiza efectos, cortinas, identificaciones, locuciones y música para tenerlos listos durante una emisión o producción en directo.
 
 ### Sección añadida
 
@@ -46,7 +63,7 @@ Free soundboard for live radio, streaming and podcasts. Organize your audio, tri
 
 A free soundboard for live radio, streaming and podcasts.
 
-LF Botonera de Efectos is a free and open-source soundboard for Windows. Organize sound effects, music beds, station IDs, voice clips and songs so the right sound is ready during a live broadcast or production.
+LF Soundboard, also known as LF Botonera de Efectos, is a free and open-source soundboard for Windows. Organize sound effects, music beds, station IDs, voice clips and songs so the right sound is ready during a live broadcast or production.
 
 ### Added section
 
@@ -70,7 +87,7 @@ Painel de efeitos sonoros gratuito para rádio, streaming e podcasts. Organize s
 
 Seus sons à mão para rádio, streaming e podcasts.
 
-LF Botonera de Efectos é um painel de efeitos sonoros (soundboard) gratuito e de código aberto para Windows. Organize efeitos, vinhetas, chamadas, locuções e músicas para ter o áudio certo preparado durante uma transmissão ou produção ao vivo.
+LF Painel de Efeitos Sonoros, também conhecido pelo nome original LF Botonera de Efectos, é um soundboard gratuito e de código aberto para Windows. Organize efeitos, vinhetas, chamadas, locuções e músicas para ter o áudio certo preparado durante uma transmissão ou produção ao vivo.
 
 ### Seção adicionada
 
@@ -94,7 +111,7 @@ Painel de efeitos sonoros gratuito para rádio, streaming e podcasts. Organize o
 
 Os seus sons à mão para rádio, streaming e podcasts.
 
-LF Botonera de Efectos é um painel de efeitos sonoros (soundboard) gratuito e de código aberto para Windows. Organize efeitos, separadores de estação, chamadas, locuções e música para ter o áudio certo preparado durante uma emissão ou produção em direto.
+LF Painel de Efeitos Sonoros, também conhecido pelo seu nome original LF Botonera de Efectos, é um soundboard gratuito e de código aberto para Windows. Organize efeitos, separadores de estação, chamadas, locuções e música para ter o áudio certo preparado durante uma emissão ou produção em direto.
 
 ### Secção adicionada
 
