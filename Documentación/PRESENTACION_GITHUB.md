@@ -6,6 +6,10 @@ La portada predeterminada es `README.md`, en español. Los enlaces del selector
 llevan a `README.en.md`, `README.pt-BR.md` y `README.pt-PT.md`, en la raíz.
 Cada versión ofrece descargas, primeros pasos, un resumen de funciones y un
 desplegable con los detalles. La documentación técnica se enlaza desde la portada.
+La galería reutiliza tres PNG maestros de `Capturas/windows/es/`: rejilla clara,
+panel fijo en tema oscuro y editor de pistas. La primera imagen queda visible;
+las otras dos se abren en un desplegable. Cada README localiza el texto alternativo
+y aclara que son capturas de Windows en español tomadas en julio de 2026.
 
 En español e inglés, el título es **LF Botonera de Efectos (Soundboard)**.
 En ambas versiones portuguesas es **LF Botonera de Efectos (Painel de efeitos sonoros)**.
