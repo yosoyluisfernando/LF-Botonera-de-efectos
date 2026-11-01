@@ -1,6 +1,6 @@
 <div align="center">
   <img src="icono_circular.png" alt="Logo do LF Botonera de Efectos" width="96" height="96">
-  <h1>LF Botonera de Efectos (Soundboard)</h1>
+  <h1>LF Botonera de Efectos (Painel de efeitos sonoros)</h1>
   <p><strong>Seus sons a um clique, prontos para entrar no ar.</strong></p>
   <p>Um painel de efeitos sonoros para rádio, locução e transmissões ao vivo. Organize vinhetas, trilhas, chamadas e áudios de apoio em um aplicativo para Windows e Linux, feito para agilizar sua operação.</p>
 </div>

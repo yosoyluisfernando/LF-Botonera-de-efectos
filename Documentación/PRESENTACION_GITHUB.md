@@ -7,9 +7,11 @@ llevan a `README.en.md`, `README.pt-BR.md` y `README.pt-PT.md`, en la raíz.
 Cada versión ofrece descargas, primeros pasos, un resumen de funciones y un
 desplegable con los detalles. La documentación técnica se enlaza desde la portada.
 
-El nombre de presentación es **LF Botonera de Efectos (Soundboard)**.
-«Soundboard» describe el tipo de aplicación en inglés; no cambia el nombre del
-repositorio, la identidad de la aplicación ni los nombres de los paquetes.
+En español e inglés, el título es **LF Botonera de Efectos (Soundboard)**.
+En ambas versiones portuguesas es **LF Botonera de Efectos (Painel de efeitos sonoros)**.
+El término entre paréntesis describe el tipo de aplicación en el idioma de la
+presentación; no cambia el nombre del repositorio, la identidad de la aplicación
+ni los nombres de los paquetes.
 
 Las traducciones se adaptan a cada variante: por ejemplo, `arquivo`, `usuário`,
 `mouse`, `abas` y `baixar` en Brasil; `ficheiro`, `utilizador`, `rato`,
