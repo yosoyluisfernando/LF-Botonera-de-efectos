@@ -38,7 +38,8 @@ Las traducciones se adaptan a cada variante: por ejemplo, `arquivo`, `usuário`,
 
 ## Metadatos de «Acerca de»
 
-Descripción, sitio web y 20 topics aplicados y verificados en GitHub el 2026-11-01.
+Descripción y sitio web aplicados el 2026-11-01. Por decisión posterior del autor,
+los 20 topics iniciales se redujeron a dos para simplificar la presentación visual.
 
 **Descripción:**
 
@@ -50,32 +51,13 @@ Descripción, sitio web y 20 topics aplicados y verificados en GitHub el 2026-11
 
 ```text
 soundboard
-sound-effects
-radio
-broadcasting
-streaming
-live-production
-audio-player
-midi
-windows
-linux
-botonera
-efectos-de-sonido
-radio-en-vivo
-software-libre
-efeitos-sonoros
-sonoplastia
-radio-ao-vivo
-radio-em-direto
-transmissao-ao-vivo
-emissao-em-direto
+painel-de-efeitos-sonoros
 ```
 
-Los topics clasifican el repositorio por su función y ámbito. Ayudan al
-descubrimiento; no garantizan una posición en los resultados. Se combinan términos
-en inglés, español y portugués de Brasil y Portugal, sin anunciar funciones
-locales todavía no publicadas. Los términos portugueses compartidos se incluyen
-una sola vez; «ao vivo» y «em direto» cubren usos de ambas variantes.
+Los topics identifican el tipo de aplicación en inglés y portugués. La expresión
+portuguesa es compartida por Brasil y Portugal. Los demás términos descriptivos y
+las traducciones permanecen en los README. Esta selección breve sustituye a la
+lista inicial extensa; no volver a ampliarla sin petición del autor.
 
 Se editan desde el engranaje junto a **About / Acerca de** en la portada de GitHub.
 GitHub admite hasta 20 topics, de hasta 50 caracteres cada uno, escritos con
