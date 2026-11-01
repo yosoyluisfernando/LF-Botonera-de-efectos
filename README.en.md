@@ -13,6 +13,21 @@
 
 **LF Botonera de Efectos** is a desktop soundboard for radio presenters, broadcast operators, producers, content creators and streamers. Arrange your audio on a grid of buttons and play the right sound when you need it.
 
+## Screenshots
+
+Windows screenshots with the interface in Spanish, taken in July 2026. The current version may look different.
+
+![Light-theme button grid with color-coded sound effects and playback controls.](Capturas/windows/es/principal/01-rejilla-modo-claro.png)
+
+<details>
+<summary>See the dark theme and track editor</summary>
+
+![Dark-theme button grid with the fixed-button side panel.](Capturas/windows/es/principal/05-rejilla-modo-oscuro-panel-fijo.png)
+
+![Track editor with a waveform, start and end points, gain and normalization controls.](Capturas/windows/es/editor/01-forma-de-onda-y-cues.png)
+
+</details>
+
 ## Download
 
 **[Get it from Microsoft Store](https://apps.microsoft.com/detail/9NJ8ST39QP7V)** (recommended for Windows, with automatic updates) · **[Direct downloads for Windows and Linux](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/releases/latest)**

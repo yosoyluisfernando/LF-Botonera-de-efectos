@@ -22,6 +22,21 @@
 
 **LF Botonera de Efectos** es una aplicación de escritorio para disparar sonidos en vivo con precisión y velocidad. Está pensada para locutores, emisoras de radio, operadores técnicos, productores, creadores de contenido y streamers que necesitan una botonera confiable y rápida durante una transmisión real.
 
+## Capturas de pantalla
+
+Capturas de Windows con interfaz en español, tomadas en julio de 2026. La versión actual puede presentar diferencias.
+
+![Rejilla de botones en tema claro, con efectos organizados por colores y controles de reproducción.](Capturas/windows/es/principal/01-rejilla-modo-claro.png)
+
+<details>
+<summary>Ver tema oscuro y editor de pistas</summary>
+
+![Rejilla en tema oscuro con el panel lateral de botones fijos.](Capturas/windows/es/principal/05-rejilla-modo-oscuro-panel-fijo.png)
+
+![Editor de pistas con forma de onda, puntos de inicio y fin y controles de ganancia y normalización.](Capturas/windows/es/editor/01-forma-de-onda-y-cues.png)
+
+</details>
+
 ## Descarga
 
 **[Descargar desde Microsoft Store](https://apps.microsoft.com/detail/9NJ8ST39QP7V)** (recomendado para Windows, con actualizaciones automáticas) · **[Descargas directas para Windows y Linux](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/releases/latest)**
