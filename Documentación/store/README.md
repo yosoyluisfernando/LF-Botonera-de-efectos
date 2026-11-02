@@ -1,8 +1,9 @@
 # Registro de la ficha de Microsoft Store
 
 La optimización de textos y palabras clave de 1.5.0 está registrada por separado
-en [`OPTIMIZACION_1.5.0.md`](OPTIMIZACION_1.5.0.md). Permanece en borrador hasta
-su envío a certificación; el historial de 1.2.1 y 1.3.0 se conserva a continuación.
+en [`OPTIMIZACION_1.5.0.md`](OPTIMIZACION_1.5.0.md). La Submission 6 se envió a
+certificación el 2026-11-01; está pendiente de aprobación, con publicación
+automática. El historial de 1.2.1 y 1.3.0 se conserva a continuación.
 
 Registro histórico de la ficha iniciada con 1.2.1 y de la actualización funcional
 1.3.0. La publicación ya está cerrada; este archivo no es una lista de tareas.

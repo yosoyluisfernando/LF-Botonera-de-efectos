@@ -1,7 +1,9 @@
 # Optimización de la ficha de Microsoft Store — 1.5.0
 
 Preparada el 2026-11-01 en la Submission 6 (`1152921505702290816`).
-Estado: borrador; pendiente de envío a certificación y aprobación de Microsoft.
+Estado: enviada a certificación el 2026-11-01, por autorización del autor.
+Partner Center confirma «In certification», con preprocesamiento en curso y
+publicación automática tras superar la certificación. Pendiente de aprobación.
 El paquete sigue siendo 1.5.0.0 y la aplicación instalada conserva el nombre
 español LF Botonera de Efectos. No se cambian precio, disponibilidad, capturas
 ni notas de versión. Los archivos de 1.3.0 conservan su valor histórico.
@@ -25,9 +27,9 @@ en Partner Center para el mismo producto:
 
 Las descripciones localizadas mencionan el título traducido y el nombre original
 LF Botonera de Efectos. Cambiar la descripción no cambia el título automáticamente.
-Partner Center permite seleccionar estos nombres en el borrador existente.
+Partner Center permitió seleccionar estos nombres en el borrador existente.
 No se modifica ni reconstruye el MSIX; el nombre instalado continúa en español.
-La publicación de los títulos sigue pendiente de certificación de la Submission 6.
+La publicación de los títulos queda pendiente de aprobación de la Submission 6.
 
 ## Español
 
