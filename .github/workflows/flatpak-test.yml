@@ -45,7 +45,7 @@ jobs:
 
       - name: Build and verify the Flatpak
         run: |
-          flatpak build-init --user --arch=x86_64 package "$APP_ID" \
+          flatpak build-init --arch=x86_64 package "$APP_ID" \
             org.gnome.Sdk org.gnome.Platform "$RUNTIME_VERSION"
           cp -a extracted/usr/{bin,lib,share} package/files/
           desktop='LF Botonera de Efectos.desktop'
