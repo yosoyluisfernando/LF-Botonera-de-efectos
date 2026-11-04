@@ -1,0 +1,84 @@
+name: Flatpak test package
+
+on:
+  push:
+    branches: [codex/flatpak-test]
+    paths: [.github/workflows/flatpak-test.yml]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Published release whose Linux amd64 DEB will be packaged
+        default: v1.5.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      APP_ID: io.github.yosoyluisfernando.LF-Botonera-de-efectos
+      RUNTIME_VERSION: '50'
+      RELEASE_TAG: ${{ inputs.release_tag || 'v1.5.0' }}
+    steps:
+      - name: Install Flatpak and GNOME runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak desktop-file-utils
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --noninteractive flathub \
+            "org.gnome.Sdk//$RUNTIME_VERSION" "org.gnome.Platform//$RUNTIME_VERSION"
+
+      - name: Download the GitHub-built Debian package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern '*_amd64.deb' --output source.deb
+          test "$(dpkg-deb -f source.deb Architecture)" = amd64
+          test "$(dpkg-deb -f source.deb Version)" = "${RELEASE_TAG#v}"
+          dpkg-deb -x source.deb extracted
+
+      - name: Build and verify the Flatpak
+        run: |
+          flatpak build-init --user --arch=x86_64 package "$APP_ID" \
+            org.gnome.Sdk org.gnome.Platform "$RUNTIME_VERSION"
+          cp -a extracted/usr/{bin,lib,share} package/files/
+          desktop='LF Botonera de Efectos.desktop'
+          mv "package/files/share/applications/$desktop" "package/files/share/applications/$APP_ID.desktop"
+          sed -i "s/^Icon=.*/Icon=$APP_ID/" "package/files/share/applications/$APP_ID.desktop"
+          desktop-file-validate "package/files/share/applications/$APP_ID.desktop"
+          for icon in package/files/share/icons/hicolor/*/apps/tauri-app.png; do
+            mv "$icon" "${icon%/*}/$APP_ID.png"
+          done
+
+          flatpak build-finish --command=tauri-app --share=ipc --share=network \
+            --socket=wayland --socket=fallback-x11 --socket=pulseaudio \
+            --device=dri --filesystem=xdg-music:ro package
+          flatpak build-export --arch=x86_64 repo package test
+          mkdir output
+          bundle="output/LF-Botonera-${RELEASE_TAG#v}-x86_64.flatpak"
+          flatpak build-bundle --arch=x86_64 \
+            --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \
+            repo "$bundle" "$APP_ID" test
+
+          flatpak install --user --noninteractive --bundle "$bundle"
+          flatpak info --user --show-permissions "$APP_ID" test
+          flatpak run --user --command=sh "$APP_ID"//test -ec '
+            test -r "/app/lib/LF Botonera de Efectos/legal/PRIVACY.md"
+            links=$(ldd /app/bin/tauri-app)
+            printf "%s\n" "$links"
+            ! printf "%s\n" "$links" | grep -q "not found"
+          '
+          (cd output && sha256sum -- *.flatpak > SHA256SUMS)
+
+      - name: Preserve the installer and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-x86_64
+          path: output/
+          if-no-files-found: error
