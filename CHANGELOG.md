@@ -32,6 +32,27 @@ directamente desde Windows:
 
 ## [Sin publicar]
 
+## [1.6.0-beta.1] — 2026-11-10
+
+**Prelanzamiento para pruebas.** Windows y Linux están en beta. El APK de Android es alfa.
+
+### Windows y Linux · Beta
+
+- **Control experimental de OBS Studio.** Conecta la botonera al servidor WebSocket de OBS y crea paletas dedicadas para controlar escenas, vista previa, transiciones, grabación y transmisión. También puedes controlar entradas de audio, elementos, filtros y el búfer de repetición.
+- **MIDI por Bluetooth LE.** Busca controladores desde Ajustes → Atajos del teclado → MIDI y asigna sus pads, notas o controles a acciones de la botonera. La detección y el disparo se probaron en Windows. Algunos controladores pueden aparecer con su dirección Bluetooth en lugar de su nombre.
+
+### Android ARM64 · Alfa
+
+- Primera edición móvil en desarrollo. Incluye importación de audio mediante el selector de Android, modos de reproducción de la botonera y MIDI por USB y Bluetooth LE. La conexión MIDI Bluetooth ya se probó en un teléfono.
+- Interfaz táctil adaptada para vertical y horizontal, con menús por pulsación larga, Ajustes por secciones, volumen accesible y panel fijo que empieza cerrado en una instalación limpia.
+- Editor de pistas táctil con cursor en la onda, marcadores de inicio y fin, zoom y ajuste de ganancia.
+
+**Android sigue en alfa.** Algunas funciones pueden fallar y algunas pantallas pueden verse incompletas o desalineadas según el dispositivo.
+
+### Linux · En desarrollo
+
+- La edición Flatpak está en preparación y todavía no está disponible.
+
 ## [1.5.0] — 2026-10-11
 
 ### Añadido
@@ -309,7 +330,8 @@ reducción de permisos innecesarios.
 
 ---
 
-[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.5.0...HEAD
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.6.0-beta.1...HEAD
+[1.6.0-beta.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.5.0...v1.6.0-beta.1
 [1.5.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.2.1...v1.3.0

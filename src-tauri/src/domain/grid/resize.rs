@@ -114,6 +114,7 @@ mod tests {
 
     fn fixture(rows: u32, cols: u32, indexes: &[u32]) -> PaletaData {
         PaletaData {
+            obs: false,
             id: "paleta_1".to_string(),
             nombre: "Test".to_string(),
             rows,

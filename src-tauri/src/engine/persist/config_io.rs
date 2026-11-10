@@ -120,6 +120,7 @@ fn migrate(old: LegacyConfig) -> AppConfig {
                     .unwrap_or_default()
                     .into_iter()
                     .map(|b| ButtonData {
+                        obs: None,
                         id: b.id,
                         index: b.index,
                         label: b.label.clone(),

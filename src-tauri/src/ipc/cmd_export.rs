@@ -10,6 +10,7 @@ use crate::domain::grid::view::paleta_to_grid;
 use crate::engine::persist::config_io as config;
 use crate::model::grid::GridState;
 use crate::model::{AppConfig, ProfileData};
+
 use serde_json::Value;
 
 /// Exporta la pestaña activa como .bdelf.
@@ -73,6 +74,10 @@ pub fn import_tab(state: tauri::State<AppState>) -> Result<GridState, String> {
             .ok_or("Perfil no encontrado")?;
         let new_id = format!("paleta_imp_{}", profile.paletas.len() + 1);
         let paleta = lfa_format::from_lfa_paleta(lfa, new_id.clone());
+        if cfg!(target_os = "android") && paleta.obs {
+            return Err("platform_unavailable".into());
+        }
+        crate::domain::obs::validate_paleta(&paleta)?;
         let grid = paleta_to_grid(&paleta);
         profile.paletas.push(paleta);
         profile.active_paleta_id = new_id;
@@ -140,6 +145,10 @@ pub fn import_profile(state: tauri::State<AppState>) -> Result<(), String> {
         let mut cfg = state.config.lock().unwrap();
         let new_id = format!("perfil_imp_{}", cfg.profiles.len() + 1);
         let profile = lfa_format::from_lfa_profile(lfa, new_id.clone());
+        if cfg!(target_os = "android") && profile.paletas.iter().any(|paleta| paleta.obs) {
+            return Err("platform_unavailable".into());
+        }
+        crate::domain::obs::validate_profile(&profile)?;
         cfg.profiles.push(profile);
         cfg.active_profile_id = new_id;
         config::save_config(&cfg)?;

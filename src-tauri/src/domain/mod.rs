@@ -13,3 +13,4 @@ pub mod playback;
 pub mod player;
 pub mod search_text;
 pub mod track_response;
+pub mod obs;

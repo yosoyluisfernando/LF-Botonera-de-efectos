@@ -12,6 +12,7 @@ pub fn toggle_button_flag(
 ) -> Result<GridState, String> {
     let mut cfg = state.config.lock().unwrap();
     let paleta = active_paleta(&mut cfg)?;
+    crate::domain::obs::audio_paleta(paleta)?;
     let btn = paleta
         .botones
         .iter_mut()

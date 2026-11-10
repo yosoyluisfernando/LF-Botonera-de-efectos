@@ -4,6 +4,7 @@ use crate::model::ButtonData;
 
 pub fn new_button(paleta_id: &str, index: u32, label: &str, bg: &str, text: &str) -> ButtonData {
     ButtonData {
+        obs: None,
         id: format!("{}_btn_{}", paleta_id, index),
         index,
         label: label.to_string(),

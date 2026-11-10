@@ -123,6 +123,7 @@ async function verifyLayout(evaluate) {
             return { list: visible('.settings-tabs'), detail: visible('.settings-content') };
         })()`), 'No se abrió Ajustes');
         assert.ok(settings.list);
+        assert.equal(await evaluate("!!document.querySelector('[data-target=s-obs]')"), false);
         assert.equal(settings.detail, landscape);
         const detail = await evaluate(`(() => {
             const modal = document.getElementById('settings-modal');

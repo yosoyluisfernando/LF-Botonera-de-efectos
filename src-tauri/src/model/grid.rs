@@ -17,6 +17,8 @@ pub struct ButtonView {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct GridState {
+    #[serde(default)]
+    pub obs: bool,
     pub columns: u32,
     pub rows: u32,
     pub buttons: Vec<ButtonView>,

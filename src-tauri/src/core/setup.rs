@@ -142,6 +142,8 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
         Arc::clone(&state.console),
         Arc::clone(&state.config),
     );
+    #[cfg(not(target_os = "android"))]
+    state.obs.start(app.handle().clone(), Arc::clone(&state.config))?;
     let _ = global_shortcuts::sync(app.handle());
     Ok(())
 }

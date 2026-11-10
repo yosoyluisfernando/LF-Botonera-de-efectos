@@ -11,3 +11,4 @@ pub mod player;
 pub mod visuals;
 pub mod weather;
 pub mod files;
+pub mod obs;

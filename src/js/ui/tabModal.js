@@ -1,3 +1,4 @@
+import { isAndroid } from '../bridge/platform.js';
 /**
  * Archivo: tabModal.js
  * Propósito: Controla el modal de creación y edición de pestañas (paletas).
@@ -22,6 +23,7 @@ export async function openTabModal(config, paleta, onRefresh) {
     document.getElementById('tab-modal-title').textContent =
         t(isEdit ? 'tab_modal.title_edit' : 'tab_modal.title_new');
 
+    if (!isAndroid()) _ensureTypeControl(config, paleta);
     const nameEl  = document.getElementById('tab-name');
     const rowsEl  = document.getElementById('tab-v');
     const colsEl  = document.getElementById('tab-h');
@@ -65,7 +67,7 @@ export async function openTabModal(config, paleta, onRefresh) {
             if (isEdit) {
                 await invoke('update_paleta_meta', { ...datos, paletaId: paleta.id });
             } else {
-                await invoke('create_paleta', datos);
+                await invoke('create_paleta', { ...datos, obs: document.getElementById('tab-kind')?.value === 'obs' });
             }
             modal.classList.add('hidden');
             onRefresh?.();
@@ -108,4 +110,20 @@ function _tabCount(config) {
 /** Nombre propuesto para una pestaña nueva: "Pestaña 3" (por posición). */
 function _newTabName(count) {
     return `${t('tabs.new_name')} ${count + 1}`;
+}
+
+function _ensureTypeControl(config, paleta) {
+    let row = document.getElementById('tab-kind-row');
+    if (!row) {
+        row = document.createElement('div'); row.id = 'tab-kind-row';
+        const label = document.createElement('label'); label.htmlFor = 'tab-kind'; label.textContent = t('obs.palette_kind');
+        const select = document.createElement('select'); select.id = 'tab-kind';
+        for (const [value, key] of [['audio', 'obs.audio_palette'], ['obs', 'obs.control_palette']]) {
+            const option = document.createElement('option'); option.value = value; option.textContent = t(key); select.append(option);
+        }
+        row.append(label, select); document.querySelector('#tab-modal .modal-body').prepend(row);
+    }
+    const select = document.getElementById('tab-kind');
+    select.value = paleta?.obs ? 'obs' : 'audio'; select.disabled = !!paleta;
+    select.querySelector('[value="obs"]').disabled = !config.obs?.enabled && !paleta?.obs;
 }

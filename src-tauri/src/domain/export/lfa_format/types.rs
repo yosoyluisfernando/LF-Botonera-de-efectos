@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct LfaButton {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub obs: Option<crate::model::obs::ObsAction>,
     pub id: u32,
     #[serde(default)]
     pub label: String,
@@ -50,6 +52,8 @@ pub(super) fn default_vol() -> f32 {
 
 #[derive(Serialize, Deserialize)]
 pub struct LfaPaleta {
+    #[serde(default)]
+    pub obs: bool,
     pub nombre: String,
     #[serde(default = "default_dim")]
     pub rows: u32,

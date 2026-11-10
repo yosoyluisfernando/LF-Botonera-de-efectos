@@ -5,6 +5,7 @@ use crate::model::{ButtonData, PaletaData};
 
 pub fn paleta_to_grid(paleta: &PaletaData) -> GridState {
     GridState {
+        obs: paleta.obs,
         columns: paleta.cols,
         rows: paleta.rows,
         buttons: paleta.botones.iter().map(button_to_view).collect(),

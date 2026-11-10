@@ -5,6 +5,8 @@
  * El drag & drop vive en gridDnd.js y el progreso en gridPlayback.js (Regla 3).
  */
 
+import { refreshObsState } from './obsView.js';
+import { openEditModal } from './editModal.js';
 import { invoke } from '../bridge/api.js';
 import { showContextMenu } from './contextMenu.js';
 import { alertIpcError } from './ipcError.js';
@@ -33,6 +35,7 @@ export function drawGrid(gridState, onRefresh) {
     const gridEl = document.getElementById('main-grid');
     if (!gridEl) return;
 
+    gridEl.dataset.obs = String(gridState.obs);
     setPlaybackButtons(gridState.buttons);
 
     gridEl.innerHTML = '';
@@ -45,6 +48,7 @@ export function drawGrid(gridState, onRefresh) {
         const btnData = gridState.buttons.find(b => b.index === index) ?? null;
         gridEl.appendChild(_makeCell(index, btnData));
     }
+    if (gridState.obs) refreshObsState().catch(console.error);
 }
 
 function _makeCell(index, btnData) {
@@ -54,6 +58,7 @@ function _makeCell(index, btnData) {
 
     if (btnData) {
         btn.dataset.id            = btnData.id;
+        btn.dataset.obs = String(btnData.type === 'obs');
         paintAdaptive(btn, btnData.color_bg, btnData.color_text, 'button');
         const shortcutHtml = btnData.shortcut
             ? `<span class="shortcut-badge">${_escapeHtml(btnData.shortcut)}</span>`
@@ -77,7 +82,7 @@ function _makeCell(index, btnData) {
         btn.addEventListener('click', e => {
             if (e.altKey) return; // Alt+clic = reordenar (gridDnd.js)
             if (isMapping()) { captureButton(btnData); return; }
-            invoke('play_button', { id: btnData.id }).catch(console.error);
+            invoke('play_button', { id: btnData.id }).catch(alertIpcError);
         });
     } else {
         btn.innerHTML = `<span class="index">${index}</span>`;
@@ -89,6 +94,9 @@ function _makeCell(index, btnData) {
         });
         async function assignEmpty() {
             if (isMapping() || assigning) return;
+            if (document.getElementById('main-grid').dataset.obs === 'true') {
+                return openEditModal(index, null, () => _onRefresh?.());
+            }
             assigning = true;
             try {
                 const s = await invoke('assign_file_to_button', { index, path: null });

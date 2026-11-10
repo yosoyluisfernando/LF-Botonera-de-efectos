@@ -6,6 +6,7 @@
  * Cada locución guarda SU PROPIA carpeta en el botón. Reglas 1, 4 y 6.
  */
 
+import { openObsEditor, setObsEditor } from './obsEditor.js';
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
 import { invokeShortcutSave } from './shortcutSave.js';
@@ -13,7 +14,7 @@ import { attachPalette, refreshColorInputs } from './colorPalette.js';
 import { appAlert } from './appDialog.js';
 import {
     canPrelisten, defaultFolder, isFolderType, isLocution,
-    labelKey, placeholderKey, selectedType, setTypeState, typeOptions,
+    labelKey, placeholderKey, selectedType, setTypeState, syncTypeOptions,
 } from './editTypes.js';
 import {
     currentEditVolumeLinear, setEditVolumeFromLinear, syncEditVolumeControl,
@@ -28,6 +29,10 @@ import { getMidiField, initMidiField, setMidiField } from './midiControls.js';
  * @param {Function}    onSave   Callback ejecutado tras guardar con éxito.
  */
 export async function openEditModal(index, btnData, onSave, target = 'grid') {
+    if (target === 'grid' && (await invoke('get_grid_state')).obs) {
+        return openObsEditor(index, btnData, onSave);
+    }
+    setObsEditor(false);
     const modal  = document.getElementById('edit-modal');
     const typeEl = document.getElementById('edit-type');
     const pathEl = document.getElementById('edit-filepath');
@@ -38,7 +43,7 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
 
     // Tipo original del botón (serde expone type_field como "type")
     await _loadTypeState(btnData?.type);
-    _syncTypeOptions(typeEl);
+    syncTypeOptions(typeEl);
     const type0 = selectedType();
     typeEl.value = type0;
     pathEl.value = isFolderType(type0) ? (btnData?.folder ?? '') : (btnData?.path ?? '');
@@ -185,14 +190,4 @@ function _shouldAutoname(nameEl, btnData) {
 
 function _themeTextColor() {
     return (document.documentElement.dataset.theme || 'dark') === 'light' ? '#111111' : '#ffffff';
-}
-
-function _syncTypeOptions(typeEl) {
-    typeEl.innerHTML = '';
-    typeOptions().forEach(opt => {
-        const option = document.createElement('option');
-        option.value = opt.id;
-        option.textContent = t(opt.label_key);
-        typeEl.appendChild(option);
-    });
 }

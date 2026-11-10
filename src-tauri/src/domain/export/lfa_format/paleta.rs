@@ -13,6 +13,7 @@ pub fn to_lfa_paleta(p: &PaletaData) -> LfaPaleta {
         })
         .collect();
     LfaPaleta {
+        obs: p.obs,
         nombre: p.nombre.clone(),
         rows: p.rows,
         cols: p.cols,
@@ -31,6 +32,7 @@ pub fn to_lfa_paleta(p: &PaletaData) -> LfaPaleta {
 
 fn button_to_lfa(id: u32, b: &ButtonData) -> LfaButton {
     LfaButton {
+        obs: b.obs.clone(),
         id,
         label: b.label.clone(),
         type_field: b.type_field.clone(),
@@ -52,6 +54,7 @@ fn button_to_lfa(id: u32, b: &ButtonData) -> LfaButton {
 
 fn empty_button(id: u32) -> LfaButton {
     LfaButton {
+        obs: None,
         id,
         label: id.to_string(),
         type_field: default_type(),
@@ -81,6 +84,7 @@ pub fn from_lfa_paleta(p: LfaPaleta, id: String) -> PaletaData {
         .map(|b| button_from_lfa(b, &id))
         .collect();
     PaletaData {
+        obs: p.obs,
         id,
         nombre: p.nombre,
         rows: p.rows,
@@ -100,6 +104,7 @@ pub fn from_lfa_paleta(p: LfaPaleta, id: String) -> PaletaData {
 
 fn button_from_lfa(b: LfaButton, paleta_id: &str) -> ButtonData {
     ButtonData {
+        obs: b.obs,
         id: format!("{}_btn_{}", paleta_id, b.id),
         index: b.id,
         label: b.label,
@@ -142,6 +147,7 @@ mod tests {
             mode: "visual_text".into(),
         };
         let source = PaletaData {
+            obs: false,
             id: "source".into(),
             nombre: "Efectos".into(),
             rows: 1,

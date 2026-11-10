@@ -77,7 +77,8 @@ function renderTabs(config) {
         paintAdaptive(tab, paleta.tab_bg || '#3a3f44', paleta.tab_text || '#ffffff', 'tab');
         const midi = midiDisplay(paleta.midi);
         const shortcuts = [paleta.shortcut, midi].filter(Boolean).join(' / ');
-        tab.textContent = shortcuts ? `[${shortcuts}] ${paleta.nombre}` : paleta.nombre;
+        const name = paleta.obs ? `${t('obs.palette_badge')} · ${paleta.nombre}` : paleta.nombre;
+        tab.textContent = shortcuts ? `[${shortcuts}] ${name}` : name;
 
         tab.addEventListener('click', async e => {
             if (e.altKey) return;

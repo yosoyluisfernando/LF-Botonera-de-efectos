@@ -33,3 +33,4 @@ pub use preload::{PreloadConfig, PreloadStrategy};
 pub use startup::StartupPromptState;
 pub use track::{db_to_linear, TrackMeta};
 pub use waveform_cache::WaveformCacheConfig;
+pub mod obs;

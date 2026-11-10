@@ -1,6 +1,6 @@
 [package]
 name = "tauri-app"
-version = "1.5.0"
+version = "1.6.0-beta.1"
 description = "LF Botonera de Efectos — botonera de sonido para locutores y radio"
 authors = ["Luis Fernando Velásquez"]
 license = "GPL-3.0-or-later"
@@ -38,6 +38,9 @@ ebur128 = "0.1"
 thiserror = "2"
 unicode-normalization = "0.1"
 notify = "8.2"
+tungstenite = { version = "0.28", default-features = false, features = ["handshake"] }
+sha2 = "0.10"
+base64 = "0.22"
 
 [target."cfg(any(target_os = \"macos\", windows, target_os = \"linux\"))".dependencies]
 tauri-plugin-global-shortcut = "2.3.2"

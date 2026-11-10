@@ -65,13 +65,13 @@ jobs:
           test "${#apks[@]}" -eq 1
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "${apks[0]}"
           mkdir -p android-artifact
-          cp "${apks[0]}" android-artifact/LF-Botonera-1.5.0-android-arm64-debug.apk
+          cp "${apks[0]}" android-artifact/LF-Botonera-1.6.0-alpha-android-arm64.apk
           cd android-artifact
-          sha256sum *.apk > LF-Botonera-1.5.0-android-arm64-debug.apk.sha256
+          sha256sum *.apk > LF-Botonera-1.6.0-alpha-android-arm64.apk.sha256
       - name: Install and launch the ARM64 APK on Android 35
         id: android-smoke
         timeout-minutes: 10
-        run: bash scripts/android-smoke.sh android-artifact/LF-Botonera-1.5.0-android-arm64-debug.apk
+        run: bash scripts/android-smoke.sh android-artifact/LF-Botonera-1.6.0-alpha-android-arm64.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:

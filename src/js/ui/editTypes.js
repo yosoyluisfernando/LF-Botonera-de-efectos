@@ -29,3 +29,12 @@ export const canPrelisten = type => !!typeMeta(type).can_prelisten;
 export const placeholderKey = type => typeMeta(type).placeholder_key;
 export const defaultFolder = type => typeMeta(type).default_folder ?? '';
 export const labelKey = type => typeMeta(type).label_key;
+
+import { t } from '../util/i18n.js';
+export function syncTypeOptions(typeEl) {
+    typeEl.replaceChildren();
+    for (const opt of typeOptions()) {
+        const option = document.createElement('option');
+        option.value = opt.id; option.textContent = t(opt.label_key); typeEl.append(option);
+    }
+}
