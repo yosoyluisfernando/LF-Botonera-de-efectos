@@ -1,4 +1,4 @@
-name: Diagnóstico del APK Android original
+name: DiagnÃ³stico del APK Android original
 on:
   push:
     branches: [codex/android]
@@ -28,7 +28,9 @@ jobs:
           test -c /dev/kvm
           sudo chmod a+rw /dev/kvm
           export ANDROID_HOME="${ANDROID_HOME:-$RUNNER_TEMP/android-sdk}"
-          mkdir -p "$ANDROID_HOME/cmdline-tools"
+          export ANDROID_USER_HOME="$RUNNER_TEMP/lf-android-user"
+          export ANDROID_AVD_HOME="$ANDROID_USER_HOME/avd"
+          mkdir -p "$ANDROID_HOME/cmdline-tools" "$ANDROID_AVD_HOME"
           if ! command -v sdkmanager >/dev/null; then
             curl -fsSL --retry 3 https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip -o "$RUNNER_TEMP/tools.zip"
             unzip -q "$RUNNER_TEMP/tools.zip" -d "$RUNNER_TEMP/tools"
@@ -38,11 +40,15 @@ jobs:
           yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses >/dev/null
           sdkmanager --sdk_root="$ANDROID_HOME" 'platform-tools' 'emulator' 'system-images;android-35;google_apis;x86_64'
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
-          echo no | avdmanager create avd -n lf-smoke -k 'system-images;android-35;google_apis;x86_64'
+          printf 'no\n' | avdmanager create avd -n lf-smoke -k 'system-images;android-35;google_apis;x86_64' -p "$ANDROID_AVD_HOME/lf-smoke.avd"
+          test -f "$ANDROID_AVD_HOME/lf-smoke.ini"
+          "$ANDROID_HOME/emulator/emulator" -list-avds
+          "$ANDROID_HOME/platform-tools/adb" start-server
           nohup "$ANDROID_HOME/emulator/emulator" -avd lf-smoke -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader -memory 3072 > emulator.log 2>&1 &
       - name: Reproduce startup and capture logcat
         run: |
-          timeout 180 adb wait-for-device
+          trap 'tail -60 emulator.log' EXIT
+          timeout 120 adb wait-for-device
           timeout 180 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = 1 ]; do sleep 2; done'
           adb shell getprop ro.product.cpu.abilist
           (cd android-artifact && sha256sum -c *.sha256)
