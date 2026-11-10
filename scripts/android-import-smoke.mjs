@@ -61,12 +61,12 @@ async function connect() {
     return { evaluate, close: () => ws.close() };
 }
 
-function tapDocument(text) {
+function tapDocument(...labels) {
     adb('shell', 'rm', '-f', '/sdcard/lf-picker.xml');
     adb('shell', 'uiautomator', 'dump', '/sdcard/lf-picker.xml');
     const xml = adb('exec-out', 'cat', '/sdcard/lf-picker.xml');
     const node = xml.match(/<node\b[^>]*>/g)?.find(el =>
-        el.includes(`text="${text}"`) || el.includes(`content-desc="${text}"`));
+        labels.some(text => el.includes(`text="${text}"`) || el.includes(`content-desc="${text}"`)));
     const bounds = node?.match(/bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/);
     if (!bounds) return false;
     const [, left, top, right, bottom] = bounds.map(Number);
@@ -134,19 +134,22 @@ try {
             return false;
         })()`);
     }, 'No se dibujó la rejilla después de Bienvenida y Precarga');
+    adb('shell', 'settings', 'put', 'system', 'accelerometer_rotation', '0');
+    await verifyLayout(evaluate);
+    adb('shell', 'settings', 'put', 'system', 'user_rotation', '0');
+    await until(() => evaluate('innerWidth < innerHeight'), 'No volvió a vertical');
     const assignment = evaluate("window.__TAURI__.core.invoke('assign_file_to_button', { index: 1, path: null })");
     assignment.catch(() => {});
     await until(() => adb('shell', 'dumpsys', 'activity', 'activities').includes('documentsui'), 'No abrió el selector SAF');
-    await sleep(1200);
-    const selected = await until(() => {
-        if (tapDocument('LF-Smoke.wav')) return 'file';
-        if (tapDocument('Show roots') || tapDocument('Open navigation drawer') || tapDocument('Browse')) return 'drawer';
+    await until(async () => {
+        if (tapDocument('LF-Smoke.wav', 'LF-Smoke')) return true;
+        if (tapDocument('Downloads')) {
+            await sleep(1000);
+        } else {
+            tapDocument('Show roots', 'Open navigation drawer', 'Browse');
+        }
         return false;
-    }, 'No se encontró el archivo ni el menú del selector');
-    if (selected === 'drawer') {
-        await until(() => tapDocument('Downloads'), 'No se encontró la carpeta Downloads');
-        await until(() => tapDocument('LF-Smoke.wav'), 'No se encontró el audio de prueba');
-    }
+    }, 'No se encontró el audio de prueba en el selector');
     const grid = await assignment;
     const button = grid.buttons.find(item => item.index === 1);
     assert.ok(button?.path.includes('/imports/'), JSON.stringify(grid));
@@ -155,8 +158,6 @@ try {
     assert.equal(adb('shell', 'run-as', pkg, 'sha256sum', button.path).split(' ')[0], source);
     await evaluate(`window.__TAURI__.core.invoke('play_button', { id: ${JSON.stringify(button.id)} })`);
     console.log('Importación SAF, copia verificada y disparo aceptado', button.id, button.duration);
-    adb('shell', 'settings', 'put', 'system', 'accelerometer_rotation', '0');
-    await verifyLayout(evaluate);
 } finally {
     close();
 }
