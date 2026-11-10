@@ -78,5 +78,4 @@
 }
 
 body[data-platform="android"] #te-popout,
-body[data-platform="android"] #console-popout,
-body[data-platform="android"] [data-target="s-obs"] { display: none; }
+body[data-platform="android"] #console-popout { display: none; }

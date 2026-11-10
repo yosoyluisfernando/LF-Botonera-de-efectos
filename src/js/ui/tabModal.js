@@ -1,4 +1,3 @@
-import { isAndroid } from '../bridge/platform.js';
 /**
  * Archivo: tabModal.js
  * Propósito: Controla el modal de creación y edición de pestañas (paletas).

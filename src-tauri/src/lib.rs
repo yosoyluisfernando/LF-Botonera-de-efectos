@@ -22,9 +22,10 @@ pub fn run() {
         )
         .plugin(engine::input::keyboard::plugin())
         .plugin(tauri_plugin_drag::init());
+    #[cfg(target_os = "android")]
+    let builder = builder.plugin(tauri_plugin_fs::init());
     builder
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             core::platform::initialize(app.handle())?;
             app.manage(core::AppState::new());

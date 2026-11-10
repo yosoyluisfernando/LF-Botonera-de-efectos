@@ -7,6 +7,7 @@
 
 import { invoke } from '../bridge/api.js';
 import { showContextMenu } from './contextMenu.js';
+import { alertIpcError } from './ipcError.js';
 import { setPlaybackButtons } from './gridPlayback.js';
 import { isMapping, captureButton } from './mapping.js';
 import { paintAdaptive } from '../util/colorAdapter.js';
