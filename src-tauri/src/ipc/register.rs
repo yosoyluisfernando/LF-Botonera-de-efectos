@@ -1,6 +1,10 @@
 macro_rules! lf_invoke_handlers {
     () => {
         tauri::generate_handler![
+            ipc::cmd_remote::remote_status,
+            ipc::cmd_remote::remote_start,
+            ipc::cmd_remote::remote_stop,
+            ipc::cmd_remote::remote_request,
             core::platform::get_platform_capabilities,
             engine::files::pick_audio_file,
             ipc::cmd_config::get_config,

@@ -134,17 +134,25 @@ pub fn set_pre_device(device_name: String, state: tauri::State<AppState>) -> Res
 
 #[tauri::command]
 pub fn stop_audio(id: String, state: tauri::State<AppState>) {
+    stop_effect(&state, &id);
+}
+
+pub(crate) fn stop_effect(state: &AppState, id: &str) {
     let fade_s = state.config.lock().unwrap().fade.fade_out_stop_s;
     let audio = state.audio.lock().unwrap();
     if fade_s > 0.0 {
-        audio.stop_fade(&id)
+        audio.stop_fade(id)
     } else {
-        audio.stop(&id)
+        audio.stop(id)
     }
 }
 
 #[tauri::command]
 pub fn stop_all_audio(state: tauri::State<AppState>) {
+    stop_effects(&state);
+}
+
+pub(crate) fn stop_effects(state: &AppState) {
     let fade_s = state.config.lock().unwrap().fade.fade_out_stop_s;
     let audio = state.audio.lock().unwrap();
     if fade_s > 0.0 {

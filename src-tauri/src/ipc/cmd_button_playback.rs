@@ -16,6 +16,18 @@ pub fn play_button(id: String, state: tauri::State<AppState>) -> Result<(), Stri
 /// Dispara un boton por id; tambien lo usa el manejador de atajos globales.
 pub fn play_button_id(state: &AppState, id: &str) -> Result<(), String> {
     let (cfg, btn, group) = button_snapshot(state, id)?;
+    play_snapshot(state, cfg, btn, group)
+}
+/// Valida y dispara desde la misma instantánea: un cambio de paleta no autoriza otro botón.
+pub(crate) fn play_remote_button(state: &AppState, palette: &str, id: &str) -> Result<(), String> {
+    let cfg = state.config.lock().unwrap().clone();
+    let btn = crate::engine::remote::protocol::remote_button(&cfg, palette, id)
+        .cloned()
+        .ok_or("remote_stale")?;
+    play_snapshot(state, cfg, btn, PlaybackGroup::Main)
+}
+fn play_snapshot(state: &AppState, cfg: AppConfig, btn: ButtonData, group: PlaybackGroup) -> Result<(), String> {
+    let id = btn.id.as_str();
     if btn.type_field == "obs" { return super::cmd_obs::execute(state,id); }
     if cfg.profiles.iter().flat_map(|p| &p.paletas).any(|p| p.obs && p.botones.iter().any(|b| b.id == id)) {
         return Err("obs_separate_palettes".into());

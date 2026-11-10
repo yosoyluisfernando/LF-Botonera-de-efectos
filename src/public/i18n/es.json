@@ -1031,5 +1031,38 @@
     "split_hint": "Continúa la grabación en un archivo nuevo. Habilita la división de archivos en los ajustes de salida de OBS. Requiere grabación activa y sin pausa.",
     "quick_number": "Transición rápida {id}",
     "quick_hint": "Se ejecuta la transición rápida configurada en OBS, con su duración original. Requiere modo estudio. OBS solo comunica su número interno, no su nombre ni duración. Si la lista está vacía, configura una transición rápida en OBS."
+  },
+  "remote": {
+    "title": "Control remoto",
+    "client_help": "Los sonidos se reproducen en la PC. Conecta ambos equipos a la misma red local.",
+    "address": "Dirección de la PC",
+    "key": "Clave de acceso",
+    "connect": "Conectar",
+    "disconnect": "Desconectar",
+    "stop_all": "Detener efectos",
+    "stop": "Detener",
+    "other_effect": "Otro efecto",
+    "disconnected": "Desconectado",
+    "connected": "Conectado a la PC",
+    "connecting": "Conectando…",
+    "audio_only": "La paleta activa es de OBS. Selecciona una paleta de sonidos en la PC.",
+    "empty": "La paleta activa no tiene sonidos.",
+    "port": "Puerto",
+    "enable": "Activar acceso LAN",
+    "disable": "Desactivar acceso LAN",
+    "enabled": "Acceso LAN activo",
+    "disabled": "Acceso LAN desactivado",
+    "host_help": "Comparte la dirección y la clave con el navegador o con Control remoto del APK. El acceso empieza desactivado y la clave cambia cada vez que lo activas.",
+    "network_help": "Usa una red de confianza: esta conexión local usa HTTP sin cifrar. Permite el puerto en el cortafuegos de la PC. Si tienes varias tarjetas, usa la dirección IPv4 de la red compartida. No abras el puerto al Internet.",
+    "errors": {
+      "remote_auth": "Revisa la clave de acceso.",
+      "remote_connection": "No se pudo conectar con la PC. Revisa la dirección, la red y el cortafuegos.",
+      "remote_address": "Usa una dirección IPv4 local y un puerto entre 1024 y 65535.",
+      "remote_bind": "No se pudo abrir el puerto. Prueba otro.",
+      "remote_start": "No se pudo activar el acceso LAN.",
+      "remote_stale": "La paleta cambió en la PC. Espera a que se actualice.",
+      "remote_play": "La PC no pudo reproducir este sonido.",
+      "remote_command": "Orden remota no admitida."
+    }
   }
 }

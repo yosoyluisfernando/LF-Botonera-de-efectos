@@ -1031,5 +1031,38 @@
     "split_hint": "Continue recording in a new file. Enable file splitting in OBS output settings. Requires active, unpaused recording.",
     "quick_number": "Quick transition {id}",
     "quick_hint": "Runs the quick transition configured in OBS with its original duration. Requires Studio Mode. OBS only provides its internal number, not its name or duration. If the list is empty, configure a quick transition in OBS."
+  },
+  "remote": {
+    "title": "Remote control",
+    "client_help": "Sounds play on the PC. Connect both devices to the same local network.",
+    "address": "PC address",
+    "key": "Access key",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "stop_all": "Stop effects",
+    "stop": "Stop",
+    "other_effect": "Other effect",
+    "disconnected": "Disconnected",
+    "connected": "Connected to the PC",
+    "connecting": "Connecting…",
+    "audio_only": "The active palette controls OBS. Select a sound palette on the PC.",
+    "empty": "The active palette has no sounds.",
+    "port": "Port",
+    "enable": "Enable LAN access",
+    "disable": "Disable LAN access",
+    "enabled": "LAN access enabled",
+    "disabled": "LAN access disabled",
+    "host_help": "Share the address and key with a browser or Remote control in the APK. Access starts disabled and the key changes each time you enable it.",
+    "network_help": "Use a trusted network: this local connection uses unencrypted HTTP. Allow the port in the PC firewall. With multiple adapters, use the IPv4 address of the shared network. Do not expose the port to the Internet.",
+    "errors": {
+      "remote_auth": "Check the access key.",
+      "remote_connection": "Could not connect to the PC. Check the address, network and firewall.",
+      "remote_address": "Use a local IPv4 address and a port from 1024 to 65535.",
+      "remote_bind": "Could not open the port. Try another one.",
+      "remote_start": "Could not enable LAN access.",
+      "remote_stale": "The palette changed on the PC. Wait for it to refresh.",
+      "remote_play": "The PC could not play this sound.",
+      "remote_command": "Unsupported remote command."
+    }
   }
 }

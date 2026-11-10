@@ -2,7 +2,7 @@
 
 **LF Botonera de Efectos**
 
-Versión de esta política: 2026-09-17 (copia local para la próxima versión)
+Versión de esta política: 2026-11-10 (copia local para la próxima versión)
 
 Versión web oficial: <https://lfbotonera.blogspot.com/p/privacidad.html>
 
@@ -47,7 +47,16 @@ esas muestras. Cerrar el apartado libera su medición; la entrada continúa en u
 solo si la escucha automática está habilitada. Los modos manuales no necesitan
 micrófono. Se guardan únicamente la entrada elegida y las preferencias.
 
-### Conexiones a Internet
+### Control remoto opcional en red local
+
+Al activar Control remoto, la PC abre un puerto HTTP en la red local y entrega
+una clave nueva por sesión. Los clientes autorizados consultan nombres, colores,
+posición de botones y estado de reproducción, y envían órdenes de disparo/parada.
+No se transfieren rutas ni archivos de audio. La conexión no está cifrada y debe
+usarse en redes de confianza. Desactivar el acceso revoca la clave; empieza
+desactivado en cada arranque. No requiere servicios externos.
+
+### Servicios de Internet
 
 La aplicación puede realizar estas conexiones:
 
@@ -123,7 +132,16 @@ Current desktop installations normally store this data in:
 Audio files remain in the location selected by the user. The application does not
 upload them to any server.
 
-### Internet connections
+### Optional local network remote control
+
+Enabling Remote control opens an HTTP port on the PC's local network and creates
+a new session key. Authorized clients read button names, colors, positions and
+playback status, and send play/stop commands. Audio files and paths are not sent.
+The connection is unencrypted and should be used on trusted networks. Disabling
+access revokes the key; access starts disabled on every launch. No external
+service is required.
+
+### Internet services
 
 The application may make the following connections:
 

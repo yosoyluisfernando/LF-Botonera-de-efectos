@@ -1,5 +1,14 @@
 # Android ARM64 de prueba
 
+## Control remoto LAN
+
+Ajustes → Control remoto conecta el APK a la PC con su dirección y clave de
+sesión. Muestra la paleta activa y envía disparo/parada; el audio sale en la PC.
+El cliente usa HTTP desde Rust, sin navegar el WebView a contenido remoto.
+Alcance, seguridad y pruebas pendientes: [CONTROL_REMOTO_LAN.md](CONTROL_REMOTO_LAN.md).
+
+## Funcionamiento local
+
 El port comparte el proyecto Tauri, Rust y Vite con Windows y Linux. Android
 usa el directorio privado de la aplicación, el selector de documentos nativo
 y controles táctiles de pulsación larga. La consola mezcla efectos, panel y

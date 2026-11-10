@@ -4666,6 +4666,8 @@ dependencies = [
  "chrono",
  "ebur128",
  "futures-util",
+ "getrandom 0.3.4",
+ "httparse",
  "lofty",
  "midir",
  "ndk-context",

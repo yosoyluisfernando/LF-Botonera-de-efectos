@@ -853,6 +853,14 @@ falla, se reinstala el respaldo de emergencia.
 Diseño completo y pruebas:
 [`PLAN_RESPALDO_RESTAURACION.md`](PLAN_RESPALDO_RESTAURACION.md).
 
+## Control remoto LAN
+
+El control remoto LAN optativo se documenta en
+[`CONTROL_REMOTO_LAN.md`](CONTROL_REMOTO_LAN.md). `AppState.remote` mantiene un
+servidor de sesión con recursos web embebidos y protocolo cerrado; navegador y
+APK consultan la paleta activa y ordenan disparo/parada al motor de la PC. Nunca
+se expone IPC genérico ni se transfieren los archivos de audio. Empieza desactivado.
+
 ## Visibilidad persistente del panel fijo
 
 `FixedPanelConfig.visible` es la única fuente del estado abierto/cerrado. El botón

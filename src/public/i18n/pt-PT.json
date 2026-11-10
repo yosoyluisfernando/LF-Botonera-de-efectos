@@ -1031,5 +1031,38 @@
     "split_hint": "Continue a gravação num novo ficheiro. Ative a divisão de ficheiros nas definições de saída do OBS. Requer gravação ativa e sem pausa.",
     "quick_number": "Transição rápida {id}",
     "quick_hint": "Executa a transição rápida configurada no OBS com a duração original. Requer modo estúdio. O OBS indica apenas o número interno, não o nome nem a duração. Se a lista estiver vazia, configure uma transição rápida no OBS."
+  },
+  "remote": {
+    "title": "Controlo remoto",
+    "client_help": "Os sons são reproduzidos no PC. Ligue ambos os dispositivos à mesma rede local.",
+    "address": "Endereço do PC",
+    "key": "Chave de acesso",
+    "connect": "Ligar",
+    "disconnect": "Desligar",
+    "stop_all": "Parar efeitos",
+    "stop": "Parar",
+    "other_effect": "Outro efeito",
+    "disconnected": "Desligado",
+    "connected": "Ligado ao PC",
+    "connecting": "A ligar…",
+    "audio_only": "A paleta ativa controla o OBS. Selecione uma paleta de sons no PC.",
+    "empty": "A paleta ativa não tem sons.",
+    "port": "Porta",
+    "enable": "Ativar acesso LAN",
+    "disable": "Desativar acesso LAN",
+    "enabled": "Acesso LAN ativo",
+    "disabled": "Acesso LAN desativado",
+    "host_help": "Partilhe o endereço e a chave com o navegador ou com Controlo remoto no APK. O acesso começa desativado e a chave muda em cada ativação.",
+    "network_help": "Use uma rede de confiança: esta ligação local usa HTTP sem encriptação. Permita a porta na firewall do PC. Com vários adaptadores, use o endereço IPv4 da rede partilhada. Não exponha a porta à Internet.",
+    "errors": {
+      "remote_auth": "Verifique a chave de acesso.",
+      "remote_connection": "Não foi possível ligar ao PC. Verifique o endereço, a rede e a firewall.",
+      "remote_address": "Use um endereço IPv4 local e uma porta entre 1024 e 65535.",
+      "remote_bind": "Não foi possível abrir a porta. Experimente outra.",
+      "remote_start": "Não foi possível ativar o acesso LAN.",
+      "remote_stale": "A paleta mudou no PC. Aguarde a atualização.",
+      "remote_play": "O PC não conseguiu reproduzir este som.",
+      "remote_command": "Comando remoto não permitido."
+    }
   }
 }

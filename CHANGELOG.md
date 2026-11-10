@@ -32,6 +32,13 @@ directamente desde Windows:
 
 ## [Sin publicar]
 
+### Añadido
+- **Control remoto por red local:** la PC puede activar acceso con clave por sesión
+  desde Ajustes → Control remoto. El navegador y la misma sección del APK muestran
+  la paleta de sonidos activa, permiten disparar sus botones y detener efectos.
+  Los archivos y la reproducción permanecen en la PC. Primera etapa del control
+  remoto; no incluye edición, selección de perfiles/paletas ni transporte musical.
+
 ## [1.6.0-beta.1] — 2026-11-10
 
 **Prelanzamiento para pruebas.** Windows y Linux están en beta. El APK de Android es alfa.

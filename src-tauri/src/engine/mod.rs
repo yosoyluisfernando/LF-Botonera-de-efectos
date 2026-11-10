@@ -12,3 +12,4 @@ pub mod visuals;
 pub mod weather;
 pub mod files;
 pub mod obs;
+pub mod remote;

@@ -50,3 +50,4 @@ pub mod register;
 
 pub use crate::core::AppState;
 pub mod cmd_obs;
+pub mod cmd_remote;

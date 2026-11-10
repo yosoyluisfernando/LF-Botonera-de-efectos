@@ -15,6 +15,7 @@ use crate::model::AppConfig;
 use std::sync::{Arc, Mutex};
 
 pub struct AppState {
+    pub remote: Mutex<crate::engine::remote::RemoteServer>,
     pub obs: crate::engine::obs::ObsEngine,
     pub config: Arc<Mutex<AppConfig>>,
     /// La consola: dueña de las salidas fisicas y de los buses. Arc porque los
@@ -75,6 +76,7 @@ impl AppState {
                 }
             });
         Self {
+            remote: Mutex::new(Default::default()),
             obs: crate::engine::obs::ObsEngine::new(),
             config,
             console,

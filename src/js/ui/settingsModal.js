@@ -1,4 +1,5 @@
 import { initAndroidSettingsNavigation, resetAndroidSettingsNavigation } from './settingsAndroid.js';
+import { initSettingsRemote } from './settingsRemote.js';
 import { isAndroid } from '../bridge/platform.js';
 /**
  * Archivo: settingsModal.js
@@ -39,6 +40,7 @@ export function initSettingsModal(onSaved) {
     initFixedPanelSettings();
 
     if (!isAndroid()) initSettingsObs();
+    initSettingsRemote();
     // Pestañas internas del modal
     document.querySelectorAll('.s-tab').forEach(tab => {
         tab.addEventListener('click', () => {

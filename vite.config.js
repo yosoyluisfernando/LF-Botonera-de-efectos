@@ -12,6 +12,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL("./src/index.html", import.meta.url)),
+        remote: fileURLToPath(new URL("./src/remote.html", import.meta.url)),
         ...(process.env.TAURI_ENV_PLATFORM !== "android" && {
           library: fileURLToPath(new URL("./src/library.html", import.meta.url)),
         }),

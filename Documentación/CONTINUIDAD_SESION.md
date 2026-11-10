@@ -1,5 +1,15 @@
 # Continuidad de sesión — estado actual
 
+## Nota de esta copia de trabajo — 2026-11-10
+
+La copia contiene el código 1.6.0-beta.1 con Android y OBS. Se añadió la primera
+etapa de control remoto LAN para revisión, sin publicar ni cambiar la versión.
+Consultar [CONTROL_REMOTO_LAN.md](CONTROL_REMOTO_LAN.md) para arquitectura, alcance
+y pruebas. Frontend y comprobación de Craft Anything aprobados; `cargo test --lib`
+y `cargo build --lib` bloqueados en este entorno por ausencia de `link.exe`.
+La prueba funcional PC/teléfono y la compilación del APK quedan pendientes.
+El registro histórico de publicación que sigue no describe estos cambios locales.
+
 **Actualizado:** 2026-10-11
 **Rama:** `main`
 **Versión:** 1.5.0
