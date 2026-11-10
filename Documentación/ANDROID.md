@@ -44,3 +44,7 @@ explícita, ya que OpenOptions de tauri-plugin-fs parte sin modo de acceso.
 Android usa el reloj del sistema y mantiene el transporte dentro del área
 visible. Las categorías de Ajustes se desplazan horizontalmente y el contenido
 tiene su propio desplazamiento.
+
+El selector del sistema concede acceso al URI elegido, sin permiso general
+de almacenamiento. El empaquetado Android aplica los iconos LF versionados
+después de generar el proyecto Tauri, que trae sus propios iconos de ejemplo.

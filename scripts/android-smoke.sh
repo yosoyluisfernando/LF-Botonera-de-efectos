@@ -22,6 +22,8 @@ cleanup() {
     kill "$emulator_pid" 2>/dev/null || true
     if [ "${1:-0}" != 0 ]; then
         grep -E 'FATAL EXCEPTION|Fatal signal|panicked|UnsatisfiedLinkError|AndroidRuntime' "$log" | tail -65 || true
+        "$adb" exec-out screencap -p > android-smoke/failure.png 2>/dev/null || true
+        "$adb" exec-out cat /sdcard/lf-picker.xml > android-smoke/picker.xml 2>/dev/null || true
         tail -20 "$emulator_log"
     fi
 }

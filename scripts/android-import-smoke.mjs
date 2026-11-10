@@ -92,15 +92,21 @@ async function verifyLayout(evaluate) {
 const { evaluate, close } = await connect();
 try {
     // Completa el primer inicio sin modificar el modelo ni saltarse el selector nativo.
-    for (let attempt = 0; attempt < 12; attempt++) {
-        await evaluate(`[...document.querySelectorAll('button')].find(button =>
-            button.getClientRects().length && /^(Comenzar|Start|Aceptar|OK|Ahora no|Más tarde)$/i.test(button.textContent.trim()))?.click()`);
-        await sleep(400);
-    }
-    await until(() => evaluate("document.querySelector('.grid-item') !== null"), 'No se dibujó la rejilla');
+    await until(async () => {
+        return evaluate(`(() => {
+            const grid = document.querySelector('.grid-item');
+            if (grid?.getClientRects().length) return true;
+            const button = ['preload-dialog-skip', 'wizard-start-btn']
+                .map(id => document.getElementById(id))
+                .find(element => element?.getClientRects().length);
+            button?.click();
+            return false;
+        })()`);
+    }, 'No se dibujó la rejilla después de Bienvenida y Precarga');
     const assignment = evaluate("window.__TAURI__.core.invoke('assign_file_to_button', { index: 1, path: null })");
     assignment.catch(() => {});
     await until(() => adb('shell', 'dumpsys', 'activity', 'activities').includes('documentsui'), 'No abrió el selector SAF');
+    await sleep(1200);
     if (!tapDocument('LF-Smoke.wav')) {
         assert.ok(tapDocument('Show roots') || tapDocument('Open navigation drawer') || tapDocument('Browse'), 'No se encontró el menú del selector');
         await until(() => tapDocument('Downloads'), 'No se encontró la carpeta Downloads');
