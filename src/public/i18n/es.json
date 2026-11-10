@@ -874,6 +874,7 @@
     "input_required": "Mic necesita una pulsación y su liberación."
   },
   "mobile": {
+    "settings_back": "Secciones",
     "back": "Volver a la botonera",
     "activate_track": "Reproducir o marcar como siguiente",
     "hint": "Toca un botón para dispararlo. Mantén pulsado para ver sus acciones. Desliza para recorrer la rejilla.",

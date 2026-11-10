@@ -91,6 +91,32 @@ async function verifyLayout(evaluate) {
         writeFileSync(`android-smoke/${orientation}.png`,
             execFileSync(process.argv[2], ['exec-out', 'screencap', '-p'], { timeout: 15000 }));
         console.log('Transporte visible', orientation, layout);
+        await evaluate("document.getElementById('btn-settings').click()");
+        const settings = await until(() => evaluate(`(() => {
+            const modal = document.getElementById('settings-modal');
+            if (modal.classList.contains('hidden')) return false;
+            const visible = selector => !!modal.querySelector(selector)?.getClientRects().length;
+            return { list: visible('.settings-tabs'), detail: visible('.settings-content') };
+        })()`), 'No se abrió Ajustes');
+        assert.ok(settings.list);
+        assert.equal(settings.detail, landscape);
+        const detail = await evaluate(`(() => {
+            const modal = document.getElementById('settings-modal');
+            modal.querySelector('[data-target="s-reproduccion"]').click();
+            return { panel: !!modal.querySelector('#s-reproduccion').getClientRects().length,
+                back: !!modal.querySelector('.android-settings-back').getClientRects().length };
+        })()`);
+        assert.ok(detail.panel);
+        assert.equal(detail.back, !landscape);
+        if (!landscape) {
+            assert.ok(await evaluate(`(() => {
+                const modal = document.getElementById('settings-modal');
+                modal.querySelector('.android-settings-back').click();
+                return !!modal.querySelector('.settings-tabs').getClientRects().length;
+            })()`));
+        }
+        await evaluate("document.querySelector('[data-close=settings-modal]').click()");
+        console.log('Ajustes verificado', orientation);
     }
 }
 

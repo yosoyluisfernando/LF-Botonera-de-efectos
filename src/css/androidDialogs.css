@@ -1,0 +1,75 @@
+/* Android: armazón común de los diálogos y navegación de Ajustes. */
+body[data-platform="android"] #wizard-section {
+  height: 100dvh;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+body[data-platform="android"] #wizard-area {
+  width: min(100%, 32rem);
+  max-height: 100%;
+  overflow-y: auto;
+}
+body[data-platform="android"] #wizard-area .modal-content { width: 100% !important; }
+body[data-platform="android"] .modal-overlay {
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+}
+body[data-platform="android"] .modal-overlay > .modal-content {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  max-height: 100%;
+  min-width: 0;
+}
+body[data-platform="android"] .modal-header {
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+body[data-platform="android"] .modal-header h3 { font-size: 16px; }
+body[data-platform="android"] .modal-body { min-height: 0; overflow-y: auto; }
+body[data-platform="android"] .modal-footer { flex-wrap: wrap; flex-shrink: 0; }
+body[data-platform="android"] .modal-footer button { min-height: 48px; white-space: normal; }
+
+body[data-platform="android"] #settings-modal .modal-lg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+}
+body[data-platform="android"] #settings-modal .settings-body { overflow: hidden; }
+body[data-platform="android"] #settings-modal .settings-content {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+body[data-platform="android"] #settings-modal .settings-tabs {
+  width: 100%;
+  flex-direction: column;
+  overflow: auto;
+  padding: 6px;
+  border: 0;
+}
+body[data-platform="android"] #settings-modal .s-tab {
+  flex: 0 0 auto;
+  min-height: 48px;
+  font-size: 15px;
+  white-space: normal;
+}
+body[data-platform="android"] #settings-modal .android-settings-back { display: none; }
+
+@media (orientation: portrait), (max-width: 599px) {
+  body[data-platform="android"] #settings-modal .settings-body { flex-direction: column; }
+  body[data-platform="android"] #settings-modal[data-android-view="sections"] .settings-content,
+  body[data-platform="android"] #settings-modal[data-android-view="detail"] .settings-tabs { display: none; }
+  body[data-platform="android"] #settings-modal[data-android-view="detail"] .android-settings-back {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+@media (orientation: landscape) and (min-width: 600px) {
+  body[data-platform="android"] #settings-modal .settings-body { flex-direction: row; }
+  body[data-platform="android"] #settings-modal .settings-tabs {
+    width: clamp(160px, 27%, 230px);
+    border-inline-end: 1px solid var(--border-color);
+  }
+}

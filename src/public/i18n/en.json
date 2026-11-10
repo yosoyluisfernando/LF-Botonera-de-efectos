@@ -874,6 +874,7 @@
     "input_required": "Mic requires a press and release."
   },
   "mobile": {
+    "settings_back": "Sections",
     "back": "Back to soundboard",
     "activate_track": "Play or mark as next",
     "hint": "Tap a button to play. Touch and hold for actions. Swipe to scroll the grid.",

@@ -48,3 +48,12 @@ tiene su propio desplazamiento.
 El selector del sistema concede acceso al URI elegido, sin permiso general
 de almacenamiento. El empaquetado Android aplica los iconos LF versionados
 después de generar el proyecto Tauri, que trae sus propios iconos de ejemplo.
+
+## Navegación táctil de Ajustes
+
+En vertical y en ventanas estrechas, Ajustes muestra las secciones primero.
+Tocar una sección abre su formulario. Secciones vuelve a la lista sin
+descartar cambios, y Guardar usa el flujo compartido. En horizontal, desde
+600 px, la lista y el formulario se muestran a la vez. Los estilos del
+asistente y los diálogos reservan espacio para el teclado y las barras del
+sistema. Las reglas de presentación se aplican solo a Android.

@@ -16,7 +16,7 @@ test('mobile controls and errors resolve through t() in all four languages', asy
         const keys = paths(data);
         if (reference) assert.deepEqual(keys, reference);
         reference = keys;
-        for (const key of ['back', 'activate_track', 'hint', 'add_audio']) {
+        for (const key of ['back', 'activate_track', 'hint', 'add_audio', 'settings_back']) {
             assert.ok(data.mobile[key]?.length > 3);
             assert.ok(!data.mobile[key].includes('?'), `${language}: ${key}`);
         }

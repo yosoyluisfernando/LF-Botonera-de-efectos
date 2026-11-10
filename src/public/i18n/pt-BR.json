@@ -874,6 +874,7 @@
     "input_required": "Mic precisa de um pressionamento e sua liberação."
   },
   "mobile": {
+    "settings_back": "Seções",
     "back": "Voltar à botonera",
     "activate_track": "Reproduzir ou marcar como próxima",
     "hint": "Toque num botão para reproduzir. Mantenha pressionado para ver as ações. Deslize para percorrer a grade.",

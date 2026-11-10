@@ -874,6 +874,7 @@
     "input_required": "Mic precisa de uma pressão e da respetiva libertação."
   },
   "mobile": {
+    "settings_back": "Secções",
     "back": "Voltar à botonera",
     "activate_track": "Reproduzir ou marcar como seguinte",
     "hint": "Toque num botão para reproduzir. Mantenha premido para ver as ações. Deslize para percorrer a grelha.",

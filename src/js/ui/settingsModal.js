@@ -1,3 +1,4 @@
+import { initAndroidSettingsNavigation, resetAndroidSettingsNavigation } from './settingsAndroid.js';
 import { isAndroid } from '../bridge/platform.js';
 /**
  * Archivo: settingsModal.js
@@ -49,6 +50,7 @@ export function initSettingsModal(onSaved) {
     initLocutionsPanel();
     initPreloadPanel();
     initSettingsMidi();
+    initAndroidSettingsNavigation();
     initKeyInputs();
     _wireDonateButton();
 
@@ -94,6 +96,7 @@ async function _openSettings() {
     await loadSettingsMidi(config);
     await loadFixedPanelSettings(config, devices);
     renderOrphanedShortcuts(config);
+    resetAndroidSettingsNavigation();
     document.getElementById('settings-modal').classList.remove('hidden');
 }
 

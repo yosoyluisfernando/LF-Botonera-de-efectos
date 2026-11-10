@@ -105,16 +105,3 @@ body[data-platform="android"] #playback-modes .pb-btn { min-width: 48px; padding
   body[data-platform="android"] #playback-modes .pb-btn { width: 100%; }
   body[data-platform="android"] #playback-countdown { min-width: 0; margin: 0; }
 }
-
-body[data-platform="android"] #settings-modal .modal-lg {
-  width: 100%; height: 100%; max-height: 100%;
-}
-body[data-platform="android"] #settings-modal .settings-body {
-  flex-direction: column; overflow: hidden;
-}
-body[data-platform="android"] #settings-modal .settings-tabs {
-  width: 100%; flex-direction: row; overflow-x: auto;
-  border-right: 0; border-bottom: 1px solid var(--border-color);
-}
-body[data-platform="android"] #settings-modal .s-tab { flex: 0 0 auto; }
-body[data-platform="android"] #settings-modal .settings-content { min-height: 0; min-width: 0; }
