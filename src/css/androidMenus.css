@@ -1,0 +1,34 @@
+/* Menús Android limitados al viewport útil, con desplazamiento dentro del menú. */
+.android-safe-area-probe {
+  position: fixed;
+  visibility: hidden;
+  pointer-events: none;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+body[data-platform="android"] .android-viewport-menu {
+  position: fixed;
+  inset: auto;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+body[data-platform="android"] .android-viewport-menu button {
+  min-height: 48px;
+  white-space: normal;
+}
+body[data-platform="android"] #menu-previa,
+body[data-platform="android"] #library-menu-preview { display: none; }
+
+body[data-platform="android"] #master-volume-panel {
+  grid-column: 1 / -1;
+  order: 1;
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+}
+body[data-platform="android"] #master-volume-slider {
+  min-width: 0;
+  height: 48px;
+}

@@ -1,3 +1,6 @@
+import { isAndroid } from '../bridge/platform.js';
+import { placeAndroidMenu } from './androidMenuPosition.js';
+
 /**
  * Archivo: menuPosition.js
  * Propósito: Posiciona menús contextuales dentro de los límites de la ventana.
@@ -17,6 +20,7 @@ export function placeMenu(menu, x, y) {
     if (!menu) return;
     // Debe estar visible para poder medir su tamaño real
     menu.classList.remove('hidden');
+    if (isAndroid()) return placeAndroidMenu(menu, x, y);
     const rect = menu.getBoundingClientRect();
 
     const maxX = window.innerWidth  - rect.width  - MARGIN;

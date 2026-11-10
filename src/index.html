@@ -39,6 +39,7 @@
     <link rel="stylesheet" href="/css/libraryMetadata.css" />
     <link rel="stylesheet" href="/css/backupRestore.css" />
     <link rel="stylesheet" href="/css/touch.css">
+    <link rel="stylesheet" href="/css/androidMenus.css">
     <link rel="stylesheet" href="/css/androidDialogs.css">
     <link rel="stylesheet" href="/css/androidTrackEditor.css">
   </head>
@@ -221,14 +222,14 @@
               <span class="pb-label" data-i18n="mic.label"></span>
             </button>
             <div id="master-volume" class="master-volume">
-              <button id="master-volume-btn" class="pb-btn master-volume-btn" data-i18n-title="playback.master_volume">
+              <button id="master-volume-btn" aria-controls="master-volume-panel" aria-expanded="false" class="pb-btn master-volume-btn" data-i18n-title="playback.master_volume">
                 <span class="pb-icon">&#128264;</span>
                 <span class="pb-label" data-i18n="playback.label_master_volume"></span>
               </button>
             </div>
             <div id="master-volume-panel" class="master-volume-panel hidden">
               <div id="master-volume-readout" class="master-volume-readout">100%</div>
-              <input id="master-volume-slider" class="master-volume-slider" type="range" min="0" max="100" value="100">
+              <input id="master-volume-slider" data-i18n-aria-label="playback.master_volume" class="master-volume-slider" type="range" min="0" max="100" value="100">
             </div>
             <button id="update-reminder-btn" class="pb-btn update-reminder hidden" data-i18n-title="updates.reminder_title">
               <span class="pb-icon">&#8593;</span>

@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { writeFileSync } from 'node:fs';
 import { verifyTouchEditor } from './android-editor-smoke.mjs';
+import { verifyAndroidMenus } from './android-menus-smoke.mjs';
 
 const adb = (...args) => execFileSync(process.argv[2], args, { encoding: 'utf8', timeout: 20000 }).trim();
 const pkg = 'io.github.yosoyluisfernando.lfbotonera';
@@ -92,6 +93,7 @@ async function verifyLayout(evaluate) {
         writeFileSync(`android-smoke/${orientation}.png`,
             execFileSync(process.argv[2], ['exec-out', 'screencap', '-p'], { timeout: 15000 }));
         console.log('Transporte visible', orientation, layout);
+        await verifyAndroidMenus(evaluate);
         await evaluate("document.getElementById('btn-settings').click()");
         const settings = await until(() => evaluate(`(() => {
             const modal = document.getElementById('settings-modal');

@@ -1,4 +1,6 @@
 /** Menú accesible para elegir directamente la vista del panel fijo. */
+import { isAndroid } from '../bridge/platform.js';
+import { placeMenu } from '../util/menuPosition.js';
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
 
@@ -61,6 +63,10 @@ function toggleMenu(open) {
     menu.classList.toggle('hidden', !open);
     button.setAttribute('aria-expanded', String(open));
     if (open) {
+        if (isAndroid()) {
+            const rect = button.getBoundingClientRect();
+            placeMenu(menu, rect.left, rect.bottom + 7);
+        }
         const selected = menu.querySelector(`[data-fixed-view="${current}"]`);
         (selected ?? menu.querySelector('button'))?.focus();
     }

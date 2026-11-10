@@ -31,7 +31,9 @@ export function refreshMasterVolume() {
 function _togglePanel(event) {
     event.stopPropagation();
     _panel()?.classList.toggle('hidden');
-    _button()?.classList.toggle('active', !_panel()?.classList.contains('hidden'));
+    const open = !_panel()?.classList.contains('hidden');
+    _button()?.classList.toggle('active', open);
+    _button()?.setAttribute('aria-expanded', String(open));
 }
 
 function _onSlide(event) {

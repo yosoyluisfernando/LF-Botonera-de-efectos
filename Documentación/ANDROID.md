@@ -66,3 +66,12 @@ controles de volumen y zoom mantienen su deslizador y añaden botones de paso.
 El zoom mantiene el cursor en pantalla y limita el ancho del búfer de dibujo.
 Los comandos Rust de guardado y el esquema de datos se comparten con escritorio.
 El editor móvil respeta la exclusión de la preescucha de esta edición.
+
+## Menús y volumen con navegación del sistema
+
+Los menús Android se limitan al viewport visible y a los márgenes de sistema
+que el WebView expone. Si no expone ninguno, se reserva margen de seguridad
+solo para los menús. El contenido que excede el espacio disponible se puede
+desplazar. Se aplica al menú contextual, perfiles, pestañas, Biblioteca,
+selector de panel fijo y menús de volumen. El volumen maestro usa una fila
+propia al abrirse, con el contador y Detener todo visibles.

@@ -1,3 +1,4 @@
+import { isAndroid } from '../bridge/platform.js';
 /** Menú contextual específico de resultados de Biblioteca. */
 import { placeMenu } from '../util/menuPosition.js';
 import { alertIpcError } from './ipcError.js';
@@ -11,7 +12,7 @@ export function showLibraryContextMenu(x, y, selection, onEdited) {
     returnFocus = document.activeElement;
     const single = selection.length === 1;
     setDisabled('library-menu-live', !single);
-    setDisabled('library-menu-preview', !single);
+    setDisabled('library-menu-preview', !single || isAndroid());
     setDisabled('library-menu-editor', !single);
     setDisabled('library-menu-add-player', !selection.length);
     const editable = selection.length > 0
