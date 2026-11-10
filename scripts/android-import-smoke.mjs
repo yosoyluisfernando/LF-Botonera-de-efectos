@@ -7,7 +7,7 @@ import { verifyAndroidMenus } from './android-menus-smoke.mjs';
 import { verifyMidiUsb } from './android-midi-smoke.mjs';
 
 const adb = (...args) => execFileSync(process.argv[2], args, { encoding: 'utf8', timeout: 20000 }).trim();
-const pkg = 'io.github.yosoyluisfernando.lfbotonera';
+const pkg = 'io.github.yosoyluisfernando.lfbotonera.lanprueba';
 const port = 9222;
 
 async function until(fn, message) {

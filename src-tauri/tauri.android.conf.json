@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "identifier": "io.github.yosoyluisfernando.lfbotonera",
+  "identifier": "io.github.yosoyluisfernando.lfbotonera.lanprueba",
   "bundle": {
     "android": {
       "minSdkVersion": 24

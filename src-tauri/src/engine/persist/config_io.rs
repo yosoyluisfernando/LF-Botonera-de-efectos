@@ -29,7 +29,7 @@ pub fn get_data_dir() -> PathBuf {
         .unwrap_or_else(|_| std::env::current_dir().unwrap_or_default());
 
     #[cfg(not(target_os = "android"))]
-    { base.join("LF Botonera") }
+    { base.join("LF Botonera LAN Prueba") }
 }
 
 // ─── Formatos legados (sólo para migración) ───────────────────────────────────

@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "LF Botonera de Efectos",
+  "productName": "LF Botonera LAN Prueba",
   "version": "1.6.0-beta.1",
-  "identifier": "io.github.yosoyluisfernando.LF-Botonera-de-efectos",
+  "identifier": "io.github.yosoyluisfernando.lfbotonera.lanprueba",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -61,7 +61,7 @@
     "windows": {
       "wix": {
         "version": "1.6.0.1",
-        "upgradeCode": "43888972-c5a4-5e8d-a996-ca913f3b6d8e"
+        "upgradeCode": "7eeb01c0-09c5-5e7c-b5ce-f69c2081adbf"
       },
       "nsis": {
         "installMode": "perMachine"
