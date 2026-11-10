@@ -96,29 +96,29 @@ try {
             if (row && cell(event)) row.click = performance.now() - row.up;
         }, true);
         await window.__TAURI__.event.listen('audio-tick', ({payload}) => {
-            if (row && row.tick == null && payload.buttons.some(button => button.id === id))
+            if (row?.click != null && row.tick == null && payload.buttons.some(button => button.id === id))
                 row.tick = performance.now() - row.up;
         });
         await window.__TAURI__.event.listen('meter-tick', ({payload}) => {
-            if (row && row.meter == null && payload.master_level_l > 0)
+            if (row?.click != null && row.meter == null && payload.master_level_l > 0)
                 row.meter = performance.now() - row.up;
         });
         return true;
     })()`);
+    await sleep(3000);
     for (let n=0; n<9; n++) {
         adb('shell','input','tap', String(position.x),String(position.y));
         await sleep(2400);
     }
     const data = await evaluate('window.lfLatency');
     assert.equal(data.length,9);
-    assert.ok(data.every(row => Number.isFinite(row.click) && Number.isFinite(row.tick)));
+    assert.ok(data.every(row => Number.isFinite(row.click) && row.tick >= row.click));
     const summarize = (rows, key) => {
         const s = rows.map(row=>row[key]).filter(Number.isFinite).sort((a,b)=>a-b);
-        return s.length ? {n:s.length, median:+s[Math.floor(s.length/2)].toFixed(1), min:+s[0].toFixed(1), max:+s.at(-1).toFixed(1)} : null;
+        return s.length ? {n:s.length, median:+((s[(s.length-1)>>1]+s[s.length>>1])/2).toFixed(1), min:+s[0].toFixed(1), max:+s.at(-1).toFixed(1)} : null;
     };
     const output = {apk:process.argv[3], cold:data[0], warm:Object.fromEntries(
         ['click','tick','meter'].map(key=>[key,summarize(data.slice(1),key)])), samples:data};
     console.log('LF_LATENCY',JSON.stringify(output));
     writeFileSync(`android-smoke/latencia-${process.argv[3]}.json`, JSON.stringify(output,null,2));
 } finally { close(); }
-

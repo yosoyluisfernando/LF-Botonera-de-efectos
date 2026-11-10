@@ -44,7 +44,7 @@ with wave.open('android-smoke/LF-Latency.wav','wb') as wav:
 PYTHON
 pkg=io.github.yosoyluisfernando.lfbotonera
 "$adb" shell input keyevent 82
-for version in anterior ajustes; do
+for version in ajustes anterior; do
     (cd "$version" && sha256sum -c *.sha256)
     "$adb" uninstall "$pkg" || true
     "$adb" install "$version"/*.apk
