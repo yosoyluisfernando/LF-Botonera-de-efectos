@@ -5,6 +5,10 @@ use std::{path::PathBuf, sync::OnceLock};
 #[cfg(target_os = "android")]
 static DATA_DIR: OnceLock<PathBuf> = OnceLock::new();
 
+#[cfg(target_os = "android")]
+#[path = "platform_android_audio.rs"]
+mod android_audio;
+
 #[derive(Serialize)]
 pub struct Capabilities {
     pub platform: &'static str,
@@ -34,6 +38,7 @@ pub fn initialize(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Erro
     #[cfg(target_os = "android")]
     {
         use tauri::Manager;
+        android_audio::initialize()?;
         let path = app.path().app_data_dir()?;
         std::fs::create_dir_all(&path)?;
         DATA_DIR

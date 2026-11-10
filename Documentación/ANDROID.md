@@ -20,3 +20,19 @@ El adaptador usa tauri-plugin-fs 2.5.1, ya presente por tauri-plugin-dialog,
 para abrir documentos autorizados desde Rust. SHA-256 identifica copias de
 audio por contenido mediante sha2, ya presente en Cargo.lock. Ambos son
 compatibles con GPL-3.0-or-later y solo se declaran directamente para Android.
+
+## Arranque nativo y prueba en emulador
+
+El APK original se instalaba, pero Android no podía cargar la biblioteca JNI
+porque Oboe dejaba símbolos del runtime C++ sin resolver. El enlazado de Android
+incorpora libc++ y su ABI de forma estática a la única biblioteca JNI, y falla
+si quedan símbolos sin resolver.
+
+CPAL consulta Android mediante ndk-context 0.1.1, ya incluido transitivamente.
+Se declara directamente solo para Android para inicializarlo con la VM de Tauri
+y una referencia global a Application antes de crear el motor. Esta referencia
+sigue siendo válida al recrear la actividad. La dependencia es MIT/Apache-2.0,
+sin cambio de versión, descarga adicional ni permisos de Android.
+
+Actions instala el APK ARM64 en Android 35 y comprueba dos arranques, actividad
+en primer plano y presencia del WebView antes de adjuntar el binario.

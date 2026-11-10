@@ -35,6 +35,7 @@ jobs:
             unzip -q "$RUNNER_TEMP/android-tools.zip" -d "$RUNNER_TEMP/android-tools"
             mv "$RUNNER_TEMP/android-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/lf-ci"
             export PATH="$ANDROID_HOME/cmdline-tools/lf-ci/bin:$PATH"
+            echo "$ANDROID_HOME/cmdline-tools/lf-ci/bin" >> "$GITHUB_PATH"
           fi
           yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses > /dev/null
           sdkmanager --sdk_root="$ANDROID_HOME" 'platforms;android-36' 'platforms;android-35' 'build-tools;36.0.0' 'ndk;27.2.12479018'
@@ -58,6 +59,14 @@ jobs:
           cp "${apks[0]}" android-artifact/LF-Botonera-1.5.0-android-arm64-debug.apk
           cd android-artifact
           sha256sum *.apk > LF-Botonera-1.5.0-android-arm64-debug.apk.sha256
+      - name: Install and launch the ARM64 APK on Android 35
+        run: bash scripts/android-smoke.sh android-artifact/LF-Botonera-1.5.0-android-arm64-debug.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: LF-Botonera-Android-startup-logs
+          path: android-smoke/
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: LF-Botonera-Android-ARM64-debug

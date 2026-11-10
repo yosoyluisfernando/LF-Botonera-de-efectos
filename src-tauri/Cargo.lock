@@ -4387,6 +4387,7 @@ dependencies = [
  "ebur128",
  "lofty",
  "midir",
+ "ndk-context",
  "notify",
  "opus-decoder",
  "rfd 0.17.2",
