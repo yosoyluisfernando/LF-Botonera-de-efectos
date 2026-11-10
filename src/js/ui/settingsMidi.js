@@ -1,5 +1,5 @@
 import { invoke, listen } from '../bridge/api.js';
-import { isAndroid } from '../bridge/platform.js';
+import { isAndroid, platformCapabilities } from '../bridge/platform.js';
 import { appAlert } from './appDialog.js';
 import { t } from '../util/i18n.js';
 import { getMidiField, initMidiField, setMidiField } from './midiControls.js';
@@ -16,16 +16,17 @@ export function initSettingsMidi() {
         updateDeviceSelectionState();
         persistDeviceSelection();
     });
-    if (isAndroid()) initAndroidMidi();
+    if (platformCapabilities()?.midi) initDeviceDiscovery();
 }
 
-function initAndroidMidi() {
+function initDeviceDiscovery() {
     const add = document.getElementById('android-midi-add');
     const usb = document.getElementById('android-midi-usb');
     const bluetooth = document.getElementById('android-midi-bluetooth');
     const status = document.getElementById('android-midi-status');
     add.classList.remove('hidden');
-    document.getElementById('config-midi-refresh').classList.add('hidden');
+    if (isAndroid()) document.getElementById('config-midi-refresh').classList.add('hidden');
+    else usb.classList.add('hidden');
     usb.addEventListener('click', async () => {
         const devices = await loadMidiDevices();
         status.textContent = t(devices.some(device => device.available && device.id.startsWith('usb:'))
@@ -74,7 +75,7 @@ export async function saveSettingsMidi() {
 async function persistDeviceSelection() {
     try {
         await saveSettingsMidi();
-        if (isAndroid()) await loadMidiDevices();
+        await loadMidiDevices();
     } catch (error) {
         const config = await invoke('get_config').catch(() => null);
         if (config) await loadSettingsMidi(config);
@@ -122,7 +123,8 @@ function deviceRow(device) {
     const span = document.createElement('span');
     const status = device.connected ? t('midi.connected')
         : device.available ? t('midi.available') : t('midi.disconnected');
-    span.textContent = `${device.label} — ${status}`;
+    const bluetooth = device.id.startsWith('ble-desktop:') ? ` · ${t('midi.bluetooth_transport')}` : '';
+    span.textContent = `${device.label}${bluetooth} — ${status}`;
     label.append(input, span);
     return label;
 }

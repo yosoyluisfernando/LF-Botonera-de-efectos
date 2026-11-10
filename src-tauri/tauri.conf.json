@@ -54,9 +54,9 @@
       "icons/icon.ico"
     ],
     "linux": {
-      "deb": { "depends": ["libwebkit2gtk-4.1-0", "libssl3"] },
+      "deb": { "depends": ["libwebkit2gtk-4.1-0", "libssl3", "libdbus-1-3"] },
       "appimage": { "bundleMediaFramework": true },
-      "rpm": { "depends": ["webkit2gtk4.1", "openssl"] }
+      "rpm": { "depends": ["webkit2gtk4.1", "openssl", "dbus-libs"] }
     },
     "windows": {
       "wix": {

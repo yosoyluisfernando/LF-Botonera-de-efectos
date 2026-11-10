@@ -10,6 +10,8 @@ use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use tauri::AppHandle;
+#[cfg(any(target_os = "windows", target_os = "linux"))]
+use tauri::Manager;
 
 pub struct MidiEngine {
     tx: Mutex<Option<Sender<MidiRuntimeMsg>>>,
@@ -18,6 +20,8 @@ pub struct MidiEngine {
     connected: Arc<Mutex<Vec<String>>>,
     #[cfg(target_os = "android")]
     ports: Mutex<Vec<MidiPortInfo>>,
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    pub(crate) ble: super::midi_ble::BleMidi,
 }
 
 struct CaptureWait {
@@ -45,6 +49,8 @@ impl MidiEngine {
             connected: Arc::new(Mutex::new(Vec::new())),
             #[cfg(target_os = "android")]
             ports: Mutex::new(Vec::new()),
+            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            ble: Default::default(),
         }
     }
 
@@ -97,6 +103,8 @@ impl MidiEngine {
 
     pub fn devices(&self, config: &crate::model::MidiConfig) -> Vec<MidiInputDevice> {
         let connected = self.connected.lock().unwrap().clone();
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        let connected = [connected, self.ble.connected()].concat();
         device_view(config, &connected, &self.available_ports())
     }
     #[cfg(target_os = "android")]
@@ -108,7 +116,9 @@ impl MidiEngine {
     pub fn available_ports(&self) -> Vec<MidiPortInfo> {
         #[cfg(target_os = "android")]
         return self.ports.lock().unwrap().clone();
-        #[cfg(not(target_os = "android"))]
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        return [super::midi_ports::available_ports(), self.ble.ports()].concat();
+        #[cfg(not(any(target_os = "android", target_os = "windows", target_os = "linux")))]
         super::midi_ports::available_ports()
     }
 }
@@ -138,6 +148,22 @@ fn runtime_loop(
     capture: Arc<Mutex<Option<CaptureWait>>>,
     #[cfg(not(target_os = "android"))] connected: Arc<Mutex<Vec<String>>>,
 ) {
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    let sync_ble = {
+        let state = app.state::<crate::core::AppState>();
+        state
+            .midi
+            .ble
+            .restore(&app, &state.config.lock().unwrap().midi);
+        let tx = tx.clone();
+        move |app: &AppHandle| {
+            let state = app.state::<crate::core::AppState>();
+            state
+                .midi
+                .ble
+                .select(app, &state.config.lock().unwrap().midi, &tx);
+        }
+    };
     #[cfg(not(target_os = "android"))]
     let mut reconcile = {
         let mut connections = HashMap::new();
@@ -148,7 +174,11 @@ fn runtime_loop(
     reconcile(&app);
     loop {
         match rx.recv_timeout(Duration::from_secs(1)) {
-            Ok(MidiRuntimeMsg::Sync) => reconcile(&app),
+            Ok(MidiRuntimeMsg::Sync) => {
+                #[cfg(any(target_os = "windows", target_os = "linux"))]
+                sync_ble(&app);
+                reconcile(&app);
+            }
             Ok(MidiRuntimeMsg::Incoming(event)) => handle_event(&app, &capture, event),
             Err(RecvTimeoutError::Timeout) => {
                 #[cfg(not(target_os = "android"))]

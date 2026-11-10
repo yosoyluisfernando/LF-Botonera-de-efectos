@@ -144,6 +144,7 @@
     "reserved_system": "A tecla {key} está reservada pelo aplicativo e não pode ser reatribuída."
   },
   "midi": {
+    "bluetooth_transport": "Bluetooth LE",
     "add_device": "Adicionar dispositivo",
     "find_usb": "Ver dispositivos USB",
     "find_bluetooth": "Buscar por Bluetooth",

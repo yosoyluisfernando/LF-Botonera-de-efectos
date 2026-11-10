@@ -88,7 +88,13 @@ pub fn midi_capture_cancel(state: tauri::State<AppState>) {
 pub async fn midi_scan_bluetooth(app: tauri::AppHandle) -> Result<usize, String> {
     #[cfg(target_os = "android")]
     return crate::engine::input::midi_android::scan(&app).await;
-    #[cfg(not(target_os = "android"))]
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    {
+        use tauri::Manager;
+        let ble = app.state::<AppState>().midi.ble.clone();
+        return ble.discover(&app).await;
+    }
+    #[cfg(not(any(target_os = "android", target_os = "windows", target_os = "linux")))]
     {
         let _ = app;
         Err("platform_unavailable".into())

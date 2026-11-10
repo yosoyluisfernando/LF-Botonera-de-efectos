@@ -144,6 +144,7 @@
     "reserved_system": "The {key} shortcut is reserved by the application and cannot be reassigned."
   },
   "midi": {
+    "bluetooth_transport": "Bluetooth LE",
     "add_device": "Add device",
     "find_usb": "Show USB devices",
     "find_bluetooth": "Find Bluetooth devices",

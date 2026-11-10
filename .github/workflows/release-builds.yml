@@ -51,6 +51,7 @@ jobs:
             curl \
             file \
             libasound2-dev \
+            libdbus-1-dev \
             libayatana-appindicator3-dev \
             librsvg2-dev \
             libssl-dev \

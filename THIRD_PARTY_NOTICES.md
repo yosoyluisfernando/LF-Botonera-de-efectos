@@ -95,6 +95,14 @@ Para verificar el inventario Node sin instalar paquetes adicionales:
 node -e "const p=require('./package-lock.json').packages; const x=Object.entries(p).filter(([k])=>k); console.log(x.length)"
 ```
 
+## MIDI Bluetooth LE
+
+Los binarios de Windows y Linux usan btleplug 0.11.8 (MIT o Apache-2.0)
+para acceder a WinRT y BlueZ. El transporte BLE usa el servicio GATT MIDI
+y comparte la asignación y captura de la aplicación. En Linux, D-Bus del
+sistema comunica el adaptador con BlueZ. btleplug se incorpora solo a esas
+dos plataformas y evita mantener dos integraciones GATT independientes.
+
 ## Informes completos
 
 Los textos y avisos se generan en modo estricto desde los archivos bloqueados:

@@ -37,7 +37,7 @@ pub(super) fn reconcile(
 ) {
     let state = app.state::<AppState>();
     let config = state.config.lock().unwrap().midi.clone();
-    let live = state.midi.available_ports();
+    let live = super::midi_ports::available_ports();
     let live_ids = live
         .iter()
         .map(|port| port.id.clone())

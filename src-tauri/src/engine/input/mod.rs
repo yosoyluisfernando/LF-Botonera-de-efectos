@@ -11,6 +11,12 @@ pub mod midi_android;
 pub mod midi_backend;
 #[cfg(any(target_os = "android", test))]
 mod midi_stream;
+#[cfg(any(target_os = "windows", target_os = "linux"))]
+mod midi_ble;
+#[cfg(any(target_os = "windows", target_os = "linux"))]
+mod midi_ble_connection;
+#[cfg(any(target_os = "windows", target_os = "linux", test))]
+mod midi_ble_packet;
 pub mod midi_binding;
 #[cfg(test)]
 mod midi_capture_tests;
