@@ -94,6 +94,26 @@ async function verifyLayout(evaluate) {
             execFileSync(process.argv[2], ['exec-out', 'screencap', '-p'], { timeout: 15000 }));
         console.log('Transporte visible', orientation, layout);
         await verifyAndroidMenus(evaluate);
+        const initialPanel = await evaluate(`(() => {
+            const panel = document.getElementById('fixed-panel');
+            return {
+                closed: panel.classList.contains('hidden'),
+                library: !!document.getElementById('btn-library'),
+                search: !!document.querySelector('[data-fixed-view="search"], #fixed-view option[value="search"]'),
+            };
+        })()`);
+        assert.deepEqual(initialPanel, { closed: true, library: false, search: false });
+        const togglePanel = "document.getElementById('btn-fixed-panel').click()";
+        await evaluate(togglePanel);
+        await until(() => evaluate(`(() => {
+            const panel = document.getElementById('fixed-panel');
+            const transport = document.querySelector('.player-transport').getBoundingClientRect();
+            return !panel.classList.contains('hidden') && transport.width > 0
+                && transport.right <= innerWidth + 1;
+        })()`), 'El reproductor del panel fijo no apareció dentro de la pantalla');
+        await evaluate(togglePanel);
+        await until(() => evaluate("document.getElementById('fixed-panel').classList.contains('hidden')"),
+            'No se pudo cerrar el panel fijo');
         await evaluate("document.getElementById('btn-settings').click()");
         const settings = await until(() => evaluate(`(() => {
             const modal = document.getElementById('settings-modal');

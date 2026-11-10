@@ -100,14 +100,17 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
     // Registrar raíces recursivas con notify puede tardar varios segundos en
     // Windows. Debe ocurrir después de entregar el control al bucle de ventana:
     // la Biblioteca ya reconcilia su catálogo en su propio worker.
-    let library = Arc::clone(&state.library);
-    let _ = std::thread::Builder::new()
-        .name("library-startup".into())
-        .spawn(move || {
-            if let Err(error) = library.start_monitoring() {
-                eprintln!("library monitor unavailable: {error}");
-            }
-        });
+    #[cfg(not(target_os = "android"))]
+    {
+        let library = Arc::clone(&state.library);
+        let _ = std::thread::Builder::new()
+            .name("library-startup".into())
+            .spawn(move || {
+                if let Err(error) = library.start_monitoring() {
+                    eprintln!("library monitor unavailable: {error}");
+                }
+            });
+    }
 
     // Precarga proactiva según la estrategia (perfil completo / pestaña visible)
     preload_warm::warm_for_strategy(&state);

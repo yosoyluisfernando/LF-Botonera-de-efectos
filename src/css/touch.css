@@ -105,3 +105,41 @@ body[data-platform="android"] #playback-modes .pb-btn { min-width: 48px; padding
   body[data-platform="android"] #playback-modes .pb-btn { width: 100%; }
   body[data-platform="android"] #playback-countdown { min-width: 0; margin: 0; }
 }
+
+/* El reproductor conserva la cola y el transporte dentro del panel táctil. */
+body[data-platform="android"] .fixed-panel { overflow: auto; }
+body[data-platform="android"] .fixed-panel-header { flex: none; }
+body[data-platform="android"] .fixed-header-actions { width: auto; }
+body[data-platform="android"] .player-actions { flex-wrap: wrap; }
+body[data-platform="android"] .player-view { min-height: 150px; }
+body[data-platform="android"] .player-transport {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+}
+body[data-platform="android"] .player-transport button,
+body[data-platform="android"] .fixed-panel-header button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+@media (orientation: portrait) {
+  body[data-platform="android"] .workspace-shell {
+    flex-direction: column;
+    overflow: hidden;
+  }
+  body[data-platform="android"] .fixed-panel {
+    width: 100% !important;
+    max-width: none;
+    flex: 0 0 54%;
+    min-height: 0;
+  }
+}
+
+@media (orientation: landscape) {
+  body[data-platform="android"] .workspace-shell[data-fixed-side="left"] { flex-direction: row; }
+  body[data-platform="android"] .workspace-shell[data-fixed-side="right"] { flex-direction: row-reverse; }
+  body[data-platform="android"] .fixed-panel {
+    flex: 0 0 clamp(280px, 38%, 480px);
+    min-height: 0;
+  }
+}

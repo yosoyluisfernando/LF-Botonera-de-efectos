@@ -43,7 +43,7 @@ pub(super) fn buttons_mut(cfg: &mut AppConfig) -> Result<&mut Vec<ButtonData>, S
 pub(super) fn state(cfg: &AppConfig) -> FixedPanelState {
     let mut settings = cfg.fixed_panel.clone();
     // Migracion: la antigua vista "list" pasa a ser el modo reproductor.
-    if settings.view == "list" {
+    if settings.view == "list" || (cfg!(target_os = "android") && settings.view == "search") {
         settings.view = "player".into();
     }
     FixedPanelState {
@@ -115,7 +115,7 @@ pub fn set_library_display_mode(
 }
 
 fn valid_view(view: &str) -> bool {
-    matches!(view, "player" | "buttons" | "search")
+    matches!(view, "player" | "buttons") || (!cfg!(target_os = "android") && view == "search")
 }
 
 fn valid_library_display(mode: &str) -> bool {

@@ -19,6 +19,7 @@ export function initFixedPanelViews(callback) {
     const selector = document.querySelector('.fixed-view-selector');
     const button = document.getElementById('fixed-view-switch');
     const menu = document.getElementById('fixed-view-menu');
+    if (isAndroid()) menu.querySelector('[data-fixed-view="search"]')?.remove();
     button.addEventListener('click', () => toggleMenu(menu.classList.contains('hidden')));
     menu.querySelectorAll('[data-fixed-view]').forEach(item => {
         item.addEventListener('click', () => selectView(item.dataset.fixedView));

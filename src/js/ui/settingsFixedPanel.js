@@ -6,6 +6,7 @@
  */
 
 import { invoke } from '../bridge/api.js';
+import { isAndroid } from '../bridge/platform.js';
 import { appConfirm } from './appDialog.js';
 import { t } from '../util/i18n.js';
 import { initPlayerSettings, loadPlayerSettings, savePlayerSettings } from './settingsPlayer.js';
@@ -13,7 +14,9 @@ import { initPlayerSettings, loadPlayerSettings, savePlayerSettings } from './se
 let _loadedScope = 'global';
 
 export function initFixedPanelSettings() {
-    document.getElementById('fixed-view').addEventListener('change', _syncButtonsOnly);
+    const view = document.getElementById('fixed-view');
+    if (isAndroid()) view.querySelector('option[value="search"]')?.remove();
+    view.addEventListener('change', _syncButtonsOnly);
     document.getElementById('fixed-row-mode').addEventListener('change', _syncRows);
     initPlayerSettings();
 }

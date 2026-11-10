@@ -1,4 +1,5 @@
 import { invoke } from '../bridge/api.js';
+import { isAndroid } from '../bridge/platform.js';
 import { paintAdaptive } from '../util/colorAdapter.js';
 import { t } from '../util/i18n.js';
 import { paintButtonContent } from './buttonVisual.js';
@@ -22,8 +23,10 @@ export function initFixedPanel(state, onRefresh) {
     initFixedPanelResize();
     initPlayerView();
     initFixedPanelViews(drawFixedPanel);
-    initLibrarySearch(onRefresh, drawFixedPanel);
-    initLibraryIndexProgress();
+    if (!isAndroid()) {
+        initLibrarySearch(onRefresh, drawFixedPanel);
+        initLibraryIndexProgress();
+    }
     document.getElementById('fixed-panel-add').addEventListener('click', async () => {
         const current = await invoke('get_fixed_panel');
         const next = Math.max(0, ...current.buttons.map(b => b.index)) + 1;

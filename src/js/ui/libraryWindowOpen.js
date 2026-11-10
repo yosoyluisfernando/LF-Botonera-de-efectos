@@ -3,11 +3,16 @@ import { isAndroid } from '../bridge/platform.js';
 import { t } from '../util/i18n.js';
 
 export function initLibraryWindowOpen() {
-    document.getElementById('btn-library')?.addEventListener('click', openLibraryWindow);
+    const button = document.getElementById('btn-library');
+    if (isAndroid()) {
+        button?.remove();
+        return;
+    }
+    button?.addEventListener('click', openLibraryWindow);
 }
 
 export async function openLibraryWindow() {
-    if (isAndroid()) { location.href = "library.html"; return true; }
+    if (isAndroid()) return false;
     try {
         const api = window.__TAURI__;
         const WindowClass = api.webviewWindow.WebviewWindow;

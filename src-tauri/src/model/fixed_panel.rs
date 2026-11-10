@@ -37,7 +37,7 @@ impl Default for FixedPanelConfig {
             scope: default_scope(),
             view: default_view(),
             side: default_side(),
-            visible: true,
+            visible: !cfg!(target_os = "android"),
             columns: default_columns(),
             row_mode: default_row_mode(),
             rows: default_rows(),
@@ -98,7 +98,7 @@ mod tests {
         assert_eq!(panel.columns, 1);
         assert_eq!(panel.row_mode, "unlimited");
         assert_eq!(panel.rows, 10);
-        assert!(panel.visible);
+        assert_eq!(panel.visible, !cfg!(target_os = "android"));
         assert_eq!(panel.library_display, "metadata");
     }
 
