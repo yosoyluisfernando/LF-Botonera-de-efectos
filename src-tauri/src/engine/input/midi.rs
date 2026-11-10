@@ -1,20 +1,23 @@
-use super::midi_backend::{connect_port, MidiConnection};
+#[cfg(not(target_os = "android"))]
+use super::midi_backend;
 use super::midi_dispatch;
 use super::midi_message::MidiInputEvent;
-use super::midi_ports::{available_ports, device_view, MidiInputDevice};
-use crate::core::AppState;
-use std::collections::{HashMap, HashSet};
+use super::midi_ports::{device_view, MidiInputDevice, MidiPortInfo};
+#[cfg(not(target_os = "android"))]
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::AppHandle;
 
 pub struct MidiEngine {
     tx: Mutex<Option<Sender<MidiRuntimeMsg>>>,
     capture: Arc<Mutex<Option<CaptureWait>>>,
     capture_id: AtomicU64,
     connected: Arc<Mutex<Vec<String>>>,
+    #[cfg(target_os = "android")]
+    ports: Mutex<Vec<MidiPortInfo>>,
 }
 
 struct CaptureWait {
@@ -40,6 +43,8 @@ impl MidiEngine {
             capture: Arc::new(Mutex::new(None)),
             capture_id: AtomicU64::new(1),
             connected: Arc::new(Mutex::new(Vec::new())),
+            #[cfg(target_os = "android")]
+            ports: Mutex::new(Vec::new()),
         }
     }
 
@@ -47,10 +52,20 @@ impl MidiEngine {
         let (tx, rx) = mpsc::channel();
         *self.tx.lock().unwrap() = Some(tx.clone());
         let capture = Arc::clone(&self.capture);
+        #[cfg(not(target_os = "android"))]
         let connected = Arc::clone(&self.connected);
         let _ = std::thread::Builder::new()
             .name("midi-input".into())
-            .spawn(move || runtime_loop(app, rx, tx, capture, connected));
+            .spawn(move || {
+                runtime_loop(
+                    app,
+                    rx,
+                    tx,
+                    capture,
+                    #[cfg(not(target_os = "android"))]
+                    connected,
+                )
+            });
     }
 
     pub fn sync(&self) {
@@ -82,7 +97,19 @@ impl MidiEngine {
 
     pub fn devices(&self, config: &crate::model::MidiConfig) -> Vec<MidiInputDevice> {
         let connected = self.connected.lock().unwrap().clone();
-        device_view(config, &connected)
+        device_view(config, &connected, &self.available_ports())
+    }
+    #[cfg(target_os = "android")]
+    pub(super) fn replace_android_devices(&self, ports: Vec<MidiPortInfo>, connected: Vec<String>) {
+        *self.ports.lock().unwrap() = ports;
+        *self.connected.lock().unwrap() = connected;
+    }
+
+    pub fn available_ports(&self) -> Vec<MidiPortInfo> {
+        #[cfg(target_os = "android")]
+        return self.ports.lock().unwrap().clone();
+        #[cfg(not(target_os = "android"))]
+        super::midi_ports::available_ports()
     }
 }
 
@@ -109,15 +136,24 @@ fn runtime_loop(
     rx: mpsc::Receiver<MidiRuntimeMsg>,
     tx: Sender<MidiRuntimeMsg>,
     capture: Arc<Mutex<Option<CaptureWait>>>,
-    connected: Arc<Mutex<Vec<String>>>,
+    #[cfg(not(target_os = "android"))] connected: Arc<Mutex<Vec<String>>>,
 ) {
-    let mut connections = HashMap::new();
-    reconcile(&app, &tx, &mut connections, &connected);
+    #[cfg(not(target_os = "android"))]
+    let mut reconcile = {
+        let mut connections = HashMap::new();
+        move |app: &AppHandle| midi_backend::reconcile(app, &tx, &mut connections, &connected)
+    };
+    #[cfg(target_os = "android")]
+    let reconcile = super::midi_android::attach(&app, tx);
+    reconcile(&app);
     loop {
         match rx.recv_timeout(Duration::from_secs(1)) {
-            Ok(MidiRuntimeMsg::Sync) => reconcile(&app, &tx, &mut connections, &connected),
+            Ok(MidiRuntimeMsg::Sync) => reconcile(&app),
             Ok(MidiRuntimeMsg::Incoming(event)) => handle_event(&app, &capture, event),
-            Err(RecvTimeoutError::Timeout) => reconcile(&app, &tx, &mut connections, &connected),
+            Err(RecvTimeoutError::Timeout) => {
+                #[cfg(not(target_os = "android"))]
+                reconcile(&app);
+            }
             Err(RecvTimeoutError::Disconnected) => break,
         }
     }
@@ -130,50 +166,5 @@ fn handle_event(app: &AppHandle, capture: &Arc<Mutex<Option<CaptureWait>>>, even
     }
     if let Err(error) = midi_dispatch::dispatch(app, &event) {
         eprintln!("Error en MIDI: {error}");
-    }
-}
-
-fn reconcile(
-    app: &AppHandle,
-    tx: &Sender<MidiRuntimeMsg>,
-    connections: &mut HashMap<String, MidiConnection>,
-    connected: &Arc<Mutex<Vec<String>>>,
-) {
-    let state = app.state::<AppState>();
-    let config = state.config.lock().unwrap().midi.clone();
-    let live = available_ports();
-    let live_ids = live
-        .iter()
-        .map(|port| port.id.clone())
-        .collect::<HashSet<_>>();
-    let selected = config
-        .inputs
-        .iter()
-        .map(|item| item.id.clone())
-        .collect::<HashSet<_>>();
-    connections.retain(|id, _| config.enabled && selected.contains(id) && live_ids.contains(id));
-    if config.enabled {
-        for port in live.iter().filter(|port| selected.contains(&port.id)) {
-            if !connections.contains_key(&port.id) {
-                if let Some(connection) = connect_port(port, tx.clone()) {
-                    connections.insert(port.id.clone(), connection);
-                }
-            }
-        }
-    }
-    publish_connected(app, connections, connected);
-}
-
-fn publish_connected(
-    app: &AppHandle,
-    connections: &HashMap<String, MidiConnection>,
-    connected: &Arc<Mutex<Vec<String>>>,
-) {
-    let mut ids = connections.keys().cloned().collect::<Vec<_>>();
-    ids.sort();
-    let mut guard = connected.lock().unwrap();
-    if *guard != ids {
-        *guard = ids;
-        let _ = app.emit("midi-devices-changed", ());
     }
 }

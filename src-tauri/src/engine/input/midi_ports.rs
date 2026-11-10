@@ -13,9 +13,11 @@ pub struct MidiInputDevice {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(target_os = "android", derive(serde::Deserialize))]
 pub struct MidiPortInfo {
     pub id: String,
     pub name: String,
+    #[cfg(not(target_os = "android"))]
     pub index: u32,
     #[cfg(target_os = "linux")]
     pub native_id: String,
@@ -34,13 +36,16 @@ pub fn available_ports() -> Vec<MidiPortInfo> {
     platform::available_ports()
 }
 
-#[cfg(not(any(target_os = "windows", target_os = "linux")))]
+#[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "android")))]
 pub fn available_ports() -> Vec<MidiPortInfo> {
     Vec::new()
 }
 
-pub fn device_view(config: &MidiConfig, connected: &[String]) -> Vec<MidiInputDevice> {
-    let ports = available_ports();
+pub fn device_view(
+    config: &MidiConfig,
+    connected: &[String],
+    ports: &[MidiPortInfo],
+) -> Vec<MidiInputDevice> {
     let selected = config
         .inputs
         .iter()
@@ -74,8 +79,7 @@ pub fn device_view(config: &MidiConfig, connected: &[String]) -> Vec<MidiInputDe
     devices
 }
 
-pub fn selected_refs(ids: &[String]) -> Vec<MidiDeviceRef> {
-    let ports = available_ports();
+pub fn selected_refs(ids: &[String], ports: &[MidiPortInfo]) -> Vec<MidiDeviceRef> {
     ids.iter()
         .map(|id| {
             let name = ports

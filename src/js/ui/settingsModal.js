@@ -110,7 +110,7 @@ async function _saveSettings() {
         // Salida de pre-escucha: Rust aplica el fallback (vacía o = principal → principal)
         if (!isAndroid()) await invoke('set_pre_device', { deviceName: document.getElementById('config-out-pre').value });
         await saveKeyboardSettings();
-        if (!isAndroid()) await saveSettingsMidi();
+        await saveSettingsMidi();
         await saveLocutions();
         await savePreload();
         await savePlaybackPanel();

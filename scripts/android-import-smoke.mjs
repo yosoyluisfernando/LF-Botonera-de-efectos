@@ -4,6 +4,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { writeFileSync } from 'node:fs';
 import { verifyTouchEditor } from './android-editor-smoke.mjs';
 import { verifyAndroidMenus } from './android-menus-smoke.mjs';
+import { verifyMidiUsb } from './android-midi-smoke.mjs';
 
 const adb = (...args) => execFileSync(process.argv[2], args, { encoding: 'utf8', timeout: 20000 }).trim();
 const pkg = 'io.github.yosoyluisfernando.lfbotonera';
@@ -138,6 +139,7 @@ async function verifyLayout(evaluate) {
                 return !!modal.querySelector('.settings-tabs').getClientRects().length;
             })()`));
         }
+        await verifyMidiUsb(evaluate, until, adb, pkg);
         await evaluate("document.querySelector('[data-close=settings-modal]').click()");
         console.log('Ajustes verificado', orientation);
     }

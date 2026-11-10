@@ -144,6 +144,18 @@
     "reserved_system": "A tecla {key} está reservada pela aplicação e não pode ser reatribuída."
   },
   "midi": {
+    "add_device": "Adicionar dispositivo",
+    "find_usb": "Ver dispositivos USB",
+    "find_bluetooth": "Procurar por Bluetooth",
+    "scanning": "A procurar dispositivos MIDI Bluetooth…",
+    "select_device": "Selecione o dispositivo na lista. Ative o MIDI se estiver desativado.",
+    "no_usb": "Ligue um controlador MIDI USB compatível e verifique novamente.",
+    "no_bluetooth": "Não foram encontrados dispositivos MIDI Bluetooth próximos. Coloque o controlador em modo de ligação e volte a procurar.",
+    "bluetooth_disabled": "Ative o Bluetooth para procurar dispositivos MIDI.",
+    "bluetooth_permission_denied": "Conceda a permissão pedida para procurar dispositivos MIDI por Bluetooth.",
+    "bluetooth_busy": "Já está em curso uma pesquisa de MIDI Bluetooth.",
+    "bluetooth_scan_failed": "Não foi possível concluir a pesquisa de MIDI Bluetooth.",
+    "bluetooth_unavailable": "O serviço MIDI Bluetooth não está disponível neste dispositivo.",
     "title": "MIDI",
     "enabled": "Permitir disparos a partir de dispositivos MIDI",
     "refresh": "Atualizar dispositivos MIDI",

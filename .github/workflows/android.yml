@@ -49,6 +49,7 @@ jobs:
       - run: npm ci
       - run: node --test scripts/mobile-locales.test.mjs scripts/touch-controls.test.mjs
       - run: npm run tauri -- android init --ci --skip-targets-install
+      - run: python scripts/prepare-android-midi.py src-tauri/gen/android
       - name: Apply the LF launcher icon
         run: |
           res=src-tauri/gen/android/app/src/main/res

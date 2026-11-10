@@ -680,6 +680,14 @@
             </label>
             <div id="config-midi-devices" class="midi-device-list"></div>
             <button type="button" id="config-midi-refresh" class="btn-dark" data-i18n="midi.refresh">Actualizar dispositivos MIDI</button>
+            <details id="android-midi-add" class="midi-add hidden">
+              <summary data-i18n="midi.add_device"></summary>
+              <div class="midi-add-actions">
+                <button type="button" id="android-midi-usb" class="btn-dark" data-i18n="midi.find_usb"></button>
+                <button type="button" id="android-midi-bluetooth" class="btn-dark" data-i18n="midi.find_bluetooth"></button>
+              </div>
+              <p id="android-midi-status" class="hint" role="status"></p>
+            </details>
             <p class="hint" data-i18n="midi.mapping_hint">Selecciona los dispositivos que escuchará la botonera y usa Capturar MIDI para asignar un pad, nota o control.</p>
             <div class="row">
               <div class="col">

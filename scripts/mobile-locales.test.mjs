@@ -20,6 +20,11 @@ test('mobile controls and errors resolve through t() in all four languages', asy
             assert.ok(data.mobile[key]?.length > 3);
             assert.ok(!data.mobile[key].includes('?'), `${language}: ${key}`);
         }
+        for (const key of ['add_device', 'find_usb', 'find_bluetooth', 'scanning', 'select_device',
+            'no_usb', 'no_bluetooth', 'bluetooth_disabled', 'bluetooth_permission_denied',
+            'bluetooth_busy', 'bluetooth_scan_failed', 'bluetooth_unavailable']) {
+            assert.ok(data.midi[key]?.length > 3, `${language}: ${key}`);
+        }
         for (const key of ['platform_unavailable', 'mobile_prelisten_unavailable',
             'mobile_folder_unavailable', 'mobile_export_unavailable']) {
             assert.equal(typeof data.errors[key], 'string');

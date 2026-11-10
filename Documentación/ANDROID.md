@@ -7,7 +7,7 @@ reproductor en la salida predeterminada de Android. Se conservan los faders y
 los controles de parada independientes. La preescucha está desactivada.
 
 Los audios seleccionados se copian al almacenamiento privado. La importación
-de carpetas y las funciones móviles de Mic, MIDI y segundo plano están
+de carpetas y las funciones móviles de Mic y segundo plano están
 pendientes. La integración local de OBS queda fuera de esta rama.
 
 El flujo Android de GitHub Actions genera un APK ARM64 de depuración, verifica
@@ -72,6 +72,30 @@ El editor móvil respeta la exclusión de la preescucha de esta edición.
 Los menús Android se limitan al viewport visible y a los márgenes de sistema
 que el WebView expone. Si no expone ninguno, se reserva margen de seguridad
 solo para los menús. El contenido que excede el espacio disponible se puede
-desplazar. Se aplica al menú contextual, perfiles, pestañas, Biblioteca,
+desplazar. Se aplica al menú contextual, perfiles, pestañas,
 selector de panel fijo y menús de volumen. El volumen maestro usa una fila
 propia al abrirse, con el contador y Detener todo visibles.
+
+## MIDI por USB y Bluetooth LE
+
+En Ajustes → Atajos del teclado → MIDI, activa MIDI y abre Añadir dispositivo.
+USB usa el servicio MIDI de Android y lista controladores compatibles con
+el transporte MIDI 1.0, sin pedir acceso general al bus USB. El hardware debe
+ser reconocido por Android en modo anfitrión USB. Bluetooth busca el servicio
+BLE MIDI solo desde su botón. Android 12 y posteriores piden Dispositivos
+cercanos en ese momento. En Android 11 y anteriores se pide ubicación para
+la búsqueda BLE, como exige el sistema. Ver USB no solicita estos permisos.
+
+El adaptador Kotlin mantiene las conexiones a los dispositivos elegidos y
+entrega bytes por un canal privado de Tauri. Rust reconstruye mensajes
+fragmentados y aplica la captura y las asignaciones existentes. Se conserva
+la selección con el esquema MIDI actual. El servicio puede volver a abrir
+un dispositivo BLE guardado si está disponible y conserva una dirección
+reconocible. Dos dispositivos USB idénticos sin serie pueden requerir volver
+a elegirlos tras reconectar.
+
+Para compilar localmente, tras `npm run tauri -- android init` ejecuta
+`python scripts/prepare-android-midi.py src-tauri/gen/android` antes de
+`npm run tauri -- android build`. El script copia el adaptador versionado y
+aplica los permisos y reglas de empaquetado al proyecto generado. GitHub
+Actions ejecuta el mismo paso.

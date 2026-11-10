@@ -144,6 +144,18 @@
     "reserved_system": "The {key} shortcut is reserved by the application and cannot be reassigned."
   },
   "midi": {
+    "add_device": "Add device",
+    "find_usb": "Show USB devices",
+    "find_bluetooth": "Find Bluetooth devices",
+    "scanning": "Searching for Bluetooth MIDI devices…",
+    "select_device": "Select the device in the list. Turn on MIDI if it is disabled.",
+    "no_usb": "Connect a compatible USB MIDI controller and check again.",
+    "no_bluetooth": "No nearby Bluetooth MIDI devices were found. Put the controller in pairing mode and search again.",
+    "bluetooth_disabled": "Turn on Bluetooth to find MIDI devices.",
+    "bluetooth_permission_denied": "Grant the requested Bluetooth permission to find MIDI devices.",
+    "bluetooth_busy": "A Bluetooth MIDI search is already running.",
+    "bluetooth_scan_failed": "The Bluetooth MIDI search could not be completed.",
+    "bluetooth_unavailable": "Bluetooth MIDI is unavailable on this device.",
     "title": "MIDI",
     "enabled": "Allow triggers from MIDI devices",
     "refresh": "Refresh MIDI devices",

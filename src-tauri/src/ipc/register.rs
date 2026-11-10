@@ -86,6 +86,7 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_midi::midi_set_config,
             ipc::cmd_midi::midi_capture_next,
             ipc::cmd_midi::midi_capture_cancel,
+            ipc::cmd_midi::midi_scan_bluetooth,
             ipc::cmd_locutions::set_locution_config,
             ipc::cmd_locutions::pick_named_folder,
             ipc::cmd_locutions::search_city,

@@ -1,6 +1,11 @@
-import { invoke } from '../bridge/api.js';
+import { invoke, listen } from '../bridge/api.js';
+import { isAndroid } from '../bridge/platform.js';
+import { appAlert } from './appDialog.js';
 import { t } from '../util/i18n.js';
 import { getMidiField, initMidiField, setMidiField } from './midiControls.js';
+
+let pendingSave = Promise.resolve();
+let listRequest = 0;
 
 export function initSettingsMidi() {
     initMidiField('config-midi-stop', 'config-midi-stop-capture', 'config-midi-stop-clear');
@@ -9,8 +14,43 @@ export function initSettingsMidi() {
     document.getElementById('config-midi-refresh')?.addEventListener('click', loadMidiDevices);
     document.getElementById('config-midi-enabled')?.addEventListener('change', () => {
         updateDeviceSelectionState();
-        saveSettingsMidi();
+        persistDeviceSelection();
     });
+    if (isAndroid()) initAndroidMidi();
+}
+
+function initAndroidMidi() {
+    const add = document.getElementById('android-midi-add');
+    const usb = document.getElementById('android-midi-usb');
+    const bluetooth = document.getElementById('android-midi-bluetooth');
+    const status = document.getElementById('android-midi-status');
+    add.classList.remove('hidden');
+    document.getElementById('config-midi-refresh').classList.add('hidden');
+    usb.addEventListener('click', async () => {
+        const devices = await loadMidiDevices();
+        status.textContent = t(devices.some(device => device.available && device.id.startsWith('usb:'))
+            ? 'midi.select_device' : 'midi.no_usb');
+    });
+    bluetooth.addEventListener('click', async () => {
+        bluetooth.disabled = usb.disabled = true;
+        status.textContent = t('midi.scanning');
+        try {
+            const count = await invoke('midi_scan_bluetooth');
+            await loadMidiDevices();
+            status.textContent = t(count ? 'midi.select_device' : 'midi.no_bluetooth');
+        } catch (error) {
+            const key = `midi.${error}`;
+            const message = t(key);
+            status.textContent = message === key ? t('midi.bluetooth_unavailable') : message;
+        } finally {
+            bluetooth.disabled = usb.disabled = false;
+        }
+    });
+    listen('midi-devices-changed', () => {
+        if (!document.getElementById('settings-modal').classList.contains('hidden')) {
+            void loadMidiDevices();
+        }
+    }).catch(console.error);
 }
 
 export async function loadSettingsMidi(config) {
@@ -26,7 +66,20 @@ export async function saveSettingsMidi() {
     const enabled = document.getElementById('config-midi-enabled').checked;
     const inputIds = [...document.querySelectorAll('[data-midi-device]:checked')]
         .map(input => input.value);
-    await invoke('midi_set_config', { enabled, inputIds });
+    ++listRequest;
+    pendingSave = pendingSave.catch(() => {}).then(() => invoke('midi_set_config', { enabled, inputIds }));
+    return pendingSave;
+}
+
+async function persistDeviceSelection() {
+    try {
+        await saveSettingsMidi();
+        if (isAndroid()) await loadMidiDevices();
+    } catch (error) {
+        const config = await invoke('get_config').catch(() => null);
+        if (config) await loadSettingsMidi(config);
+        await appAlert(String(error));
+    }
 }
 
 export function globalMidiBindings() {
@@ -39,19 +92,22 @@ export function globalMidiBindings() {
 
 async function loadMidiDevices() {
     const host = document.getElementById('config-midi-devices');
-    if (!host) return;
-    host.textContent = t('midi.loading');
+    if (!host) return [];
+    const request = ++listRequest;
+    await pendingSave.catch(() => {});
     const devices = await invoke('midi_devices').catch(() => []);
-    host.innerHTML = '';
+    if (request !== listRequest) return devices;
+    host.replaceChildren();
     if (!devices.length) {
         const p = document.createElement('p');
         p.className = 'hint';
         p.textContent = t('midi.no_devices');
         host.appendChild(p);
-        return;
+        return devices;
     }
     devices.forEach(device => host.appendChild(deviceRow(device)));
     updateDeviceSelectionState();
+    return devices;
 }
 
 function deviceRow(device) {
@@ -62,7 +118,7 @@ function deviceRow(device) {
     input.dataset.midiDevice = '1';
     input.value = device.id;
     input.checked = !!device.selected;
-    input.addEventListener('change', saveSettingsMidi);
+    input.addEventListener('change', persistDeviceSelection);
     const span = document.createElement('span');
     const status = device.connected ? t('midi.connected')
         : device.available ? t('midi.available') : t('midi.disconnected');

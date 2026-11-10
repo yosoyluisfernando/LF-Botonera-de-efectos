@@ -27,7 +27,7 @@ pub fn get_platform_capabilities() -> Capabilities {
         platform: if android { "android" } else { "desktop" },
         multiple_outputs: !android,
         multi_window: !android,
-        midi: cfg!(any(target_os = "windows", target_os = "linux")),
+        midi: cfg!(any(target_os = "windows", target_os = "linux", target_os = "android")),
         mic: !android,
         background_audio: !android,
         prelisten: !android,

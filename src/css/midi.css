@@ -29,3 +29,15 @@
     align-items: stretch;
   }
 }
+
+.midi-add summary {
+  cursor: pointer;
+  min-height: 48px;
+  align-content: center;
+}
+
+.midi-add-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

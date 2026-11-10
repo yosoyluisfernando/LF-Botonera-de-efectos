@@ -51,7 +51,7 @@ for attempt in 1 2; do
 done
 timeout 15 "$adb" exec-out screencap -p > android-smoke/window.png
 timeout 15 "$adb" logcat -d -v threadtime > "$log"
-if grep -E 'ndk-context-.+panicked|android context was not initialized|UnsatisfiedLinkError.*libtauri_app_lib' "$log"; then
+if grep -E 'ndk-context-.+panicked|android context was not initialized|UnsatisfiedLinkError.*libtauri_app_lib|Android MIDI attach:' "$log"; then
     exit 1
 fi
 # Genera un WAV breve propio para probar sin publicar archivos del usuario.

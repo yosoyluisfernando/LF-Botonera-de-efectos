@@ -5,7 +5,12 @@ pub mod keyboard;
 #[path = "keyboard_mobile.rs"]
 pub mod keyboard;
 pub mod midi;
+#[cfg(target_os = "android")]
+pub mod midi_android;
+#[cfg(not(target_os = "android"))]
 pub mod midi_backend;
+#[cfg(any(target_os = "android", test))]
+mod midi_stream;
 pub mod midi_binding;
 #[cfg(test)]
 mod midi_capture_tests;

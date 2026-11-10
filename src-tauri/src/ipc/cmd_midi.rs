@@ -26,13 +26,13 @@ pub fn midi_set_config(
     input_ids: Vec<String>,
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
+    let ports = state.midi.available_ports();
     let mut cfg = state.config.lock().unwrap();
-    if cfg!(target_os = "android") { return Err("platform_unavailable".into()); }
-    let previous = cfg.midi.inputs.clone();
-    cfg.midi.enabled = enabled;
-    cfg.midi.inputs = selected_inputs(enabled, &input_ids, &previous);
-    config_io::save_config(&cfg)?;
-    let next = cfg.clone();
+    let mut next = cfg.clone();
+    next.midi.enabled = enabled;
+    next.midi.inputs = selected_inputs(enabled, &input_ids, &cfg.midi.inputs, &ports);
+    config_io::save_config(&next)?;
+    *cfg = next.clone();
     drop(cfg);
     state.midi.sync();
     Ok(next)
@@ -42,11 +42,12 @@ fn selected_inputs(
     enabled: bool,
     input_ids: &[String],
     previous: &[MidiDeviceRef],
+    ports: &[crate::engine::input::midi_ports::MidiPortInfo],
 ) -> Vec<MidiDeviceRef> {
     if !enabled {
         return previous.to_vec();
     }
-    selected_refs(input_ids)
+    selected_refs(input_ids, ports)
         .into_iter()
         .map(|mut item| {
             if item.name == item.id {
@@ -61,7 +62,6 @@ fn selected_inputs(
 
 #[tauri::command]
 pub async fn midi_capture_next(state: tauri::State<'_, AppState>) -> Result<MidiCapture, String> {
-    if cfg!(target_os = "android") { return Err("platform_unavailable".into()); }
     let wait = state.midi.begin_capture()?;
     let event = tauri::async_runtime::spawn_blocking(move || wait.wait(Duration::from_secs(20)))
         .await
@@ -82,6 +82,17 @@ pub async fn midi_capture_next(state: tauri::State<'_, AppState>) -> Result<Midi
 #[tauri::command]
 pub fn midi_capture_cancel(state: tauri::State<AppState>) {
     state.midi.cancel_capture();
+}
+
+#[tauri::command]
+pub async fn midi_scan_bluetooth(app: tauri::AppHandle) -> Result<usize, String> {
+    #[cfg(target_os = "android")]
+    return crate::engine::input::midi_android::scan(&app).await;
+    #[cfg(not(target_os = "android"))]
+    {
+        let _ = app;
+        Err("platform_unavailable".into())
+    }
 }
 
 pub fn validate_global(
@@ -107,6 +118,6 @@ mod tests {
             name: "Controller".into(),
         }];
         let requested = vec!["other".into()];
-        assert_eq!(selected_inputs(false, &requested, &previous), previous);
+        assert_eq!(selected_inputs(false, &requested, &previous, &[]), previous);
     }
 }
