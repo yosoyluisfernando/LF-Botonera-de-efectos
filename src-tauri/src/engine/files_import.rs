@@ -37,9 +37,11 @@ pub(super) fn import(uri: FilePath, audio: bool) -> Result<PathBuf, String> {
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     let partial = dir.join(format!("{}.partial", stamp()));
     let result = (|| {
+        let mut options = OpenOptions::new();
+        options.read(true);
         let mut source = app()
             .fs()
-            .open(uri.clone(), OpenOptions::new())
+            .open(uri.clone(), options)
             .map_err(|e| e.to_string())?;
         let mut destination = fs::OpenOptions::new()
             .write(true)

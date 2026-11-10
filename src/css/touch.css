@@ -79,3 +79,40 @@
 
 body[data-platform="android"] #te-popout,
 body[data-platform="android"] #console-popout { display: none; }
+
+/* Android usa su barra de estado y conserva el transporte dentro del viewport. */
+body[data-platform="android"] #clock-widget,
+body[data-platform="android"] #mic-button,
+body[data-platform="android"] .pb-separator { display: none; }
+
+body[data-platform="android"] #app-section { height: 100%; min-height: 0; }
+body[data-platform="android"] .workspace-shell { min-height: 0; }
+body[data-platform="android"] .workspace-main { flex: 1 1 0; min-height: 0; }
+body[data-platform="android"] #bottom-bar { height: auto; min-height: 0; }
+body[data-platform="android"] #bottom-right { gap: 5px; }
+body[data-platform="android"] #playback-modes { flex-wrap: wrap; gap: 4px; }
+body[data-platform="android"] #playback-countdown {
+  width: auto; min-width: 4em; flex: 1 1 4em; font-size: 18px; padding: 0 3px;
+}
+body[data-platform="android"] #playback-modes .pb-btn { min-width: 48px; padding-inline: 4px; }
+
+@media (max-width: 480px) {
+  body[data-platform="android"] #playback-modes {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  body[data-platform="android"] #playback-modes .pb-btn { width: 100%; }
+  body[data-platform="android"] #playback-countdown { min-width: 0; margin: 0; }
+}
+
+body[data-platform="android"] #settings-modal .modal-lg {
+  width: 100%; height: 100%; max-height: 100%;
+}
+body[data-platform="android"] #settings-modal .settings-body {
+  flex-direction: column; overflow: hidden;
+}
+body[data-platform="android"] #settings-modal .settings-tabs {
+  width: 100%; flex-direction: row; overflow-x: auto;
+  border-right: 0; border-bottom: 1px solid var(--border-color);
+}
+body[data-platform="android"] #settings-modal .s-tab { flex: 0 0 auto; }
+body[data-platform="android"] #settings-modal .settings-content { min-height: 0; min-width: 0; }

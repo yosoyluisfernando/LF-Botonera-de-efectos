@@ -55,3 +55,18 @@ grep -q 'class="android.webkit.WebView"' android-smoke/window.xml
 if grep -E 'ndk-context-.+panicked|android context was not initialized|UnsatisfiedLinkError.*libtauri_app_lib' "$log"; then
     exit 1
 fi
+# Genera un WAV breve propio para probar sin publicar archivos del usuario.
+python3 - <<'PYTHON'
+import math
+import struct
+import wave
+
+with wave.open('android-smoke/LF-Smoke.wav', 'wb') as wav:
+    wav.setparams((1, 2, 44100, 0, 'NONE', 'not compressed'))
+    wav.writeframes(b''.join(struct.pack('<h', round(2048 * math.sin(2 * math.pi * 440 * n / 44100)))
+                            for n in range(44100 * 2)))
+PYTHON
+"$adb" shell mkdir -p /sdcard/Download
+"$adb" push android-smoke/LF-Smoke.wav /sdcard/Download/LF-Smoke.wav
+"$adb" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/LF-Smoke.wav
+timeout 150 node scripts/android-import-smoke.mjs "$adb"

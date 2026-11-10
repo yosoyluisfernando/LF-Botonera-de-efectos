@@ -36,3 +36,11 @@ sin cambio de versión, descarga adicional ni permisos de Android.
 
 Actions instala el APK ARM64 en Android 35 y comprueba dos arranques, actividad
 en primer plano y presencia del WebView antes de adjuntar el binario.
+
+## Importación y presentación en Android
+
+El selector devuelve un URI. La copia privada abre su descriptor con lectura
+explícita, ya que OpenOptions de tauri-plugin-fs parte sin modo de acceso.
+Android usa el reloj del sistema y mantiene el transporte dentro del área
+visible. Las categorías de Ajustes se desplazan horizontalmente y el contenido
+tiene su propio desplazamiento.
