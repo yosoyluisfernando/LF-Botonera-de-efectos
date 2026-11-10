@@ -61,6 +61,7 @@ async function connect() {
 }
 
 function tapDocument(text) {
+    adb('shell', 'rm', '-f', '/sdcard/lf-picker.xml');
     adb('shell', 'uiautomator', 'dump', '/sdcard/lf-picker.xml');
     const xml = adb('exec-out', 'cat', '/sdcard/lf-picker.xml');
     const node = xml.match(/<node\b[^>]*>/g)?.find(el =>
@@ -107,8 +108,12 @@ try {
     assignment.catch(() => {});
     await until(() => adb('shell', 'dumpsys', 'activity', 'activities').includes('documentsui'), 'No abrió el selector SAF');
     await sleep(1200);
-    if (!tapDocument('LF-Smoke.wav')) {
-        assert.ok(tapDocument('Show roots') || tapDocument('Open navigation drawer') || tapDocument('Browse'), 'No se encontró el menú del selector');
+    const selected = await until(() => {
+        if (tapDocument('LF-Smoke.wav')) return 'file';
+        if (tapDocument('Show roots') || tapDocument('Open navigation drawer') || tapDocument('Browse')) return 'drawer';
+        return false;
+    }, 'No se encontró el archivo ni el menú del selector');
+    if (selected === 'drawer') {
         await until(() => tapDocument('Downloads'), 'No se encontró la carpeta Downloads');
         await until(() => tapDocument('LF-Smoke.wav'), 'No se encontró el audio de prueba');
     }

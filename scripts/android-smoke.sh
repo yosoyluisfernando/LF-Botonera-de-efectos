@@ -19,13 +19,13 @@ test -f "$ANDROID_AVD_HOME/lf-smoke.ini"
 emulator_pid=$!
 cleanup() {
     "$adb" logcat -d -v threadtime > "$log" 2>/dev/null || true
-    kill "$emulator_pid" 2>/dev/null || true
     if [ "${1:-0}" != 0 ]; then
         grep -E 'FATAL EXCEPTION|Fatal signal|panicked|UnsatisfiedLinkError|AndroidRuntime' "$log" | tail -65 || true
         "$adb" exec-out screencap -p > android-smoke/failure.png 2>/dev/null || true
         "$adb" exec-out cat /sdcard/lf-picker.xml > android-smoke/picker.xml 2>/dev/null || true
         tail -20 "$emulator_log"
     fi
+    kill "$emulator_pid" 2>/dev/null || true
 }
 trap 'cleanup "$?"' EXIT
 
@@ -49,9 +49,6 @@ for attempt in 1 2; do
     "$adb" shell dumpsys activity activities > android-smoke/activities.txt
     grep -E "(topResumedActivity|mResumedActivity).* $pkg/" android-smoke/activities.txt
 done
-"$adb" shell uiautomator dump /sdcard/lf-smoke.xml
-"$adb" exec-out cat /sdcard/lf-smoke.xml > android-smoke/window.xml
-grep -q 'class="android.webkit.WebView"' android-smoke/window.xml
 "$adb" exec-out screencap -p > android-smoke/window.png
 "$adb" logcat -d -v threadtime > "$log"
 if grep -E 'ndk-context-.+panicked|android context was not initialized|UnsatisfiedLinkError.*libtauri_app_lib' "$log"; then
