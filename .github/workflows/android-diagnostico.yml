@@ -1,0 +1,65 @@
+name: Diagnóstico del APK Android original
+on:
+  push:
+    branches: [codex/android]
+    paths: ['.github/workflows/android-diagnostico.yml']
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42812614288
+          name: LF-Botonera-Android-ARM64-debug
+          path: android-artifact
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Start Android 35 emulator
+        run: |
+          test -c /dev/kvm
+          sudo chmod a+rw /dev/kvm
+          export ANDROID_HOME="${ANDROID_HOME:-$RUNNER_TEMP/android-sdk}"
+          mkdir -p "$ANDROID_HOME/cmdline-tools"
+          if ! command -v sdkmanager >/dev/null; then
+            curl -fsSL --retry 3 https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip -o "$RUNNER_TEMP/tools.zip"
+            unzip -q "$RUNNER_TEMP/tools.zip" -d "$RUNNER_TEMP/tools"
+            mv "$RUNNER_TEMP/tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/lf-ci"
+            export PATH="$ANDROID_HOME/cmdline-tools/lf-ci/bin:$PATH"
+          fi
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses >/dev/null
+          sdkmanager --sdk_root="$ANDROID_HOME" 'platform-tools' 'emulator' 'system-images;android-35;google_apis;x86_64'
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          echo no | avdmanager create avd -n lf-smoke -k 'system-images;android-35;google_apis;x86_64'
+          nohup "$ANDROID_HOME/emulator/emulator" -avd lf-smoke -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader -memory 3072 > emulator.log 2>&1 &
+      - name: Reproduce startup and capture logcat
+        run: |
+          timeout 180 adb wait-for-device
+          timeout 180 bash -c 'until [ "$(adb shell getprop sys.boot_completed | tr -d "\r")" = 1 ]; do sleep 2; done'
+          adb shell getprop ro.product.cpu.abilist
+          (cd android-artifact && sha256sum -c *.sha256)
+          adb install android-artifact/*.apk
+          adb shell input keyevent 82
+          adb logcat -c
+          pkg=io.github.yosoyluisfernando.lfbotonera
+          activity=$(adb shell cmd package resolve-activity --brief "$pkg" | tail -1 | tr -d '\r')
+          adb shell am start -W -n "$activity" || true
+          sleep 12
+          adb logcat -d -v threadtime > android-startup.log
+          grep -E 'FATAL EXCEPTION|Fatal signal|panicked at|UnsatisfiedLinkError|error while running tauri|AndroidRuntime|RustStdoutStderr|lfbotonera.*has died' android-startup.log | tail -100 || true
+          adb shell pidof "$pkg"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-startup-logs
+          path: |
+            emulator.log
+            android-startup.log
