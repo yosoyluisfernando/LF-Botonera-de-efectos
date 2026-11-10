@@ -54,6 +54,10 @@ pub fn assign_file_to_button(
     path: Option<String>,
     state: tauri::State<AppState>,
 ) -> Result<GridState, String> {
+    {
+        let cfg = state.config.lock().unwrap();
+        crate::domain::obs::audio_paleta(cfg.active_paleta().ok_or("tab_not_found")?)?;
+    }
     let file_path = pick_or_use_file(path)?;
     if std::path::Path::new(&file_path).is_dir() {
         return assign_folder(index, file_path, state);
@@ -62,6 +66,7 @@ pub fn assign_file_to_button(
     let mut btn = audio_file::from_audio_file("pending", index, file_path, &theme)?;
     let mut cfg = state.config.lock().unwrap();
     let paleta = active_paleta(&mut cfg)?;
+    crate::domain::obs::audio_paleta(paleta)?;
     paleta.botones.retain(|b| b.index != index);
     btn.id = format!("{}_btn_{index}", paleta.id);
     paleta.botones.push(btn);
@@ -86,6 +91,7 @@ pub fn assign_player_track_to_button(
         .cloned()
         .ok_or("button_not_found")?;
     let paleta = active_paleta(&mut cfg)?;
+    crate::domain::obs::audio_paleta(paleta)?;
     btn.id = format!("{}_btn_{}", paleta.id, to_index);
     btn.index = to_index;
     btn.shortcut = String::new();
@@ -119,6 +125,7 @@ fn assign_folder(
     let mut cfg = state.config.lock().unwrap();
     let theme = cfg.theme.clone();
     let paleta = active_paleta(&mut cfg)?;
+    crate::domain::obs::audio_paleta(paleta)?;
     paleta.botones.retain(|b| b.index != index);
     let bg = random_color();
     let text = text_for_theme(&bg, &theme, "button");

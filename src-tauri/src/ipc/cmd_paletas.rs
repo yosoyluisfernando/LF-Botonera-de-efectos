@@ -37,6 +37,7 @@ pub fn set_active_paleta(
 
 #[tauri::command]
 pub fn create_paleta(
+    obs: Option<bool>,
     profile_id: String,
     nombre: String,
     rows: Option<u32>,
@@ -47,6 +48,9 @@ pub fn create_paleta(
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
+    let obs = obs.unwrap_or(false);
+    if obs && !cfg.obs.enabled { return Err("obs_disabled".into()); }
+    if rows == Some(0) || cols == Some(0) {return Err("invalid_grid_size".into());}
     let profile = cfg
         .profiles
         .iter_mut()
@@ -55,6 +59,7 @@ pub fn create_paleta(
     let ids: Vec<String> = profile.paletas.iter().map(|p| p.id.clone()).collect();
     let id = next_id(&format!("{}_paleta", profile_id), &ids);
     profile.paletas.push(PaletaData {
+        obs,
         id: id.clone(),
         nombre,
         rows: rows.unwrap_or(5),

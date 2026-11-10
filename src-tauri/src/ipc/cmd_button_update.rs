@@ -34,6 +34,7 @@ pub fn update_button_data(
     state: tauri::State<AppState>,
 ) -> Result<GridState, String> {
     let mut cfg = state.config.lock().unwrap();
+    obs_audio_grid(&cfg)?;
     if let Some(v) = btn_type.as_deref() {
         button_types::validate_enabled(&cfg, v)?;
     }
@@ -108,6 +109,9 @@ pub fn update_button_data(
     Ok(grid)
 }
 
+fn obs_audio_grid(cfg: &AppConfig) -> Result<(), String> {
+    crate::domain::obs::audio_paleta(cfg.active_paleta().ok_or("tab_not_found")?)
+}
 fn ensure_button(paleta: &mut PaletaData, index: u32, label: &str, bg: &str, text: &str) {
     if paleta.botones.iter().any(|b| b.index == index) {
         return;

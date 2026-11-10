@@ -4,6 +4,7 @@
  * atajos de teclado, acerca de). Delega audio a Rust (Regla 4).
  */
 
+import { initSettingsObs, loadSettingsObs, saveSettingsObs } from './settingsObs.js';
 import { emit, invoke } from '../bridge/api.js';
 import { applyTheme } from './theme.js';
 import { t } from '../util/i18n.js';
@@ -35,6 +36,7 @@ export function initSettingsModal(onSaved) {
     initPlaybackPanel();
     initFixedPanelSettings();
 
+    initSettingsObs();
     // Pestañas internas del modal
     document.querySelectorAll('.s-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -84,6 +86,7 @@ async function _openSettings() {
     loadToolbarButtons(config);
     _currentLanguage = config.language || 'es';
 
+    await loadSettingsObs(config);
     loadLocutionsPanel(config);
     loadPreloadPanel();
     loadPlaybackPanel(config);
@@ -104,6 +107,7 @@ async function _saveSettings() {
         await invoke('set_pre_device', { deviceName: document.getElementById('config-out-pre').value });
         await saveKeyboardSettings();
         await saveSettingsMidi();
+        await saveSettingsObs();
         await saveLocutions();
         await savePreload();
         await savePlaybackPanel();

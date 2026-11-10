@@ -24,6 +24,8 @@ pub use crate::model::audio::AudioConfig;
 /// una version anterior debe seguir cargando (regla 6).
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
+    #[serde(default)]
+    pub obs: crate::model::obs::ObsConfig,
     #[serde(default = "default_true")]
     pub is_first_boot: bool,
     #[serde(default)]
@@ -114,6 +116,7 @@ fn default_editor_mode() -> String {
 impl Default for AppConfig {
     fn default() -> Self {
         let paleta = PaletaData {
+            obs: false,
             id: "paleta_1".to_string(),
             nombre: "Principal".to_string(),
             rows: 5,
@@ -136,6 +139,7 @@ impl Default for AppConfig {
             fixed_buttons: Vec::new(),
         };
         Self {
+            obs: Default::default(),
             is_first_boot: true,
             weather_module_enabled: false,
             lf_automatizador_link: false,

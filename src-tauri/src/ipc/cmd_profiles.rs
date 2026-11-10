@@ -42,6 +42,7 @@ pub fn create_profile(name: String, state: tauri::State<AppState>) -> Result<App
     let id = next_id("perfil", &ids);
     let paleta_id = format!("{}_paleta_1", id);
     let paleta = PaletaData {
+        obs: false,
         id: paleta_id.clone(),
         nombre: "Principal".to_string(),
         rows: 5,

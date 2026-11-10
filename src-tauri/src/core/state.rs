@@ -15,6 +15,7 @@ use crate::model::AppConfig;
 use std::sync::{Arc, Mutex};
 
 pub struct AppState {
+    pub obs: crate::engine::obs::ObsEngine,
     pub config: Arc<Mutex<AppConfig>>,
     /// La consola: dueña de las salidas fisicas y de los buses. Arc porque los
     /// motores de audio son sus clientes y la comparten.
@@ -74,6 +75,7 @@ impl AppState {
                 }
             });
         Self {
+            obs: crate::engine::obs::ObsEngine::new(),
             config,
             console,
             audio: Mutex::new(audio),

@@ -64,6 +64,7 @@ fn plan_move(
     {
         return Err("button_not_found".to_string());
     }
+    crate::domain::obs::compatible(&profile.paletas[src_pos], &profile.paletas[dst_pos])?;
     let dst_index = first_empty_index(&profile.paletas[dst_pos])?;
     Ok(MovePlan {
         profile_pos,
@@ -132,6 +133,7 @@ mod tests {
 
     fn fixture(rows: u32, cols: u32, indexes: &[u32]) -> PaletaData {
         PaletaData {
+            obs: false,
             id: "paleta".to_string(),
             nombre: "Test".to_string(),
             rows,

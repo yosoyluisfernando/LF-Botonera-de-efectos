@@ -5,6 +5,7 @@
  * niveles usan el evento ligero "meter-tick" a 50 FPS.
  */
 
+import { paintObsState } from './obsView.js';
 import { listen } from '../bridge/api.js';
 import { updateTabPlayback } from './tabs.js';
 import { paintAudioTick } from './gridPlayback.js';
@@ -24,6 +25,7 @@ let _wired = false;
 export async function wireRuntimeEvents({ onRefresh, onDockEditor }) {
     if (_wired) return;
     await Promise.all([
+        listen('obs-state', e => paintObsState(e.payload)),
         listen('clock-tick', e => updateClockTick(e.payload ?? {})),
         listen('audio-tick', e => _paintAudio(e.payload ?? {})),
         listen('meter-tick', e => _paintMeters(e.payload ?? {})),

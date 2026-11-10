@@ -10,3 +10,4 @@ pub mod persist;
 pub mod player;
 pub mod visuals;
 pub mod weather;
+pub mod obs;

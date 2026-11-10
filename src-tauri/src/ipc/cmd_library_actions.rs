@@ -79,6 +79,7 @@ pub async fn library_assign_to_paleta(
         .iter_mut()
         .find(|paleta| paleta.id == paleta_id)
         .ok_or("tab_not_found")?;
+    crate::domain::obs::audio_paleta(paleta)?;
     let empty = empty_indices(paleta, additions.len())?;
     for (button, index) in additions.iter_mut().zip(empty) {
         button.index = index;
@@ -109,6 +110,7 @@ mod tests {
     #[test]
     fn batch_assignment_is_all_or_nothing() {
         let mut paleta = PaletaData {
+            obs: false,
             id: "p".into(),
             nombre: "Prueba".into(),
             rows: 1,

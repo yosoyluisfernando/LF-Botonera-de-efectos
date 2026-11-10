@@ -2,6 +2,10 @@ macro_rules! lf_invoke_handlers {
     () => {
         tauri::generate_handler![
             ipc::cmd_config::get_config,
+            ipc::cmd_obs::obs_get,
+            ipc::cmd_obs::obs_set_config,
+            ipc::cmd_obs::obs_test,
+            ipc::cmd_obs::obs_save_button,
             ipc::cmd_config::set_first_boot_complete,
             ipc::cmd_config::set_theme,
             ipc::cmd_config::set_language,

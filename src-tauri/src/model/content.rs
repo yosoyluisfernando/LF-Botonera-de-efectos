@@ -13,6 +13,8 @@ use serde::{Deserialize, Serialize};
 /// Automatizador pueda leer el archivo ignorandolos (regla 6).
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ButtonData {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub obs: Option<crate::model::obs::ObsAction>,
     pub id: String,
     pub index: u32,
     pub label: String,
@@ -57,6 +59,8 @@ fn default_vol() -> f32 {
 /// Una paleta (pestana): su propia rejilla de botones.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PaletaData {
+    #[serde(default)]
+    pub obs: bool,
     pub id: String,
     pub nombre: String,
     #[serde(default = "default_rows")]

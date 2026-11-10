@@ -16,6 +16,6 @@ export function setPlaybackButtons(buttons) {
 }
 /** Actualiza el estado visual de las celdas. Llamar desde el handler de audio-tick. */
 export function paintAudioTick(payload) {
-    paintPlayback('.grid-item[data-id]', _buttons,
+    paintPlayback('.grid-item[data-id]:not([data-obs="true"])', _buttons,
         (payload.buttons ?? []).filter(tick => tick.group !== 'fixed'));
 }

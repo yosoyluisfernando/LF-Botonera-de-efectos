@@ -17,7 +17,7 @@ use crate::model::{AppConfig, ButtonData};
 /// cambia y el aleatorio debe dar una cancion distinta en cada pasada.
 pub(crate) fn build_entries(state: &AppState) -> Vec<QueueEntry> {
     let tracks = state.config.lock().unwrap().player.tracks.clone();
-    tracks.iter().map(|track| entry_for(state, track)).collect()
+    tracks.iter().filter(|track| track.type_field != "obs").map(|track| entry_for(state, track)).collect()
 }
 
 fn entry_for(state: &AppState, btn: &ButtonData) -> QueueEntry {
@@ -98,6 +98,7 @@ pub fn player_add_button(
 ) -> Result<PlayerView, String> {
     let mut btn =
         find_button(&state.config.lock().unwrap(), &button_id).ok_or("button_not_found")?;
+    if btn.type_field == "obs" {return Err("obs_separate_palettes".into());}
     {
         let mut cfg = state.config.lock().unwrap();
         btn.id = next_id(&cfg.player.tracks);

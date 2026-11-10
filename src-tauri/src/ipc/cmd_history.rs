@@ -40,10 +40,14 @@ fn restore(
     } else {
         "nothing_to_redo"
     })?;
+    let obs_changed = crate::domain::obs::connection_changed(&cfg.obs, &next.obs);
     *cfg = next;
     config::save_config(&cfg)?;
     let out = cfg.clone();
     drop(cfg);
+    if obs_changed {
+        state.obs.configure(out.obs.clone(), None)?;
+    }
     global_shortcuts::sync(&app)?;
     Ok(out)
 }

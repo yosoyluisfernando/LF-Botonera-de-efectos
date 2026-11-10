@@ -57,6 +57,9 @@ pub fn handle_local_shortcut(
             Ok(result(true, true))
         }
         LocalShortcutAction::PlayButton(id) => {
+            if repeat == Some(true) && state.config.lock().unwrap().active_paleta().is_some_and(|p| p.obs) {
+                return Ok(result(true, false));
+            }
             cmd_button_playback::play_button_id(&state, &id)?;
             Ok(result(true, false))
         }

@@ -34,6 +34,10 @@ export function showContextMenu(x, y, index, btnData, onUpdate, group = 'grid') 
         return;
     }
 
+    const obs = group === 'grid' && document.getElementById('main-grid').dataset.obs === 'true';
+    for (const id of ['menu-bucle', 'menu-overlap', 'menu-detener', 'menu-restart', 'menu-previa', 'menu-editar-pista']) {
+        document.getElementById(id)?.classList.toggle('hidden', obs);
+    }
     // Actualizar estado de checkboxes desde los datos del botón
     document.getElementById('check-bucle').textContent   = btnData?.loop_mode  ? '✓' : '';
     document.getElementById('check-overlap').textContent = btnData?.overlap    ? '✓' : '';

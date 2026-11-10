@@ -16,6 +16,10 @@ pub fn play_button(id: String, state: tauri::State<AppState>) -> Result<(), Stri
 /// Dispara un boton por id; tambien lo usa el manejador de atajos globales.
 pub fn play_button_id(state: &AppState, id: &str) -> Result<(), String> {
     let (cfg, btn, group) = button_snapshot(state, id)?;
+    if btn.type_field == "obs" { return super::cmd_obs::execute(state,id); }
+    if cfg.profiles.iter().flat_map(|p| &p.paletas).any(|p| p.obs && p.botones.iter().any(|b| b.id == id)) {
+        return Err("obs_separate_palettes".into());
+    }
     match btn.type_field.as_str() {
         "time" => locution_playback::play_time(
             state,
