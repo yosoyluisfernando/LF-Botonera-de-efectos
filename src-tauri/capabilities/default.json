@@ -3,6 +3,7 @@
   "identifier": "default",
   "description": "Capability for the main, track-editor and audio-console windows",
   "windows": ["main", "track-editor", "audio-console", "library"],
+  "platforms": ["windows", "linux", "macOS"],
   "permissions": [
     "core:default",
     "opener:allow-open-url",

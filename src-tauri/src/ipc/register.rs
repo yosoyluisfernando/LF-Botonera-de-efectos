@@ -1,6 +1,8 @@
 macro_rules! lf_invoke_handlers {
     () => {
         tauri::generate_handler![
+            core::platform::get_platform_capabilities,
+            engine::files::pick_audio_file,
             ipc::cmd_config::get_config,
             ipc::cmd_config::set_first_boot_complete,
             ipc::cmd_config::set_theme,

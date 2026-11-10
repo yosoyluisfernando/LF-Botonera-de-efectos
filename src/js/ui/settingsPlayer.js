@@ -1,3 +1,4 @@
+import { isAndroid } from '../bridge/platform.js';
 /**
  * Archivo: settingsPlayer.js
  * Propósito: los ajustes del reproductor en el modal de Ajustes. El modo
@@ -49,7 +50,7 @@ export async function savePlayerSettings() {
     // Re-aplicar el mismo dispositivo reabre la salida y CORTA la música: solo
     // se envía si cambió de verdad (mismo cuidado que la tarjeta principal).
     const device = document.getElementById('player-device').value;
-    if (device !== _loaded.device) await invoke('player_set_device', { device });
+    if (!isAndroid() && device !== _loaded.device) await invoke('player_set_device', { device });
 
     // Deja cambiar lo que se respondió en el aviso de carpeta grande, por si se
     // marcó "recordar siempre" sin querer.

@@ -1,3 +1,4 @@
+import { isAndroid } from '../bridge/platform.js';
 /**
  * Archivo: settingsModal.js
  * Propósito: Controla el modal de Configuración Global (salidas de audio,
@@ -75,6 +76,9 @@ async function _openSettings() {
 
     _fillDeviceSelect('config-out-main', devices, outMain);
     _fillDeviceSelect('config-out-pre',  devices, outPre);
+    for (const id of ['config-out-main', 'config-out-pre', 'player-device']) {
+        document.getElementById(id).disabled = isAndroid();
+    }
 
     loadKeyboardSettings(profile?.audio);
 
@@ -97,13 +101,13 @@ async function _saveSettings() {
     const outMain = document.getElementById('config-out-main').value;
     try {
         // Solo aplicar si la tarjeta cambió: re-aplicarla detendría el audio
-        if (outMain !== _currentOutMain) {
+        if (!isAndroid() && outMain !== _currentOutMain) {
             await invoke('set_audio_device', { deviceName: outMain });
         }
         // Salida de pre-escucha: Rust aplica el fallback (vacía o = principal → principal)
-        await invoke('set_pre_device', { deviceName: document.getElementById('config-out-pre').value });
+        if (!isAndroid()) await invoke('set_pre_device', { deviceName: document.getElementById('config-out-pre').value });
         await saveKeyboardSettings();
-        await saveSettingsMidi();
+        if (!isAndroid()) await saveSettingsMidi();
         await saveLocutions();
         await savePreload();
         await savePlaybackPanel();

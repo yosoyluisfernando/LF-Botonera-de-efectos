@@ -1,0 +1,82 @@
+#touch-hint { display: none; }
+/* Targets táctiles también en tabletas y equipos híbridos; sin inferir plataforma. */
+@media (any-pointer: coarse) {
+  #touch-hint { display: block; font-size: 12px; color: var(--text-secondary); padding: 5px; }
+  :root { --touch-cell-width: 80px; --touch-cell-height: 88px; }
+  button, select, input:not([type="checkbox"]):not([type="radio"]),
+  .tab, .context-style li, .clock-fmt-item, .master-menu-item {
+    min-height: 48px;
+  }
+  button { min-width: 48px; touch-action: manipulation; }
+  input, select, textarea { font-size: 16px !important; }
+  input[type="checkbox"], input[type="radio"] { width: 24px; height: 24px; }
+  .checkbox-line { min-height: 48px; }
+  .grid-item, .fixed-panel-item, .tab, .player-row, .library-row,
+  .library-table-row { -webkit-touch-callout: none; }
+  .grid-item { min-width: 80px; min-height: 88px; touch-action: pan-x pan-y; }
+  .grid-item:hover { filter: none; }
+  .grid-item:active { filter: brightness(.8); }
+  .grid-container { overflow: auto; gap: 6px; }
+  .tabs-container { min-height: 52px; overflow-x: auto; }
+  .tabs-scroll { min-width: 100px; }
+  .tab { display: flex; align-items: center; flex-shrink: 0; }
+  .fixed-panel-item, .player-row { min-height: 56px; }
+  .library-row, .library-table-row { height: 56px; min-height: 56px; }
+  .library-search-rows, #library-table { --library-row-height: 56px; }
+  .context-style { max-height: calc(100dvh - 24px); overflow-y: auto; }
+  .context-style li { display: flex; align-items: center; font-size: 15px; }
+  .close-btn { min-width: 48px; min-height: 48px; }
+  .modal-header { cursor: default; }
+  #app-section { height: 100dvh; padding: max(5px, env(safe-area-inset-top))
+    max(5px, env(safe-area-inset-right)) max(5px, env(safe-area-inset-bottom))
+    max(5px, env(safe-area-inset-left)); }
+}
+
+@media (max-width: 760px) {
+  .tabs-container { flex-wrap: wrap; height: auto; gap: 4px; }
+  #tabs-list { order: 1; flex-basis: 100%; width: 100%; }
+  .workspace-shell, .workspace-shell[data-fixed-side="right"] {
+    flex-direction: column-reverse; overflow: auto;
+  }
+  .workspace-main { flex: 1 0 50dvh; min-height: 260px; }
+  .fixed-panel { width: 100% !important; max-width: 100%; min-width: 0;
+    flex: 0 0 38dvh; min-height: 200px; }
+  .fixed-panel-header { flex-wrap: wrap; gap: 4px; }
+  .fixed-header-actions { width: 100%; flex-wrap: wrap; }
+  .player-actions { display: flex; flex-wrap: wrap; }
+  .fixed-panel-resize { display: none; }
+  #bottom-bar { height: auto; min-height: 130px; gap: 6px; padding: 6px;
+    flex-wrap: wrap; }
+  #clock-widget { width: 120px; padding-right: 6px; }
+  .clock-display { font-size: 21px; }
+  #bottom-right { flex: 1 1 200px; }
+  #playback-modes { flex-wrap: wrap; height: auto; gap: 4px; }
+  #playback-countdown { flex: 1 1 80px; width: auto; }
+  .modal-overlay { padding: max(6px, env(safe-area-inset-top)) 6px
+    max(6px, env(safe-area-inset-bottom)); }
+  .modal-content, .modal-lg, .modal-sm, .modal-xs,
+  #app-dialog-modal.dialog-wide .modal-content {
+    width: 100% !important; max-width: 100%; min-width: 0 !important;
+    max-height: 95dvh; display: flex; flex-direction: column;
+  }
+  .modal-header, .modal-footer { flex-shrink: 0; }
+  .modal-body { overflow: auto; min-height: 0; }
+  .modal-footer { flex-wrap: wrap; }
+  #app-dialog-modal .modal-footer button { white-space: normal; }
+  #settings-modal .modal-lg { height: 95dvh; }
+  .settings-body { flex-direction: column; }
+  .settings-tabs { width: 100%; flex-direction: row; overflow-x: auto;
+    border-right: 0; border-bottom: 1px solid var(--border-color); }
+  .s-tab { flex-shrink: 0; }
+  .settings-content { min-width: 0; }
+  .about-panel { padding: 16px; }
+  .library-window-shell { min-width: 0; height: 100dvh; }
+  .library-window-toolbar { flex-wrap: wrap; }
+  .library-window-body { flex-direction: column; min-height: 0; }
+  .library-navigator { width: 100%; max-height: 25dvh; overflow: auto; }
+  .library-content { min-width: 0; }
+}
+
+body[data-platform="android"] #te-popout,
+body[data-platform="android"] #console-popout,
+body[data-platform="android"] [data-target="s-obs"] { display: none; }

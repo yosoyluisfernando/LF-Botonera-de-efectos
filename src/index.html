@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>LF Botonera de Efectos</title>
     <link rel="icon" type="image/png" href="/icono_circular.png" />
     <script type="module" src="/js/ui/theme.js"></script>
@@ -38,6 +38,7 @@
     <link rel="stylesheet" href="/css/librarySearch.css" />
     <link rel="stylesheet" href="/css/libraryMetadata.css" />
     <link rel="stylesheet" href="/css/backupRestore.css" />
+    <link rel="stylesheet" href="/css/touch.css">
   </head>
   <body>
 
@@ -68,6 +69,7 @@
         <button id="btn-settings" class="btn-settings">⚙️</button>
       </div>
 
+      <p id="touch-hint" data-i18n="mobile.hint"></p>
       <div id="workspace-shell" class="workspace-shell">
         <aside id="fixed-panel" class="fixed-panel">
           <div id="fixed-panel-resize" class="fixed-panel-resize" aria-hidden="true"></div>
@@ -93,6 +95,7 @@
               <button id="fixed-panel-add" class="fixed-panel-add" data-i18n-title="fixed_panel.add">+</button>
               <span id="player-drop-progress" class="player-drop-progress hidden"></span>
               <span class="player-actions">
+                <button id="player-add-audio" data-i18n-title="mobile.add_audio" data-i18n-aria-label="mobile.add_audio">+</button>
                 <button id="player-clear" data-i18n-title="player.clear">🧹</button>
                 <button id="player-open" data-i18n-title="player.open">📂</button>
                 <button id="player-save" data-i18n-title="player.save">💾</button>

@@ -94,7 +94,7 @@ impl ConsoleEngine {
         let (tx, rx) = channel::<ConsoleCommand>();
         let slots = BusId::ALL
             .iter()
-            .map(|bus| (*bus, BusSlot::new(bus.default_routing())))
+            .map(|bus| (*bus, BusSlot::new(sanitize(*bus, bus.default_routing()))))
             .collect();
         let state = Arc::new(Mutex::new(ConsoleState {
             slots,

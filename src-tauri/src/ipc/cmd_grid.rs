@@ -48,7 +48,7 @@ pub fn get_grid_state(state: tauri::State<AppState>) -> Result<GridState, String
     Ok(grid)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn assign_file_to_button(
     index: u32,
     path: Option<String>,
@@ -146,13 +146,12 @@ pub fn clear_button(index: u32, state: tauri::State<AppState>) -> Result<GridSta
 }
 
 fn pick_or_use_file(path: Option<String>) -> Result<String, String> {
-    path.or_else(|| {
-        rfd::FileDialog::new()
-            .add_filter("Audio", AUDIO_EXTENSIONS)
-            .pick_file()
-            .map(|p| p.to_string_lossy().to_string())
-    })
-    .ok_or("Operación cancelada.".to_string())
+    if let Some(path) = path { return Ok(path); }
+    crate::engine::files::FileDialog::new()
+        .add_filter("Audio", AUDIO_EXTENSIONS)
+        .pick_file()?
+        .map(|p| p.to_string_lossy().into_owned())
+        .ok_or_else(|| "Operación cancelada.".into())
 }
 
 fn file_stem_upper(path: &str) -> String {

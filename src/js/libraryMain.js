@@ -1,3 +1,5 @@
+import { initTouchControls } from './ui/touchControls.js';
+import { loadCapabilities, isAndroid } from './bridge/platform.js';
 /** Arranque exclusivo de la ventana Biblioteca. */
 import { invoke, listen, waitForTauri } from './bridge/api.js';
 import { loadLanguage, t } from './util/i18n.js';
@@ -21,10 +23,19 @@ start().catch(showFatal);
 
 async function start() {
     await waitForTauri();
+    await loadCapabilities();
+    initTouchControls();
     const config = await invoke('get_config');
     applyTheme(config.theme || 'dark');
     await loadLanguage(config.language || 'es');
     document.title = t('library.window_title');
+    if (isAndroid()) {
+        const back = document.createElement('button');
+        back.className = 'library-toolbar-button';
+        back.textContent = t('mobile.back');
+        back.addEventListener('click', () => { location.href = 'index.html'; });
+        document.querySelector('.library-window-toolbar').prepend(back);
+    }
     await listen('theme-changed', event =>
         applyTheme(event.payload?.theme || 'dark'));
     await listen('library-metadata-changed', () =>

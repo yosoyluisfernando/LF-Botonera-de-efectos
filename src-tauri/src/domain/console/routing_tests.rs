@@ -155,3 +155,16 @@ fn sacar_un_bus_a_otra_tarjeta_lo_saca_del_programa() {
         Some("Auriculares".to_string())
     );
 }
+
+#[test]
+fn android_reune_efectos_panel_y_reproductor_en_programa() {
+    for bus in BusId::ALL {
+        let actual = super::single_output(bus);
+        let expected = match bus {
+            BusId::Programa => Routing::Device("default".into()),
+            BusId::Cue => Routing::ProgramDevice,
+            _ => Routing::Program,
+        };
+        assert_eq!(actual, expected);
+    }
+}

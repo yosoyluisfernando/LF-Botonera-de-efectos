@@ -15,7 +15,7 @@ const FILTER: &str = "LF Automatizador Playlist";
 const EXT: &str = "LFPlay";
 
 /// Guarda la cola actual. `false` = el usuario cerro el dialogo.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn player_save_playlist(state: tauri::State<AppState>) -> Result<bool, String> {
     let rows: Vec<LfaPlaylistRow> = {
         let cfg = state.config.lock().unwrap();
@@ -24,24 +24,25 @@ pub fn player_save_playlist(state: tauri::State<AppState>) -> Result<bool, Strin
     if rows.is_empty() {
         return Err("player_empty_queue".into());
     }
-    let Some(path) = rfd::FileDialog::new()
+    let Some(path) = crate::engine::files::FileDialog::new()
         .add_filter(FILTER, &[EXT])
         .set_file_name(&format!("playlist.{EXT}"))
-        .save_file()
+        .save_file()?
     else {
         return Ok(false);
     };
     let json = serde_json::to_string_pretty(&rows).map_err(|e| e.to_string())?;
-    std::fs::write(path, json).map_err(|e| e.to_string())?;
+    std::fs::write(&path, json).map_err(|e| e.to_string())?;
+    crate::engine::files::commit_export(&path)?;
     Ok(true)
 }
 
 /// Abre una lista y REEMPLAZA la cola actual. `None` = el usuario cancelo.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn player_open_playlist(state: tauri::State<AppState>) -> Result<Option<PlayerView>, String> {
-    let Some(path) = rfd::FileDialog::new()
+    let Some(path) = crate::engine::files::FileDialog::new()
         .add_filter(FILTER, &[EXT])
-        .pick_file()
+        .pick_file()?
     else {
         return Ok(None);
     };

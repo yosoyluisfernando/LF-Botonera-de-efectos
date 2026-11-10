@@ -1,0 +1,48 @@
+name: Android ARM64 de prueba
+on:
+  push:
+    branches: [codex/android]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+      - name: Android SDK and NDK
+        run: |
+          sdkmanager 'platforms;android-36' 'platforms;android-35' 'build-tools;36.0.0' 'ndk;27.2.12479018'
+          echo "NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
+      - run: npm ci
+      - run: node --test scripts/mobile-locales.test.mjs scripts/touch-controls.test.mjs
+      - run: npm run tauri -- android init --ci --skip-targets-install
+      - run: npm run tauri -- android build --ci --debug --apk --target aarch64
+      - name: Verify and stage APK
+        run: |
+          mapfile -t apks < <(find src-tauri/gen/android/app/build/outputs/apk -type f -name '*.apk')
+          test "${#apks[@]}" -eq 1
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "${apks[0]}"
+          mkdir -p android-artifact
+          cp "${apks[0]}" android-artifact/LF-Botonera-1.5.0-android-arm64-debug.apk
+          cd android-artifact
+          sha256sum *.apk > LF-Botonera-1.5.0-android-arm64-debug.apk.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LF-Botonera-Android-ARM64-debug
+          path: android-artifact/
+          if-no-files-found: error

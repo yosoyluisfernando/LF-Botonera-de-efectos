@@ -27,6 +27,7 @@ pub fn midi_set_config(
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
+    if cfg!(target_os = "android") { return Err("platform_unavailable".into()); }
     let previous = cfg.midi.inputs.clone();
     cfg.midi.enabled = enabled;
     cfg.midi.inputs = selected_inputs(enabled, &input_ids, &previous);
@@ -60,6 +61,7 @@ fn selected_inputs(
 
 #[tauri::command]
 pub async fn midi_capture_next(state: tauri::State<'_, AppState>) -> Result<MidiCapture, String> {
+    if cfg!(target_os = "android") { return Err("platform_unavailable".into()); }
     let wait = state.midi.begin_capture()?;
     let event = tauri::async_runtime::spawn_blocking(move || wait.wait(Duration::from_secs(20)))
         .await

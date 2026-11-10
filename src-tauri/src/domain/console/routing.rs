@@ -82,6 +82,9 @@ impl BusId {
 /// silenciar, es una peticion que la consola traduce a lo unico que significa —
 /// que suene por la tarjeta del programa, pero aparte.
 pub fn sanitize(bus: BusId, requested: Routing) -> Routing {
+    if cfg!(target_os = "android") {
+        return single_output(bus);
+    }
     match (bus, &requested) {
         // El programa es el final del camino: no puede sumarse a si mismo ni
         // "seguir" a nadie.
@@ -90,6 +93,15 @@ pub fn sanitize(bus: BusId, requested: Routing) -> Routing {
         }
         (bus, Routing::Program) if !bus.can_sum_into_program() => Routing::ProgramDevice,
         _ => requested,
+    }
+}
+
+/// Android ignora nombres de dispositivos sin modificar la configuraci?n compartida.
+pub fn single_output(bus: BusId) -> Routing {
+    match bus {
+        BusId::Programa => Routing::Device("default".into()),
+        BusId::Cue => Routing::ProgramDevice,
+        _ => Routing::Program,
     }
 }
 

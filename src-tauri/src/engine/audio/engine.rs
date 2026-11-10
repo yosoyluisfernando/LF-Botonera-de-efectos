@@ -12,12 +12,6 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
-
-/// Motor de efectos: botones de la botonera y del panel fijo.
-///
-/// Ya no posee tarjetas ni faders: le pide sus buses a la consola, que es su
-/// dueña. El master y el vumetro de la barra inferior son el fader y el medidor
-/// del bus `Programa`, y se le piden a ella (`console.fader` / `console.levels`).
 pub struct AudioEngine {
     tx: Sender<AudioCommand>,
     button_states: Arc<Mutex<ButtonStateMap>>,
@@ -26,7 +20,6 @@ pub struct AudioEngine {
     preloader: Preloader,
     preload_enabled: Arc<AtomicBool>,
 }
-
 impl AudioEngine {
     pub fn new(console: Arc<ConsoleEngine>) -> Self {
         let (tx, rx) = channel::<AudioCommand>();
@@ -67,8 +60,6 @@ impl AudioEngine {
     pub fn last_pressed_handle(&self) -> Arc<Mutex<Option<LastPressedInfo>>> {
         Arc::clone(&self.last_pressed)
     }
-
-    /// Evita renombrar un archivo que todavía alimenta alguna fuente activa.
     pub fn is_path_active(&self, path: &str) -> bool {
         let key = db::normalize_key(path);
         self.button_states
@@ -84,17 +75,12 @@ impl AudioEngine {
             })
             .unwrap_or(true)
     }
-
-    /// La salida principal: la tarjeta por la que sale el programa.
     pub fn set_device(&self, device_name: &str) -> Result<(), String> {
         self.send(AudioCommand::SetBusRouting {
             bus: BusId::Programa,
             routing: Routing::Device(device_name.to_string()),
         })
     }
-
-    /// La salida de pre-escucha. Vacio = comparte tarjeta con el programa, pero
-    /// **sigue siendo un bus aparte**: sin master y sin sumar a su vumetro.
     pub fn set_pre_device(&self, device_name: &str) -> Result<(), String> {
         let routing = if device_name.is_empty() {
             Routing::ProgramDevice
@@ -106,7 +92,6 @@ impl AudioEngine {
             routing,
         })
     }
-
     #[allow(clippy::too_many_arguments)]
     pub fn play_file(
         &self,
@@ -125,6 +110,9 @@ impl AudioEngine {
         fade: &FadeConfig,
         group: PlaybackGroup,
     ) -> Result<(), String> {
+        if cfg!(target_os = "android") && (to_pre || group == PlaybackGroup::Cue) {
+            return Err("mobile_prelisten_unavailable".into());
+        }
         if !to_pre && !id.starts_with("__") && group == PlaybackGroup::Main {
             *self.last_pressed.lock().unwrap() = Some(LastPressedInfo { id: id.clone() });
         }
@@ -147,7 +135,6 @@ impl AudioEngine {
             group,
         })
     }
-
     pub fn stop(&self, id: &str) {
         let _ = self.tx.send(AudioCommand::Stop { id: id.to_string() });
     }
@@ -165,21 +152,18 @@ impl AudioEngine {
         *self.last_pressed.lock().unwrap() = None;
         let _ = self.tx.send(AudioCommand::StopAllFade);
     }
-
     pub fn set_volume(&self, id: &str, volume: f32) {
         let _ = self.tx.send(AudioCommand::SetVolume {
             id: id.to_string(),
             volume,
         });
     }
-
     pub fn seek_active(&self, delta_s: Option<f64>, position_s: Option<f64>) -> Result<(), String> {
         self.send(AudioCommand::SeekActive {
             delta_s,
             position_s,
         })
     }
-
     pub fn play_sequence(
         &self,
         id: String,
@@ -188,6 +172,9 @@ impl AudioEngine {
         duration: f64,
         group: PlaybackGroup,
     ) -> Result<(), String> {
+        if cfg!(target_os = "android") && group == PlaybackGroup::Cue {
+            return Err("mobile_prelisten_unavailable".into());
+        }
         self.send(AudioCommand::PlaySequence {
             id,
             paths,
@@ -198,7 +185,6 @@ impl AudioEngine {
             group,
         })
     }
-
     fn send(&self, command: AudioCommand) -> Result<(), String> {
         self.tx
             .send(command)

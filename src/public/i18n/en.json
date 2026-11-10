@@ -188,25 +188,25 @@
     "ready": "Ready."
   },
   "library": {
-      "window_title": "Library — LF Soundboard",
-      "open_window": "Open Library",
-      "loading": "Loading Library…",
-      "refresh": "Refresh",
-      "show_all": "Show all",
-      "processing_center": "Processing Center",
-      "local_navigator": "Local navigator",
-      "no_results": "There are no items to display.",
-      "folder_items": "{count} items in folder",
-      "visible_items": "{count} loaded items",
-      "files_count": "{count} files",
-      "col_name": "Name",
-      "col_path": "Full path",
-      "col_title": "Title",
-      "col_artist": "Artist",
-      "col_album": "Album",
-      "col_genre": "Genre",
-      "col_year": "Year",
-      "col_duration": "Duration",
+    "window_title": "Library — LF Soundboard",
+    "open_window": "Open Library",
+    "loading": "Loading Library…",
+    "refresh": "Refresh",
+    "show_all": "Show all",
+    "processing_center": "Processing Center",
+    "local_navigator": "Local navigator",
+    "no_results": "There are no items to display.",
+    "folder_items": "{count} items in folder",
+    "visible_items": "{count} loaded items",
+    "files_count": "{count} files",
+    "col_name": "Name",
+    "col_path": "Full path",
+    "col_title": "Title",
+    "col_artist": "Artist",
+    "col_album": "Album",
+    "col_genre": "Genre",
+    "col_year": "Year",
+    "col_duration": "Duration",
     "search_title": "Search",
     "search_title_compact": "Search",
     "search_placeholder": "Search audio…",
@@ -831,9 +831,12 @@
     "library_rename_locked": "The file is in use by another application. Close it and try again.",
     "library_rename_failed": "The file could not be renamed; its previous name was preserved.",
     "library_rename_recovery_failed": "Automatic rename recovery could not be completed. Do not close the app and check the original file.",
-    "library_rename_journal_invalid": "The safety record required to rename the file could not be prepared."
-  }
-,
+    "library_rename_journal_invalid": "The safety record required to rename the file could not be prepared.",
+    "platform_unavailable": "This feature is not yet available on Android.",
+    "mobile_prelisten_unavailable": "Preview is disabled in this single-output Android edition.",
+    "mobile_folder_unavailable": "Android folder selection is not yet available. Import individual audio files.",
+    "mobile_export_unavailable": "The document export could not be completed."
+  },
   "mic": {
     "label": "Mic",
     "settings": "Push to talk · Mic",
@@ -869,5 +872,11 @@
     "input_format": "This microphone input format is not available.",
     "unavailable": "Mic control is unavailable.",
     "input_required": "Mic requires a press and release."
+  },
+  "mobile": {
+    "back": "Back to soundboard",
+    "activate_track": "Play or mark as next",
+    "hint": "Tap a button to play. Touch and hold for actions. Swipe to scroll the grid.",
+    "add_audio": "Add audio"
   }
 }

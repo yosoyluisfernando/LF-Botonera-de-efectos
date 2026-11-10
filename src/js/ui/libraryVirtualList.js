@@ -1,8 +1,10 @@
 /** Renderiza únicamente las filas visibles y un colchón de 50 por lado. */
-const ROW_HEIGHT = 40;
+
 const OVERSCAN = 50;
 
 export function createLibraryVirtualList(container, createRow) {
+    const rowHeight = () => parseFloat(getComputedStyle(container)
+        .getPropertyValue("--library-row-height")) || 40;
     let items = [];
     let offset = 0;
     let total = 0;
@@ -15,22 +17,22 @@ export function createLibraryVirtualList(container, createRow) {
     }
 
     function render() {
-        const firstVisible = Math.floor(container.scrollTop / ROW_HEIGHT) - offset;
-        const visible = Math.ceil(container.clientHeight / ROW_HEIGHT) || 1;
+        const firstVisible = Math.floor(container.scrollTop / rowHeight()) - offset;
+        const visible = Math.ceil(container.clientHeight / rowHeight()) || 1;
         const start = Math.min(items.length, Math.max(0, firstVisible - OVERSCAN));
         const end = Math.min(
             items.length, Math.max(start, firstVisible + visible + OVERSCAN));
         container.replaceChildren(
-            spacer((offset + start) * ROW_HEIGHT),
+            spacer((offset + start) * rowHeight()),
             ...items.slice(start, end).map((item, offset) =>
                 createRow(item, start + offset)),
-            spacer(Math.max(0, total - offset - end) * ROW_HEIGHT),
+            spacer(Math.max(0, total - offset - end) * rowHeight()),
         );
     }
 
     function ensureVisible(index) {
-        const top = (offset + index) * ROW_HEIGHT;
-        const bottom = top + ROW_HEIGHT;
+        const top = (offset + index) * rowHeight();
+        const bottom = top + rowHeight();
         if (top < container.scrollTop) container.scrollTop = top;
         else if (bottom > container.scrollTop + container.clientHeight) {
             container.scrollTop = bottom - container.clientHeight;
@@ -39,7 +41,7 @@ export function createLibraryVirtualList(container, createRow) {
     }
 
     container.addEventListener('scroll', render);
-    return { setItems, render, ensureVisible, rowHeight: ROW_HEIGHT };
+    return { setItems, render, ensureVisible, get rowHeight() { return rowHeight(); } };
 }
 
 function spacer(height) {

@@ -132,7 +132,9 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
 
     // Hilo de clima: refresca cada 15 min y emite "weather-updated"
     weather::start_auto_refresh(app.handle().clone());
+    #[cfg(not(target_os = "android"))]
     state.midi.start(app.handle().clone());
+    #[cfg(not(target_os = "android"))]
     state.mic.start(
         app.handle().clone(),
         Arc::clone(&state.console),

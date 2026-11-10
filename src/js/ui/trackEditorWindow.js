@@ -1,3 +1,4 @@
+import { isAndroid } from '../bridge/platform.js';
 /**
  * Archivo: trackEditorWindow.js
  * Proposito: coordinacion de ventana flotante/modal del editor de pista.
@@ -40,6 +41,7 @@ export async function dockIn(path, name, onClose, zoom = 1) {
 }
 
 async function openWindow(path, name, zoom = 1) {
+    if (isAndroid()) return false;
     const url = `index.html?editor=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}&zoom=${encodeURIComponent(zoom)}`;
     try {
         const api = window.__TAURI__;

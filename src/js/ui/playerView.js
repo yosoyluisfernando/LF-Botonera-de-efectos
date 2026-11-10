@@ -1,3 +1,4 @@
+import { addTouchTrackAction, initTouchAudioImport } from './touchTrackAction.js';
 /**
  * Archivo: playerView.js
  * Proposito: dibuja el modo reproductor del panel fijo (cola + transporte) y
@@ -26,6 +27,7 @@ let _tracks = [];
 export function initPlayerView() {
     if (_wired) return;
     _wired = true;
+    initTouchAudioImport(drawPlayerView);
     initPlayerProgress();
     initPlayerModes();
     initPlayerVolume();
@@ -44,7 +46,6 @@ export function initPlayerView() {
     _on('player-clear', () => _replaceQueue('player.save_before_clear', _clear));
     _on('player-open', () => _replaceQueue('player.save_before_open', _open));
 }
-
 /**
  * Limpiar y Abrir borran la cola actual, asi que antes ofrecen guardarla:
  * Guardar / No guardar / Cancelar. Si el guardado se cancela, no se borra nada.
@@ -60,7 +61,6 @@ async function _replaceQueue(promptKey, action) {
     }
     await action();
 }
-
 /** Guarda la lista. Devuelve false si el usuario cerro el dialogo. */
 async function _save() {
     try {
@@ -83,7 +83,6 @@ async function _open() {
         await alertIpcError(err);
     }
 }
-
 /** Redibuja la cola completa. Solo tras editarla o al cambiar de vista. */
 export async function drawPlayerView() {
     const view = await invoke('get_player');
@@ -100,7 +99,6 @@ export async function drawPlayerView() {
     setQueueTotal(view.total_s, view.time_display);
     paintPlayerTick(view.snapshot);
 }
-
 /** Pinta el estado en vivo: verde (sonando), naranja (siguiente) y el tiempo. */
 export function paintPlayerTick(snapshot) {
     const rows = document.querySelectorAll('#player-rows .player-row');
@@ -123,7 +121,6 @@ export function paintPlayerTick(snapshot) {
     paintPlayerModes(snapshot.mode);
     paintPlayerVolume(snapshot.volume);
 }
-
 /** El cartel de la lista vacía. Se cae solo en cuanto entre la primera canción:
  *  `drawPlayerView` vacía las filas y solo lo vuelve a poner si sigue sin haber. */
 function _emptyHint() {
@@ -160,10 +157,10 @@ function _row(track, position) {
     });
     // Clic derecho: acciones individuales o eliminación de la selección.
     el.addEventListener('contextmenu', e => _openTrackContext(e, track));
+    addTouchTrackAction(el, position);
     el.title = t('player.row_hint');
     return el;
 }
-
 /** Tras editar el cue o la ganancia de una pista, el reproductor pre-resuelve la
  *  cola y no veria el cambio: se re-sincroniza y se repinta. */
 async function _afterTrackEdit() {

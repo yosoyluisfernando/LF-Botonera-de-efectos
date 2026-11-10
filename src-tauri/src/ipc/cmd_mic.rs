@@ -24,6 +24,7 @@ pub async fn mic_devices() -> Result<Vec<String>, String> {
 
 #[tauri::command]
 pub fn set_mic_config(config: MicConfig, state: tauri::State<AppState>) -> Result<(), String> {
+    if cfg!(target_os = "android") { return Err("platform_unavailable".into()); }
     config.validate()?;
     let mut cfg = state.config.lock().unwrap();
     let mut next = cfg.clone();
@@ -35,11 +36,13 @@ pub fn set_mic_config(config: MicConfig, state: tauri::State<AppState>) -> Resul
 
 #[tauri::command]
 pub fn mic_preview(input: Option<String>, state: tauri::State<AppState>) -> Result<(), String> {
+    if cfg!(target_os = "android") { return Err("platform_unavailable".into()); }
     state.mic.send(Command::Preview(input))
 }
 
 #[tauri::command]
 pub fn mic_pointer(pressed: bool, state: tauri::State<AppState>) -> Result<(), String> {
+    if cfg!(target_os = "android") { return Err("platform_unavailable".into()); }
     state.mic.send(Command::Input("pointer".into(), pressed))
 }
 

@@ -63,10 +63,10 @@ pub fn set_locution_config(
 }
 
 /// Abre el selector nativo de carpetas y devuelve ruta mas nombre visible.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn pick_named_folder() -> Result<PickedFolder, String> {
-    let path = rfd::FileDialog::new()
-        .pick_folder()
+    let path = crate::engine::files::FileDialog::new()
+        .pick_folder()?
         .ok_or("Operación cancelada.".to_string())?;
     let name = path
         .file_name()

@@ -6,20 +6,19 @@ use crate::domain::button::audio_file;
 use crate::domain::button::defaults::new_button;
 use crate::engine::audio::formats::{validate_audio_file, AUDIO_EXTENSIONS};
 use crate::engine::persist::config_io;
-#[tauri::command]
+#[tauri::command(async)]
 pub fn assign_file_to_fixed_button(
     index: Option<u32>,
     path: Option<String>,
     state_: tauri::State<AppState>,
 ) -> Result<FixedPanelState, String> {
-    let path = path
-        .or_else(|| {
-            rfd::FileDialog::new()
-                .add_filter("Audio", AUDIO_EXTENSIONS)
-                .pick_file()
-                .map(|p| p.to_string_lossy().to_string())
-        })
-        .ok_or("Operación cancelada.")?;
+    let path = match path {
+        Some(path) => path,
+        None => crate::engine::files::FileDialog::new()
+            .add_filter("Audio", AUDIO_EXTENSIONS).pick_file()?
+            .map(|p| p.to_string_lossy().into_owned())
+            .ok_or("Operación cancelada.")?,
+    };
     let is_folder = std::path::Path::new(&path).is_dir();
     if is_folder {
         crate::domain::button::random_folder::ensure_has_audio(&path)?;

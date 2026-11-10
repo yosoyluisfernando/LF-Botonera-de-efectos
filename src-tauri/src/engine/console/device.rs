@@ -7,6 +7,7 @@ use rodio::cpal::traits::{DeviceTrait, HostTrait};
 /// Lista las salidas disponibles. "default" siempre va primero: no es el nombre
 /// de ninguna tarjeta, es "la que diga el sistema".
 pub fn available_devices() -> Vec<String> {
+    if cfg!(target_os = "android") { return vec!["default".into()]; }
     let host = rodio::cpal::default_host();
     let mut devices = vec!["default".to_string()];
     if let Ok(devs) = host.output_devices() {
@@ -25,7 +26,7 @@ pub fn device_available(device_name: &str) -> bool {
 
 pub fn find_device(device_name: &str) -> Option<rodio::cpal::Device> {
     let host = rodio::cpal::default_host();
-    if device_name == "default" {
+    if cfg!(target_os = "android") || device_name == "default" {
         return host.default_output_device();
     }
     host.output_devices().ok().and_then(|mut devices| {

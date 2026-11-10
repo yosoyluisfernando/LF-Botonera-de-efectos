@@ -1,3 +1,4 @@
+import { isAndroid } from '../bridge/platform.js';
 /** Interacciones de Mic; el estado y las transiciones proceden de Rust. */
 import { invoke, listen } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
@@ -13,6 +14,7 @@ export function initMic() {
     if (wired) return;
     wired = true;
     const button = document.getElementById('mic-button');
+    if (isAndroid()) { button.disabled = true; button.title = t('errors.platform_unavailable'); return; }
     const send = pressed => {
         commands = commands.then(() => invoke('mic_pointer', { pressed })).catch(console.error);
     };
@@ -55,6 +57,7 @@ export function initMic() {
 
 function paintMic(state) {
     const button = document.getElementById('mic-button');
+    if (isAndroid()) { button.disabled = true; button.title = t('errors.platform_unavailable'); return; }
     const status = state.error ? t(state.error) : t('mic.' + (state.active ? 'active' : state.listening ? 'listening' : 'idle'));
     button.classList.toggle('mic-active', state.active);
     button.classList.toggle('mic-listening', state.listening && !state.active);

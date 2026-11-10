@@ -25,6 +25,10 @@ export function invoke(cmd, args) {
     }
 
     console.warn(`[Sin Backend Tauri] invoke('${cmd}') — usando datos de fallback.`);
+    if (cmd === 'get_platform_capabilities') return Promise.resolve({
+        platform: 'browser', multiple_outputs: true, multi_window: true,
+        midi: false, mic: false, background_audio: false, prelisten: false,
+    });
     if (cmd === 'get_config') {
         return Promise.resolve({
             is_first_boot: false,

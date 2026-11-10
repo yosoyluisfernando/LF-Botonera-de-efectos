@@ -1,4 +1,8 @@
 pub mod actions;
+#[cfg(not(target_os = "android"))]
+pub mod keyboard;
+#[cfg(target_os = "android")]
+#[path = "keyboard_mobile.rs"]
 pub mod keyboard;
 pub mod midi;
 pub mod midi_backend;

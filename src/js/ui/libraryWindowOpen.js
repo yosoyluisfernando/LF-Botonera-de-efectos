@@ -1,3 +1,4 @@
+import { isAndroid } from '../bridge/platform.js';
 /** Abre o enfoca la única ventana Biblioteca. */
 import { t } from '../util/i18n.js';
 
@@ -6,6 +7,7 @@ export function initLibraryWindowOpen() {
 }
 
 export async function openLibraryWindow() {
+    if (isAndroid()) { location.href = "library.html"; return true; }
     try {
         const api = window.__TAURI__;
         const WindowClass = api.webviewWindow.WebviewWindow;

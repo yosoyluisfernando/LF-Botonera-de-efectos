@@ -1,9 +1,10 @@
+use super::cmd_export_io::{finish_export, parse_profile};
 /// Modulo: cmd_export.rs
 /// Proposito: comandos IPC de exportacion/importacion .bdelf y .bdeplf. Ademas
 /// de la pestaña/perfil, empaqueta los metadatos del editor (cue, dB) en un
 /// campo opcional `bdelf_tracks` para que no se pierdan (ver export_tracks.rs).
 use super::AppState;
-use crate::domain::export::lfa_format::{self, LfaPaleta, LfaProfile};
+use crate::domain::export::lfa_format::{self, LfaPaleta};
 use crate::domain::export::tracks as export_tracks;
 use crate::domain::grid::view::paleta_to_grid;
 use crate::engine::persist::config_io as config;
@@ -12,7 +13,7 @@ use crate::model::{AppConfig, ProfileData};
 use serde_json::Value;
 
 /// Exporta la pestaña activa como .bdelf.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn export_tab(state: tauri::State<AppState>) -> Result<(), String> {
     let (name, value, paths) = {
         let cfg = state.config.lock().unwrap();
@@ -30,7 +31,7 @@ pub fn export_tab(state: tauri::State<AppState>) -> Result<(), String> {
 }
 
 /// Exporta una pestaña concreta sin cambiar el estado activo de la aplicacion.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn export_tab_by_id(
     profile_id: String,
     paleta_id: String,
@@ -52,11 +53,11 @@ pub fn export_tab_by_id(
 }
 
 /// Importa un .bdelf como nueva pestaña del perfil activo.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn import_tab(state: tauri::State<AppState>) -> Result<GridState, String> {
-    let pick = rfd::FileDialog::new()
+    let pick = crate::engine::files::FileDialog::new()
         .add_filter("LF Botonera de Efectos Tab", &["bdelf"])
-        .pick_file()
+        .pick_file()?
         .ok_or("Operación cancelada.")?;
     let json = std::fs::read_to_string(pick).map_err(|e| e.to_string())?;
     let mut value: Value = serde_json::from_str(&json).map_err(|e| e.to_string())?;
@@ -85,7 +86,7 @@ pub fn import_tab(state: tauri::State<AppState>) -> Result<GridState, String> {
 }
 
 /// Exporta el perfil activo como .bdeplf.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn export_profile(state: tauri::State<AppState>) -> Result<(), String> {
     let (name, value, paths) = {
         let cfg = state.config.lock().unwrap();
@@ -102,7 +103,7 @@ pub fn export_profile(state: tauri::State<AppState>) -> Result<(), String> {
 }
 
 /// Exporta un perfil concreto sin cambiar el perfil activo.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn export_profile_by_id(
     profile_id: String,
     state: tauri::State<AppState>,
@@ -122,11 +123,11 @@ pub fn export_profile_by_id(
 }
 
 /// Importa un .bdeplf como nuevo perfil y lo activa.
-#[tauri::command]
+#[tauri::command(async)]
 pub fn import_profile(state: tauri::State<AppState>) -> Result<(), String> {
-    let pick = rfd::FileDialog::new()
+    let pick = crate::engine::files::FileDialog::new()
         .add_filter("LF Botonera de Efectos Profile", &["bdeplf"])
-        .pick_file()
+        .pick_file()?
         .ok_or("Operación cancelada.")?;
     let json = std::fs::read_to_string(pick).map_err(|e| e.to_string())?;
     let mut value: Value = serde_json::from_str(&json).map_err(|e| e.to_string())?;
@@ -187,47 +188,4 @@ fn profile_export_payload(profile: &ProfileData) -> Result<(String, Value, Vec<S
         .flat_map(export_tracks::paleta_paths)
         .collect();
     Ok((profile.name.clone(), value, paths))
-}
-
-/// Inyecta `bdelf_tracks`, serializa y abre el diálogo de guardado.
-fn finish_export(
-    state: &AppState,
-    label: &str,
-    ext: &str,
-    name: String,
-    mut value: Value,
-    paths: Vec<String>,
-) -> Result<(), String> {
-    {
-        let store = state.tracks.lock().unwrap();
-        export_tracks::inject(&mut value, &store, &paths);
-    }
-    let json = serde_json::to_string_pretty(&value).map_err(|e| e.to_string())?;
-    write_export(label, ext, &name, &json)
-}
-
-fn write_export(label: &str, extension: &str, name: &str, json: &str) -> Result<(), String> {
-    let path = rfd::FileDialog::new()
-        .add_filter(label, &[extension])
-        .set_file_name(&format!("{}.{}", name, extension))
-        .save_file()
-        .ok_or("Operación cancelada.")?;
-    std::fs::write(path, json).map_err(|e| e.to_string())
-}
-
-/// Acepta un perfil suelto o un estado completo { activeProfileId, profiles }.
-fn parse_profile(value: Value) -> Result<LfaProfile, String> {
-    if let Some(profiles) = value.get("profiles").and_then(|p| p.as_array()) {
-        let active_id = value
-            .get("activeProfileId")
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
-        let chosen = profiles
-            .iter()
-            .find(|p| p.get("id").and_then(|v| v.as_str()) == Some(active_id))
-            .or_else(|| profiles.first())
-            .ok_or("El archivo no contiene perfiles")?;
-        return serde_json::from_value(chosen.clone()).map_err(|e| e.to_string());
-    }
-    serde_json::from_value(value).map_err(|e| e.to_string())
 }

@@ -2,7 +2,10 @@
 use crate::core::AppState;
 use crate::engine::persist::config_io;
 use crate::model::{AppConfig, AudioConfig};
+#[cfg(not(target_os = "android"))]
 use tauri_plugin_global_shortcut::Shortcut;
+#[cfg(target_os = "android")]
+type Shortcut = String;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ProfileAction {

@@ -11,7 +11,7 @@ use tauri::{AppHandle, State};
 const FILTER: &str = "LF Botonera (.lfbackup)";
 const EXTENSION: &str = "lfbackup";
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn backup_create(state: State<'_, AppState>) -> Result<Option<BackupSummary>, String> {
     let _operation = state
         .backup_operation
@@ -21,10 +21,10 @@ pub fn backup_create(state: State<'_, AppState>) -> Result<Option<BackupSummary>
         "LF-Botonera-respaldo-{}.lfbackup",
         Local::now().format("%Y-%m-%d_%H%M")
     );
-    let Some(mut destination) = rfd::FileDialog::new()
+    let Some(mut destination) = crate::engine::files::FileDialog::new()
         .add_filter(FILTER, &[EXTENSION])
         .set_file_name(&default_name)
-        .save_file()
+        .save_file()?
     else {
         return Ok(None);
     };
@@ -37,10 +37,12 @@ pub fn backup_create(state: State<'_, AppState>) -> Result<Option<BackupSummary>
         .lock()
         .map_err(|_| "backup_config_unavailable")?
         .clone();
-    create_package(&config, &db::db_path(), &destination).map(Some)
+    let summary = create_package(&config, &db::db_path(), &destination)?;
+    crate::engine::files::commit_export(&destination)?;
+    Ok(Some(summary))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn backup_choose_restore(
     state: State<'_, AppState>,
 ) -> Result<Option<BackupInspection>, String> {
@@ -48,9 +50,9 @@ pub fn backup_choose_restore(
         .backup_operation
         .lock()
         .map_err(|_| "backup_operation_unavailable")?;
-    let Some(path) = rfd::FileDialog::new()
+    let Some(path) = crate::engine::files::FileDialog::new()
         .add_filter(FILTER, &[EXTENSION])
-        .pick_file()
+        .pick_file()?
     else {
         return Ok(None);
     };

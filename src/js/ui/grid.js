@@ -35,8 +35,8 @@ export function drawGrid(gridState, onRefresh) {
     setPlaybackButtons(gridState.buttons);
 
     gridEl.innerHTML = '';
-    gridEl.style.gridTemplateColumns = `repeat(${gridState.columns}, 1fr)`;
-    gridEl.style.gridTemplateRows    = `repeat(${gridState.rows}, 1fr)`;
+    gridEl.style.gridTemplateColumns = `repeat(${gridState.columns}, minmax(var(--touch-cell-width, 0px), 1fr))`;
+    gridEl.style.gridTemplateRows    = `repeat(${gridState.rows}, minmax(var(--touch-cell-height, 0px), 1fr))`;
 
     const total = gridState.columns * gridState.rows;
     for (let i = 0; i < total; i++) {
@@ -80,14 +80,22 @@ function _makeCell(index, btnData) {
         });
     } else {
         btn.innerHTML = `<span class="index">${index}</span>`;
+        let assigning = false;
         // Doble clic (no clic simple) para no entorpecer el flujo de trabajo
-        btn.addEventListener('dblclick', async () => {
-            if (isMapping()) return;
+        btn.addEventListener('dblclick', assignEmpty);
+        btn.addEventListener('click', e => {
+            if (e.pointerType === 'touch') assignEmpty();
+        });
+        async function assignEmpty() {
+            if (isMapping() || assigning) return;
+            assigning = true;
             try {
                 const s = await invoke('assign_file_to_button', { index, path: null });
                 if (s) drawGrid(s, _onRefresh);
-            } catch (_) { /* Usuario canceló */ }
-        });
+            } catch (error) {
+                if (!String(error).toLowerCase().includes('cancel')) await alertIpcError(error);
+            } finally { assigning = false; }
+        }
     }
 
     btn.addEventListener('contextmenu', e => {

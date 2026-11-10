@@ -188,25 +188,25 @@
     "ready": "Todo listo."
   },
   "library": {
-      "window_title": "Biblioteca — LF Botonera de Efectos",
-      "open_window": "Abrir Biblioteca",
-      "loading": "Cargando Biblioteca…",
-      "refresh": "Actualizar",
-      "show_all": "Mostrar todo",
-      "processing_center": "Centro de procesamiento",
-      "local_navigator": "Navegador local",
-      "no_results": "No hay elementos para mostrar.",
-      "folder_items": "{count} elementos en la carpeta",
-      "visible_items": "{count} elementos cargados",
-      "files_count": "{count} archivos",
-      "col_name": "Nombre",
-      "col_path": "Ruta completa",
-      "col_title": "Título",
-      "col_artist": "Artista",
-      "col_album": "Álbum",
-      "col_genre": "Género",
-      "col_year": "Año",
-      "col_duration": "Duración",
+    "window_title": "Biblioteca — LF Botonera de Efectos",
+    "open_window": "Abrir Biblioteca",
+    "loading": "Cargando Biblioteca…",
+    "refresh": "Actualizar",
+    "show_all": "Mostrar todo",
+    "processing_center": "Centro de procesamiento",
+    "local_navigator": "Navegador local",
+    "no_results": "No hay elementos para mostrar.",
+    "folder_items": "{count} elementos en la carpeta",
+    "visible_items": "{count} elementos cargados",
+    "files_count": "{count} archivos",
+    "col_name": "Nombre",
+    "col_path": "Ruta completa",
+    "col_title": "Título",
+    "col_artist": "Artista",
+    "col_album": "Álbum",
+    "col_genre": "Género",
+    "col_year": "Año",
+    "col_duration": "Duración",
     "search_title": "Buscador",
     "search_title_compact": "Buscar",
     "search_placeholder": "Buscar audio…",
@@ -831,9 +831,12 @@
     "library_rename_locked": "El archivo está siendo utilizado por otra aplicación. Ciérralo e inténtalo de nuevo.",
     "library_rename_failed": "No se pudo renombrar el archivo; se conservó el nombre anterior.",
     "library_rename_recovery_failed": "No se pudo completar la recuperación automática del renombrado. No cierres la aplicación y revisa el archivo original.",
-    "library_rename_journal_invalid": "No se pudo preparar el registro de seguridad para renombrar el archivo."
-  }
-,
+    "library_rename_journal_invalid": "No se pudo preparar el registro de seguridad para renombrar el archivo.",
+    "platform_unavailable": "Esta función aún no está disponible en Android.",
+    "mobile_prelisten_unavailable": "La escucha previa no está habilitada en esta edición Android de salida única.",
+    "mobile_folder_unavailable": "La selección de carpetas Android aún no está disponible. Importa audios individuales.",
+    "mobile_export_unavailable": "No se pudo completar la exportación del documento."
+  },
   "mic": {
     "label": "Mic",
     "settings": "Pulsar para hablar · Mic",
@@ -869,5 +872,11 @@
     "input_format": "El formato de esta entrada de micrófono no está disponible.",
     "unavailable": "El control de Mic no está disponible.",
     "input_required": "Mic necesita una pulsación y su liberación."
+  },
+  "mobile": {
+    "back": "Volver a la botonera",
+    "activate_track": "Reproducir o marcar como siguiente",
+    "hint": "Toca un botón para dispararlo. Mantén pulsado para ver sus acciones. Desliza para recorrer la rejilla.",
+    "add_audio": "Añadir audio"
   }
 }

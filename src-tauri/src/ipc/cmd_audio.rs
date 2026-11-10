@@ -161,6 +161,7 @@ pub fn set_audio_volume(id: String, volume: f32, state: tauri::State<AppState>) 
 }
 
 fn configured_devices(state: &AppState) -> (String, String) {
+    if cfg!(target_os = "android") { return ("default".into(), String::new()); }
     let cfg = state.config.lock().unwrap();
     let audio = cfg.active_audio();
     (

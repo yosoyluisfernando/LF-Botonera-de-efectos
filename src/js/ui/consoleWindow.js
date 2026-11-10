@@ -1,3 +1,4 @@
+import { isAndroid } from '../bridge/platform.js';
 /**
  * Archivo: consoleWindow.js
  * Propósito: abrir la consola donde toque — ventana flotante o modal — y
@@ -69,6 +70,7 @@ async function dockIn() {
 }
 
 function _openWindow() {
+    if (isAndroid()) return false;
     try {
         new window.__TAURI__.webviewWindow.WebviewWindow('audio-console', {
             url: 'index.html?console=1',

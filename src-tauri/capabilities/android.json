@@ -1,0 +1,7 @@
+{
+  "identifier": "android",
+  "description": "Single Android webview; document IO is performed in Rust",
+  "platforms": ["android"],
+  "windows": ["main"],
+  "permissions": ["core:default", "opener:allow-open-url", "opener:allow-default-urls"]
+}

@@ -8,6 +8,7 @@ pub mod cmd_button_update;
 pub mod cmd_config;
 pub mod cmd_console;
 pub mod cmd_export;
+mod cmd_export_io;
 pub mod cmd_fixed_buttons;
 pub mod cmd_fixed_move;
 pub mod cmd_fixed_panel;

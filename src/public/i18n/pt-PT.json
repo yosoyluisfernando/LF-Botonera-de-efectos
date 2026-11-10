@@ -188,25 +188,25 @@
     "ready": "Tudo pronto."
   },
   "library": {
-      "window_title": "Biblioteca — LF Botoneira de Efeitos",
-      "open_window": "Abrir Biblioteca",
-      "loading": "A carregar Biblioteca…",
-      "refresh": "Atualizar",
-      "show_all": "Mostrar tudo",
-      "processing_center": "Centro de processamento",
-      "local_navigator": "Navegador local",
-      "no_results": "Não existem itens para mostrar.",
-      "folder_items": "{count} itens na pasta",
-      "visible_items": "{count} itens carregados",
-      "files_count": "{count} ficheiros",
-      "col_name": "Nome",
-      "col_path": "Caminho completo",
-      "col_title": "Título",
-      "col_artist": "Artista",
-      "col_album": "Álbum",
-      "col_genre": "Género",
-      "col_year": "Ano",
-      "col_duration": "Duração",
+    "window_title": "Biblioteca — LF Botoneira de Efeitos",
+    "open_window": "Abrir Biblioteca",
+    "loading": "A carregar Biblioteca…",
+    "refresh": "Atualizar",
+    "show_all": "Mostrar tudo",
+    "processing_center": "Centro de processamento",
+    "local_navigator": "Navegador local",
+    "no_results": "Não existem itens para mostrar.",
+    "folder_items": "{count} itens na pasta",
+    "visible_items": "{count} itens carregados",
+    "files_count": "{count} ficheiros",
+    "col_name": "Nome",
+    "col_path": "Caminho completo",
+    "col_title": "Título",
+    "col_artist": "Artista",
+    "col_album": "Álbum",
+    "col_genre": "Género",
+    "col_year": "Ano",
+    "col_duration": "Duração",
     "search_title": "Pesquisa",
     "search_title_compact": "Pesquisa",
     "search_placeholder": "Pesquisar áudio…",
@@ -831,9 +831,12 @@
     "library_rename_locked": "O ficheiro está a ser utilizado por outra aplicação. Feche-o e tente novamente.",
     "library_rename_failed": "Não foi possível mudar o nome do ficheiro; o nome anterior foi mantido.",
     "library_rename_recovery_failed": "Não foi possível concluir a recuperação automática. Não feche a aplicação e verifique o ficheiro original.",
-    "library_rename_journal_invalid": "Não foi possível preparar o registo de segurança para mudar o nome do ficheiro."
-  }
-,
+    "library_rename_journal_invalid": "Não foi possível preparar o registo de segurança para mudar o nome do ficheiro.",
+    "platform_unavailable": "Esta funcionalidade ainda não está disponível no Android.",
+    "mobile_prelisten_unavailable": "A pré-escuta não está ativa nesta edição Android com saída única.",
+    "mobile_folder_unavailable": "A seleção de pastas no Android ainda não está disponível. Importe ficheiros de áudio individuais.",
+    "mobile_export_unavailable": "Não foi possível concluir a exportação do documento."
+  },
   "mic": {
     "label": "Mic",
     "settings": "Premir para falar · Mic",
@@ -869,5 +872,11 @@
     "input_format": "O formato desta entrada de microfone não está disponível.",
     "unavailable": "O controlo de Mic não está disponível.",
     "input_required": "Mic precisa de uma pressão e da respetiva libertação."
+  },
+  "mobile": {
+    "back": "Voltar à botonera",
+    "activate_track": "Reproduzir ou marcar como seguinte",
+    "hint": "Toque num botão para reproduzir. Mantenha premido para ver as ações. Deslize para percorrer a grelha.",
+    "add_audio": "Adicionar áudio"
   }
 }
