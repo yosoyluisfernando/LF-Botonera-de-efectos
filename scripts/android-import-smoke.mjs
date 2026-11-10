@@ -89,7 +89,7 @@ async function verifyLayout(evaluate) {
         assert.ok(layout.stop <= layout.height + 1, JSON.stringify(layout));
         const orientation = landscape ? 'horizontal' : 'vertical';
         writeFileSync(`android-smoke/${orientation}.png`,
-            execFileSync(process.argv[2], ['exec-out', 'screencap', '-p']));
+            execFileSync(process.argv[2], ['exec-out', 'screencap', '-p'], { timeout: 15000 }));
         console.log('Transporte visible', orientation, layout);
     }
 }

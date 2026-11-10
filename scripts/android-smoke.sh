@@ -11,18 +11,18 @@ emulator_log=android-smoke/emulator.txt
 
 test -c /dev/kvm
 sudo chmod a+rw /dev/kvm
-sdkmanager --sdk_root="$sdk" 'platform-tools' 'emulator' 'system-images;android-35;google_apis;x86_64'
+timeout --kill-after=10 240 sdkmanager --sdk_root="$sdk" 'platform-tools' 'emulator' 'system-images;android-35;google_apis;x86_64'
 printf 'no\n' | avdmanager create avd -n lf-smoke -k 'system-images;android-35;google_apis;x86_64' -p "$ANDROID_AVD_HOME/lf-smoke.avd"
 test -f "$ANDROID_AVD_HOME/lf-smoke.ini"
 "$adb" start-server
 "$sdk/emulator/emulator" -avd lf-smoke -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader -memory 3072 > "$emulator_log" 2>&1 &
 emulator_pid=$!
 cleanup() {
-    "$adb" logcat -d -v threadtime > "$log" 2>/dev/null || true
+    timeout 15 "$adb" logcat -d -v threadtime > "$log" 2>/dev/null || true
     if [ "${1:-0}" != 0 ]; then
         grep -E 'FATAL EXCEPTION|Fatal signal|panicked|UnsatisfiedLinkError|AndroidRuntime' "$log" | tail -65 || true
-        "$adb" exec-out screencap -p > android-smoke/failure.png 2>/dev/null || true
-        "$adb" exec-out cat /sdcard/lf-picker.xml > android-smoke/picker.xml 2>/dev/null || true
+        timeout 15 "$adb" exec-out screencap -p > android-smoke/failure.png 2>/dev/null || true
+        timeout 15 "$adb" exec-out cat /sdcard/lf-picker.xml > android-smoke/picker.xml 2>/dev/null || true
         tail -20 "$emulator_log"
     fi
     kill "$emulator_pid" 2>/dev/null || true
@@ -49,8 +49,8 @@ for attempt in 1 2; do
     "$adb" shell dumpsys activity activities > android-smoke/activities.txt
     grep -E "(topResumedActivity|mResumedActivity).* $pkg/" android-smoke/activities.txt
 done
-"$adb" exec-out screencap -p > android-smoke/window.png
-"$adb" logcat -d -v threadtime > "$log"
+timeout 15 "$adb" exec-out screencap -p > android-smoke/window.png
+timeout 15 "$adb" logcat -d -v threadtime > "$log"
 if grep -E 'ndk-context-.+panicked|android context was not initialized|UnsatisfiedLinkError.*libtauri_app_lib' "$log"; then
     exit 1
 fi
@@ -68,4 +68,4 @@ PYTHON
 "$adb" shell mkdir -p /sdcard/Download
 "$adb" push android-smoke/LF-Smoke.wav /sdcard/Download/LF-Smoke.wav
 "$adb" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/LF-Smoke.wav
-timeout 150 node scripts/android-import-smoke.mjs "$adb"
+timeout --kill-after=10 150 node scripts/android-import-smoke.mjs "$adb"
