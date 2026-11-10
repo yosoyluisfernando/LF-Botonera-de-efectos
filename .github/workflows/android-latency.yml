@@ -1,0 +1,52 @@
+name: Comparar latencia Android sin recompilar
+on:
+  push:
+    branches: [codex/android-latency-check]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  latency:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42826485859
+          name: LF-Botonera-Android-ARM64-debug
+          path: anterior
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 42836852874
+          name: LF-Botonera-Android-ARM64-debug
+          path: ajustes
+      - name: Prepare Android CLI
+        run: |
+          export ANDROID_HOME="${ANDROID_HOME:-$RUNNER_TEMP/android-sdk}"
+          mkdir -p "$ANDROID_HOME/cmdline-tools"
+          if ! command -v sdkmanager >/dev/null; then
+            curl -fsSL --retry 3 https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip -o "$RUNNER_TEMP/tools.zip"
+            unzip -q "$RUNNER_TEMP/tools.zip" -d "$RUNNER_TEMP/tools"
+            mv "$RUNNER_TEMP/tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/lf-ci"
+            export PATH="$ANDROID_HOME/cmdline-tools/lf-ci/bin:$PATH"
+            echo "$ANDROID_HOME/cmdline-tools/lf-ci/bin" >> "$GITHUB_PATH"
+          fi
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses >/dev/null
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+      - run: bash scripts/android-latency-check.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: latencia-android
+          path: android-smoke/
+
