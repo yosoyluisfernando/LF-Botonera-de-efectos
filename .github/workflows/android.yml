@@ -26,8 +26,25 @@ jobs:
           targets: aarch64-linux-android
       - name: Android SDK and NDK
         run: |
-          sdkmanager 'platforms;android-36' 'platforms;android-35' 'build-tools;36.0.0' 'ndk;27.2.12479018'
+          export ANDROID_HOME="${ANDROID_HOME:-$RUNNER_TEMP/android-sdk}"
+          mkdir -p "$ANDROID_HOME/cmdline-tools"
+          if ! command -v sdkmanager >/dev/null; then
+            curl --fail --silent --show-error --location --retry 3 \
+              https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip \
+              --output "$RUNNER_TEMP/android-tools.zip"
+            unzip -q "$RUNNER_TEMP/android-tools.zip" -d "$RUNNER_TEMP/android-tools"
+            mv "$RUNNER_TEMP/android-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/lf-ci"
+            export PATH="$ANDROID_HOME/cmdline-tools/lf-ci/bin:$PATH"
+          fi
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses > /dev/null
+          sdkmanager --sdk_root="$ANDROID_HOME" 'platforms;android-36' 'platforms;android-35' 'build-tools;36.0.0' 'ndk;27.2.12479018'
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
           echo "NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: android-aarch64
+          cache-on-failure: true
       - run: npm ci
       - run: node --test scripts/mobile-locales.test.mjs scripts/touch-controls.test.mjs
       - run: npm run tauri -- android init --ci --skip-targets-install
