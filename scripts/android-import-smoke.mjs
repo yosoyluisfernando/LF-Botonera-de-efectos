@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { writeFileSync } from 'node:fs';
 
 const adb = (...args) => execFileSync(process.argv[2], args, { encoding: 'utf8', timeout: 20000 }).trim();
 const pkg = 'io.github.yosoyluisfernando.lfbotonera';
@@ -86,7 +87,10 @@ async function verifyLayout(evaluate) {
         }, 'La botonera no apareció en la orientación solicitada');
         assert.equal(layout.clock, 0);
         assert.ok(layout.stop <= layout.height + 1, JSON.stringify(layout));
-        console.log('Transporte visible', landscape ? 'horizontal' : 'vertical', layout);
+        const orientation = landscape ? 'horizontal' : 'vertical';
+        writeFileSync(`android-smoke/${orientation}.png`,
+            execFileSync(process.argv[2], ['exec-out', 'screencap', '-p']));
+        console.log('Transporte visible', orientation, layout);
     }
 }
 

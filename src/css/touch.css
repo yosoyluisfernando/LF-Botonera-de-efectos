@@ -85,7 +85,9 @@ body[data-platform="android"] #clock-widget,
 body[data-platform="android"] #mic-button,
 body[data-platform="android"] .pb-separator { display: none; }
 
-body[data-platform="android"] #app-section { height: 100%; min-height: 0; }
+body[data-platform="android"] #app-section {
+  height: 100vh; height: 100dvh; min-height: 0;
+}
 body[data-platform="android"] .workspace-shell { min-height: 0; }
 body[data-platform="android"] .workspace-main { flex: 1 1 0; min-height: 0; }
 body[data-platform="android"] #bottom-bar { height: auto; min-height: 0; }
