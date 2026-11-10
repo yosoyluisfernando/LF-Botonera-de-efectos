@@ -1,0 +1,32 @@
+/* Controles de pista para Android. Las acciones conservan el IPC compartido. */
+.te-touch-only { display: none; }
+body[data-platform="android"] .te-touch-only { display: block; }
+body[data-platform="android"] .te-step { display: inline-flex; align-items: center; justify-content: center; }
+body[data-platform="android"] :is(.te-desktop-preview, .te-zoom-hint) { display: none; }
+
+body[data-platform="android"] #track-editor-modal .track-editor-content {
+    width: min(100%, 60rem) !important;
+    height: 100%;
+}
+body[data-platform="android"] #track-editor-host { padding: 10px; }
+body[data-platform="android"] .te-wave-shell { flex: 1 0 140px; min-height: 140px; }
+body[data-platform="android"] .te-wave-container { touch-action: pan-x pan-y; }
+body[data-platform="android"] .te-touch-only.hint { margin: 0; font-size: 12px; }
+body[data-platform="android"] .te-markers { flex-wrap: wrap; gap: 6px; }
+body[data-platform="android"] .te-markers .te-spacer { display: none; }
+body[data-platform="android"] .te-controls { gap: 10px; flex-wrap: wrap; }
+body[data-platform="android"] .te-control-col { flex: 1 1 15rem; }
+body[data-platform="android"] .te-gain-row { gap: 5px; }
+body[data-platform="android"] .te-zoombox {
+    flex: 1 1 12rem;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    gap: 5px;
+}
+body[data-platform="android"] :is(#te-zoom, #te-gain) { flex: 1; width: 0; min-width: 0; min-height: 48px; }
+body[data-platform="android"] :is(.te-btn, .te-gear-btn) { min-height: 48px; min-width: 48px; }
+body[data-platform="android"] .te-step { font-size: 20px; padding: 0; }
+body[data-platform="android"] .te-footer { padding: 6px 10px; gap: 6px; }
+body[data-platform="android"] .te-transport { flex: 1 1 14rem; min-width: 0; }
+body[data-platform="android"] .te-footer-actions { margin-inline-start: auto; }

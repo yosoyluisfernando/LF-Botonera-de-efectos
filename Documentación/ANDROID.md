@@ -57,3 +57,12 @@ descartar cambios, y Guardar usa el flujo compartido. En horizontal, desde
 600 px, la lista y el formulario se muestran a la vez. Los estilos del
 asistente y los diálogos reservan espacio para el teclado y las barras del
 sistema. Las reglas de presentación se aplican solo a Android.
+
+## Editor de pista con controles táctiles
+
+En Android, un toque sobre la onda sitúa el cursor. Fijar inicio y Fijar fin
+aplican el punto elegido, y un deslizamiento recorre la onda ampliada. Los
+controles de volumen y zoom mantienen su deslizador y añaden botones de paso.
+El zoom mantiene el cursor en pantalla y limita el ancho del búfer de dibujo.
+Los comandos Rust de guardado y el esquema de datos se comparten con escritorio.
+El editor móvil respeta la exclusión de la preescucha de esta edición.

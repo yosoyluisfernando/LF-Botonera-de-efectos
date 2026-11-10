@@ -40,6 +40,7 @@
     <link rel="stylesheet" href="/css/backupRestore.css" />
     <link rel="stylesheet" href="/css/touch.css">
     <link rel="stylesheet" href="/css/androidDialogs.css">
+    <link rel="stylesheet" href="/css/androidTrackEditor.css">
   </head>
   <body>
 
@@ -392,9 +393,10 @@
             </div>
             <div id="te-status" class="te-status hidden"></div>
           </div>
+          <p class="hint te-touch-only" data-i18n="track_editor.touch_hint"></p>
           <div class="te-markers">
             <button id="te-fijar-inicio" class="te-btn te-mark-start" data-i18n="track_editor.set_start">Fijar inicio</button>
-            <button id="te-play-inicio" class="te-btn te-mark-start" data-i18n-title="track_editor.play_from_start">▶</button>
+            <button id="te-play-inicio" class="te-btn te-desktop-preview te-mark-start" data-i18n-title="track_editor.play_from_start">▶</button>
             <span class="te-readout"><strong id="te-cue-start">0.00s</strong></span>
             <button id="te-fijar-fin" class="te-btn te-mark-end" data-i18n="track_editor.set_end">Fijar fin</button>
             <button id="te-clear-end" class="te-btn" data-i18n="track_editor.clear_end">Quitar fin</button>
@@ -404,9 +406,11 @@
           </div>
           <div class="te-controls">
             <div class="te-control-col">
-              <label data-i18n="track_editor.gain">Volumen (dB)</label>
+              <label for="te-gain" data-i18n="track_editor.gain">Volumen (dB)</label>
               <div class="te-gain-row">
+                <button type="button" class="te-btn te-step te-touch-only" data-te-step="te-gain" data-step="-10" data-i18n-aria-label="track_editor.gain_down">−</button>
                 <input type="range" id="te-gain" min="-24" max="24" step="0.1" value="0">
+                <button type="button" class="te-btn te-step te-touch-only" data-te-step="te-gain" data-step="10" data-i18n-aria-label="track_editor.gain_up">+</button>
                 <span id="te-gain-readout" class="te-readout">0.0 dB</span>
               </div>
               <div class="checkbox-line hidden">
@@ -426,12 +430,14 @@
         </div>
         <div class="modal-footer te-footer">
           <div class="te-transport">
-            <button id="te-play" class="te-btn te-transport-btn" data-i18n="track_editor.play">Play / Pausa</button>
-            <button id="te-stop" class="te-btn te-transport-btn" data-i18n="track_editor.stop">Stop</button>
+            <button id="te-play" class="te-btn te-desktop-preview te-transport-btn" data-i18n="track_editor.play">Play / Pausa</button>
+            <button id="te-stop" class="te-btn te-desktop-preview te-transport-btn" data-i18n="track_editor.stop">Stop</button>
             <div class="te-zoombox">
-              <span class="te-zoom-lbl" data-i18n="track_editor.zoom">Zoom</span>
+              <label for="te-zoom" class="te-zoom-lbl" data-i18n="track_editor.zoom">Zoom</label>
+              <button type="button" class="te-btn te-step te-touch-only" data-te-step="te-zoom" data-step="-1" data-i18n-aria-label="track_editor.zoom_down">−</button>
               <input type="range" id="te-zoom" min="1" max="30" step="0.5" value="1">
-              <span class="te-dim" data-i18n="track_editor.zoom_hint">(Ctrl+Rueda)</span>
+              <button type="button" class="te-btn te-step te-touch-only" data-te-step="te-zoom" data-step="1" data-i18n-aria-label="track_editor.zoom_up">+</button>
+              <span class="te-dim te-zoom-hint" data-i18n="track_editor.zoom_hint">(Ctrl+Rueda)</span>
             </div>
           </div>
           <div class="te-footer-actions">

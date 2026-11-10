@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { writeFileSync } from 'node:fs';
+import { verifyTouchEditor } from './android-editor-smoke.mjs';
 
 const adb = (...args) => execFileSync(process.argv[2], args, { encoding: 'utf8', timeout: 20000 }).trim();
 const pkg = 'io.github.yosoyluisfernando.lfbotonera';
@@ -158,6 +159,7 @@ try {
     assert.equal(adb('shell', 'run-as', pkg, 'sha256sum', button.path).split(' ')[0], source);
     await evaluate(`window.__TAURI__.core.invoke('play_button', { id: ${JSON.stringify(button.id)} })`);
     console.log('Importación SAF, copia verificada y disparo aceptado', button.id, button.duration);
+    await verifyTouchEditor(evaluate, until, button.path);
 } finally {
     close();
 }

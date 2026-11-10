@@ -9,7 +9,9 @@
  * @param {object} refs  { container, inner, canvas, cursor, timeText }
  * @param {object} hooks { onCursorChange(t), onMarkerChange(start,end), onZoom(dir) }
  */
-export function createWaveform(refs, hooks) {
+import { bindWaveformTap } from './waveformTap.js';
+
+export function createWaveform(refs, hooks, { touch = false } = {}) {
     const { container, inner, canvas, cursor, timeText } = refs;
     const ctx = canvas.getContext('2d');
     let duration = 0, peaks = [], gain = 1, zoom = 1;
@@ -19,6 +21,7 @@ export function createWaveform(refs, hooks) {
         getComputedStyle(document.documentElement).getPropertyValue(n).trim() || fallback;
     const baseW = () => container.clientWidth || 800;
     const dpr = () => window.devicePixelRatio || 1;
+    const canvasScale = () => canvas.width / (inner.clientWidth || 1);
     const tToX = t => (t / (duration || 1)) * canvas.width;
     const xToT = x => (x / (canvas.width || 1)) * (duration || 0);
 
@@ -27,14 +30,14 @@ export function createWaveform(refs, hooks) {
     function setMarkers(s, e) { cueStart = s; cueEnd = e; draw(); }
     function setCursor(t, follow) { cursorT = Math.max(0, Math.min(duration, t)); placeCursor(follow); }
     function getCursor() { return cursorT; }
-    function setZoom(z) { zoom = Math.max(1, z); layout(); }
+    function setZoom(z) { zoom = Math.max(1, z); layout(); if (touch) placeCursor(true); }
 
     function layout() {
         const w = Math.max(1, Math.round(baseW() * zoom));
         inner.style.width = `${w}px`;
         canvas.style.width = `${w}px`;
         canvas.style.height = '100%';
-        canvas.width = Math.round(w * dpr());
+        canvas.width = Math.round(touch ? Math.min(8192, w * dpr()) : w * dpr());
         canvas.height = Math.round((container.clientHeight || 300) * dpr());
         draw();
         placeCursor(false);
@@ -96,7 +99,7 @@ export function createWaveform(refs, hooks) {
     }
 
     function placeCursor(follow) {
-        const xcss = tToX(cursorT) / dpr();
+        const xcss = tToX(cursorT) / canvasScale();
         cursor.style.left = `${xcss}px`;
         timeText.textContent = fmt(cursorT);
         if (follow) {
@@ -109,9 +112,9 @@ export function createWaveform(refs, hooks) {
         return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
     }
 
-    const pxTime = clientX => xToT((clientX - inner.getBoundingClientRect().left) * dpr());
+    const pxTime = clientX => xToT((clientX - inner.getBoundingClientRect().left) * canvasScale());
     function pick(t) {
-        const tol = xToT(9 * dpr());
+        const tol = xToT(9 * canvasScale());
         if (Math.abs(t - cueStart) <= tol) return 'start';
         if (cueEnd != null && Math.abs(t - cueEnd) <= tol) return 'end';
         return null;
@@ -131,7 +134,17 @@ export function createWaveform(refs, hooks) {
     }
     function clearEnd() { cueEnd = null; draw(); hooks.onMarkerChange(cueStart, null); }
 
+    if (touch) {
+        bindWaveformTap(inner, x => {
+            setCursor(pxTime(x), false);
+            hooks.onCursorChange(cursorT);
+        });
+        new ResizeObserver(() => {
+            if (container.clientWidth && container.clientHeight) layout();
+        }).observe(container);
+    }
     inner.addEventListener('pointerdown', e => {
+        if (touch && e.pointerType === 'touch') return;
         const t = pxTime(e.clientX);
         drag = pick(t) || 'cursor';
         if (drag === 'cursor') { setCursor(t, false); hooks.onCursorChange(cursorT); }
@@ -143,7 +156,11 @@ export function createWaveform(refs, hooks) {
         if (drag === 'cursor') { setCursor(t, false); hooks.onCursorChange(cursorT); }
         else moveMarker(drag, t);
     });
-    inner.addEventListener('pointerup', e => { drag = null; inner.releasePointerCapture?.(e.pointerId); });
+    inner.addEventListener('pointerup', e => {
+        drag = null;
+        if (inner.hasPointerCapture(e.pointerId)) inner.releasePointerCapture(e.pointerId);
+    });
+    inner.addEventListener('lostpointercapture', () => { drag = null; });
     container.addEventListener('wheel', e => {
         if (!e.ctrlKey) return;
         e.preventDefault();

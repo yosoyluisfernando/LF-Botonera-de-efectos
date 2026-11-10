@@ -376,6 +376,11 @@
     "edit_track": "Track editor (waveform)…"
   },
   "track_editor": {
+    "touch_hint": "Tap the waveform to place the cursor. Use Set start or Set end. Swipe the zoomed waveform to move along it.",
+    "gain_down": "Decrease volume",
+    "gain_up": "Increase volume",
+    "zoom_down": "Zoom out",
+    "zoom_up": "Zoom in",
     "title": "Track editor",
     "title_separator": " — ",
     "popout": "Open in window",

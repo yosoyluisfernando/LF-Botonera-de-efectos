@@ -376,6 +376,11 @@
     "edit_track": "Editor de pista (onda)…"
   },
   "track_editor": {
+    "touch_hint": "Toca la onda para situar el cursor. Usa Fijar inicio o Fijar fin. Desliza la onda ampliada para recorrerla.",
+    "gain_down": "Bajar volumen",
+    "gain_up": "Subir volumen",
+    "zoom_down": "Alejar zoom",
+    "zoom_up": "Acercar zoom",
     "title": "Editor de pista",
     "title_separator": " — ",
     "popout": "Abrir en ventana",

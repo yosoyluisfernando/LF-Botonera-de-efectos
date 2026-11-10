@@ -376,6 +376,11 @@
     "edit_track": "Editor de faixa (onda)…"
   },
   "track_editor": {
+    "touch_hint": "Toque na onda para posicionar o cursor. Use Fixar início ou Fixar fim. Deslize a onda ampliada para a percorrer.",
+    "gain_down": "Diminuir volume",
+    "gain_up": "Aumentar volume",
+    "zoom_down": "Reduzir zoom",
+    "zoom_up": "Aumentar zoom",
     "title": "Editor de faixa",
     "title_separator": " — ",
     "popout": "Abrir em janela",

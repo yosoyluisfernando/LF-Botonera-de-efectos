@@ -41,6 +41,7 @@ export function dismiss() { show(null); }
 
 function setInteractive(enabled) {
     for (const id of INTERACTIVE_IDS) document.getElementById(id).disabled = !enabled;
+    document.querySelectorAll('[data-te-step]').forEach(button => { button.disabled = !enabled; });
 }
 
 function show(text) {

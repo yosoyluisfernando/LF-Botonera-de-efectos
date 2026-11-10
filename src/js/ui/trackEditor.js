@@ -3,7 +3,7 @@ import { t } from '../util/i18n.js';
 import { bindTransport, play, playInicio, stop, halt, onCursorMark, refreshPreviewGain } from './trackTransport.js';
 import { dockIn, openPreferred, popOut, syncButton } from './trackEditorWindow.js';
 import * as loading from './trackEditorLoading.js';
-import { createEditorWave } from './trackEditorWave.js';
+import { createEditorWave, wireEditorSteps } from './trackEditorWave.js';
 import * as normConfig from './normConfig.js';
 
 const BUCKETS = 4000;
@@ -135,6 +135,7 @@ function _wireOnce() {
         loading.progress(t(`track_editor.analysis_${p.stage}`) || t('track_editor.loading'));
     }).catch(console.error);
     const on = (id, ev, fn) => document.getElementById(id).addEventListener(ev, fn);
+    wireEditorSteps();
     on('te-gain', 'input', _applyGainToWave);
     on('te-normalize', 'click', async () => {
         try {

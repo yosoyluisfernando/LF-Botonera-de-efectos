@@ -68,4 +68,4 @@ PYTHON
 "$adb" shell mkdir -p /sdcard/Download
 "$adb" push android-smoke/LF-Smoke.wav /sdcard/Download/LF-Smoke.wav
 "$adb" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/LF-Smoke.wav
-timeout --kill-after=10 150 node scripts/android-import-smoke.mjs "$adb"
+timeout --kill-after=10 220 node scripts/android-import-smoke.mjs "$adb"
