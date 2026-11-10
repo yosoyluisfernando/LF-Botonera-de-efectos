@@ -1,14 +1,14 @@
 .remote-page { margin: 0; background: var(--bg-primary); color: var(--text-primary); font: 16px system-ui, sans-serif; }
 .remote-client { max-width: 1200px; margin: auto; padding: 20px; }
-.remote-client *, #s-remote * { box-sizing: border-box; }
-.remote-client [hidden], #s-remote [hidden] { display: none !important; }
-.remote-client label, #s-remote label { display: grid; gap: 8px; margin-block: 14px; }
-.remote-client input, #s-remote input { width: 100%; padding: 12px; background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font: inherit; }
-.remote-client button, #s-remote button { min-height: 48px; padding: 10px 16px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font: inherit; cursor: pointer; touch-action: manipulation; }
-.remote-client button:disabled, #s-remote button:disabled { opacity: .45; cursor: default; }
-.remote-client button:focus-visible, #s-remote button:focus-visible { outline: 3px solid var(--accent-color); outline-offset: 2px; }
-.remote-actions, .remote-playing { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 16px; }
-.remote-actions [data-action="stop-all"] { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+.remote-client * { box-sizing: border-box; }
+.remote-client [hidden] { display: none !important; }
+.remote-client label { display: grid; gap: 8px; margin-block: 14px; }
+.remote-client input { width: 100%; padding: 12px; background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font: inherit; }
+.remote-client button { min-height: 48px; padding: 10px 16px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font: inherit; cursor: pointer; touch-action: manipulation; }
+.remote-client button:disabled { opacity: .45; cursor: default; }
+.remote-client button:focus-visible { outline: 3px solid var(--accent-color); outline-offset: 2px; }
+.remote-client .remote-actions, .remote-playing { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 16px; }
+.remote-client [data-action="stop-all"] { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
 .remote-grid { display: grid; grid-template-columns: repeat(var(--remote-columns, 5), minmax(64px, 1fr)); gap: 8px; overflow-x: auto; padding: 5px; }
 .remote-grid .remote-cell { min-height: 90px; overflow-wrap: anywhere; white-space: pre-wrap; }
 .remote-cell.is-playing { outline: 3px solid var(--success-color); outline-offset: 1px; }

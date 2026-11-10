@@ -40,13 +40,13 @@ export function initSettingsRemote() {
         return;
     }
     panel.innerHTML = `<h3>${t('remote.title')}</h3><p>${t('remote.host_help')}</p>
-      <label>${t('remote.address')} (IPv4)<input id="remote-ip" required inputmode="decimal" placeholder="192.168.1.10"></label>
+      <label>${t('remote.address')} (IPv4)<input type="text" id="remote-ip" required inputmode="decimal" placeholder="192.168.1.10"></label>
       <label>${t('remote.port')}<input id="remote-port" type="number" min="1024" max="65535" value="17865"></label>
-      <div class="remote-actions"><button type="button" id="remote-start">${t('remote.enable')}</button>
-      <button type="button" id="remote-stop">${t('remote.disable')}</button></div>
+      <div class="row"><button class="btn-dark" type="button" id="remote-start">${t('remote.enable')}</button>
+      <button class="btn-dark" type="button" id="remote-stop">${t('remote.disable')}</button></div>
       <p id="remote-host-status" role="status"></p><div id="remote-host-details" hidden>
-      <label>${t('remote.address')}<input id="remote-url" readonly></label>
-      <label>${t('remote.key')}<input id="remote-token" readonly></label>
+      <label>${t('remote.address')}<input type="text" id="remote-url" readonly></label>
+      <label>${t('remote.key')}<input type="text" id="remote-token" readonly></label>
       <p>${t('remote.network_help')}</p></div>`;
     const start = panel.querySelector('#remote-start');
     const stop = panel.querySelector('#remote-stop');

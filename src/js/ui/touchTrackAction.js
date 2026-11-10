@@ -1,9 +1,10 @@
 /** Acción explícita de cola para no depender de doble toque. */
 import { invoke } from '../bridge/api.js';
+import { isAndroid } from '../bridge/platform.js';
 import { t } from '../util/i18n.js';
 import { alertIpcError } from './ipcError.js';
 export function addTouchTrackAction(row, index) {
-    if (!matchMedia('(any-pointer: coarse)').matches) return;
+    if (!isAndroid() || !matchMedia('(any-pointer: coarse)').matches) return;
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = '▶';
@@ -16,6 +17,7 @@ export function addTouchTrackAction(row, index) {
 }
 
 export function initTouchAudioImport(onUpdate) {
+    if (!isAndroid()) return;
     const button = document.getElementById('player-add-audio');
     button.addEventListener('click', async () => {
         button.disabled = true;

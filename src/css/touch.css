@@ -1,80 +1,101 @@
-#touch-hint { display: none; }
-/* Targets táctiles también en tabletas y equipos híbridos; sin inferir plataforma. */
+#touch-hint, #player-add-audio { display: none; }
+body[data-platform="android"] #player-add-audio { display: inline-block; }
+/* Presentación táctil de Android. */
 @media (any-pointer: coarse) {
-  #touch-hint { display: block; font-size: 12px; color: var(--text-secondary); padding: 5px; }
-  :root { --touch-cell-width: 80px; --touch-cell-height: 88px; }
-  button, select, input:not([type="checkbox"]):not([type="radio"]),
-  .tab, .context-style li, .clock-fmt-item, .master-menu-item {
+  :where(body[data-platform="android"]) #touch-hint { display: block; font-size: 12px; color: var(--text-secondary); padding: 5px; }
+  :where(body[data-platform="android"]) { --touch-cell-width: 80px; --touch-cell-height: 88px; }
+  :where(body[data-platform="android"]) button,
+  :where(body[data-platform="android"]) select,
+  :where(body[data-platform="android"]) input:not([type="checkbox"]):not([type="radio"]),
+  :where(body[data-platform="android"]) .tab,
+  :where(body[data-platform="android"]) .context-style li,
+  :where(body[data-platform="android"]) .clock-fmt-item,
+  :where(body[data-platform="android"]) .master-menu-item {
     min-height: 48px;
   }
-  button { min-width: 48px; touch-action: manipulation; }
-  input, select, textarea { font-size: 16px !important; }
-  input[type="checkbox"], input[type="radio"] { width: 24px; height: 24px; }
-  .checkbox-line { min-height: 48px; }
-  .grid-item, .fixed-panel-item, .tab, .player-row, .library-row,
-  .library-table-row { -webkit-touch-callout: none; }
-  .grid-item { min-width: 80px; min-height: 88px; touch-action: pan-x pan-y; }
-  .grid-item:hover { filter: none; }
-  .grid-item:active { filter: brightness(.8); }
-  .grid-container { overflow: auto; gap: 6px; }
-  .tabs-container { min-height: 52px; overflow-x: auto; }
-  .tabs-scroll { min-width: 100px; }
-  .tab { display: flex; align-items: center; flex-shrink: 0; }
-  .fixed-panel-item, .player-row { min-height: 56px; }
-  .library-row, .library-table-row { height: 56px; min-height: 56px; }
-  .library-search-rows, #library-table { --library-row-height: 56px; }
-  .context-style { max-height: calc(100dvh - 24px); overflow-y: auto; }
-  .context-style li { display: flex; align-items: center; font-size: 15px; }
-  .close-btn { min-width: 48px; min-height: 48px; }
-  .modal-header { cursor: default; }
-  #app-section { height: 100dvh; padding: max(5px, env(safe-area-inset-top))
+  :where(body[data-platform="android"]) button { min-width: 48px; touch-action: manipulation; }
+  :where(body[data-platform="android"]) input,
+  :where(body[data-platform="android"]) select,
+  :where(body[data-platform="android"]) textarea { font-size: 16px !important; }
+  :where(body[data-platform="android"]) input[type="checkbox"],
+  :where(body[data-platform="android"]) input[type="radio"] { width: 24px; height: 24px; }
+  :where(body[data-platform="android"]) .checkbox-line { min-height: 48px; }
+  :where(body[data-platform="android"]) .grid-item,
+  :where(body[data-platform="android"]) .fixed-panel-item,
+  :where(body[data-platform="android"]) .tab,
+  :where(body[data-platform="android"]) .player-row,
+  :where(body[data-platform="android"]) .library-row,
+  :where(body[data-platform="android"]) .library-table-row { -webkit-touch-callout: none; }
+  :where(body[data-platform="android"]) .grid-item { min-width: 80px; min-height: 88px; touch-action: pan-x pan-y; }
+  :where(body[data-platform="android"]) .grid-item:hover { filter: none; }
+  :where(body[data-platform="android"]) .grid-item:active { filter: brightness(.8); }
+  :where(body[data-platform="android"]) .grid-container { overflow: auto; gap: 6px; }
+  :where(body[data-platform="android"]) .tabs-container { min-height: 52px; overflow-x: auto; }
+  :where(body[data-platform="android"]) .tabs-scroll { min-width: 100px; }
+  :where(body[data-platform="android"]) .tab { display: flex; align-items: center; flex-shrink: 0; }
+  :where(body[data-platform="android"]) .fixed-panel-item,
+  :where(body[data-platform="android"]) .player-row { min-height: 56px; }
+  :where(body[data-platform="android"]) .library-row,
+  :where(body[data-platform="android"]) .library-table-row { height: 56px; min-height: 56px; }
+  :where(body[data-platform="android"]) .library-search-rows,
+  :where(body[data-platform="android"]) #library-table { --library-row-height: 56px; }
+  :where(body[data-platform="android"]) .context-style { max-height: calc(100dvh - 24px); overflow-y: auto; }
+  :where(body[data-platform="android"]) .context-style li { display: flex; align-items: center; font-size: 15px; }
+  :where(body[data-platform="android"]) .close-btn { min-width: 48px; min-height: 48px; }
+  :where(body[data-platform="android"]) .modal-header { cursor: default; }
+  :where(body[data-platform="android"]) #app-section { height: 100dvh; padding: max(5px, env(safe-area-inset-top))
     max(5px, env(safe-area-inset-right)) max(5px, env(safe-area-inset-bottom))
     max(5px, env(safe-area-inset-left)); }
 }
 
 @media (max-width: 760px) {
-  .tabs-container { flex-wrap: wrap; height: auto; gap: 4px; }
-  #tabs-list { order: 1; flex-basis: 100%; width: 100%; }
-  .workspace-shell, .workspace-shell[data-fixed-side="right"] {
+  :where(body[data-platform="android"]) .tabs-container { flex-wrap: wrap; height: auto; gap: 4px; }
+  :where(body[data-platform="android"]) #tabs-list { order: 1; flex-basis: 100%; width: 100%; }
+  :where(body[data-platform="android"]) .workspace-shell,
+  :where(body[data-platform="android"]) .workspace-shell[data-fixed-side="right"] {
     flex-direction: column-reverse; overflow: auto;
   }
-  .workspace-main { flex: 1 0 50dvh; min-height: 260px; }
-  .fixed-panel { width: 100% !important; max-width: 100%; min-width: 0;
+  :where(body[data-platform="android"]) .workspace-main { flex: 1 0 50dvh; min-height: 260px; }
+  :where(body[data-platform="android"]) .fixed-panel { width: 100% !important; max-width: 100%; min-width: 0;
     flex: 0 0 38dvh; min-height: 200px; }
-  .fixed-panel-header { flex-wrap: wrap; gap: 4px; }
-  .fixed-header-actions { width: 100%; flex-wrap: wrap; }
-  .player-actions { display: flex; flex-wrap: wrap; }
-  .fixed-panel-resize { display: none; }
-  #bottom-bar { height: auto; min-height: 130px; gap: 6px; padding: 6px;
+  :where(body[data-platform="android"]) .fixed-panel-header { flex-wrap: wrap; gap: 4px; }
+  :where(body[data-platform="android"]) .fixed-header-actions { width: 100%; flex-wrap: wrap; }
+  :where(body[data-platform="android"]) .player-actions { display: flex; flex-wrap: wrap; }
+  :where(body[data-platform="android"]) .fixed-panel-resize { display: none; }
+  :where(body[data-platform="android"]) #bottom-bar { height: auto; min-height: 130px; gap: 6px; padding: 6px;
     flex-wrap: wrap; }
-  #clock-widget { width: 120px; padding-right: 6px; }
-  .clock-display { font-size: 21px; }
-  #bottom-right { flex: 1 1 200px; }
-  #playback-modes { flex-wrap: wrap; height: auto; gap: 4px; }
-  #playback-countdown { flex: 1 1 80px; width: auto; }
-  .modal-overlay { padding: max(6px, env(safe-area-inset-top)) 6px
+  :where(body[data-platform="android"]) #clock-widget { width: 120px; padding-right: 6px; }
+  :where(body[data-platform="android"]) .clock-display { font-size: 21px; }
+  :where(body[data-platform="android"]) #bottom-right { flex: 1 1 200px; }
+  :where(body[data-platform="android"]) #playback-modes { flex-wrap: wrap; height: auto; gap: 4px; }
+  :where(body[data-platform="android"]) #playback-countdown { flex: 1 1 80px; width: auto; }
+  :where(body[data-platform="android"]) .modal-overlay { padding: max(6px, env(safe-area-inset-top)) 6px
     max(6px, env(safe-area-inset-bottom)); }
-  .modal-content, .modal-lg, .modal-sm, .modal-xs,
-  #app-dialog-modal.dialog-wide .modal-content {
+  :where(body[data-platform="android"]) .modal-content,
+  :where(body[data-platform="android"]) .modal-lg,
+  :where(body[data-platform="android"]) .modal-sm,
+  :where(body[data-platform="android"]) .modal-xs,
+  :where(body[data-platform="android"]) #app-dialog-modal.dialog-wide .modal-content {
     width: 100% !important; max-width: 100%; min-width: 0 !important;
     max-height: 95dvh; display: flex; flex-direction: column;
   }
-  .modal-header, .modal-footer { flex-shrink: 0; }
-  .modal-body { overflow: auto; min-height: 0; }
-  .modal-footer { flex-wrap: wrap; }
-  #app-dialog-modal .modal-footer button { white-space: normal; }
-  #settings-modal .modal-lg { height: 95dvh; }
-  .settings-body { flex-direction: column; }
-  .settings-tabs { width: 100%; flex-direction: row; overflow-x: auto;
+  :where(body[data-platform="android"]) .modal-header,
+  :where(body[data-platform="android"]) .modal-footer { flex-shrink: 0; }
+  :where(body[data-platform="android"]) .modal-body { overflow: auto; min-height: 0; }
+  :where(body[data-platform="android"]) .modal-footer { flex-wrap: wrap; }
+  :where(body[data-platform="android"]) #app-dialog-modal .modal-footer button { white-space: normal; }
+  :where(body[data-platform="android"]) #settings-modal .modal-lg { height: 95dvh; }
+  :where(body[data-platform="android"]) .settings-body { flex-direction: column; }
+  :where(body[data-platform="android"]) .settings-tabs { width: 100%; flex-direction: row; overflow-x: auto;
     border-right: 0; border-bottom: 1px solid var(--border-color); }
-  .s-tab { flex-shrink: 0; }
-  .settings-content { min-width: 0; }
-  .about-panel { padding: 16px; }
-  .library-window-shell { min-width: 0; height: 100dvh; }
-  .library-window-toolbar { flex-wrap: wrap; }
-  .library-window-body { flex-direction: column; min-height: 0; }
-  .library-navigator { width: 100%; max-height: 25dvh; overflow: auto; }
-  .library-content { min-width: 0; }
+  :where(body[data-platform="android"]) .s-tab { flex-shrink: 0; }
+  :where(body[data-platform="android"]) .settings-content { min-width: 0; }
+  :where(body[data-platform="android"]) .about-panel { padding: 16px; }
+  :where(body[data-platform="android"]) .library-window-shell { min-width: 0; height: 100dvh; }
+  :where(body[data-platform="android"]) .library-window-toolbar { flex-wrap: wrap; }
+  :where(body[data-platform="android"]) .library-window-body { flex-direction: column; min-height: 0; }
+  :where(body[data-platform="android"]) .library-navigator { width: 100%; max-height: 25dvh; overflow: auto; }
+  :where(body[data-platform="android"]) .library-content { min-width: 0; }
 }
 
 body[data-platform="android"] #te-popout,
