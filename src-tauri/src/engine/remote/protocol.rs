@@ -7,6 +7,7 @@ use std::net::{IpAddr, SocketAddr};
 #[serde(tag = "command", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Request {
     Snapshot {},
+    SelectTab { profile: String, palette: String },
     Play { palette: String, id: String },
     Stop { id: String },
     StopAll {},
@@ -46,9 +47,17 @@ pub fn remote_button<'a>(
 fn is_audio(button: &crate::model::ButtonData) -> bool {
     button.type_field == "audio" && !button.path.is_empty()
 }
-pub fn execute(state: &AppState, request: Request) -> Result<Value, String> {
+pub fn execute(
+    app: &tauri::AppHandle,
+    state: &AppState,
+    request: Request,
+) -> Result<Value, String> {
     match request {
         Request::Snapshot {} => return Ok(snapshot(state)),
+        Request::SelectTab { profile, palette } => {
+            super::mirror::select_tab(app, state, &profile, &palette)?;
+            return Ok(snapshot(state));
+        }
         Request::Play { palette, id } => {
             crate::ipc::cmd_button_playback::play_remote_button(state, &palette, &id).map_err(
                 |e| {
@@ -81,34 +90,7 @@ pub fn execute(state: &AppState, request: Request) -> Result<Value, String> {
     Ok(json!({"ok": true}))
 }
 fn snapshot(state: &AppState) -> Value {
-    let cfg = state.config.lock().unwrap();
-    let palette = cfg.active_paleta();
-    let buttons: Vec<Value> = palette
-        .filter(|p| !p.obs)
-        .map(|p| {
-            p.botones
-                .iter()
-                .filter(|b| is_audio(b))
-                .map(|b| {
-                    json!({
-                        "id": b.id, "index": b.index, "label": b.label, "name": b.name,
-                        "color_bg": b.color_bg, "color_text": b.color_text,
-                        "duration_str": b.duration_str,
-                        "enabled": true,
-                    })
-                })
-                .collect()
-        })
-        .unwrap_or_default();
-    let data = json!({
-        "palette": palette.map(|p| &p.id), "name": palette.map(|p| &p.nombre),
-        "profile": cfg.active_profile().map(|p| &p.name),
-        "columns": palette.map(|p| p.cols).unwrap_or(5),
-        "rows": palette.map(|p| p.rows).unwrap_or(5), "buttons": buttons,
-        "language": cfg.language, "theme": cfg.theme,
-        "unavailable": palette.is_some_and(|p| p.obs),
-    });
-    drop(cfg);
+    let mut data = super::mirror::palette_snapshot(&state.config.lock().unwrap());
     let handle = state.audio.lock().unwrap().button_states_handle();
     let states = handle.lock().unwrap();
     let playing: Vec<Value> = states
@@ -123,7 +105,6 @@ fn snapshot(state: &AppState) -> Value {
                 .map(|s| json!({"id": id, "remaining": s.remaining()}))
         })
         .collect();
-    let mut data = data;
     data["playing"] = json!(playing);
     data
 }

@@ -162,6 +162,10 @@ try {
     }, 'No se dibujó la rejilla después de Bienvenida y Precarga');
     adb('shell', 'settings', 'put', 'system', 'accelerometer_rotation', '0');
     await verifyLayout(evaluate);
+    await evaluate("document.getElementById('btn-remote-mirror').click()");
+    assert.ok(await evaluate("document.querySelector('.remote-dialog').open"));
+    assert.ok(await evaluate("!!document.querySelector('.remote-dialog .remote-tabs')"));
+    await evaluate("document.querySelector('.remote-dialog > button').click()");
     adb('shell', 'settings', 'put', 'system', 'user_rotation', '0');
     await until(() => evaluate('innerWidth < innerHeight'), 'No volvió a vertical');
     const assignment = evaluate("window.__TAURI__.core.invoke('assign_file_to_button', { index: 1, path: null })");

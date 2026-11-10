@@ -13,7 +13,30 @@ export function initSettingsRemote() {
     panel.id = 's-remote'; panel.className = 's-panel hidden';
     document.querySelector('.settings-content').append(panel);
     if (isAndroid()) {
-        mountClient(panel, { send: (address, token, request) => invoke('remote_request', { address, token, request }) });
+        const dialog = document.createElement('dialog');
+        dialog.className = 'remote-dialog';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.textContent = t('mobile.back');
+        close.addEventListener('click', () => dialog.close());
+        const client = document.createElement('div');
+        client.className = 'remote-client';
+        dialog.append(close, client);
+        document.body.append(dialog);
+        const disconnect = mountClient(client, {
+            send: (address, token, request) => invoke('remote_request', { address, token, request }),
+        });
+        dialog.addEventListener('close', disconnect);
+        const open = document.createElement('button');
+        open.type = 'button';
+        open.textContent = t('remote.title');
+        open.addEventListener('click', () => dialog.showModal());
+        panel.append(open);
+        const shortcut = open.cloneNode(true);
+        shortcut.id = 'btn-remote-mirror';
+        shortcut.className = 'btn-settings remote-shortcut';
+        shortcut.addEventListener('click', () => dialog.showModal());
+        document.getElementById('btn-settings').before(shortcut);
         return;
     }
     panel.innerHTML = `<h3>${t('remote.title')}</h3><p>${t('remote.host_help')}</p>

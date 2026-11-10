@@ -15,3 +15,35 @@
 .remote-status { min-height: 1.5em; color: var(--text-secondary); }
 .remote-page h2, .remote-page h3 { overflow-wrap: anywhere; }
 @media (max-width: 600px) { .remote-client { padding: 12px; } .remote-grid { gap: 6px; } }
+
+.remote-dialog {
+  box-sizing: border-box;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  overflow: auto;
+  border: 0;
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+.remote-dialog > button { min-height: 48px; }
+.remote-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 4px; }
+.remote-tabs button { flex: none; }
+.remote-tabs button[aria-current="true"] { box-shadow: inset 0 -3px var(--accent-color); }
+.remote-grid .remote-cell {
+  position: relative;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-height: 84px;
+  padding: 15px 4px 6px;
+}
+.remote-index { position: absolute; top: 3px; left: 5px; font-size: .7rem; opacity: .85; }
+.remote-duration { font-size: .75rem; }
+
+.remote-shortcut { width: auto; padding-inline: 10px; }

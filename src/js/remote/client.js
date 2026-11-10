@@ -14,7 +14,7 @@ export function mountClient(root, { browser = false, send }) {
         <section class="remote-session" hidden>
           <div class="remote-actions"><button type="button" data-action="stop-all">${t('remote.stop_all')}</button>
           <button type="button" data-action="disconnect">${t('remote.disconnect')}</button></div>
-          <h3 class="remote-palette"></h3><p class="remote-empty"></p>
+          <h3 class="remote-palette"></h3><nav class="remote-tabs"></nav><p class="remote-empty"></p>
           <div class="remote-grid"></div><div class="remote-playing"></div>
         </section>`;
     const form = root.querySelector('form');
@@ -34,6 +34,8 @@ export function mountClient(root, { browser = false, send }) {
         root.querySelector('.remote-grid').replaceChildren();
         root.querySelector('.remote-playing').replaceChildren();
         delete root.querySelector('.remote-grid').dataset.signature;
+        delete root.querySelector('.remote-tabs').dataset.signature;
+        root.querySelector('.remote-tabs').replaceChildren();
         delete root.querySelector('.remote-playing').dataset.ids;
         status.textContent = t('remote.disconnected');
     };
@@ -55,7 +57,7 @@ export function mountClient(root, { browser = false, send }) {
             if (!active || generation !== epoch) return;
             // Keep disconnect/reconnect available, disable stale triggers immediately.
             root.dataset.ready = 'false';
-            root.querySelectorAll('[data-trigger]').forEach(b => { b.disabled = true; });
+            root.querySelectorAll('[data-trigger], [data-remote-tab]').forEach(b => { b.disabled = true; });
             report(error);
         }
         if (active && generation === epoch) timer = setTimeout(() => poll(epoch), 400);

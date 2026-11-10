@@ -176,7 +176,7 @@ fn serve(mut stream: TcpStream, address: SocketAddr, app: &tauri::AppHandle, ses
     }
     let result = serde_json::from_slice::<protocol::Request>(&request.body)
         .map_err(|_| "remote_command".to_string())
-        .and_then(|r| protocol::execute(&app.state::<crate::core::AppState>(), r));
+        .and_then(|r| protocol::execute(app, &app.state::<crate::core::AppState>(), r));
     drop(gate);
     let (status, value) = match result {
         Ok(v) => (200, v),

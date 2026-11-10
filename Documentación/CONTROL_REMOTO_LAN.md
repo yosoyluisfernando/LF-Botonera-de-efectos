@@ -3,7 +3,7 @@
 La PC conserva todos los archivos y reproduce el audio. El navegador o el APK
 solo envían órdenes y dibujan la paleta activa de la PC. Esta entrega inicia el
 control remoto con consulta, disparo, parada individual y Detener efectos.
-El control de perfiles, selección de paletas, edición, reproductor, consola,
+El cambio de perfil, edición, reproductor, consola,
 Biblioteca y OBS quedan para ampliar el control total; no se anuncian como hechos.
 
 ## Uso
@@ -11,8 +11,10 @@ Biblioteca y OBS quedan para ampliar el control total; no se anuncian como hecho
 1. Conectar PC y cliente a la misma red local de confianza.
 2. En la PC: Ajustes → Control remoto → elegir la IPv4 y pulsar Activar acceso LAN. Puerto inicial 17865.
 3. Abrir la dirección mostrada en un navegador y pegar la clave. En Android:
-   Ajustes → Control remoto, introducir la dirección de la PC y la clave.
-4. Pulsar los botones para reproducir en la PC. La paleta sigue los cambios locales.
+   abre Control remoto desde la barra principal e introduce la dirección de la PC y la clave.
+4. Elegir una pestaña del perfil activo para cambiarla también en la PC. La rejilla
+   refleja el orden, posiciones, nombres y colores de los botones. Los controles
+   ajenos a los sonidos de archivo aparecen desactivados.
    Debajo aparecen las paradas individuales de efectos activos, incluso si ya
    pertenecen a otra paleta o al panel fijo. Detener efectos usa la parada local.
 5. Desactivar acceso LAN en la PC revoca todas las conexiones. Volver a activarlo
@@ -61,7 +63,7 @@ HTTP sin cifrar: usar solo redes de confianza, sin reenvío de puertos a Interne
 Clave enviada por Authorization, nunca en URL, almacenamiento web ni registros.
 La dirección y la clave del cliente no se guardan entre sesiones.
 Host exige la dirección y puerto de escucha. Si se envía Origin, debe coincidir con el origen del panel. No se habilita
-CORS. Órdenes limitadas a snapshot/play/stop/stop_all; no hay puente IPC genérico.
+CORS. Órdenes limitadas a snapshot/select_tab/play/stop/stop_all; no hay puente IPC genérico.
 Cabeceras de hasta 8 KiB, cuerpos de hasta 4 KiB, máximo ocho peticiones en curso,
 plazo de lectura y escritura, sin chunking, redirecciones ni proxy del sistema.
 
