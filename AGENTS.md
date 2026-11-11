@@ -1,5 +1,11 @@
 # AGENTS.md — LF Botonera de Efectos
 
+**Estado vigente (2026-11-11):** continuar en `C:/OVERLAY/BOTONERA`, rama
+`codex/desarrollo`, versión de trabajo `1.6.0-beta.4`. Windows, Linux y Android
+comparten este repositorio. Main conserva la versión estable publicada.
+Las referencias posteriores a la antigua rama local de OBS son históricas.
+Leer primero la sección vigente de `Documentación/CONTINUIDAD_SESION.md`.
+
 Guía para cualquier IA colaboradora (independientemente del modelo o plataforma).
 Lee este archivo completo antes de proponer o escribir código.
 
@@ -19,7 +25,7 @@ Los apartados históricos de este archivo pueden mencionar ramas ya integradas.
 
 **LF Botonera de Efectos** es una botonera de sonidos (*soundboard*) para radio y *streaming* en directo. Los operadores de radio asignan archivos de audio a botones en una rejilla, organizados en pestañas (paletas) dentro de perfiles, y los disparan en tiempo real durante transmisiones.
 
-- **Versión del código:** 1.5.0
+- **Versión del código de desarrollo:** 1.6.0-beta.4 (estable publicado: 1.5.0)
 - **Stack:** Tauri v2 (backend Rust) + Vanilla JS + Vite (frontend)
 - **Repositorio local:** `C:\OVERLAY\BOTONERA`
 - **GitHub:** https://github.com/yosoyluisfernando/LF-Botonera-de-efectos
@@ -374,7 +380,7 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 
 ## 12. Estado del proyecto y pendientes
 
-**Código actual: 1.5.0, rama `main`.**
+**Desarrollo actual: 1.6.0-beta.4, rama `codex/desarrollo`. Estable publicado: 1.5.0, rama `main`.**
 
 El trabajo cerrado de Biblioteca, Buscador y MIDI está integrado en `main`.
 Se retiraron las ramas auxiliares ya integradas; no hay una fusión pendiente.

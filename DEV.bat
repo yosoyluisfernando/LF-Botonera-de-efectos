@@ -1,4 +1,4 @@
 @echo off
 cd /d "%~dp0"
-npm run tauri dev
+call npm run tauri dev
 pause

@@ -1,5 +1,27 @@
 # Continuidad de sesión — estado actual
 
+## Ruta principal unificada — 2026-11-11
+
+El autor aprobó el experimento y pidió continuar desde C:/OVERLAY/BOTONERA.
+Esta es ahora la copia principal de codex/desarrollo, versión 1.6.0-beta.4,
+con todo el código de Windows, Linux y Android del mismo repositorio.
+D:/BOTONERA/Desarrollo-Unificado conserva la copia adicional sincronizada.
+Las menciones anteriores a una copia principal temporal o a codex/obs-control
+son históricas. Main publicado permanece sin cambios.
+
+Antes de promoverla se respaldaron y verificaron 1.332 archivos del proyecto
+anterior y su .git en D:/BOTONERA/Respaldos/. También se guardaron sus cambios
+en un stash local. Se compararon los 824 archivos versionados de la copia
+unificada; solo hubo diferencias de finales de línea entre las rutas.
+
+Los compilados, informes, SDK, emulador, herramientas y cachés continúan en D:.
+La verificación Rust utiliza D:/BOTONERA/app/.tools/msvc/entorno-msvc.cmd,
+que mantiene CARGO_TARGET_DIR y temporales en D:. El código Android nativo vive
+en src-tauri/android/; gen/android se genera con el flujo Android y sus scripts.
+El traslado de ruta conserva el código probado y la identidad de la edición de
+pruebas; futuras publicaciones y cambios en main requieren petición del autor.
+DEV.bat conserva el call de npm para que la pausa muestre los errores de arranque.
+
 ## Moderno beta.4 — 2026-11-11
 
 El autor amplió Moderno a Linux: Windows y Linux comparten selector, persistencia

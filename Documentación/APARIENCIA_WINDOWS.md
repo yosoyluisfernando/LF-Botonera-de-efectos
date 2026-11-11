@@ -1,5 +1,8 @@
 # Apariencia de escritorio
 
+**Ruta principal vigente:** C:/OVERLAY/BOTONERA (codex/desarrollo).
+La copia adicional permanece en D:/BOTONERA/Desarrollo-Unificado.
+
 ## Alcance vigente beta.4 — 2026-11-11
 
 El autor amplió el alcance a Windows y Linux. Ambos incluyen los mismos ajustes
@@ -92,8 +95,9 @@ No se publica un release ni se modifica main.
 
 ## Ajustes visuales beta.3 — 2026-11-11
 
-La copia actual para continuar el desarrollo está en
-`D:/BOTONERA/Desarrollo-Unificado` (rama codex/desarrollo). Las copias anteriores
+Durante el experimento se trabajó en
+`D:/BOTONERA/Desarrollo-Unificado` (rama codex/desarrollo). La ruta principal
+vigente es `C:/OVERLAY/BOTONERA`. Las copias anteriores
 de la raíz y app/ conservan sus cambios locales sin sobrescribirlos.
 
 Moderno usa el acento morado en el botón de perfil y la pestaña activa; las
