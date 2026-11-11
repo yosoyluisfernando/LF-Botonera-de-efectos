@@ -46,6 +46,12 @@ jobs:
           workspaces: src-tauri
           key: android-aarch64
           cache-on-failure: true
+      # FFmpeg se usa solo para generar un MP3 sintético en el emulador.
+      # No se incluye en la aplicación ni cambia sus dependencias.
+      - name: Prepare the synthetic MP3 test encoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y ffmpeg
       - run: npm ci
       - run: node --test scripts/mobile-locales.test.mjs scripts/touch-controls.test.mjs
       - run: npm run tauri -- android init --ci --skip-targets-install
