@@ -1,8 +1,18 @@
 # Continuidad de sesión — estado actual
 
+## Unificación de ramas — 2026-11-10
+
+El repositorio GitHub se organiza en main y codex/desarrollo.
+Main conserva el commit ed38181d1e318784020addeff621feea8b5bc304.
+codex/desarrollo reúne Android, mejoras de escritorio, OBS, control remoto LAN,
+pruebas de latencia, preparación de Flatpak y documentación de presentación.
+Los historiales anteriores quedan integrados mediante commits de fusión.
+Ver RAMAS_DESARROLLO.md para la organización y el respaldo local de Git.
+
+
 ## Nota de esta copia de trabajo — 2026-11-10
 
-La rama aislada es codex/control-remoto-lan, con versión 1.6.0-beta.1.
+La rama de desarrollo unificada es codex/desarrollo, con versión 1.6.0-beta.1.
 El APK Android comprobado se compiló desde 502a944 en GitHub Actions
 [42944969653](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/actions/runs/42944969653).
 

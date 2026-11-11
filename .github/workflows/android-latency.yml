@@ -1,7 +1,12 @@
 name: Comparar latencia Android sin recompilar
 on:
   push:
-    branches: [codex/android-latency-check]
+    branches: [codex/desarrollo]
+    paths:
+      - .github/workflows/android-latency.yml
+      - scripts/android-latency-check.mjs
+      - scripts/android-latency-check.sh
+  workflow_dispatch:
 permissions:
   contents: read
   actions: read

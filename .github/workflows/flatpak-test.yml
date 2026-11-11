@@ -2,7 +2,7 @@ name: Flatpak test package
 
 on:
   push:
-    branches: [codex/flatpak-test]
+    branches: [codex/desarrollo]
     paths: [.github/workflows/flatpak-test.yml]
   workflow_dispatch:
     inputs:

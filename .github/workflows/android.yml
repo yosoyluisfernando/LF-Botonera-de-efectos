@@ -1,7 +1,7 @@
 name: Android ARM64 de prueba
 on:
   push:
-    branches: [codex/android]
+    branches: [codex/desarrollo]
   workflow_dispatch:
     inputs:
       build_run:

@@ -3,6 +3,11 @@
 Guía para cualquier IA colaboradora (independientemente del modelo o plataforma).
 Lee este archivo completo antes de proponer o escribir código.
 
+**Rama de trabajo vigente:** codex/desarrollo reúne las mejoras de Android,
+Windows y Linux. GitHub conserva main como referencia estable y esta única rama
+de desarrollo. Consultar [Documentación/RAMAS_DESARROLLO.md](Documentación/RAMAS_DESARROLLO.md).
+Los apartados históricos de este archivo pueden mencionar ramas ya integradas.
+
 > **Empieza por [`Documentación/CONTINUIDAD_SESION.md`](Documentación/CONTINUIDAD_SESION.md)**: estado del trabajo, decisiones cerradas y trampas ya verificadas.
 > Si usas Claude Code, lee también [`CLAUDE.md`](CLAUDE.md) para instrucciones específicas de esa herramienta.
 > Para una narrativa completa del proyecto, consulta [`Documentación/LIBRO_PROYECTO.md`](Documentación/LIBRO_PROYECTO.md).

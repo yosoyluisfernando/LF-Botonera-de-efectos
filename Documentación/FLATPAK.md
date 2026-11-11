@@ -4,7 +4,7 @@ GitHub Actions empaqueta para x86_64 el `.deb` que ya compiló y publicó el
 proyecto. El flujo `Flatpak test package` verifica arquitectura y versión,
 instala el resultado en el runner y comprueba el enlace dinámico y los recursos
 sin abrir la Botonera. El artefacto `flatpak-x86_64` contiene el instalador y
-`SHA256SUMS`. La rama de trabajo `codex/flatpak-test` dispara la primera prueba
+`SHA256SUMS`. La rama de trabajo `codex/desarrollo` dispara la primera prueba
 con `v1.5.0`. Si se integra el flujo en la rama predeterminada, se puede ejecutar
 manualmente para otra etiqueta publicada que incluya el `.deb` amd64.
 
