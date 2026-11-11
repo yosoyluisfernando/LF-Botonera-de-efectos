@@ -5,17 +5,40 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
+import android.provider.OpenableColumns
 import androidx.activity.result.ActivityResult
 import app.tauri.annotation.ActivityCallback
 import app.tauri.annotation.Command
+import app.tauri.annotation.InvokeArg
 import app.tauri.annotation.TauriPlugin
 import app.tauri.plugin.Invoke
 import app.tauri.plugin.JSObject
 import app.tauri.plugin.Plugin
 import org.json.JSONArray
 
+@InvokeArg
+internal class FileNameArgs {
+    lateinit var uri: String
+}
+
 @TauriPlugin
 class FolderPlugin(private val activity: Activity) : Plugin(activity) {
+    @Command
+    fun fileName(invoke: Invoke) {
+        val args = invoke.parseArgs(FileNameArgs::class.java)
+        Thread {
+            try {
+                val columns = arrayOf(OpenableColumns.DISPLAY_NAME)
+                val name = activity.contentResolver.query(Uri.parse(args.uri), columns, null, null, null)
+                    ?.use { if (it.moveToFirst()) it.getString(0) else null }
+                require(!name.isNullOrBlank())
+                invoke.resolve(JSObject().put("name", name))
+            } catch (error: Exception) {
+                invoke.reject(null, "mobile_file_name_unavailable")
+            }
+        }.start()
+    }
+
     @Command
     fun pick(invoke: Invoke) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)

@@ -28,7 +28,9 @@ export async function verifyExportRoundtrip({ evaluate, until, adb, pkg, tapDocu
     async function verifyPlayback(label) {
         const config = await invoke('get_config');
         const profile = config.profiles.find(p => p.id === config.active_profile_id);
-        const palette = profile.paletas.find(p => p.botones.some(b => b.path === original.path));
+        const containsTrack = p => p.botones.some(b => b.path === original.path);
+        const palette = profile.paletas.find(p => p.id === profile.active_paleta_id && containsTrack(p))
+            ?? profile.paletas.find(containsTrack);
         assert.ok(palette, 'El perfil importado perdió el MP3');
         await invoke('set_active_paleta', { profileId: profile.id, paletaId: palette.id });
         const grid = await invoke('get_grid_state');
@@ -69,6 +71,13 @@ export async function verifyExportRoundtrip({ evaluate, until, adb, pkg, tapDocu
         || (tapDocument('Show roots', 'Open navigation drawer', 'Browse'), false),
         'No se encontró el MP3 de prueba');
     original = (await assignment).buttons.find(b => b.index === 1);
+    assert.ok(original.path.endsWith('/LF-Roundtrip.mp3'), JSON.stringify(original));
+    assert.ok(original.duration > 0, JSON.stringify(original));
+    const legacy = original.path + '.wav';
+    adb('shell', 'run-as', pkg, 'cp', original.path, legacy);
+    const legacyGrid = await invoke('assign_file_to_button', { index: 2, path: legacy });
+    assert.ok(legacyGrid.buttons.find(b => b.index === 2).duration > 0);
+    await invoke('clear_button', { index: 2 });
     await invoke('analyze_track', { path: original.path, buckets: 256 });
     await invoke('set_track_cue', { path: original.path, startS: 0.5, endS: 1.5 });
     await invoke('set_track_gain', { path: original.path, gainDb: -1 });

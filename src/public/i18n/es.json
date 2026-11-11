@@ -792,6 +792,7 @@
     "empty_hint": "Arrastra aquí tus canciones desde el explorador de archivos"
   },
   "errors": {
+    "mobile_file_name_unavailable": "No se pudo leer el nombre del archivo seleccionado. Vuelve a seleccionarlo desde Archivos.",
     "no_buttons_selected": "No hay botones seleccionados.",
     "no_player_tracks_selected": "No hay elementos seleccionados en el reproductor.",
     "player_no_audio_found": "No se encontró ningún audio en lo que soltaste.",

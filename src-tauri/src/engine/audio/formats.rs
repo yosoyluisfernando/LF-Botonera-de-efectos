@@ -51,6 +51,7 @@ pub fn probe_duration_secs(path: &str) -> f64 {
     use lofty::file::AudioFile;
     use lofty::probe::Probe;
     Probe::open(path)
+        .and_then(|probe| probe.guess_file_type().map_err(Into::into))
         .and_then(|probe| probe.options(ParseOptions::new().read_tags(false)).read())
         .map(|f| f.properties().duration().as_secs_f64())
         .unwrap_or(-1.0)

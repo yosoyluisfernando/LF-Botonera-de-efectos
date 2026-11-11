@@ -42,6 +42,20 @@ struct Document {
     uri: String,
 }
 
+pub(super) fn document_name(uri: &FilePath) -> Result<String, String> {
+    #[derive(Deserialize)]
+    struct NameResult { name: String }
+    match uri {
+        FilePath::Path(path) => Ok(path.file_name().unwrap_or_default().to_string_lossy().into_owned()),
+        FilePath::Url(uri) => {
+            let result: NameResult = app().state::<FolderPlugin>().0
+                .run_mobile_plugin("fileName", serde_json::json!({ "uri": uri.as_str() }))
+                .map_err(|_| "mobile_file_name_unavailable")?;
+            Ok(result.name)
+        }
+    }
+}
+
 pub fn pick_locution_folder() -> Result<Option<PathBuf>, String> {
     let response: PickerResult = app()
         .state::<FolderPlugin>()

@@ -49,3 +49,25 @@ fn skips_non_audio_and_sorts() {
 fn a_missing_folder_is_empty_not_a_panic() {
     assert!(audio_files_recursive(r"C:\no\existe\nada").is_empty());
 }
+
+#[test]
+fn duration_is_detected_from_content_when_extension_is_wrong() {
+    let path = std::env::temp_dir().join(format!("lf_wrong_extension_{}.mp3", std::process::id()));
+    let mut wav = Vec::from(&b"RIFF"[..]);
+    wav.extend_from_slice(&16036u32.to_le_bytes());
+    wav.extend_from_slice(b"WAVEfmt ");
+    wav.extend_from_slice(&16u32.to_le_bytes());
+    wav.extend_from_slice(&1u16.to_le_bytes());
+    wav.extend_from_slice(&1u16.to_le_bytes());
+    wav.extend_from_slice(&8000u32.to_le_bytes());
+    wav.extend_from_slice(&16000u32.to_le_bytes());
+    wav.extend_from_slice(&2u16.to_le_bytes());
+    wav.extend_from_slice(&16u16.to_le_bytes());
+    wav.extend_from_slice(b"data");
+    wav.extend_from_slice(&16000u32.to_le_bytes());
+    wav.resize(16044, 0);
+    fs::write(&path, wav).unwrap();
+    let duration = probe_duration_secs(path.to_str().unwrap());
+    fs::remove_file(path).unwrap();
+    assert!((duration - 1.0).abs() < 0.01, "{duration}");
+}

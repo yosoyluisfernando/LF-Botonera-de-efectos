@@ -21,3 +21,8 @@ mismo recorrido que la selección del perfil desde su menú.
 Los formatos .bdelf y .bdeplf conservan las rutas de audio y los metadatos de
 edición. La prueba de exportación e importación de esta pasada usa los mismos
 archivos en la misma instalación Android, como indicó el autor.
+
+Los nombres de documentos Android se consultan al proveedor de archivos mediante
+DISPLAY_NAME. Se evita usar el identificador opaco de una URI como nombre local.
+La duración se detecta también por el contenido para recuperar audios antiguos
+que se copiaron con una extensión distinta de su formato real.

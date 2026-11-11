@@ -65,19 +65,8 @@ pub(super) fn import(uri: FilePath, audio: bool) -> Result<PathBuf, String> {
         if audio && !crate::engine::audio::decode::can_decode(&partial.to_string_lossy()) {
             return Err("unsupported_audio_format".into());
         }
-        let raw = match &uri {
-            FilePath::Path(p) => p
-                .file_name()
-                .unwrap_or_default()
-                .to_string_lossy()
-                .into_owned(),
-            FilePath::Url(u) => u
-                .path_segments()
-                .and_then(|mut s| s.next_back())
-                .unwrap_or("document")
-                .to_string(),
-        };
-        let mut name = safe_name(&decode_name(&raw));
+        let raw = super::locutions::document_name(&uri)?;
+        let mut name = safe_name(&raw);
         if audio && !crate::engine::audio::formats::is_audio_path(Path::new(&name)) {
             name.push_str(".wav"); // El decodificador identifica el formato por contenido.
         }
@@ -96,28 +85,4 @@ pub(super) fn import(uri: FilePath, audio: bool) -> Result<PathBuf, String> {
         let _ = fs::remove_file(partial);
     }
     result
-}
-fn decode_name(raw: &str) -> String {
-    let mut bytes = Vec::new();
-    let input = raw.as_bytes();
-    let mut i = 0;
-    while i < input.len() {
-        if input[i] == b'%' && i + 2 < input.len() {
-            let hi = (input[i + 1] as char).to_digit(16);
-            let lo = (input[i + 2] as char).to_digit(16);
-            if let (Some(hi), Some(lo)) = (hi, lo) {
-                let value = (hi * 16 + lo) as u8;
-                bytes.push(value);
-                i += 3;
-                continue;
-            }
-        }
-        bytes.push(input[i]);
-        i += 1;
-    }
-    String::from_utf8_lossy(&bytes)
-        .rsplit('/')
-        .next()
-        .unwrap_or("document")
-        .into()
 }

@@ -792,6 +792,7 @@
     "empty_hint": "Drag your songs here from the file explorer"
   },
   "errors": {
+    "mobile_file_name_unavailable": "The selected file name could not be read. Select it again in Files.",
     "no_buttons_selected": "No buttons are selected.",
     "no_player_tracks_selected": "No player items are selected.",
     "player_no_audio_found": "No audio was found in what you dropped.",

@@ -792,6 +792,7 @@
     "empty_hint": "Arraste suas músicas aqui do explorador de arquivos"
   },
   "errors": {
+    "mobile_file_name_unavailable": "Não foi possível ler o nome do arquivo selecionado. Selecione-o novamente em Arquivos.",
     "no_buttons_selected": "Nenhum botão selecionado.",
     "no_player_tracks_selected": "Nenhum item do reprodutor está selecionado.",
     "player_no_audio_found": "Nenhum áudio foi encontrado no que você soltou.",
