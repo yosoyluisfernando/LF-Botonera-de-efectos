@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "LF Botonera LAN Prueba",
+  "productName": "LF Botonera de Efectos Beta",
   "version": "1.6.0-beta.4",
   "identifier": "io.github.yosoyluisfernando.lfbotonera.lanprueba",
   "build": {
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "LF Botonera de Efectos",
+        "title": "LF Botonera de Efectos Beta",
         "width": 1000,
         "height": 700,
         "center": true,

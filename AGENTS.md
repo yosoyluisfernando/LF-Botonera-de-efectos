@@ -355,6 +355,11 @@ Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
 
 ## 11. Cómo verificar un cambio
 
+**Antes de empaquetar una Beta o una Estable:** leer `COMPILAR.md` y
+`Documentación/CANALES_COMPILACION.md`. La edición de pruebas se llama
+LF Botonera de Efectos Beta; nombre, ID y upgradeCode se verifican por canal.
+Quitar el sufijo beta de la versión no restaura la identidad estable.
+
 ```bash
 # Tests unitarios Rust (suite actual: 345 passed, 19 ignored)
 cd src-tauri

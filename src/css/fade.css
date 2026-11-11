@@ -25,7 +25,29 @@
 
 /* ── Modal de ajustes del normalizador ────────────────────────────────────── */
 /* z-index 3300: por encima del editor de pistas (3200) en modal y pop-out */
-#norm-config-modal { z-index: 3300; }
+#norm-config-modal {
+  z-index: 3300;
+  height: 100dvh;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+#norm-config-modal .modal-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+}
+#norm-config-modal .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#norm-config-modal .modal-header,
+#norm-config-modal .modal-footer {
+  flex-shrink: 0;
+}
 #norm-config-modal .modal-section-title {
   color: var(--text-primary);
   font-size: 12px;

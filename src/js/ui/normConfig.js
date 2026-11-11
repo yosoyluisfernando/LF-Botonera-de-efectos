@@ -14,7 +14,7 @@ function buildModal() {
     el.innerHTML = `
         <div class="modal-content">
             <div class="modal-header"><h3>⚙️ <span data-i18n="norm_config.title"></span></h3></div>
-            <div class="modal-body">
+            <div class="modal-body" data-wheel-focus-only>
                 <label><span data-i18n="norm_config.mode_label"></span><select id="nc-mode"></select></label>
                 <div id="nc-lufs-fields" style="margin-top:10px">
                     <label><span data-i18n="norm_config.target_lufs"></span><input type="number" id="nc-target" step="0.5" min="-40" max="0"></label>

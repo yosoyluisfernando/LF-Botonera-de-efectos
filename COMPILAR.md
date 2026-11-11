@@ -1,125 +1,140 @@
-# Compilar LF Botonera de Efectos desde el código fuente
+# Compilar LF Botonera de Efectos
 
-## Requisitos previos (una sola vez)
+## Antes de compilar: elegir el canal
 
-### Windows
-1. [Node.js 20+](https://nodejs.org/) con npm incluido.
-2. [Rust (rustup)](https://rustup.rs/) — instala el toolchain `stable` por defecto.
-3. [Build Tools para Visual Studio](https://visualstudio.microsoft.com/visual-cpp-build-tools/) —
-   seleccionar **"Desarrollo con C++"** (necesario para compilar dependencias nativas de Rust).
-4. [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) —
-   ya viene incluido en Windows 10 (20H2+) y Windows 11. Solo necesario instalarlo en versiones
-   antiguas de Windows 10.
+**Leer [Documentación/CANALES_COMPILACION.md](Documentación/CANALES_COMPILACION.md).**
+La versión, el nombre, el identificador y el código de actualización deben
+corresponder al canal. Quitar `-beta.N` de la versión no convierte la edición
+de pruebas en estable. Esta comprobación aplica también a GitHub Actions.
 
-### Linux (Ubuntu 22.04 / Debian 12 o compatible)
-```bash
-sudo apt-get update
-sudo apt-get install -y \
-  libwebkit2gtk-4.1-dev \
-  libssl-dev \
-  libgtk-3-dev \
-  libayatana-appindicator3-dev \
-  librsvg2-dev \
-  libasound2-dev \
-  libxdo-dev \
-  patchelf \
-  rpm \
-  squashfs-tools \
-  build-essential
+La configuración actual es **LF Botonera de Efectos Beta**, aislada de la estable.
+La ruta principal es `C:/OVERLAY/BOTONERA`, rama `codex/desarrollo`.
+Herramientas, SDK, cachés, informes y compilados se conservan en D: en este equipo.
 
-# Node.js
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
+## Requisitos
 
-# Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source "$HOME/.cargo/env"
-```
+- Node.js 24 recomendado y npm; usar las versiones indicadas en los workflows.
+- Rust estable y dependencias instaladas con `npm ci` desde la raíz.
+- Windows: Build Tools C++, Windows SDK y WebView2 Runtime.
+- Linux: las dependencias del ejecutor Ubuntu 22.04 están en
+  `.github/workflows/release-builds.yml`. Incluyen WebKitGTK 4.1, ALSA, D-Bus,
+  OpenSSL, AppIndicator, librsvg, libxdo, patchelf, rpm y herramientas de compilación.
+- Android: JDK 21, SDK/plataforma 36, build-tools 36.0.0 y NDK 27.2.12479018,
+  según `.github/workflows/android.yml`; target Rust `aarch64-linux-android`.
+  `JAVA_HOME`, `ANDROID_HOME` y `NDK_HOME` deben señalar las herramientas reales.
+  En este equipo se mantienen en D:, sin descargar otro entorno en C:.
 
----
-
-## Instalar dependencias del proyecto
-
-En la raíz del repositorio, una sola vez:
+## Verificar sin abrir la aplicación ni crear instaladores
 
 ```bash
-npm install
+npm ci
+node --test --test-concurrency=1 scripts/*.test.mjs
+cd src-tauri
+cargo test --lib
+cargo build --lib
+cd ..
+npm run build
 ```
 
----
+`npm run build` compila el frontend; `cargo build --lib` verifica la biblioteca.
+No equivalen a generar instaladores. La prueba funcional la hace el autor.
 
-## Compilar (producción)
+## Windows: EXE y MSI
 
-El mismo comando sirve en Windows y Linux:
+Después de comprobar el canal y sus versiones:
 
 ```bash
-npm run tauri build
+npm run tauri -- build --bundles nsis,msi
 ```
 
-Los artefactos quedan en `src-tauri/target/release/bundle/`.
+En este equipo puede usarse el entorno MSVC existente, desde CMD:
 
----
+```bat
+cd /d C:\OVERLAY\BOTONERA
+call D:\BOTONERA\app\.tools\msvc\entorno-msvc.cmd
+npm run tauri -- build --bundles nsis,msi
+```
 
-## Formatos de salida
+Ese entorno fija `CARGO_TARGET_DIR` y temporales en D:.
 
-### Windows
+| Salida | Carpeta bajo el directorio de destino de Cargo |
+| --- | --- |
+| Instalador EXE | `release/bundle/nsis/` |
+| Instalador MSI | `release/bundle/msi/` |
+| Ejecutable sin empaquetar | `release/tauri-app.exe` |
 
-| Formato | Ubicación | Descripción |
-|---|---|---|
-| `.msi` | `bundle/msi/*.msi` | Instalador MSI (Windows Installer). Se integra con Agregar/Quitar programas. Recomendado para despliegues empresariales. |
-| `.exe` (instalador NSIS) | `bundle/nsis/*-setup.exe` | Instalador gráfico clásico con asistente paso a paso. El más sencillo para usuarios finales. |
-| `.exe` (portable) | `target/release/tauri-app.exe` | Ejecutable directo sin instalación. Requiere que WebView2 Runtime esté instalado en el sistema. No crea accesos directos ni entradas en el registro. |
+El ejecutable suelto no se anuncia como distribución portable validada sin
+comprobar sus recursos y WebView2. Microsoft Store tiene un flujo propio:
+`scripts/build-store-msix.ps1` y `Documentación/store/README.md`.
 
-> **¿Cuál usar?**  
-> Para distribuir a usuarios finales: el `.exe` NSIS (instalador).  
-> Para pruebas rápidas o uso sin instalación: el `.exe` portable.  
-> Para entornos corporativos con políticas de software: el `.msi`.
+## Linux: DEB, RPM y AppImage
 
-### Linux
-
-| Formato | Ubicación | Descripción |
-|---|---|---|
-| `.deb` | `bundle/deb/*.deb` | Paquete para Ubuntu, Debian, Linux Mint y derivados. Se instala con `dpkg -i` o doble clic en el gestor de archivos. |
-| `.rpm` | `bundle/rpm/*.rpm` | Paquete para Fedora, openSUSE y derivados compatibles con RPM. |
-| `.AppImage` | `bundle/appimage/*.AppImage` | Ejecutable universal sin instalación. Funciona en cualquier distribución Linux con glibc 2.31+. Dar permisos de ejecución con `chmod +x` y ejecutar directamente. |
-
----
-
-## Modo desarrollo (con recarga en vivo)
+Compilar en Linux con las dependencias del workflow:
 
 ```bash
-npm run tauri dev
+npm ci
+npm run tauri -- build --bundles deb,appimage,rpm
 ```
 
-Abre la app con hot-reload del frontend. Los cambios en `src/` se reflejan al instante;
-los cambios en `src-tauri/src/` requieren recompilación de Rust (automática pero más lenta).
+Los paquetes quedan bajo `release/bundle/deb/`, `rpm/` y `appimage/`.
+El ejecutor actual construye para x86_64. Comprobar la distribución de destino;
+AppImage no implica compatibilidad universal con cualquier sistema Linux.
+Flatpak continúa como trabajo separado y no se ofrece como paquete disponible.
 
----
+## Android: APK ARM64 de pruebas
 
-## Actualizar la versión
-
-La versión se declara en **tres archivos que deben coincidir**:
-
-| Archivo | Campo |
-|---|---|
-| `package.json` | `"version"` |
-| `src-tauri/Cargo.toml` | `version` en `[package]` |
-| `src-tauri/tauri.conf.json` | `"version"` |
-
-Cambiar los tres al mismo valor antes de compilar la release.
-
----
-
-## Compilación automática con GitHub Actions
-
-Al hacer push de un tag con el formato `v*` (ejemplo: `v1.1.1`), el workflow
-`.github/workflows/build.yml` compila automáticamente en Windows y Linux y sube
-los artefactos (`.msi`, `.exe`, `.deb`, `.rpm`, `.AppImage`) como descargables del release.
+Comprobar primero el canal efectivo en `tauri.android.conf.json`.
+La identidad Android es independiente de la identidad estable de escritorio.
 
 ```bash
-git tag v1.1.1
-git push origin v1.1.1
+npm ci
+npm run tauri -- android init --ci --skip-targets-install
+python scripts/prepare-android-midi.py src-tauri/gen/android
 ```
 
-Los artefactos aparecen en la pestaña **Actions** del repositorio de GitHub, en la
-ejecución correspondiente al tag.
+Aplicar el icono versionado después de generar el proyecto. En PowerShell:
+
+```powershell
+$res = 'src-tauri/gen/android/app/src/main/res'
+Copy-Item 'src-tauri/icons/android/*' $res -Recurse -Force
+Copy-Item "$res/mipmap-anydpi-v26/ic_launcher.xml" "$res/mipmap-anydpi-v26/ic_launcher_round.xml" -Force
+npm run tauri -- android build --ci --debug --apk --target aarch64
+```
+
+En Linux, los pasos equivalentes de copia están en `android.yml`.
+No omitir `prepare-android-midi.py`: incorpora los módulos Kotlin de MIDI y
+carpetas, permisos y ajustes del proyecto generado. `gen/android` no sustituye
+al código fuente versionado en `src-tauri/android/`.
+
+Localizar el APK en `src-tauri/gen/android/app/build/outputs/apk/` y comprobar
+su firma con `apksigner verify --verbose`. El flujo actual usa firma de debug:
+no es el procedimiento para una publicación estable de Android.
+
+## Dónde encontrar los resultados
+
+Sin personalización, Cargo usa `src-tauri/target/`. Con `CARGO_TARGET_DIR`,
+consultar esa ruta; no asumir que los archivos quedaron en C:.
+Guardar las entregas al autor en `D:/BOTONERA/Compilados/`, identificando
+sistema, canal y versión. Conservar versiones anteriores y comprobar SHA-256.
+
+## Desarrollo y compilación automática
+
+- `DEV.bat` o `npm run tauri -- dev`: desarrollo con recarga; lo ejecuta el autor.
+- `release-builds.yml`: ejecución manual, elige ref, Windows/Linux/ambos y
+  `publish`. Para pruebas usar `publish=false`; subir assets requiere una
+  petición de publicación y un release de destino ya preparado.
+- `build.yml`: los tags finales `vX.Y.Z` pueden publicar automáticamente un
+  release estable. Excluye tags con guion, como `v1.6.0-beta.5`.
+- `android.yml`: APK de pruebas; se dispara en `codex/desarrollo` o manualmente.
+  La presencia del workflow no significa que Android tenga publicación estable.
+
+**No crear ni empujar tags ni activar publicación como parte de una simple
+verificación, cambio de nombre o actualización de documentación.**
+Main se conserva como referencia estable; trabajar en `codex/desarrollo`.
+
+## Fuentes técnicas
+
+- [CLI oficial de Tauri](https://v2.tauri.app/reference/cli/).
+- [Configuración y opciones de empaquetado](https://v2.tauri.app/reference/config/).
+- Workflows versionados en `.github/workflows/`: referencia de las versiones y
+  comandos que realmente utiliza este proyecto.

@@ -1,5 +1,28 @@
 # Continuidad de sesión — estado actual
 
+## Canales de compilación y nombre Beta — 2026-11-11
+
+El autor pidió documentar cómo compilar Beta y Estable para próximos chats.
+Leer COMPILAR.md y CANALES_COMPILACION.md antes de generar paquetes.
+El nombre visible de producto y ventana pasa a LF Botonera de Efectos Beta.
+Se conservan el ID lanprueba y el upgradeCode de pruebas, para no migrar sus
+identidades al renombrar. Android fija también el nombre Beta en su override.
+La estable de escritorio debe recuperar nombre, ID y upgradeCode originales
+verificados contra main; no basta quitar -beta de la versión. La primera
+estable Android exige revisar ID definitivo, firma y versionCode; sigue en
+pruebas. No se generaron instaladores ni se publicó nada para esta nota.
+
+## Ajuste local del diálogo del editor — 2026-11-11
+
+En C:/OVERLAY/BOTONERA se ajustó norm-config-modal para limitarse al viewport,
+con cabecera/pie visibles y cuerpo desplazable. Respeta zonas seguras en móvil.
+El formulario solicita foco antes de ajustar números con rueda; sin foco la
+rueda puede desplazar las opciones. No cambia el resto de campos de la app.
+Prueba de DOM con cuatro idiomas, tres tamaños, claro/oscuro, ambos diseños y
+presentación Android; verifica acceso a la última opción y acciones visibles.
+El autor pidió probarlo con DEV.bat, sin generar instaladores. La prueba manual sigue
+pendiente de esa confirmación; los paquetes anteriores permanecen en D:.
+
 ## Ruta principal unificada — 2026-11-11
 
 El autor aprobó el experimento y pidió continuar desde C:/OVERLAY/BOTONERA.

@@ -15,6 +15,8 @@ export function initNumberInputs() {
 function _handleWheel(e) {
     const input = e.target?.closest?.('input[type="number"]');
     if (!input || input.disabled || input.readOnly) return;
+    // En formularios desplazables, la rueda navega hasta seleccionar el campo.
+    if (input.closest('[data-wheel-focus-only]') && document.activeElement !== input) return;
 
     e.preventDefault();
     const step = _numberAttr(input, 'step', 1);
