@@ -1,11 +1,11 @@
-//! Diseño visual opcional para Windows.
+//! Diseño visual opcional para Windows y Linux.
 use super::AppState;
 use crate::engine::persist::config_io;
 use crate::model::appearance::DesktopStyle;
 use serde::Serialize;
 use tauri::Emitter;
 
-const AVAILABLE: bool = cfg!(target_os = "windows");
+const AVAILABLE: bool = cfg!(any(target_os = "windows", target_os = "linux"));
 
 #[derive(Clone, Serialize)]
 pub struct AppearanceView {

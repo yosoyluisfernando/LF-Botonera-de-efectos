@@ -1,6 +1,27 @@
-# Apariencia de Windows
+# Apariencia de escritorio
 
-## Alcance aprobado — 2026-11-11
+## Alcance vigente beta.4 — 2026-11-11
+
+El autor amplió el alcance a Windows y Linux. Ambos incluyen los mismos ajustes
+visuales de Moderno y el selector de Principal con guardado inmediato. Android
+conserva su interfaz específica. Las restricciones anteriores a Windows que se
+narran a continuación son históricas y quedan sustituidas por esta decisión.
+
+Vite habilita __LF_DESKTOP_THEMES__ y la hoja de apariencia en Windows y Linux.
+Rust permite los dos sistemas para getter/setter y persistencia de desktop_style.
+Las compilaciones móviles siguen sin esta capa. La clave de caché y los valores
+default/modern se conservan; no se introduce un formato nuevo.
+
+Los textos de peligro de los menús contextuales usan el color semántico de error,
+con una variante legible en claro, en lugar del texto blanco para botones rojos.
+Esto cubre pestañas, perfiles y los demás menús con la clase danger.
+
+Se retiraron las transformaciones de hover y pulsación en rejilla/panel fijo.
+El borde permanece bajo el puntero y se conservan sombras/bordes como feedback.
+La prueba con entrada real de mouse comprueba el borde inferior en claro/oscuro,
+con cursor quieto y con botón pulsado. Se verificó que detecta el efecto anterior.
+
+## Alcance inicial — 2026-11-11
 
 La rama `codex/desarrollo` incorpora exclusivamente Predeterminado y Moderno
 del experimento local de `C:/OVERLAY/BOTONERA`. El experimento original se

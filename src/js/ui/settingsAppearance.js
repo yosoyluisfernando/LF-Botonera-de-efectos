@@ -1,10 +1,10 @@
-/** Presentación de Principal y selector de diseño exclusivo de Windows. */
+/** Presentación de Principal y selector de diseño para Windows y Linux. */
 import { desktopAppearance, selectDesktopAppearance } from './desktopAppearance.js';
 import { t } from '../util/i18n.js';
 import { appAlert } from './appDialog.js';
 
 export function initSettingsAppearance() {
-    if (!__LF_WINDOWS_THEMES__ || !desktopAppearance().available) return;
+    if (!__LF_DESKTOP_THEMES__ || !desktopAppearance().available) return;
     const main = document.getElementById('s-main');
     const appearance = section('themes.appearance');
     const fields = document.createElement('div');

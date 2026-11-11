@@ -33,7 +33,7 @@ directamente desde Windows:
 ## [Sin publicar]
 
 ### Añadido
-- **Apariencia en Windows:** selector Predeterminado/Moderno integrado en Principal,
+- **Apariencia en Windows y Linux:** selector Predeterminado/Moderno integrado en Principal,
   con aplicación y guardado inmediatos y compatibilidad con claro, oscuro y sistema.
   Principal agrupa apariencia, botones de barra y salidas de audio.
 - **Control remoto por red local:** la PC puede activar acceso con clave por sesión

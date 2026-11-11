@@ -1,4 +1,4 @@
-/* Organización de Principal en Windows para los dos diseños. */
+/* Organización de Principal en escritorio para los dos diseños. */
 body[data-platform="desktop"] #s-main.settings-main-organized {
   display: grid;
   align-content: start;

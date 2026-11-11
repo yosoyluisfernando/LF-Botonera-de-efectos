@@ -6,13 +6,14 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
-const edge = process.env.LF_TEST_BROWSER || 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
+const edge = process.env.LF_TEST_BROWSER || (process.platform==='win32'
+    ? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' : '/usr/bin/google-chrome');
 const root = fileURLToPath(new URL('../', import.meta.url));
 const moduleBody = name => readFileSync(join(root, 'src/js/ui', name), 'utf8')
     .replace(/^import .*;\r?\n/gm, '').replace(/export /g, '');
 
-test('Principal mounts and switches its designs in a real Windows browser DOM', {
-    skip: process.platform !== 'win32' || !existsSync(edge),
+test('Principal mounts and switches its designs in a real desktop browser DOM', {
+    skip: !existsSync(edge),
 }, () => {
     const folder = mkdtempSync(join(tmpdir(), 'lf-appearance-dom-'));
     let html = readFileSync(join(root, 'src/index.html'), 'utf8')
@@ -21,7 +22,7 @@ test('Principal mounts and switches its designs in a real Windows browser DOM', 
             (_, path) => `href="${pathToFileURL(join(root, 'src', path.slice(1))).href}"`);
     const locale = readFileSync(join(root, 'src/public/i18n/es.json'), 'utf8');
     const script = `
-      const __LF_WINDOWS_THEMES__ = true;
+      const __LF_DESKTOP_THEMES__ = true;
       const dictionary = ${locale};
       const t = key => key.split('.').reduce((v,k) => v?.[k], dictionary) ?? key;
       const platformCapabilities = () => ({platform:'desktop'});
@@ -88,7 +89,7 @@ test('Principal mounts and switches its designs in a real Windows browser DOM', 
             assert(getComputedStyle(node).color==='rgb(255, 255, 255)','Header text lost contrast');
           }
           const menu=document.getElementById('profile-context-menu');menu.classList.remove('hidden');
-          for(const li of menu.querySelectorAll('#profile-list li, .danger')) {
+          for(const li of document.querySelectorAll('#profile-list li, .context-style .danger')) {
             assert(contrast(getComputedStyle(li).color,getComputedStyle(document.body).backgroundColor)>=4.5,
               'Saved profile name unreadable');
           }

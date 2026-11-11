@@ -1,4 +1,4 @@
-//! Diseño de Windows, independiente del modo de color.
+//! Diseño de escritorio, independiente del modo de color.
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -53,7 +53,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
     fn modern_style_round_trips_with_color_mode() {
         let config = AppConfig {
             desktop_style: DesktopStyle::Modern,
@@ -68,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(not(any(target_os = "windows", target_os = "linux")))]
     fn unsupported_platforms_ignore_the_style_field() {
         let mut config: AppConfig =
             serde_json::from_value(serde_json::json!({"desktop_style":"modern"})).unwrap();

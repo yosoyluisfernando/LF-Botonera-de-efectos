@@ -35,7 +35,7 @@ pub struct AppConfig {
     #[serde(default = "default_theme")]
     pub theme: String,
     #[serde(default, skip_serializing_if = "crate::model::appearance::DesktopStyle::is_default")]
-    #[cfg_attr(not(target_os = "windows"), serde(skip))]
+    #[cfg_attr(not(any(target_os = "windows", target_os = "linux")), serde(skip))]
     pub desktop_style: crate::model::appearance::DesktopStyle,
     #[serde(default = "default_lang")]
     pub language: String,

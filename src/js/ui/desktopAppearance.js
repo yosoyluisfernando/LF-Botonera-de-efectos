@@ -9,7 +9,7 @@ let current = { available: false, style: 'default' };
 function apply(view) {
     current = view;
     const root = document.documentElement;
-    if (__LF_WINDOWS_THEMES__ && view.available && STYLES.includes(view.style)) {
+    if (__LF_DESKTOP_THEMES__ && view.available && STYLES.includes(view.style)) {
         root.dataset.desktopStyle = view.style;
         localStorage.setItem(CACHE, view.style);
     } else {
@@ -24,7 +24,7 @@ function apply(view) {
 
 /** Caché de primer pintado; una compilación móvil nunca la consulta ni la aplica. */
 export function initializeAppearanceCache() {
-    if (__LF_WINDOWS_THEMES__) {
+    if (__LF_DESKTOP_THEMES__) {
         const style = localStorage.getItem(CACHE);
         if (STYLES.includes(style)) document.documentElement.dataset.desktopStyle = style;
     }
@@ -32,7 +32,7 @@ export function initializeAppearanceCache() {
 
 /** Se ejecuta antes de mostrar cualquier ventana, también Biblioteca y pop-outs. */
 export async function initializeDesktopAppearance() {
-    if (!__LF_WINDOWS_THEMES__ || platformCapabilities()?.platform !== 'desktop') return;
+    if (!__LF_DESKTOP_THEMES__ || platformCapabilities()?.platform !== 'desktop') return;
     await listen('desktop-appearance-changed', event => apply(event.payload));
     apply(await invoke('get_desktop_appearance'));
 }

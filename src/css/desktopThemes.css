@@ -1,4 +1,4 @@
-/* Capa opcional de Windows. Predeterminado usa las hojas base. */
+/* Capa opcional de Windows y Linux. Predeterminado usa las hojas base. */
 @import "./desktopModern.css";
 @import "./desktopModernWorkspace.css";
 @import "./desktopModernBottom.css";

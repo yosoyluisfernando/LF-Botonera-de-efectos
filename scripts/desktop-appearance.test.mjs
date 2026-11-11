@@ -14,7 +14,7 @@ function windowFixture({ enabled = true, platform = 'desktop', theme = 'dark' } 
     let remote;
     let failSave = false;
     const context = vm.createContext({
-        __LF_WINDOWS_THEMES__: enabled,
+        __LF_DESKTOP_THEMES__: enabled,
         platformCapabilities: () => ({ platform }),
         document: { documentElement: { dataset }, dispatchEvent: e => events.push(e) },
         localStorage: {
@@ -75,7 +75,7 @@ test('persisted changes reach independent windows and clear Modern on Default', 
 });
 
 test('excluded builds never read the appearance cache or request its commands', async () => {
-    for (const platform of ['linux', 'android', 'ios']) {
+    for (const platform of ['android', 'ios']) {
         const w = windowFixture({ enabled: false, platform });
         w.cache.set('lf-botonera-desktop-style', 'modern');
         w.context.initializeAppearanceCache();
@@ -85,7 +85,7 @@ test('excluded builds never read the appearance cache or request its commands', 
     }
 });
 
-test('a browser preview never activates the native Windows setting', async () => {
+test('a browser preview never activates the native desktop setting', async () => {
     const w = windowFixture({ platform: 'browser' });
     await w.context.initializeDesktopAppearance();
     assert.deepEqual(w.calls, []);

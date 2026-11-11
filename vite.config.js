@@ -2,16 +2,16 @@ import { defineConfig } from "vite";
 import { fileURLToPath } from "node:url";
 
 const platform = process.env.TAURI_ENV_PLATFORM || (process.platform === "win32" ? "windows" : process.platform);
-const windowsThemes = platform === "windows";
+const desktopThemes = ["windows", "linux"].includes(platform);
 
 export default defineConfig({
-  define: { __LF_WINDOWS_THEMES__: windowsThemes },
+  define: { __LF_DESKTOP_THEMES__: desktopThemes },
   plugins: [{
-    name: "windows-appearance-styles",
+    name: "desktop-appearance-styles",
     transformIndexHtml: {
       order: "pre",
       handler(html) {
-        return windowsThemes ? html : html.replace(/<link\b[^>]*data-windows-appearance[^>]*>\s*/g, "");
+        return desktopThemes ? html : html.replace(/<link\b[^>]*data-desktop-appearance[^>]*>\s*/g, "");
       },
     },
   }],

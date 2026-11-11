@@ -1,5 +1,15 @@
 # Continuidad de sesión — estado actual
 
+## Moderno beta.4 — 2026-11-11
+
+El autor amplió Moderno a Linux: Windows y Linux comparten selector, persistencia
+y mejoras visuales. Android conserva su UI. Esta decisión sustituye los límites
+anteriores a Windows. Capa Vite __LF_DESKTOP_THEMES__, Rust habilitado en ambos.
+Textos de peligro legibles en todos los menús contextuales. Hover/pulsación de
+rejilla y panel fijo mantienen estable la superficie del botón; prueba de mouse
+real valida bordes claros/oscuros y detecta el efecto anterior. 18 pruebas Node.
+Copia vigente D:/BOTONERA/Desarrollo-Unificado, rama codex/desarrollo.
+
 ## Moderno beta.3 — 2026-11-11
 
 Copia actual: D:/BOTONERA/Desarrollo-Unificado, rama codex/desarrollo.
