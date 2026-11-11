@@ -83,7 +83,7 @@ jobs:
         run: npm ci
 
       - name: Run frontend tests
-        run: node --test scripts/*.test.mjs
+        run: node --test --test-concurrency=1 scripts/*.test.mjs
 
       - name: Run Rust tests
         working-directory: src-tauri

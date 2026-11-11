@@ -12,7 +12,7 @@ const root = process.env.LF_TEST_REPO || fileURLToPath(new URL('../', import.met
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 test('stationary pointer stays on the grid and fixed-panel button edges', {
-    skip: !existsSync(browser), timeout:45000,
+    skip: !existsSync(browser), timeout:90000,
 }, async () => {
     const folder = mkdtempSync(join(tmpdir(), 'lf-hover-'));
     const profile = join(folder, 'browser');
@@ -25,13 +25,15 @@ test('stationary pointer stays on the grid and fixed-panel button edges', {
     const child = spawn(browser, ['--headless','--disable-gpu','--no-first-run',
         '--no-default-browser-check','--disable-background-networking','--allow-file-access-from-files',
         '--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],
-    { stdio:'ignore', windowsHide:true });
+    { stdio:['ignore','ignore','pipe'], windowsHide:true });
+    let browserErrors='';
+    child.stderr.on('data',chunk=>{browserErrors=(browserErrors+chunk).slice(-4000);});
     let ws;
     try {
         const portFile = join(profile, 'DevToolsActivePort');
-        const deadline = Date.now()+15000;
+        const deadline = Date.now()+45000;
         while (!existsSync(portFile) && Date.now()<deadline) await pause(50);
-        assert.ok(existsSync(portFile), 'Browser debugger did not start');
+        assert.ok(existsSync(portFile), 'Browser debugger did not start: '+browserErrors);
         const port = readFileSync(portFile,'utf8').split('\n')[0];
         const pages = await (await fetch('http://127.0.0.1:'+port+'/json/list')).json();
         ws = new WebSocket(pages.find(page=>page.type==='page').webSocketDebuggerUrl);
