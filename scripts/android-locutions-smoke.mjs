@@ -78,7 +78,7 @@ export async function verifyLocutions({ evaluate, until, adb, pkg, tapDocument }
     const paths = {};
     for (const { key, label, file } of packs) {
         await evaluate("document.getElementById('loc-" + key + "-browse').click()");
-        await until(() => tapDocument(label) || (tapDocument('Downloads'), false)
+        await until(() => tapDocument(label) || (tapDocument('Download', 'Downloads'), false)
             || (tapDocument('Show roots', 'Open navigation drawer'), false),
         'No se encontró la carpeta ' + label);
         await until(() => tapDocument('Use this folder', 'USE THIS FOLDER'),
