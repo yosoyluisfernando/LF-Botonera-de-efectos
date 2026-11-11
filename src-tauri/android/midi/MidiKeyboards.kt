@@ -12,7 +12,7 @@ internal class MidiKeyboards(context: Context, private val main: Handler) : Inpu
     private var channel: Channel? = null
     private var previous: List<Map<String, String>>? = null
 
-    fun devices(): List<Map<String, String>> = InputDevice.getDeviceIds().mapNotNull { id ->
+    fun devices(): List<Map<String, String>> = InputDevice.getDeviceIds().toList().mapNotNull { id ->
         val device = InputDevice.getDevice(id) ?: return@mapNotNull null
         val external = if (Build.VERSION.SDK_INT >= 29) device.isExternal
             else device.keyboardType == InputDevice.KEYBOARD_TYPE_ALPHABETIC
