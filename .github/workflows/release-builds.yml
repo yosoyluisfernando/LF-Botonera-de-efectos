@@ -45,8 +45,17 @@ jobs:
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          cat > /tmp/lf-ubuntu-sources.list <<'EOF'
+          deb https://archive.ubuntu.com/ubuntu jammy main restricted universe multiverse
+          deb https://archive.ubuntu.com/ubuntu jammy-updates main restricted universe multiverse
+          deb https://security.ubuntu.com/ubuntu jammy-security main restricted universe multiverse
+          EOF
+          apt_args=(-o Dir::Etc::sourcelist=/tmp/lf-ubuntu-sources.list
+                    -o Dir::Etc::sourceparts=- -o APT::Get::List-Cleanup=0
+                    -o Acquire::Retries=2 -o Acquire::ForceIPv4=true
+                    -o Acquire::https::Timeout=30)
+          sudo apt-get "${apt_args[@]}" update
+          sudo apt-get "${apt_args[@]}" install -y \
             build-essential \
             curl \
             file \

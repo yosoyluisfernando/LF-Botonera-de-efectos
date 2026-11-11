@@ -9,6 +9,9 @@ Textos de peligro legibles en todos los menús contextuales. Hover/pulsación de
 rejilla y panel fijo mantienen estable la superficie del botón; prueba de mouse
 real valida bordes claros/oscuros y detecta el efecto anterior. 18 pruebas Node.
 Copia vigente D:/BOTONERA/Desarrollo-Unificado, rama codex/desarrollo.
+El ejecutor Ubuntu falló al resolver azure.archive.ubuntu.com. La preparación
+APT de release-builds usa fuentes oficiales Ubuntu con HTTPS, firmas normales
+y reintentos acotados, sin depender del espejo Azure de la imagen del runner.
 
 ## Moderno beta.3 — 2026-11-11
 
