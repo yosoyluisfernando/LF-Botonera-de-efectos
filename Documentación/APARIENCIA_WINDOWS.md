@@ -68,3 +68,23 @@ cambio inmediato, retorno a Predeterminado y contraste en claro/oscuro.
 La prueba aislada usa el contrato real de Rust, sin inventar la plataforma.
 La compilación corregida es 1.6.0-beta.2; Windows Installer usa 1.6.0.2.
 No se publica un release ni se modifica main.
+
+## Ajustes visuales beta.3 — 2026-11-11
+
+La copia actual para continuar el desarrollo está en
+`D:/BOTONERA/Desarrollo-Unificado` (rama codex/desarrollo). Las copias anteriores
+de la raíz y app/ conservan sus cambios locales sin sobrescribirlos.
+
+Moderno usa el acento morado en el botón de perfil y la pestaña activa; las
+pestañas inactivas usan el fondo de controles del tema. La capa CSS prevalece
+sobre los colores inline de esos controles, sin alterar preferencias guardadas.
+Predeterminado recupera esos colores y tab-playing conserva su señal verde.
+
+Los nombres de perfiles usan texto del tema en claro y oscuro. La selección
+se distingue con fondo suave y borde de acento; la acción de borrar conserva
+la señal de peligro. El dock inferior calcula su altura por contenido, con
+mínimo de 102 px y 8 px entre el vúmetro y la fila de controles.
+
+La prueba de DOM usa el HTML y módulos reales de perfiles, pestañas y colores:
+comprueba acentos, contraste, geometría, señal de reproducción y restauración
+de los colores personales. No se modifica lógica de audio ni IPC.

@@ -1,5 +1,14 @@
 # Continuidad de sesión — estado actual
 
+## Moderno beta.3 — 2026-11-11
+
+Copia actual: D:/BOTONERA/Desarrollo-Unificado, rama codex/desarrollo.
+La raíz de D:/BOTONERA y app/ son copias anteriores con cambios locales.
+No sobrescribirlas al continuar. Perfil y pestaña activa usan morado; nombres
+de perfiles legibles en claro/oscuro; dock con altura por contenido y separación
+VU/controles. Colores personales conservados; Predeterminado los recupera.
+Prueba de DOM ampliada con los módulos reales. Ver APARIENCIA_WINDOWS.md.
+
 ## Apariencia de Windows — 2026-11-11
 
 Corrección beta.2: la plataforma real es desktop, no windows. La primera

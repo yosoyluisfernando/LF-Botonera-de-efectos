@@ -35,7 +35,14 @@
   transition: transform 0.14s ease, box-shadow 0.16s ease, border-color 0.16s ease;
 }
 
-:root[data-desktop-style="modern"] .tab.active {
+:root[data-desktop-style="modern"] .tab:not(.tab-playing) {
+  background: var(--playback-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+:root[data-desktop-style="modern"] .tab.active:not(.tab-playing) {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)) !important;
+  color: var(--design-action-text) !important;
   margin-bottom: 0;
   padding-bottom: 6px;
   border-color: var(--accent-color);
@@ -72,6 +79,8 @@
 }
 
 :root[data-desktop-style="modern"] .btn-profile {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)) !important;
+  color: var(--design-action-text) !important;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 3px 10px var(--control-shadow);

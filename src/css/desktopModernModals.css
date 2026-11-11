@@ -166,3 +166,20 @@
 :root[data-desktop-style="modern"] ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-color);
 }
+
+/* Los nombres guardados heredan el contraste del tema, no el color del perfil. */
+:root[data-desktop-style="modern"] .profile-menu #profile-list li {
+  color: var(--text-primary);
+}
+:root[data-desktop-style="modern"] .profile-menu #profile-list li.active-profile {
+  color: var(--text-primary);
+  background: var(--soft-active-bg);
+  border-inline-start: 2px solid var(--accent-color);
+}
+:root[data-desktop-style="modern"] .profile-menu .danger {
+  color: var(--error-color);
+}
+
+:root[data-desktop-style="modern"][data-theme="light"] .profile-menu {
+  --error-color: #be123c;
+}

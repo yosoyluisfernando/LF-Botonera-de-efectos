@@ -16,6 +16,8 @@
   border-radius: 14px;
   box-shadow: var(--modern-card-shadow);
   padding: 10px 14px;
+  height: auto;
+  min-height: 102px;
 }
 
 :root[data-desktop-style="modern"] #clock-widget {
@@ -76,4 +78,17 @@
   height: 18px;
   margin-top: -4px;
   border-radius: 999px;
+}
+
+/* El contenido define la altura: los botones no invaden los dos canales VU. */
+:root[data-desktop-style="modern"] #bottom-right {
+  gap: 8px;
+  justify-content: flex-start;
+}
+:root[data-desktop-style="modern"] #vu-meter {
+  flex-shrink: 0;
+  padding-top: 0;
+}
+:root[data-desktop-style="modern"] #playback-modes {
+  flex-shrink: 0;
 }
