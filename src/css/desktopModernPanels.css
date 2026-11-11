@@ -1,0 +1,151 @@
+/* Modern: consola DAW, editor redondeado, reproductor, decks y biblioteca. */
+:root[data-desktop-style="modern"] .console-content,
+:root[data-desktop-style="modern"] body.console-window-mode {
+  background: var(--console-bg);
+}
+
+:root[data-desktop-style="modern"] .console-strip {
+  border-radius: 12px;
+  box-shadow: var(--modern-card-shadow);
+}
+
+:root[data-desktop-style="modern"] .console-strip.is-master {
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 24px var(--modern-focus-ring);
+}
+
+:root[data-desktop-style="modern"] .strip-db {
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: var(--soft-active-bg);
+  font-variant-numeric: tabular-nums;
+}
+
+:root[data-desktop-style="modern"] .fader-track::before {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] .fader::-webkit-slider-thumb,
+:root[data-desktop-style="modern"] .fader.is-master::-webkit-slider-thumb {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] .meter-bg {
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+:root[data-desktop-style="modern"] .te-wave-shell {
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+:root[data-desktop-style="modern"] .te-btn,
+:root[data-desktop-style="modern"] .te-transport-btn,
+:root[data-desktop-style="modern"] .te-gear-btn,
+:root[data-desktop-style="modern"] .player-actions button,
+:root[data-desktop-style="modern"] .player-transport button,
+:root[data-desktop-style="modern"] .library-toolbar-button,
+:root[data-desktop-style="modern"] .library-display-switch,
+:root[data-desktop-style="modern"] .library-backup-button {
+  border-radius: 999px;
+  border: 1px solid var(--playback-border);
+  background: var(--playback-bg);
+  color: var(--text-primary);
+}
+
+:root[data-desktop-style="modern"] .player-actions button {
+  padding: 3px 6px;
+}
+
+:root[data-desktop-style="modern"] .player-cols {
+  background: var(--bottom-panel-bg);
+  border-radius: 8px;
+  margin: 4px 6px 2px;
+  padding: 5px 10px;
+}
+
+:root[data-desktop-style="modern"] .te-btn.te-active,
+:root[data-desktop-style="modern"] .player-transport button.active,
+:root[data-desktop-style="modern"] .player-progress-row button.active {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: #ffffff;
+}
+
+:root[data-desktop-style="modern"] .fade-section-title {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+:root[data-desktop-style="modern"] .fade-input {
+  background: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+:root[data-desktop-style="modern"] .player-row {
+  border-radius: 10px;
+}
+
+:root[data-desktop-style="modern"] .player-progress::-webkit-slider-thumb,
+:root[data-desktop-style="modern"] .te-zoombox input[type="range"]::-webkit-slider-thumb {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] .prelisten-panel,
+:root[data-desktop-style="modern"] .live-panel {
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: var(--modern-glass-bg);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--design-shadow);
+}
+
+:root[data-desktop-style="modern"] .prelisten-header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+:root[data-desktop-style="modern"] .prelisten-progress-bg,
+:root[data-desktop-style="modern"] .prelisten-progress-fill,
+:root[data-desktop-style="modern"] .live-badge {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] .library-window-toolbar,
+:root[data-desktop-style="modern"] .library-window-footer {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+:root[data-desktop-style="modern"] .library-window-search {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] .library-navigator {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+:root[data-desktop-style="modern"] .library-tree-row {
+  border-radius: 8px;
+}
+
+:root[data-desktop-style="modern"] .library-tree-row.active,
+:root[data-desktop-style="modern"] .library-row.selected,
+:root[data-desktop-style="modern"] .library-table-row.selected {
+  background: var(--soft-active-bg);
+  color: var(--text-primary);
+}
+
+:root[data-desktop-style="modern"] .library-row,
+:root[data-desktop-style="modern"] .library-table-row {
+  border-radius: 8px;
+}
+
+:root[data-desktop-style="modern"] .library-table-header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}

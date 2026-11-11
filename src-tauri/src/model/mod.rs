@@ -1,3 +1,4 @@
+pub mod appearance;
 pub mod audio;
 pub mod button_visual;
 pub mod config;

@@ -22,3 +22,14 @@ export function startupReady() {
 function nextPaint() {
     return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 }
+
+export function startupError(msg) {
+    const screen = document.getElementById('loading-screen');
+    screen.innerHTML = `
+        <div style="text-align:center;padding:40px">
+            <h2 style="color:var(--error-color)">${t('errors.fatal_ipc')}</h2>
+            <p style="color:var(--text-secondary);margin-top:10px;font-size:12px">
+                ${msg ?? ''}
+            </p>
+        </div>`;
+}

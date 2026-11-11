@@ -1,5 +1,13 @@
 # Continuidad de sesión — estado actual
 
+## Apariencia de Windows — 2026-11-11
+
+Predeterminado y Moderno están integrados en Principal de codex/desarrollo.
+La selección se aplica y guarda inmediatamente y admite claro/oscuro/sistema.
+Solo Windows: Linux y las plataformas móviles conservan su interfaz.
+El experimento original en C:/OVERLAY/BOTONERA se conserva sin modificaciones.
+Ver APARIENCIA_WINDOWS.md para IPC, persistencia, capas CSS y verificación.
+
 ## Unificación de ramas — 2026-11-10
 
 El repositorio GitHub se organiza en main y codex/desarrollo.

@@ -1069,5 +1069,17 @@
       "remote_play": "The PC could not play this sound.",
       "remote_command": "Unsupported remote command."
     }
+  },
+  "themes": {
+    "appearance": "Appearance",
+    "choose": "Visual design",
+    "default": "Default",
+    "modern": "Modern",
+    "color_mode": "Color mode",
+    "outputs": "Audio outputs",
+    "immediate": "The design is applied and saved when selected.",
+    "applying": "Applying design…",
+    "applied": "Design saved.",
+    "failed": "The design could not be saved. The previous selection is preserved."
   }
 }

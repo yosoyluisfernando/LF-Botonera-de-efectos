@@ -1,0 +1,79 @@
+/* Modern: barra de progreso, dock inferior flotante, cápsulas VU y controles. */
+:root[data-desktop-style="modern"] .playback-progress-panel {
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+:root[data-desktop-style="modern"] .main-progress-bar,
+:root[data-desktop-style="modern"] .main-progress-fill {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] #bottom-bar {
+  background: var(--bottom-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: var(--modern-card-shadow);
+  padding: 10px 14px;
+}
+
+:root[data-desktop-style="modern"] #clock-widget {
+  background: linear-gradient(135deg, var(--bottom-panel-bg), var(--soft-active-bg));
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 6px 12px;
+}
+
+:root[data-desktop-style="modern"] .clock-display,
+:root[data-desktop-style="modern"] #playback-countdown {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+:root[data-desktop-style="modern"] .vu-channel {
+  height: 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+:root[data-desktop-style="modern"] .pb-btn,
+:root[data-desktop-style="modern"] .fixed-playback-modes button,
+:root[data-desktop-style="modern"] .progress-seek-btn,
+:root[data-desktop-style="modern"] .update-reminder {
+  border-radius: 999px;
+  color: var(--text-primary);
+  background: var(--playback-bg);
+  border: 1px solid var(--playback-border);
+}
+
+:root[data-desktop-style="modern"] .pb-btn.active,
+:root[data-desktop-style="modern"] .master-volume-btn.active,
+:root[data-desktop-style="modern"] .fixed-playback-modes button.active {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px var(--modern-focus-ring);
+}
+
+:root[data-desktop-style="modern"] .pb-btn-stop {
+  border-radius: 999px;
+  border: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--modern-rose-top), var(--modern-rose-bottom));
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35);
+}
+
+:root[data-desktop-style="modern"] .master-volume-panel {
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  padding: 0 12px;
+}
+
+:root[data-desktop-style="modern"] .master-volume-slider::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  margin-top: -4px;
+  border-radius: 999px;
+}

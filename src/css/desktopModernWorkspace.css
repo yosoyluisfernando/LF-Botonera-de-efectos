@@ -1,0 +1,181 @@
+/* Modern: tarjetas flotantes, pestañas píldora, pads squircle y dock inferior. */
+:root[data-desktop-style="modern"] body {
+  font-family: var(--modern-font-ui);
+  background: var(--bg-primary);
+}
+
+:root[data-desktop-style="modern"] #app-section {
+  box-sizing: border-box;
+  gap: 10px;
+  padding: 10px;
+}
+
+:root[data-desktop-style="modern"] .tabs-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 7px 12px;
+  align-items: center;
+  gap: 7px;
+  box-shadow: var(--modern-card-shadow);
+}
+
+:root[data-desktop-style="modern"] .tabs-scroll {
+  gap: 7px;
+  align-items: center;
+}
+
+:root[data-desktop-style="modern"] .tab {
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  padding: 6px 16px;
+  margin-bottom: 0;
+  font-weight: 600;
+  box-shadow: 0 2px 6px var(--control-shadow);
+  transition: transform 0.14s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+:root[data-desktop-style="modern"] .tab.active {
+  margin-bottom: 0;
+  padding-bottom: 6px;
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 2px var(--bg-secondary),
+    0 0 0 4px var(--accent-color),
+    0 6px 14px var(--modern-focus-ring);
+  font-weight: 800;
+}
+
+:root[data-desktop-style="modern"] .btn-settings,
+:root[data-desktop-style="modern"] .fixed-view-switch,
+:root[data-desktop-style="modern"] .library-roots-open {
+  border-radius: 999px;
+  border: 1px solid var(--playback-border);
+  background: var(--playback-bg);
+  color: var(--text-primary);
+}
+
+:root[data-desktop-style="modern"] .btn-settings:hover,
+:root[data-desktop-style="modern"] .library-roots-open:hover {
+  background: var(--playback-hover-bg);
+  border-color: var(--accent-color);
+}
+
+:root[data-desktop-style="modern"] .btn-add-tab,
+:root[data-desktop-style="modern"] .fixed-panel-add {
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: #ffffff;
+  box-shadow: 0 3px 10px var(--modern-focus-ring);
+}
+
+:root[data-desktop-style="modern"] .btn-profile {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 3px 10px var(--control-shadow);
+}
+
+:root[data-desktop-style="modern"] .btn-fixed-panel.active {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 3px 12px var(--modern-focus-ring);
+}
+
+:root[data-desktop-style="modern"] .workspace-shell {
+  gap: 10px;
+}
+
+:root[data-desktop-style="modern"] .workspace-main,
+:root[data-desktop-style="modern"] #fixed-panel {
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  box-shadow: var(--modern-card-shadow);
+  overflow: hidden;
+}
+
+:root[data-desktop-style="modern"] .fixed-panel-header {
+  background: transparent;
+  border-bottom: 1px solid var(--border-color);
+  padding: 9px 11px;
+}
+
+:root[data-desktop-style="modern"] .fixed-panel-resize {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] .fixed-panel-resize:hover {
+  background: var(--accent-color);
+}
+
+:root[data-desktop-style="modern"] .grid-container {
+  gap: 10px;
+  padding: 12px;
+  background: transparent;
+}
+
+:root[data-desktop-style="modern"] .grid-item:not([data-obs="true"]),
+:root[data-desktop-style="modern"] .fixed-panel-item:not([data-obs="true"]) {
+  border-radius: 14px;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 62%);
+  transition: transform 0.14s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+:root[data-desktop-style="modern"] .grid-item:not([data-obs="true"]),
+:root[data-desktop-style="modern"] .fixed-panel-item:not([data-obs="true"]) {
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px var(--control-shadow), inset 0 1px 0 var(--modern-card-ring);
+}
+
+:root[data-desktop-style="modern"] .grid-item:not([data-obs="true"]):hover,
+:root[data-desktop-style="modern"] .fixed-panel-item:not([data-obs="true"]):hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  box-shadow: 0 10px 22px var(--modern-focus-ring);
+}
+
+:root[data-desktop-style="modern"] .grid-item:not([data-obs="true"]):active,
+:root[data-desktop-style="modern"] .fixed-panel-item:not([data-obs="true"]):active {
+  transform: scale(0.98);
+}
+
+:root[data-desktop-style="modern"] .grid-item:not([data-obs="true"]).playing,
+:root[data-desktop-style="modern"] .fixed-panel-item:not([data-obs="true"]).playing {
+  background-color: var(--success-strong) !important;
+  color: #ffffff !important;
+  border-color: var(--playing-ring) !important;
+  box-shadow: 0 0 0 2px var(--playing-ring), 0 8px 20px var(--playing-shadow) !important;
+}
+
+:root[data-desktop-style="modern"] .grid-item:not([data-obs="true"]).playing .timer {
+  color: #ffffff;
+}
+
+:root[data-desktop-style="modern"] .grid-item:not([data-obs="true"]) .shortcut-badge {
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: rgba(15, 23, 42, 0.76);
+  backdrop-filter: blur(4px);
+}
+
+:root[data-desktop-style="modern"] .grid-item:not([data-obs="true"]) .timer,
+:root[data-desktop-style="modern"] .fixed-panel-time {
+  font-variant-numeric: tabular-nums;
+}
+
+:root[data-desktop-style="modern"] .progress-container {
+  left: 10px;
+  right: 10px;
+  bottom: 7px;
+  height: 5px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+:root[data-desktop-style="modern"] .progress-bar {
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent-color), #ec4899);
+}

@@ -34,6 +34,9 @@ pub struct AppConfig {
     pub lf_automatizador_link: bool,
     #[serde(default = "default_theme")]
     pub theme: String,
+    #[serde(default, skip_serializing_if = "crate::model::appearance::DesktopStyle::is_default")]
+    #[cfg_attr(not(target_os = "windows"), serde(skip))]
+    pub desktop_style: crate::model::appearance::DesktopStyle,
     #[serde(default = "default_lang")]
     pub language: String,
     #[serde(default = "default_button_text_size")]
@@ -146,6 +149,7 @@ impl Default for AppConfig {
             weather_module_enabled: false,
             lf_automatizador_link: false,
             theme: default_theme(),
+            desktop_style: Default::default(),
             language: default_lang(),
             button_text_size: default_button_text_size(),
             editor_mode: default_editor_mode(),

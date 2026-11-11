@@ -1,0 +1,168 @@
+/* Modern: modales traslúcidos, píldoras de ajustes, menús, pickers y arranque. */
+:root[data-desktop-style="modern"] .modal-content,
+:root[data-desktop-style="modern"] .startup-card {
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--modal-bg);
+  box-shadow: var(--design-shadow);
+}
+
+:root[data-desktop-style="modern"] .modal-overlay {
+  backdrop-filter: blur(6px);
+}
+
+:root[data-desktop-style="modern"] .modal-header {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  background: var(--modal-header-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+:root[data-desktop-style="modern"] .modal-footer {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  background: var(--modal-footer-bg);
+  border-top: 1px solid var(--border-color);
+}
+
+:root[data-desktop-style="modern"] .close-btn {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] .btn-dark,
+:root[data-desktop-style="modern"] .btn-blue,
+:root[data-desktop-style="modern"] .danger-action,
+:root[data-desktop-style="modern"] .btn-xs,
+:root[data-desktop-style="modern"] .btn-xs-danger,
+:root[data-desktop-style="modern"] .file-input-group button,
+:root[data-desktop-style="modern"] #edit-visual-open,
+:root[data-desktop-style="modern"] #loc-weather-test,
+:root[data-desktop-style="modern"] .donate-btn,
+:root[data-desktop-style="modern"] .mapping-btn {
+  border-radius: 10px;
+}
+
+:root[data-desktop-style="modern"] .btn-blue {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  box-shadow: 0 4px 14px var(--modern-focus-ring);
+}
+
+:root[data-desktop-style="modern"] input[type="text"],
+:root[data-desktop-style="modern"] input[type="number"],
+:root[data-desktop-style="modern"] input[type="password"],
+:root[data-desktop-style="modern"] input[type="search"],
+:root[data-desktop-style="modern"] select,
+:root[data-desktop-style="modern"] textarea {
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+:root[data-desktop-style="modern"] input:focus-visible,
+:root[data-desktop-style="modern"] select:focus-visible,
+:root[data-desktop-style="modern"] textarea:focus-visible {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--modern-focus-ring);
+}
+
+:root[data-desktop-style="modern"] .settings-tabs {
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  padding: 10px;
+  gap: 4px;
+}
+
+:root[data-desktop-style="modern"] .s-tab {
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+
+:root[data-desktop-style="modern"] .s-tab.active {
+  background: var(--soft-active-bg);
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 1px var(--accent-color);
+}
+
+:root[data-desktop-style="modern"] .context-style,
+:root[data-desktop-style="modern"] .clock-fmt-menu,
+:root[data-desktop-style="modern"] .fixed-view-menu,
+:root[data-desktop-style="modern"] .library-display-menu,
+:root[data-desktop-style="modern"] .player-modes-menu,
+:root[data-desktop-style="modern"] .player-volume-panel,
+:root[data-desktop-style="modern"] .master-volume-menu,
+:root[data-desktop-style="modern"] .profile-menu {
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--modern-glass-bg);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--design-shadow);
+  padding: 5px;
+}
+
+:root[data-desktop-style="modern"] .context-style li,
+:root[data-desktop-style="modern"] .clock-fmt-item,
+:root[data-desktop-style="modern"] .fixed-view-menu button,
+:root[data-desktop-style="modern"] .library-display-menu button,
+:root[data-desktop-style="modern"] .player-modes-item,
+:root[data-desktop-style="modern"] .master-volume-menu button {
+  border-radius: 8px;
+}
+
+:root[data-desktop-style="modern"] .visual-selector,
+:root[data-desktop-style="modern"] .color-picker-content,
+:root[data-desktop-style="modern"] .lm-modal,
+:root[data-desktop-style="modern"] .backup-card,
+:root[data-desktop-style="modern"] .obs-appearance-preview,
+:root[data-desktop-style="modern"] .update-box,
+:root[data-desktop-style="modern"] .weather-result,
+:root[data-desktop-style="modern"] #mic-settings-modal fieldset {
+  border-radius: 12px;
+  border-color: var(--border-color);
+}
+
+:root[data-desktop-style="modern"] .visual-tabs button {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] .visual-tabs button.active {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  border-color: transparent;
+  color: #ffffff;
+}
+
+:root[data-desktop-style="modern"] .visual-result {
+  border-radius: 10px;
+}
+
+:root[data-desktop-style="modern"] .color-choice {
+  border-radius: 10px;
+}
+
+:root[data-desktop-style="modern"] .lm-tag-chip {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] .startup-progress,
+:root[data-desktop-style="modern"] .startup-progress::after {
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+:root[data-desktop-style="modern"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:root[data-desktop-style="modern"] ::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 999px;
+}
+
+:root[data-desktop-style="modern"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}

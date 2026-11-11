@@ -5,8 +5,9 @@
  */
 
 import { invoke, listen, waitForTauri } from '../bridge/api.js';
-import { loadLanguage, t } from '../util/i18n.js';
+import { loadLanguage } from '../util/i18n.js';
 import { applyTheme } from './theme.js';
+import { initializeDesktopAppearance } from './desktopAppearance.js';
 import { initWizard } from './wizard.js';
 import { initTabs, updateTabs } from './tabs.js';
 import { initProfiles, updateProfiles } from './profiles.js';
@@ -33,13 +34,14 @@ import { applyToolbarButtons } from './toolbarButtons.js';
 import { wireRuntimeEvents } from './runtimeEvents.js';
 import { initLibraryWindowOpen } from './libraryWindowOpen.js';
 import { initBackupRestore } from './backupRestoreModal.js';
-import { startupReady, startupStage } from './startupProgress.js';
+import { startupReady, startupStage, startupError as _showError } from './startupProgress.js';
 let _closeWired = false;
 /** Punto único de arranque llamado desde main.js al cargar el DOM. */
 export async function startApp() {
     try {
         await startupStage('connecting');
         await waitForTauri();
+        await initializeDesktopAppearance();
         // Ventanas "pop-out": si la URL lo pide, arranca SOLO esa herramienta.
         const params = new URLSearchParams(location.search);
         const editorPath = params.get('editor');
@@ -179,11 +181,9 @@ async function _openDockedEditor(payload) {
 function _applyButtonTextSize(size = 'normal') {
     document.body.dataset.buttonTextSize = size || 'normal';
 }
-
 function _blockNativeContextMenu() {
     document.addEventListener('contextmenu', e => e.preventDefault(), true);
 }
-
 function _wireCloseButtons() {
     if (_closeWired) return;
     _closeWired = true;
@@ -197,15 +197,4 @@ function _wireCloseButtons() {
 function _show(sectionId) {
     document.getElementById('loading-screen')?.classList.add('hidden');
     document.getElementById(sectionId)?.classList.remove('hidden');
-}
-
-function _showError(msg) {
-    const screen = document.getElementById('loading-screen');
-    screen.innerHTML = `
-        <div style="text-align:center;padding:40px">
-            <h2 style="color:var(--error-color)">${t('errors.fatal_ipc')}</h2>
-            <p style="color:var(--text-secondary);margin-top:10px;font-size:12px">
-                ${msg ?? ''}
-            </p>
-        </div>`;
 }

@@ -1069,5 +1069,17 @@
       "remote_play": "O PC não conseguiu reproduzir este som.",
       "remote_command": "Comando remoto não permitido."
     }
+  },
+  "themes": {
+    "appearance": "Aparência",
+    "choose": "Design visual",
+    "default": "Predefinido",
+    "modern": "Moderno",
+    "color_mode": "Modo de cor",
+    "outputs": "Saídas de áudio",
+    "immediate": "O design é aplicado e guardado ao selecionar.",
+    "applying": "A aplicar design…",
+    "applied": "Design guardado.",
+    "failed": "Não foi possível guardar o design. A seleção anterior foi mantida."
   }
 }

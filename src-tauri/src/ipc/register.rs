@@ -1,6 +1,7 @@
 macro_rules! lf_invoke_handlers {
     () => {
         tauri::generate_handler![
+            ipc::cmd_appearance::get_desktop_appearance, ipc::cmd_appearance::set_desktop_appearance,
             ipc::cmd_remote::remote_status,
             ipc::cmd_remote::remote_start,
             ipc::cmd_remote::remote_stop,

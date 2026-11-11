@@ -1,3 +1,4 @@
+import { initSettingsAppearance } from './settingsAppearance.js';
 import { initAndroidSettingsNavigation, resetAndroidSettingsNavigation } from './settingsAndroid.js';
 import { initSettingsRemote, loadSettingsRemote, saveSettingsRemote } from './settingsRemote.js';
 import { isAndroid } from '../bridge/platform.js';
@@ -38,6 +39,7 @@ export function initSettingsModal(onSaved, config) {
     document.getElementById('btn-save-settings').addEventListener('click', _saveSettings);
     initPlaybackPanel();
     initFixedPanelSettings();
+    initSettingsAppearance();
 
     if (!isAndroid()) initSettingsObs();
     initSettingsRemote(config);

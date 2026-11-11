@@ -1,3 +1,4 @@
+pub mod cmd_appearance;
 pub mod cmd_audio;
 pub mod cmd_backup;
 pub mod cmd_button_color;

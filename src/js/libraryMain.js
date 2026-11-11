@@ -4,6 +4,7 @@ import { loadCapabilities, isAndroid } from './bridge/platform.js';
 import { invoke, listen, waitForTauri } from './bridge/api.js';
 import { loadLanguage, t } from './util/i18n.js';
 import { applyTheme } from './ui/theme.js';
+import { initializeDesktopAppearance } from './ui/desktopAppearance.js';
 import { initLibraryIndexProgress } from './ui/libraryIndexProgress.js';
 import { initLibraryRootsModal } from './ui/libraryRootsModal.js';
 import { initBackupRestore } from './ui/backupRestoreModal.js';
@@ -24,6 +25,7 @@ start().catch(showFatal);
 async function start() {
     await waitForTauri();
     await loadCapabilities();
+    await initializeDesktopAppearance();
     initTouchControls();
     const config = await invoke('get_config');
     applyTheme(config.theme || 'dark');

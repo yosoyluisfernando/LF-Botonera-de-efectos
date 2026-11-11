@@ -1,0 +1,62 @@
+/* Capa opcional de Windows. Predeterminado usa las hojas base. */
+@import "./desktopModern.css";
+@import "./desktopModernWorkspace.css";
+@import "./desktopModernBottom.css";
+@import "./desktopModernPanels.css";
+@import "./desktopModernModals.css";
+@import "./settingsMain.css";
+
+:root[data-desktop-style="modern"] body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+:root[data-desktop-style="modern"] #loading-screen,
+:root[data-desktop-style="modern"] #wizard-section {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+:root[data-desktop-style="modern"] .modal-header {
+  padding: var(--design-header-padding);
+}
+
+:root[data-desktop-style="modern"] .modal-body {
+  padding: var(--design-body-padding);
+  gap: var(--design-gap);
+}
+
+:root[data-desktop-style="modern"] .modal-footer {
+  padding: var(--design-header-padding);
+  gap: var(--design-gap);
+}
+
+:root[data-desktop-style="modern"] .btn-danger,
+:root[data-desktop-style="modern"] .color-picker-preview {
+  border-radius: var(--design-control-radius);
+}
+
+:root[data-desktop-style="modern"] .context-style li,
+:root[data-desktop-style="modern"] .profile-menu #profile-list li {
+  padding: var(--design-menu-padding);
+}
+
+:root[data-desktop-style="modern"] body.editor-window-mode .track-editor-content,
+:root[data-desktop-style="modern"] body.console-window-mode .console-content {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+
+:root[data-desktop-style="modern"] button:focus-visible,
+:root[data-desktop-style="modern"] .grid-item:not([data-obs="true"]):focus-visible,
+:root[data-desktop-style="modern"] .fixed-panel-item:not([data-obs="true"]):focus-visible,
+:root[data-desktop-style="modern"] .tab:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+:root[data-desktop-style="modern"] .te-time-text {
+  background: var(--action-accent);
+  color: var(--design-action-text);
+}

@@ -5,6 +5,9 @@
  * La fuente de verdad es Rust (AppConfig.theme); localStorage es caché de pintado.
  */
 
+import { initializeAppearanceCache } from './desktopAppearance.js';
+
+initializeAppearanceCache();
 const MQ = window.matchMedia('(prefers-color-scheme: dark)');
 let _systemListener = null;
 
