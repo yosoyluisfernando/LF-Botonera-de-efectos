@@ -2,6 +2,12 @@
 
 ## Apariencia de Windows — 2026-11-11
 
+Corrección beta.2: la plataforma real es desktop, no windows. La primera
+compilación ocultaba el selector por esa comparación incorrecta. Se corrigieron
+el guard y el CSS, y se verificó el HTML real en un navegador sin interfaz.
+El ejecutable instalado del autor coincidía por SHA-256 con el paquete anterior.
+La nueva versión 1.6.0-beta.2 / MSI 1.6.0.2 permite distinguir la corrección.
+
 Predeterminado y Moderno están integrados en Principal de codex/desarrollo.
 La selección se aplica y guarda inmediatamente y admite claro/oscuro/sistema.
 Solo Windows: Linux y las plataformas móviles conservan su interfaz.

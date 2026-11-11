@@ -32,7 +32,7 @@ export function initializeAppearanceCache() {
 
 /** Se ejecuta antes de mostrar cualquier ventana, también Biblioteca y pop-outs. */
 export async function initializeDesktopAppearance() {
-    if (!__LF_WINDOWS_THEMES__ || platformCapabilities()?.platform !== 'windows') return;
+    if (!__LF_WINDOWS_THEMES__ || platformCapabilities()?.platform !== 'desktop') return;
     await listen('desktop-appearance-changed', event => apply(event.payload));
     apply(await invoke('get_desktop_appearance'));
 }

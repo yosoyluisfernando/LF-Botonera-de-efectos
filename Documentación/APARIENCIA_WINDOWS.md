@@ -53,3 +53,18 @@ Los contenedores generales de modal no ocultan los menús desbordados.
   para confirmar que CSS y caché de apariencia solo figuran en Windows.
 - La comprobación visual y funcional en la aplicación instalada corresponde
   al autor. No se lanza la aplicación durante esta verificación.
+
+## Corrección del montaje — 2026-11-11
+
+La capacidad real de escritorio es `platform: "desktop"`, tanto en Windows
+como en Linux. La primera integración la comparaba con "windows" e impedía
+montar el selector, incluso en el instalador correcto. La inicialización usa
+la capacidad desktop; Vite y Rust mantienen la exclusión por sistema operativo.
+Principal usa también el atributo desktop en sus reglas CSS.
+
+Se añadió una prueba de navegador sin interfaz con el HTML y módulos reales:
+comprueba montaje de los dos diseños, conservación de controles, navegación,
+cambio inmediato, retorno a Predeterminado y contraste en claro/oscuro.
+La prueba aislada usa el contrato real de Rust, sin inventar la plataforma.
+La compilación corregida es 1.6.0-beta.2; Windows Installer usa 1.6.0.2.
+No se publica un release ni se modifica main.

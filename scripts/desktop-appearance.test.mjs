@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const source = readFileSync(new URL('../src/js/ui/desktopAppearance.js', import.meta.url), 'utf8')
     .replace(/^import .*;\r?\n/gm, '').replace(/export /g, '');
 
-function windowFixture({ enabled = true, platform = 'windows', theme = 'dark' } = {}) {
+function windowFixture({ enabled = true, platform = 'desktop', theme = 'dark' } = {}) {
     const cache = new Map();
     const events = [];
     const calls = [];
@@ -90,4 +90,10 @@ test('a browser preview never activates the native Windows setting', async () =>
     await w.context.initializeDesktopAppearance();
     assert.deepEqual(w.calls, []);
     assert.equal(w.context.desktopAppearance().available, false);
+});
+
+// La capacidad identifica la familia de interfaz, no el sistema operativo.
+test('the runtime fixture agrees with the actual Rust platform contract', () => {
+    const rust = readFileSync(new URL('../src-tauri/src/core/platform.rs', import.meta.url), 'utf8');
+    assert.match(rust, /platform: if android \{ "android" \} else \{ "desktop" \}/);
 });
