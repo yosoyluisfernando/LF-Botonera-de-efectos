@@ -2,13 +2,31 @@
 
 ## Nota de esta copia de trabajo — 2026-11-10
 
-La copia contiene el código 1.6.0-beta.1 con Android y OBS. Se añadió la primera
-etapa de control remoto LAN para revisión, sin publicar ni cambiar la versión.
-Consultar [CONTROL_REMOTO_LAN.md](CONTROL_REMOTO_LAN.md) para arquitectura, alcance
-y pruebas. Frontend y comprobación de Craft Anything aprobados; `cargo test --lib`
-y `cargo build --lib` bloqueados en este entorno por ausencia de `link.exe`.
-La prueba funcional PC/teléfono y la compilación del APK quedan pendientes.
-El registro histórico de publicación que sigue no describe estos cambios locales.
+La rama aislada es codex/control-remoto-lan, con versión 1.6.0-beta.1.
+El APK Android comprobado se compiló desde 502a944 en GitHub Actions
+[42944969653](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/actions/runs/42944969653).
+
+La interfaz de escritorio se restauró en 5bd84d2. Android incorpora el espejo
+LAN, editor táctil, ajustes adaptados, panel completo en vertical y selector
+de carpetas de locuciones. La barra Android usa iconos para perfiles y control
+remoto; este acceso se oculta al desactivarlo en sus ajustes.
+
+Se corrigieron identificadores duplicados de importación, la activación de
+audio del perfil importado y la consulta del nombre real de documentos Android.
+La duración se detecta por contenido para recuperar copias antiguas con extensión
+incorrecta. Ver ANDROID_PERFILES_IMPORTACION.md y ANDROID_LOCUCIONES.md.
+
+Comprobado localmente con 403 pruebas Rust aprobadas, 19 omitidas, compilación
+de biblioteca Rust y frontend, y 10 pruebas de interfaz/traducciones.
+El emulador Android 35 verificó exportación/importación de pestaña y perfil
+con un MP3 sintético, recorte y ganancia. Midió señal tras importar, borrar
+y reimportar, borrar el perfil original y recargar la interfaz.
+También pasaron los iconos, la desactivación del acceso remoto y las carpetas.
+
+El APK firmado está en D:/BOTONERA/Compilados/Pruebas-Android-Perfiles/.
+El informe está en D:/BOTONERA/Informacion para el usuario/android-perfiles-importacion.html.
+Queda la confirmación del autor en el teléfono y la prueba física en tablet.
+Las herramientas MSVC de D:/BOTONERA/app/.tools/msvc/ permiten verificar Rust.
 
 **Actualizado:** 2026-10-11
 **Rama:** `main`
