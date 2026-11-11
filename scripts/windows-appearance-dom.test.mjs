@@ -73,6 +73,7 @@ test('Principal mounts and switches its designs in a real desktop browser DOM', 
         assert(getComputedStyle(panel).display==='none','Settings navigation broken');
         panel.classList.remove('hidden');
         const counter=document.createElement('span');counter.className='te-time-text';panel.append(counter);
+        const hint=document.createElement('p');hint.className='hint danger';hint.textContent='Warning';panel.append(hint);
         for(const mode of ['dark','light']) {
           document.documentElement.dataset.theme=mode;
           select.value='modern';select.dispatchEvent(new Event('change'));
@@ -89,7 +90,7 @@ test('Principal mounts and switches its designs in a real desktop browser DOM', 
             assert(getComputedStyle(node).color==='rgb(255, 255, 255)','Header text lost contrast');
           }
           const menu=document.getElementById('profile-context-menu');menu.classList.remove('hidden');
-          for(const li of document.querySelectorAll('#profile-list li, .context-style .danger')) {
+          for(const li of document.querySelectorAll('#profile-list li, .danger')) {
             assert(contrast(getComputedStyle(li).color,getComputedStyle(document.body).backgroundColor)>=4.5,
               'Saved profile name unreadable');
           }

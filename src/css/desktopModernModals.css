@@ -176,6 +176,6 @@
   background: var(--soft-active-bg);
   border-inline-start: 2px solid var(--accent-color);
 }
-:root[data-desktop-style="modern"] .context-style .danger {
+:root[data-desktop-style="modern"] .danger {
   color: var(--error-color);
 }
