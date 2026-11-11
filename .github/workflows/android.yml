@@ -65,7 +65,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y ffmpeg
       - run: npm ci
-      - run: node --test scripts/mobile-locales.test.mjs scripts/touch-controls.test.mjs
+      - run: node --test --test-concurrency=1 scripts/mobile-locales.test.mjs scripts/touch-controls.test.mjs scripts/android-midi-settings.test.mjs scripts/android-midi-connection.test.mjs
       - run: npm run tauri -- android init --ci --skip-targets-install
       - run: python scripts/prepare-android-midi.py src-tauri/gen/android
       - name: Apply the LF launcher icon

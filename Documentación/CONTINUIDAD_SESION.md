@@ -1,5 +1,20 @@
 # Continuidad de sesión — estado actual
 
+## MIDI Android beta.5 — 2026-11-11
+
+El autor aprobó priorizar MIDI en Android y plegar todos los atajos del teclado
+al final. Ajustes → MIDI y teclado expone USB y Bluetooth sin desplegables.
+Cada dispositivo permite conectar, desconectar/cancelar y reintentar; el
+adaptador nativo comunica el estado por midi_devices.connection_state.
+Los nombres BLE consultan las fuentes disponibles y conservan el nombre conocido.
+Escritorio mantiene su distribución; comparte la conservación de nombres BLE.
+No cambia el esquema de configuración ni se añaden dependencias.
+El autor añadió detección de teclados de escritura Bluetooth: InputManager
+lista teclados físicos externos por nombre; se abre Bluetooth del sistema para
+buscar/vincular HID. Nuevos IPC keyboard_devices/keyboard_open_bluetooth_settings
+y evento keyboard-devices-changed, sin cambiar configuración.
+La prueba con controladores y teclados físicos corresponde al autor.
+
 ## Canales de compilación y nombre Beta — 2026-11-11
 
 El autor pidió documentar cómo compilar Beta y Estable para próximos chats.
@@ -26,7 +41,7 @@ pendiente de esa confirmación; los paquetes anteriores permanecen en D:.
 ## Ruta principal unificada — 2026-11-11
 
 El autor aprobó el experimento y pidió continuar desde C:/OVERLAY/BOTONERA.
-Esta es ahora la copia principal de codex/desarrollo, versión 1.6.0-beta.4,
+Esta es ahora la copia principal de codex/desarrollo, versión 1.6.0-beta.5,
 con todo el código de Windows, Linux y Android del mismo repositorio.
 D:/BOTONERA/Desarrollo-Unificado conserva la copia adicional sincronizada.
 Las menciones anteriores a una copia principal temporal o a codex/obs-control

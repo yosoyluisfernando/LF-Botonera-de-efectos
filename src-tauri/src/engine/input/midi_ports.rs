@@ -10,6 +10,7 @@ pub struct MidiInputDevice {
     pub selected: bool,
     pub available: bool,
     pub connected: bool,
+    pub connection_state: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -17,6 +18,9 @@ pub struct MidiInputDevice {
 pub struct MidiPortInfo {
     pub id: String,
     pub name: String,
+    #[cfg(target_os = "android")]
+    #[serde(default)]
+    pub connection_state: String,
     #[cfg(not(target_os = "android"))]
     pub index: u32,
     #[cfg(target_os = "linux")]
@@ -55,13 +59,23 @@ pub fn device_view(
     let mut devices = ports
         .iter()
         .enumerate()
-        .map(|(index, port)| MidiInputDevice {
-            id: port.id.clone(),
-            name: port.name.clone(),
-            label: format!("{} ({})", port.name, index + 1),
-            selected: selected.contains(&port.id),
-            available: true,
-            connected: live.contains(&port.id),
+        .map(|(index, port)| {
+            let previous = config.inputs.iter().find(|saved| saved.id == port.id);
+            let name = preferred_name(
+                &port.id,
+                &port.name,
+                previous.map(|saved| saved.name.as_str()),
+            );
+            let connected = live.contains(&port.id);
+            MidiInputDevice {
+                id: port.id.clone(),
+                label: format!("{} ({})", name, index + 1),
+                name,
+                selected: selected.contains(&port.id),
+                available: true,
+                connected,
+                connection_state: connection_state(port, connected).into(),
+            }
         })
         .collect::<Vec<_>>();
     for saved in &config.inputs {
@@ -73,6 +87,7 @@ pub fn device_view(
                 selected: true,
                 available: false,
                 connected: false,
+                connection_state: "disconnected".into(),
             });
         }
     }
@@ -94,3 +109,35 @@ pub fn selected_refs(ids: &[String], ports: &[MidiPortInfo]) -> Vec<MidiDeviceRe
         })
         .collect()
 }
+
+fn connection_state(_port: &MidiPortInfo, connected: bool) -> &str {
+    if connected {
+        return "connected";
+    }
+    #[cfg(target_os = "android")]
+    if matches!(_port.connection_state.as_str(), "connecting" | "failed") {
+        return &_port.connection_state;
+    }
+    "disconnected"
+}
+
+pub fn preferred_name(id: &str, candidate: &str, previous: Option<&str>) -> String {
+    let address = id
+        .strip_prefix("ble:")
+        .or_else(|| id.strip_prefix("ble-desktop:"));
+    let generic = |name: &str| name.trim().is_empty() || name == id || Some(name) == address;
+    if generic(candidate) {
+        if let Some(previous) = previous.filter(|name| !generic(name)) {
+            return previous.into();
+        }
+    }
+    if candidate.trim().is_empty() {
+        id.into()
+    } else {
+        candidate.into()
+    }
+}
+
+#[cfg(test)]
+#[path = "midi_ports_tests.rs"]
+mod tests;

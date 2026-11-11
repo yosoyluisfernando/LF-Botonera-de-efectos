@@ -2,10 +2,8 @@ package lf.botonera.midi
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.media.midi.MidiDevice
 import android.media.midi.MidiDeviceInfo
 import android.media.midi.MidiManager
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import app.tauri.plugin.Channel
@@ -13,7 +11,6 @@ import app.tauri.plugin.Channel
 @Suppress("DEPRECATION")
 @SuppressLint("MissingPermission")
 internal class MidiPorts(context: Context, private val main: Handler, private val bluetooth: MidiBluetooth) {
-    private data class UsbPort(val id: String, val name: String, val info: MidiDeviceInfo)
 
     private val manager = context.getSystemService(MidiManager::class.java)
     val supported get() = manager != null
@@ -22,6 +19,7 @@ internal class MidiPorts(context: Context, private val main: Handler, private va
     private var scanned = emptyMap<String, BleMidiDevice>()
     private val opened = mutableMapOf<String, MidiSession>()
     private val pending = mutableMapOf<String, Any>()
+    private val failed = mutableSetOf<String>()
     private var lastSnapshot: Map<String, Any>? = null
     private val retry = object : Runnable {
         override fun run() {
@@ -32,7 +30,10 @@ internal class MidiPorts(context: Context, private val main: Handler, private va
     private val callback = object : MidiManager.DeviceCallback() {
         override fun onDeviceAdded(device: MidiDeviceInfo) = reconcile()
         override fun onDeviceRemoved(device: MidiDeviceInfo) {
-            opened.filterValues { it.device.info.id == device.id }.keys.forEach(::closeSession)
+            opened.filterValues { it.device.info.id == device.id }.keys.toList().forEach {
+                closeSession(it)
+                if (it.startsWith("ble:") && it in selected) failed.add(it)
+            }
             reconcile()
         }
     }
@@ -52,49 +53,37 @@ internal class MidiPorts(context: Context, private val main: Handler, private va
     }
 
     fun select(ids: Set<String>) {
-        if (ids == selected) return
         selected = ids
+        failed.clear()
         pending.keys.retainAll(ids)
         main.removeCallbacks(retry)
         retry.run()
     }
 
     fun discovered(devices: List<BleMidiDevice>) {
-        scanned = devices.associateBy { "ble:" + it.device.address }
+        val previous = scanned
+        scanned = devices.associateBy { "ble:" + it.device.address }.mapValues { (id, found) ->
+            if (found.name == found.device.address) previous[id] ?: found else found
+        }
         reconcile()
-    }
-
-    private fun usbPorts(): List<UsbPort> {
-        val devices = if (Build.VERSION.SDK_INT >= 33) {
-            manager?.getDevicesForTransport(MidiManager.TRANSPORT_MIDI_BYTE_STREAM).orEmpty()
-        } else {
-            manager?.devices.orEmpty().toList()
-        }
-        val usb = devices.filter { it.type == MidiDeviceInfo.TYPE_USB && it.outputPortCount > 0 }.map { info ->
-            val props = info.properties
-            val name = props.getString(MidiDeviceInfo.PROPERTY_NAME)
-                ?: props.getString(MidiDeviceInfo.PROPERTY_PRODUCT) ?: "USB MIDI"
-            val serial = props.getString(MidiDeviceInfo.PROPERTY_SERIAL_NUMBER).orEmpty()
-            UsbPort("usb:" + Uri.encode(name) + ":" + Uri.encode(serial), name, info)
-        }
-        return usb.groupBy { it.id }.values.flatMap { group ->
-            if (group.size == 1) group else group.map { it.copy(id = it.id + ":" + it.info.id) }
-        }
     }
 
     private fun reconcile() {
         if (channel == null) return
-        val usb = usbPorts().associateBy { it.id }
+        val usb = usbPorts(manager).associateBy { it.id }
         opened.filter { (id, session) ->
             id !in selected || (id.startsWith("usb:") && usb[id]?.info?.id != session.device.info.id)
         }.keys.forEach(::closeSession)
         for (id in selected) {
-            if (id in opened || id in pending) continue
+            if (id in opened || id in pending || id in failed) continue
             val usbPort = usb[id]
             val remote = if (id.startsWith("ble:")) {
                 scanned[id]?.device ?: bluetooth.remote(id.removePrefix("ble:"))
             } else null
-            if (usbPort == null && remote == null) continue
+            if (usbPort == null && remote == null) {
+                if (id.startsWith("ble:")) failed.add(id)
+                continue
+            }
             val name = usbPort?.name ?: scanned[id]?.name ?: runCatching { remote?.name }.getOrNull()
             open(id, name, usbPort?.info, remote)
         }
@@ -105,7 +94,13 @@ internal class MidiPorts(context: Context, private val main: Handler, private va
         val service = manager ?: return
         val token = Any()
         pending[id] = token
-        val timeout = Runnable { if (pending[id] === token) pending.remove(id) }
+        val timeout = Runnable {
+            if (pending[id] === token) {
+                pending.remove(id)
+                failed.add(id)
+                publish(usbPorts(manager).associateBy { it.id })
+            }
+        }
         val listener = MidiManager.OnDeviceOpenedListener { device ->
             main.removeCallbacks(timeout)
             if (pending[id] !== token) {
@@ -117,12 +112,15 @@ internal class MidiPorts(context: Context, private val main: Handler, private va
                     if (events == null) {
                         runCatching { device.close() }
                     } else {
-                        val label = name ?: device.info.properties.getString(MidiDeviceInfo.PROPERTY_NAME) ?: id
+                        val label = device.info.properties.getString(MidiDeviceInfo.PROPERTY_NAME)
+                            ?.takeIf { it.isNotBlank() && (name == null || name == remote?.address) }
+                            ?: name ?: id
                         val session = MidiSession(device, id, label, events)
-                        if (session.connect()) opened[id] = session else session.close()
+                        if (runCatching { session.connect() }.getOrDefault(false)) opened[id] = session
+                        else { session.close(); failed.add(id) }
                     }
-                    publish(usbPorts().associateBy { it.id })
-                }
+                } else failed.add(id)
+                publish(usbPorts(manager).associateBy { it.id })
             }
         }
         try {
@@ -131,17 +129,26 @@ internal class MidiPorts(context: Context, private val main: Handler, private va
             main.postDelayed(timeout, 12_000)
         } catch (_: RuntimeException) {
             pending.remove(id)
+            failed.add(id)
         }
     }
 
     private fun publish(usb: Map<String, UsbPort>) {
         val devices = sortedMapOf<String, String>()
+        selected.filter { it.startsWith("ble:") }.forEach { devices[it] = it.removePrefix("ble:") }
         usb.forEach { (id, port) -> devices[id] = port.name }
         scanned.forEach { (id, device) -> devices[id] = device.name }
         opened.forEach { (id, session) -> devices[id] = session.name }
         val snapshot = mapOf(
             "kind" to "devices",
-            "ports" to devices.map { (id, name) -> mapOf("id" to id, "name" to name) },
+            "ports" to devices.map { (id, name) -> mapOf(
+                "id" to id, "name" to name, "connection_state" to when (id) {
+                    in opened -> "connected"
+                    in pending -> "connecting"
+                    in failed -> "failed"
+                    else -> "disconnected"
+                }
+            ) },
             "connected" to opened.keys.sorted()
         )
         if (snapshot != lastSnapshot) {

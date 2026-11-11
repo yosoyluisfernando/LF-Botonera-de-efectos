@@ -1,5 +1,5 @@
 use super::AppState;
-use crate::engine::input::midi_ports::selected_refs;
+use crate::engine::input::midi_ports::{preferred_name, selected_refs};
 use crate::engine::input::midi_rules;
 use crate::engine::persist::config_io;
 use crate::model::{AppConfig, MidiBinding, MidiDeviceRef};
@@ -50,11 +50,14 @@ fn selected_inputs(
     selected_refs(input_ids, ports)
         .into_iter()
         .map(|mut item| {
-            if item.name == item.id {
-                if let Some(old) = previous.iter().find(|old| old.id == item.id) {
-                    item.name = old.name.clone();
-                }
-            }
+            item.name = preferred_name(
+                &item.id,
+                &item.name,
+                previous
+                    .iter()
+                    .find(|old| old.id == item.id)
+                    .map(|old| old.name.as_str()),
+            );
             item
         })
         .collect()

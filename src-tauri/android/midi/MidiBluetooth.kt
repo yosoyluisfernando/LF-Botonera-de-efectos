@@ -21,6 +21,7 @@ internal class MidiBluetooth(private val context: Context, private val main: Han
     private val adapter get() = context.getSystemService(BluetoothManager::class.java)?.adapter
     private val service = ParcelUuid.fromString("03B80E5A-EDE8-4B33-A751-6CE34EC4C700")
     private var stop: ((String?) -> Unit)? = null
+    private val names = mutableMapOf<String, String>()
 
     fun remote(id: String): BluetoothDevice? {
         if (Build.VERSION.SDK_INT >= 31 &&
@@ -66,7 +67,11 @@ internal class MidiBluetooth(private val context: Context, private val main: Han
                     main.post {
                         if (!active) return@post
                         val device = result.device
-                        val name = result.scanRecord?.deviceName ?: device.address
+                        val address = device.address
+                        val name = result.scanRecord?.deviceName?.takeIf { it.isNotBlank() }
+                            ?: runCatching { device.name }.getOrNull()?.takeIf { it.isNotBlank() }
+                            ?: names[address] ?: address
+                        names[address] = name
                         found[device.address] = BleMidiDevice(device, name)
                     }
                 }

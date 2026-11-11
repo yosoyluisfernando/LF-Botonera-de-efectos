@@ -2,6 +2,8 @@ package lf.botonera.midi
 
 import android.Manifest.permission
 import android.app.Activity
+import android.content.Intent
+import android.provider.Settings
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
@@ -33,6 +35,7 @@ class MidiPlugin(private val activity: Activity) : Plugin(activity) {
     private val main = Handler(Looper.getMainLooper())
     private val bluetooth = MidiBluetooth(activity, main)
     private val ports = MidiPorts(activity, main, bluetooth)
+    private val keyboards = MidiKeyboards(activity, main)
     private var requestingPermission = false
 
     @Command
@@ -40,7 +43,25 @@ class MidiPlugin(private val activity: Activity) : Plugin(activity) {
         val args = invoke.parseArgs(AttachArgs::class.java)
         main.post {
             ports.attach(args.channel)
+            keyboards.attach(args.channel)
             invoke.resolve()
+        }
+    }
+
+    @Command
+    fun getKeyboards(invoke: Invoke) {
+        main.post { invoke.resolveObject(keyboards.devices()) }
+    }
+
+    @Command
+    fun openKeyboardSettings(invoke: Invoke) {
+        main.post {
+            try {
+                activity.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS))
+                invoke.resolve()
+            } catch (_: RuntimeException) {
+                invoke.reject(null, "keyboard_settings_unavailable")
+            }
         }
     }
 
@@ -102,6 +123,7 @@ class MidiPlugin(private val activity: Activity) : Plugin(activity) {
         main.post {
             bluetooth.close()
             ports.close()
+            keyboards.close()
         }
     }
 }

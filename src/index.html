@@ -629,6 +629,7 @@
             </div>
           </div>
           <div id="s-atajos" class="s-panel hidden">
+            <div id="settings-keyboard-main">
             <div style="margin-bottom:20px;text-align:center">
               <button id="btn-enter-mapping" class="btn-blue mapping-btn" data-i18n="settings.mapping_btn">✏️ Modo Mapeo</button>
             </div>
@@ -677,6 +678,8 @@
               <input type="text" id="config-key-mic" class="key-input" readonly data-i18n-placeholder="settings.key_none">
             </div></div>
             <hr class="modal-divider">
+            </div>
+            <section id="settings-midi-section">
             <p class="fade-section-title" data-i18n="midi.title">MIDI</p>
             <label class="checkbox-line">
               <input type="checkbox" id="config-midi-enabled">
@@ -722,6 +725,8 @@
               </div>
             </div>
             <hr class="modal-divider">
+            </section>
+            <div id="settings-keyboard-extra">
             <div class="reserved-shortcuts">
               <p class="hint" data-i18n="settings.reserved_shortcuts_hint">Atajos reservados de la aplicación:</p>
               <div class="reserved-shortcut-row">
@@ -735,6 +740,7 @@
             </div>
             <hr class="modal-divider">
             <div id="shortcuts-orphan-section"></div>
+            </div>
           </div>
           <!-- El contenido lo inyecta settingsLocutions.js (patrón del wizard) -->
           <div id="s-locuciones" class="s-panel hidden"></div>

@@ -27,6 +27,9 @@ pub fn plugin() -> TauriPlugin<Wry> {
 #[derive(Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 enum NativeEvent {
+    Keyboards {
+        devices: Vec<Value>,
+    },
     Devices {
         ports: Vec<MidiPortInfo>,
         connected: Vec<String>,
@@ -47,6 +50,9 @@ pub(super) fn attach(app: &AppHandle, tx: Sender<MidiRuntimeMsg>) -> impl Fn(&Ap
     let streams = Mutex::new(HashMap::<(String, u32), MidiStream>::new());
     let channel = Channel::<Value>::new(move |body| {
         match body.deserialize::<NativeEvent>()? {
+            NativeEvent::Keyboards { devices } => {
+                let _ = receiver_app.emit("keyboard-devices-changed", devices);
+            }
             NativeEvent::Devices { ports, connected } => {
                 receiver_app
                     .state::<AppState>()
@@ -117,4 +123,18 @@ pub async fn scan(app: &AppHandle) -> Result<usize, String> {
             }
             "bluetooth_unavailable".into()
         })
+}
+
+pub async fn keyboards(app: &AppHandle) -> Result<Vec<Value>, String> {
+    app.state::<NativeMidi>()
+        .run_mobile_plugin_async::<Vec<Value>>("getKeyboards", ())
+        .await
+        .map_err(|_| "keyboard_devices_unavailable".into())
+}
+
+pub async fn open_keyboard_settings(app: &AppHandle) -> Result<(), String> {
+    app.state::<NativeMidi>()
+        .run_mobile_plugin_async::<()>("openKeyboardSettings", ())
+        .await
+        .map_err(|_| "keyboard_settings_unavailable".into())
 }

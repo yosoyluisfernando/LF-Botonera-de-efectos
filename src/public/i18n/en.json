@@ -116,7 +116,9 @@
     "donate_btn": "☕ Support the creator here",
     "toolbar_buttons": "Top bar buttons:",
     "show_console": "Show the Audio console",
-    "show_fixed_panel": "Show the Fixed panel"
+    "show_fixed_panel": "Show the Fixed panel",
+    "tab_midi_keys": "MIDI and keyboard",
+    "keyboard_shortcuts": "Keyboard shortcuts"
   },
   "audio_device": {
     "title": "Audio output unavailable",
@@ -147,7 +149,7 @@
     "bluetooth_transport": "Bluetooth LE",
     "add_device": "Add device",
     "find_usb": "Show USB devices",
-    "find_bluetooth": "Find Bluetooth devices",
+    "find_bluetooth": "Find Bluetooth MIDI devices",
     "scanning": "Searching for Bluetooth MIDI devices…",
     "select_device": "Select the device in the list. Turn on MIDI if it is disabled.",
     "no_usb": "Connect a compatible USB MIDI controller and check again.",
@@ -182,7 +184,13 @@
     "replace_button": "The MIDI control {key} is already assigned to button {target} in this tab. Continuing will remove that previous assignment.",
     "replace_tab": "The MIDI control {key} is already assigned to the {target} tab. Continuing will remove that previous assignment.",
     "replace_button_any": "The MIDI control {key} is already assigned to button {target}. Continuing will remove it from buttons using it.",
-    "replace_fixed": "The MIDI control {key} is already assigned to fixed button {target}. Continuing will remove that previous assignment."
+    "replace_fixed": "The MIDI control {key} is already assigned to fixed button {target}. Continuing will remove that previous assignment.",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "connecting": "connecting…",
+    "retry": "Retry",
+    "connection_failed": "Could not connect. Check that the device is turned on and available.",
+    "bluetooth_hint": "Turn on your Bluetooth MIDI controller and put it in connection mode. Search here, then press Connect next to its name."
   },
   "prelisten": {
     "title": "Pre-listen",
@@ -1081,5 +1089,13 @@
     "applying": "Applying design…",
     "applied": "Design saved.",
     "failed": "The design could not be saved. The previous selection is preserved."
+  },
+  "keyboard": {
+    "title": "Connected physical keyboards (USB/Bluetooth)",
+    "empty": "No physical keyboards are connected.",
+    "bluetooth_settings": "Find or pair a Bluetooth keyboard",
+    "bluetooth_hint": "Android manages discovery and pairing for typing keyboards. Open its settings, then return to the app to see the connected keyboard.",
+    "settings_unavailable": "Could not open Bluetooth settings. Open them from Android settings.",
+    "devices_unavailable": "Could not check connected keyboards. Reopen this section to try again."
   }
 }

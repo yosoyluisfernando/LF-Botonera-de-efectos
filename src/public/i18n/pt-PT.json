@@ -116,7 +116,9 @@
     "donate_btn": "☕ Apoie o criador aqui",
     "toolbar_buttons": "Botões da barra superior:",
     "show_console": "Mostrar a Consola de áudio",
-    "show_fixed_panel": "Mostrar o Painel fixo"
+    "show_fixed_panel": "Mostrar o Painel fixo",
+    "tab_midi_keys": "MIDI e teclado",
+    "keyboard_shortcuts": "Atalhos do teclado"
   },
   "audio_device": {
     "title": "Saída de áudio indisponível",
@@ -147,7 +149,7 @@
     "bluetooth_transport": "Bluetooth LE",
     "add_device": "Adicionar dispositivo",
     "find_usb": "Ver dispositivos USB",
-    "find_bluetooth": "Procurar por Bluetooth",
+    "find_bluetooth": "Procurar dispositivos Bluetooth MIDI",
     "scanning": "A procurar dispositivos MIDI Bluetooth…",
     "select_device": "Selecione o dispositivo na lista. Ative o MIDI se estiver desativado.",
     "no_usb": "Ligue um controlador MIDI USB compatível e verifique novamente.",
@@ -182,7 +184,13 @@
     "replace_button": "O controlo MIDI {key} já está atribuído ao botão {target} deste separador. Se continuar, essa atribuição anterior será removida.",
     "replace_tab": "O controlo MIDI {key} já está atribuído ao separador {target}. Se continuar, essa atribuição anterior será removida.",
     "replace_button_any": "O controlo MIDI {key} já está atribuído ao botão {target}. Se continuar, será removido dos botões que o utilizam.",
-    "replace_fixed": "O controlo MIDI {key} já está atribuído ao botão fixo {target}. Se continuar, essa atribuição anterior será removida."
+    "replace_fixed": "O controlo MIDI {key} já está atribuído ao botão fixo {target}. Se continuar, essa atribuição anterior será removida.",
+    "connect": "Ligar",
+    "disconnect": "Desligar",
+    "connecting": "a ligar…",
+    "retry": "Tentar novamente",
+    "connection_failed": "Não foi possível ligar. Verifique se o dispositivo está ligado e disponível.",
+    "bluetooth_hint": "Ligue o seu controlador Bluetooth MIDI e coloque-o em modo de ligação. Procure aqui e prima Ligar junto ao nome."
   },
   "prelisten": {
     "title": "Pré-escuta",
@@ -1081,5 +1089,13 @@
     "applying": "A aplicar design…",
     "applied": "Design guardado.",
     "failed": "Não foi possível guardar o design. A seleção anterior foi mantida."
+  },
+  "keyboard": {
+    "title": "Teclados físicos ligados (USB/Bluetooth)",
+    "empty": "Não há teclados físicos ligados.",
+    "bluetooth_settings": "Procurar ou emparelhar teclado Bluetooth",
+    "bluetooth_hint": "O Android gere a pesquisa e o emparelhamento dos teclados de escrita. Abra as definições e volte à aplicação para ver o teclado ligado.",
+    "settings_unavailable": "Não foi possível abrir as definições de Bluetooth. Abra-as nas definições do Android.",
+    "devices_unavailable": "Não foi possível consultar os teclados ligados. Volte a abrir esta secção para tentar novamente."
   }
 }

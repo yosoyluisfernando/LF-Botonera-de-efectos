@@ -112,25 +112,53 @@ async function loadMidiDevices() {
 }
 
 function deviceRow(device) {
-    const label = document.createElement('label');
-    label.className = 'checkbox-line';
+    const label = document.createElement(isAndroid() ? 'div' : 'label');
+    label.className = isAndroid() ? 'midi-device-row' : 'checkbox-line';
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.dataset.midiDevice = '1';
     input.value = device.id;
     input.checked = !!device.selected;
     input.addEventListener('change', persistDeviceSelection);
+    if (isAndroid()) input.hidden = true;
     const span = document.createElement('span');
-    const status = device.connected ? t('midi.connected')
+    const state = device.connection_state;
+    const status = state === 'connecting' ? t('midi.connecting')
+        : state === 'failed' ? t('midi.connection_failed')
+        : device.connected ? t('midi.connected')
         : device.available ? t('midi.available') : t('midi.disconnected');
-    const bluetooth = device.id.startsWith('ble-desktop:') ? ` · ${t('midi.bluetooth_transport')}` : '';
+    const bluetooth = /^(ble:|ble-desktop:)/.test(device.id) ? ` · ${t('midi.bluetooth_transport')}` : '';
     span.textContent = `${device.label}${bluetooth} — ${status}`;
     label.append(input, span);
+    if (isAndroid()) {
+        if (state === 'failed') label.appendChild(deviceAction('midi.retry', device, async () => {
+            input.checked = true;
+            await persistDeviceSelection();
+        }));
+        label.appendChild(deviceAction(device.selected ? 'midi.disconnect' : 'midi.connect', device, async () => {
+            input.checked = !input.checked;
+            await persistDeviceSelection();
+        }));
+    }
     return label;
+}
+
+function deviceAction(key, device, save) {
+    const action = document.createElement('button');
+    action.type = 'button';
+    action.className = 'btn-dark';
+    action.dataset.midiAction = '1';
+    action.textContent = t(key);
+    action.setAttribute('aria-label', `${action.textContent}: ${device.label}`);
+    action.addEventListener('click', async () => {
+        document.querySelectorAll('[data-midi-action]').forEach(button => { button.disabled = true; });
+        await save();
+    });
+    return action;
 }
 
 function updateDeviceSelectionState() {
     const enabled = !!document.getElementById('config-midi-enabled')?.checked;
-    document.querySelectorAll('[data-midi-device]')
+    document.querySelectorAll('[data-midi-device], [data-midi-action]')
         .forEach(input => { input.disabled = !enabled; });
 }

@@ -87,7 +87,11 @@ propia al abrirse, con el contador y Detener todo visibles.
 
 ## MIDI por USB y Bluetooth LE
 
-En Ajustes → Atajos del teclado → MIDI, activa MIDI y abre Añadir dispositivo.
+En Ajustes → MIDI y teclado, activa MIDI. Los controles USB y Bluetooth están
+visibles; Atajos del teclado queda plegado al final de la pantalla. Pulsa
+Buscar dispositivos Bluetooth MIDI y después Conectar junto al nombre.
+Desconectar cancela también una conexión en curso; Reintentar vuelve a abrir
+una conexión fallida. No hace falta abrir los ajustes Bluetooth del teléfono.
 USB usa el servicio MIDI de Android y lista controladores compatibles con
 el transporte MIDI 1.0, sin pedir acceso general al bus USB. El hardware debe
 ser reconocido por Android en modo anfitrión USB. Bluetooth busca el servicio
@@ -98,10 +102,31 @@ la búsqueda BLE, como exige el sistema. Ver USB no solicita estos permisos.
 El adaptador Kotlin mantiene las conexiones a los dispositivos elegidos y
 entrega bytes por un canal privado de Tauri. Rust reconstruye mensajes
 fragmentados y aplica la captura y las asignaciones existentes. Se conserva
-la selección con el esquema MIDI actual. El servicio puede volver a abrir
+la selección con el esquema MIDI actual. El anuncio BLE, el nombre conocido
+por Android y el nombre previo se consultan antes de recurrir a la dirección.
+Los puertos publican connection_state (connected, connecting, failed o
+disconnected) por el canal nativo y midi_devices, sin cambiar AppConfig.
+Los permisos Bluetooth se solicitan al buscar, nunca al consultar USB. El servicio puede volver a abrir
 un dispositivo BLE guardado si está disponible y conserva una dirección
 reconocible. Dos dispositivos USB idénticos sin serie pueden requerir volver
 a elegirlos tras reconectar.
+
+
+### Teclados de escritura Bluetooth
+
+Dentro de Atajos del teclado, Teclados físicos conectados lista el nombre real
+que Android entrega para teclados externos USB o Bluetooth. Buscar o vincular
+teclado Bluetooth abre los ajustes del sistema: Android administra el
+emparejamiento y la conexión HID. Al volver o conectar/desconectar el teclado,
+la lista se actualiza. No se confunden teclados de escritura con instrumentos
+Bluetooth MIDI ni se etiqueta un teclado USB como Bluetooth.
+
+`keyboard_devices` consulta los dispositivos físicos y
+`keyboard_open_bluetooth_settings` abre la pantalla Bluetooth del sistema.
+El adaptador InputManager notifica `keyboard-devices-changed` con una lista
+`[{id, name}]`. No solicita acceso a Bluetooth para enumerar entradas ya
+conectadas y no añade preferencias a AppConfig. Los atajos locales requieren
+que la ventana tenga foco; Android no registra atajos globales.
 
 Para compilar localmente, tras `npm run tauri -- android init` ejecuta
 `python scripts/prepare-android-midi.py src-tauri/gen/android` antes de

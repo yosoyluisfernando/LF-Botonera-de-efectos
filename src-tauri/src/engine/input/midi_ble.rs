@@ -1,16 +1,19 @@
 use super::midi::MidiRuntimeMsg;
 use super::midi_ble_connection::{self, SERVICE};
-use super::midi_ports::MidiPortInfo;
+use super::midi_ports::{preferred_name, MidiPortInfo};
 use crate::core::AppState;
 use crate::model::MidiConfig;
-use btleplug::api::{Central, Manager as _, Peripheral as _, ScanFilter};
-use btleplug::platform::{Adapter, Manager as BluetoothManager, Peripheral};
+use btleplug::api::{Central, Peripheral as _};
+use btleplug::platform::Peripheral;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::sync::{mpsc::Sender, Arc, Mutex};
 use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::watch;
 use tokio::time::{sleep, timeout};
+
+#[path = "midi_ble_scan.rs"]
+mod scan;
 
 const PREFIX: &str = "ble-desktop:";
 
@@ -128,7 +131,7 @@ impl BleMidi {
 
     pub async fn discover(&self, app: &AppHandle) -> Result<usize, String> {
         let _guard = self.scan.try_lock().map_err(|_| "bluetooth_busy")?;
-        let mut adapters = start_scans().await?;
+        let mut adapters = scan::start().await?;
         sleep(Duration::from_secs(6)).await;
         let mut found = BTreeMap::new();
         while let Some(adapter) = adapters.pop() {
@@ -160,38 +163,14 @@ impl BleMidi {
             state
                 .found
                 .retain(|id, _| active.contains(id) || found.contains_key(id));
-            state.found.extend(found);
+            for (id, (name, peripheral)) in found {
+                let old = state.found.get(&id).map(|(name, _)| name.as_str());
+                let name = preferred_name(&id, &name, old);
+                state.found.insert(id, (name, peripheral));
+            }
         }
         app.state::<AppState>().midi.sync();
         let _ = app.emit("midi-devices-changed", ());
         Ok(count)
     }
-}
-
-async fn start_scans() -> Result<Vec<Adapter>, String> {
-    let adapters = timeout(Duration::from_secs(5), async {
-        BluetoothManager::new().await?.adapters().await
-    })
-    .await
-    .map_err(|_| "bluetooth_scan_failed")?
-    .map_err(|_| "bluetooth_unavailable")?;
-    if adapters.is_empty() {
-        return Err("bluetooth_unavailable".into());
-    }
-    let mut running = Vec::new();
-    for adapter in adapters {
-        let filter = ScanFilter {
-            services: vec![SERVICE],
-        };
-        if matches!(
-            timeout(Duration::from_secs(4), adapter.start_scan(filter)).await,
-            Ok(Ok(()))
-        ) {
-            running.push(adapter);
-        }
-    }
-    if running.is_empty() {
-        return Err("bluetooth_scan_failed".into());
-    }
-    Ok(running)
 }

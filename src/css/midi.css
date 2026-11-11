@@ -41,3 +41,43 @@
   flex-wrap: wrap;
   gap: 6px;
 }
+
+.android-keyboard-shortcuts {
+  margin-top: 20px;
+}
+
+.android-keyboard-shortcuts > summary {
+  cursor: pointer;
+  min-height: 48px;
+  align-content: center;
+  font-weight: 600;
+}
+
+.midi-device-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.midi-device-row > span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.midi-device-row > button {
+  min-height: 48px;
+}
+
+.keyboard-device-list {
+  padding-inline-start: 20px;
+  overflow-wrap: anywhere;
+}
+
+#android-keyboard-bluetooth {
+  min-height: 48px;
+  white-space: normal;
+}
