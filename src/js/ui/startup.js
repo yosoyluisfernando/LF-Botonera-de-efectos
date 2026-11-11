@@ -166,7 +166,7 @@ function _initModules(config, grid, fixedPanel) {
     wireConsole();
     initLibraryWindowOpen();
     applyToolbarButtons(config);
-    initSettingsModal(_refresh);
+    initSettingsModal(_refresh, config);
     initMapping(_refresh);
     initUpdateNotifier();
 }

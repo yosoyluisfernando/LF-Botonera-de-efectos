@@ -1,5 +1,5 @@
 import { initAndroidSettingsNavigation, resetAndroidSettingsNavigation } from './settingsAndroid.js';
-import { initSettingsRemote } from './settingsRemote.js';
+import { initSettingsRemote, loadSettingsRemote, saveSettingsRemote } from './settingsRemote.js';
 import { isAndroid } from '../bridge/platform.js';
 /**
  * Archivo: settingsModal.js
@@ -29,7 +29,7 @@ let _currentLanguage = null; // Idioma vigente al abrir el modal
 let _wired           = false;
 
 /** Inicializa el modal de ajustes y el sistema de captura de teclas. */
-export function initSettingsModal(onSaved) {
+export function initSettingsModal(onSaved, config) {
     _onSaved = onSaved;
     if (_wired) return;
     _wired = true;
@@ -40,7 +40,7 @@ export function initSettingsModal(onSaved) {
     initFixedPanelSettings();
 
     if (!isAndroid()) initSettingsObs();
-    initSettingsRemote();
+    initSettingsRemote(config);
     // Pestañas internas del modal
     document.querySelectorAll('.s-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -92,6 +92,7 @@ async function _openSettings() {
     document.getElementById('config-language').value = config.language || 'es';
     document.getElementById('config-button-text-size').value = config.button_text_size || 'normal';
     loadToolbarButtons(config);
+    loadSettingsRemote(config);
     _currentLanguage = config.language || 'es';
 
     if (!isAndroid()) await loadSettingsObs(config);
@@ -125,6 +126,7 @@ async function _saveSettings() {
             size: document.getElementById('config-button-text-size').value,
         });
         await saveToolbarButtons();
+        await saveSettingsRemote();
 
         // Idioma: persistir y recargar la UI solo si cambió
         const lang = document.getElementById('config-language').value;

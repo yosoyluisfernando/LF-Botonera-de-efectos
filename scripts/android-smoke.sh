@@ -65,7 +65,11 @@ with wave.open('android-smoke/LF-Smoke.wav', 'wb') as wav:
     wav.writeframes(b''.join(struct.pack('<h', round(2048 * math.sin(2 * math.pi * 440 * n / 44100)))
                             for n in range(44100 * 2)))
 PYTHON
+# El MP3 de prueba es sintético y no contiene audios del usuario.
+ffmpeg -hide_banner -loglevel error -i android-smoke/LF-Smoke.wav -c:a libmp3lame -q:a 4 android-smoke/LF-Roundtrip.mp3
 "$adb" shell mkdir -p /sdcard/Download
+"$adb" push android-smoke/LF-Roundtrip.mp3 /sdcard/Download/LF-Roundtrip.mp3
+"$adb" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/LF-Roundtrip.mp3
 "$adb" push android-smoke/LF-Smoke.wav /sdcard/Download/LF-Smoke.wav
 "$adb" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/LF-Smoke.wav
-timeout --kill-after=10 350 node scripts/android-import-smoke.mjs "$adb"
+timeout --kill-after=10 480 node scripts/android-import-smoke.mjs "$adb"

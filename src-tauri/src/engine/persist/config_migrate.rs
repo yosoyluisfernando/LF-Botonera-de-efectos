@@ -4,6 +4,7 @@
 //! usuario tenga que tocar nada. Cada una explica de que version viene y por que.
 use crate::engine::audio::formats::probe_duration_secs;
 use crate::model::{AppConfig, ButtonData};
+use std::collections::HashSet;
 
 /// Migracion: las listas del LFA importadas antes guardaron su MARCADOR
 /// (`time_locution`…) como si fuera una carpeta, y asi la locucion no sonaba
@@ -29,8 +30,25 @@ pub(crate) fn clear_locution_markers(cfg: &mut AppConfig) {
 /// (formato "{paleta_id}_btn_{index}"). Migra configs con el formato
 /// antiguo "btn_{index}", que colisionaba entre pestañas.
 pub(crate) fn normalize_button_ids(cfg: &mut AppConfig) {
+    let mut profile_ids: HashSet<_> = cfg.profiles.iter().map(|p| p.id.clone()).collect();
+    let mut paleta_ids: HashSet<_> = cfg.profiles.iter().flat_map(|p| &p.paletas)
+        .map(|p| p.id.clone()).collect();
+    let mut seen_profiles = HashSet::new();
+    let mut seen_paletas = HashSet::new();
     for profile in cfg.profiles.iter_mut() {
+        unique_id(&mut profile.id, &mut seen_profiles, &mut profile_ids);
+        for button in &mut profile.fixed_buttons {
+            button.id = format!("fixed_{}_btn_{}", profile.id, button.index);
+        }
+        let active_id = profile.active_paleta_id.clone();
+        let mut active_updated = false;
         for paleta in profile.paletas.iter_mut() {
+            let previous = paleta.id.clone();
+            unique_id(&mut paleta.id, &mut seen_paletas, &mut paleta_ids);
+            if !active_updated && previous == active_id {
+                profile.active_paleta_id = paleta.id.clone();
+                active_updated = true;
+            }
             let pid = paleta.id.clone();
             for b in paleta.botones.iter_mut() {
                 let expected = format!("{}_btn_{}", pid, b.index);
@@ -39,6 +57,21 @@ pub(crate) fn normalize_button_ids(cfg: &mut AppConfig) {
                 }
             }
         }
+    }
+}
+
+fn unique_id(id: &mut String, seen: &mut HashSet<String>, reserved: &mut HashSet<String>) {
+    if seen.insert(id.clone()) { return; }
+    let original = id.clone();
+    let mut suffix = 1;
+    loop {
+        let candidate = format!("{original}_recovered_{suffix}");
+        if reserved.insert(candidate.clone()) {
+            *id = candidate;
+            seen.insert(id.clone());
+            return;
+        }
+        suffix += 1;
     }
 }
 

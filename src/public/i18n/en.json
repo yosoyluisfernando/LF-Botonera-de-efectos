@@ -1036,6 +1036,7 @@
     "quick_hint": "Runs the quick transition configured in OBS with its original duration. Requires Studio Mode. OBS only provides its internal number, not its name or duration. If the list is empty, configure a quick transition in OBS."
   },
   "remote": {
+    "client_enabled": "Enable remote control",
     "title": "Remote control",
     "client_help": "Sounds play on the PC. Connect both devices to the same local network.",
     "address": "PC address",

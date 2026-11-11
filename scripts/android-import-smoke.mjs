@@ -5,6 +5,8 @@ import { writeFileSync } from 'node:fs';
 import { verifyTouchEditor } from './android-editor-smoke.mjs';
 import { verifyAndroidMenus } from './android-menus-smoke.mjs';
 import { verifyMidiUsb } from './android-midi-smoke.mjs';
+import { dismissStartup, verifyAndroidToolbar } from './android-toolbar-smoke.mjs';
+import { verifyExportRoundtrip } from './android-roundtrip-smoke.mjs';
 import { verifyWelcome, verifyPanelGeometry, verifyLocutions } from './android-locutions-smoke.mjs';
 
 const adb = (...args) => execFileSync(process.argv[2], args, { encoding: 'utf8', timeout: 20000 }).trim();
@@ -163,11 +165,9 @@ try {
         })()`);
     }, 'No se dibujó la rejilla después de Bienvenida y Precarga');
     adb('shell', 'settings', 'put', 'system', 'accelerometer_rotation', '0');
+    await dismissStartup(evaluate, until);
     await verifyLayout(evaluate);
-    await evaluate("document.getElementById('btn-remote-mirror').click()");
-    assert.ok(await evaluate("document.querySelector('.remote-dialog').open"));
-    assert.ok(await evaluate("!!document.querySelector('.remote-dialog .remote-tabs')"));
-    await evaluate("document.querySelector('.remote-dialog > button').click()");
+    await verifyAndroidToolbar(evaluate, until);
     adb('shell', 'settings', 'put', 'system', 'user_rotation', '0');
     await until(() => evaluate('innerWidth < innerHeight'), 'No volvió a vertical');
     const assignment = evaluate("window.__TAURI__.core.invoke('assign_file_to_button', { index: 1, path: null })");
@@ -191,6 +191,7 @@ try {
     await evaluate(`window.__TAURI__.core.invoke('play_button', { id: ${JSON.stringify(button.id)} })`);
     console.log('Importación SAF, copia verificada y disparo aceptado', button.id, button.duration);
     await verifyTouchEditor(evaluate, until, button.path);
+    await verifyExportRoundtrip({ evaluate, until, adb, pkg, tapDocument }, button);
     await verifyLocutions({ evaluate, until, adb, pkg, tapDocument });
 } finally {
     close();

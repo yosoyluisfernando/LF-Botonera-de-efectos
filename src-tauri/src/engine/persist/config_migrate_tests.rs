@@ -166,3 +166,21 @@ fn write_test_wav() -> std::path::PathBuf {
     std::fs::write(&path, b).unwrap();
     path
 }
+
+#[test]
+fn duplicate_imported_tabs_get_distinct_ids_and_keep_the_active_tab() {
+    let mut cfg = AppConfig::default();
+    let mut first = cfg.profiles[0].clone();
+    first.paletas[0].id = "paleta_imp_2".into();
+    first.active_paleta_id = "paleta_imp_2".into();
+    let mut second = first.clone();
+    second.id = "perfil_2".into();
+    cfg.profiles = vec![first, second];
+    cfg.active_profile_id = "perfil_2".into();
+    normalize_button_ids(&mut cfg);
+    assert_ne!(cfg.profiles[0].paletas[0].id, cfg.profiles[1].paletas[0].id);
+    assert_eq!(cfg.profiles[1].active_paleta_id, cfg.profiles[1].paletas[0].id);
+    let before = serde_json::to_value(&cfg).unwrap();
+    normalize_button_ids(&mut cfg);
+    assert_eq!(before, serde_json::to_value(&cfg).unwrap());
+}

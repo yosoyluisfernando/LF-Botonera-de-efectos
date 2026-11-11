@@ -15,7 +15,8 @@ pub fn play_button(id: String, state: tauri::State<AppState>) -> Result<(), Stri
 }
 /// Dispara un boton por id; tambien lo usa el manejador de atajos globales.
 pub fn play_button_id(state: &AppState, id: &str) -> Result<(), String> {
-    let (cfg, btn, group) = button_snapshot(state, id)?;
+    let cfg = state.config.lock().unwrap().clone();
+    let (btn, group) = button_snapshot(&cfg, id)?;
     play_snapshot(state, cfg, btn, group)
 }
 /// Valida y dispara desde la misma instantánea: un cambio de paleta no autoriza otro botón.
@@ -69,10 +70,9 @@ fn play_snapshot(state: &AppState, cfg: AppConfig, btn: ButtonData, group: Playb
     }
 }
 fn button_snapshot(
-    state: &AppState,
+    cfg: &AppConfig,
     id: &str,
-) -> Result<(AppConfig, ButtonData, PlaybackGroup), String> {
-    let cfg = state.config.lock().unwrap().clone();
+) -> Result<(ButtonData, PlaybackGroup), String> {
     let fixed = if cfg.fixed_panel.scope == "profile" {
         cfg.active_profile()
             .map(|p| p.fixed_buttons.as_slice())
@@ -81,17 +81,17 @@ fn button_snapshot(
         cfg.fixed_panel.global_buttons.as_slice()
     };
     if let Some(btn) = fixed.iter().find(|b| b.id == id).cloned() {
-        return Ok((cfg, btn, PlaybackGroup::Fixed));
+        return Ok((btn, PlaybackGroup::Fixed));
     }
     let btn = cfg
-        .profiles
-        .iter()
+        .active_profile()
+        .into_iter()
         .flat_map(|p| &p.paletas)
         .flat_map(|p| &p.botones)
         .find(|b| b.id == id)
         .cloned()
         .ok_or("Boton no encontrado")?;
-    Ok((cfg, btn, PlaybackGroup::Main))
+    Ok((btn, PlaybackGroup::Main))
 }
 
 fn play_file(
@@ -181,3 +181,7 @@ fn is_button_active(state: &AppState, id: &str) -> bool {
         .unwrap_or(false);
     is_active
 }
+
+#[cfg(test)]
+#[path = "cmd_button_playback_tests.rs"]
+mod tests;

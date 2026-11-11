@@ -1,4 +1,5 @@
-use super::cmd_export_io::{finish_export, parse_profile};
+use super::cmd_export_io::{finish_export, paleta_export_payload, parse_profile};
+use super::cmd_profiles::next_id;
 /// Modulo: cmd_export.rs
 /// Proposito: comandos IPC de exportacion/importacion .bdelf y .bdeplf. Ademas
 /// de la pestaña/perfil, empaqueta los metadatos del editor (cue, dB) en un
@@ -67,12 +68,14 @@ pub fn import_tab(state: tauri::State<AppState>) -> Result<GridState, String> {
     let grid = {
         let mut cfg = state.config.lock().unwrap();
         let pid = cfg.active_profile_id.clone();
+        let ids: Vec<_> = cfg.profiles.iter().flat_map(|p| &p.paletas)
+            .map(|p| p.id.clone()).collect();
+        let new_id = next_id("paleta_imp", &ids);
         let profile = cfg
             .profiles
             .iter_mut()
             .find(|p| p.id == pid)
             .ok_or("Perfil no encontrado")?;
-        let new_id = format!("paleta_imp_{}", profile.paletas.len() + 1);
         let paleta = lfa_format::from_lfa_paleta(lfa, new_id.clone());
         if cfg!(target_os = "android") && paleta.obs {
             return Err("platform_unavailable".into());
@@ -143,7 +146,8 @@ pub fn import_profile(state: tauri::State<AppState>) -> Result<(), String> {
     }
     {
         let mut cfg = state.config.lock().unwrap();
-        let new_id = format!("perfil_imp_{}", cfg.profiles.len() + 1);
+        let ids: Vec<_> = cfg.profiles.iter().map(|p| p.id.clone()).collect();
+        let new_id = next_id("perfil_imp", &ids);
         let profile = lfa_format::from_lfa_profile(lfa, new_id.clone());
         if cfg!(target_os = "android") && profile.paletas.iter().any(|paleta| paleta.obs) {
             return Err("platform_unavailable".into());
@@ -156,6 +160,8 @@ pub fn import_profile(state: tauri::State<AppState>) -> Result<(), String> {
     if let Some(t) = tracks {
         export_tracks::restore(&state.tracks.lock().unwrap(), &t);
     }
+    let id = state.config.lock().unwrap().active_profile_id.clone();
+    super::cmd_profiles::set_active_profile(id, state)?;
     Ok(())
 }
 
@@ -168,24 +174,6 @@ fn profile_by_id<'a>(cfg: &'a AppConfig, id: &str) -> Result<&'a ProfileData, St
         .iter()
         .find(|p| p.id == id)
         .ok_or("Perfil no encontrado".to_string())
-}
-
-fn paleta_export_payload(
-    paleta_id: &str,
-    profile: &ProfileData,
-) -> Result<(String, Value, Vec<String>), String> {
-    let paleta = profile
-        .paletas
-        .iter()
-        .find(|p| p.id == paleta_id)
-        .ok_or("Pestaña no encontrada")?;
-    let value =
-        serde_json::to_value(lfa_format::to_lfa_paleta(paleta)).map_err(|e| e.to_string())?;
-    Ok((
-        paleta.nombre.clone(),
-        value,
-        export_tracks::paleta_paths(paleta),
-    ))
 }
 
 fn profile_export_payload(profile: &ProfileData) -> Result<(String, Value, Vec<String>), String> {

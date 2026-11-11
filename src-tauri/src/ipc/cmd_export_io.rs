@@ -1,5 +1,6 @@
 use super::AppState;
-use crate::domain::export::{lfa_format::LfaProfile, tracks as export_tracks};
+use crate::domain::export::{lfa_format::{self, LfaProfile}, tracks as export_tracks};
+use crate::model::ProfileData;
 use serde_json::Value;
 
 /// Inyecta `bdelf_tracks`, serializa y abre el diálogo de guardado.
@@ -44,4 +45,22 @@ pub(super) fn parse_profile(value: Value) -> Result<LfaProfile, String> {
         return serde_json::from_value(chosen.clone()).map_err(|e| e.to_string());
     }
     serde_json::from_value(value).map_err(|e| e.to_string())
+}
+
+pub(super) fn paleta_export_payload(
+    paleta_id: &str,
+    profile: &ProfileData,
+) -> Result<(String, Value, Vec<String>), String> {
+    let paleta = profile
+        .paletas
+        .iter()
+        .find(|p| p.id == paleta_id)
+        .ok_or("Pestaña no encontrada")?;
+    let value =
+        serde_json::to_value(lfa_format::to_lfa_paleta(paleta)).map_err(|e| e.to_string())?;
+    Ok((
+        paleta.nombre.clone(),
+        value,
+        export_tracks::paleta_paths(paleta),
+    ))
 }

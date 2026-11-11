@@ -46,4 +46,4 @@
 .remote-index { position: absolute; top: 3px; left: 5px; font-size: .7rem; opacity: .85; }
 .remote-duration { font-size: .75rem; }
 
-.remote-shortcut { width: auto; padding-inline: 10px; }
+.remote-shortcut { width: 48px; padding-inline: 4px; flex: none; }

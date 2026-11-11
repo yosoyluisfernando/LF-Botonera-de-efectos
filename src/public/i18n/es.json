@@ -1036,6 +1036,7 @@
     "quick_hint": "Se ejecuta la transición rápida configurada en OBS, con su duración original. Requiere modo estudio. OBS solo comunica su número interno, no su nombre ni duración. Si la lista está vacía, configura una transición rápida en OBS."
   },
   "remote": {
+    "client_enabled": "Activar control remoto",
     "title": "Control remoto",
     "client_help": "Los sonidos se reproducen en la PC. Conecta ambos equipos a la misma red local.",
     "address": "Dirección de la PC",

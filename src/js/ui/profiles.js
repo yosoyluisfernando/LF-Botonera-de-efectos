@@ -5,6 +5,7 @@
  */
 
 import { invoke } from '../bridge/api.js';
+import { isAndroid } from '../bridge/platform.js';
 import { placeMenu } from '../util/menuPosition.js';
 import { t } from '../util/i18n.js';
 import { paintAdaptive } from '../util/colorAdapter.js';
@@ -94,7 +95,9 @@ export function updateProfiles(config, onRefresh) {
     if (!profile) return;
 
     const btn = document.getElementById('btn-profiles');
-    btn.textContent = `👤 ${profile.name}`;
+    btn.textContent = isAndroid() ? '👤' : `👤 ${profile.name}`;
+    btn.title = `${t('profiles.tooltip')} · ${profile.name}`;
+    btn.setAttribute('aria-label', btn.title);
     paintAdaptive(btn, profile.bg || '#008c3a', profile.text || '#ffffff', 'profile');
 
     _renderProfileList(config);

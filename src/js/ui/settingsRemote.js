@@ -4,7 +4,7 @@ import { t } from '../util/i18n.js';
 import { mountClient } from '../remote/client.js';
 import '../../css/remote.css';
 
-export function initSettingsRemote() {
+export function initSettingsRemote(config) {
     const tabs = document.querySelector('.settings-tabs');
     const tab = document.createElement('button');
     tab.type = 'button'; tab.className = 's-tab'; tab.dataset.target = 's-remote';
@@ -31,12 +31,22 @@ export function initSettingsRemote() {
         open.type = 'button';
         open.textContent = t('remote.title');
         open.addEventListener('click', () => dialog.showModal());
-        panel.append(open);
+        const label = document.createElement('label');
+        label.className = 'checkbox-line';
+        const enabled = document.createElement('input');
+        enabled.type = 'checkbox'; enabled.id = 'remote-client-enabled';
+        label.append(enabled, document.createTextNode(t('remote.client_enabled')));
+        panel.append(label, open);
         const shortcut = open.cloneNode(true);
         shortcut.id = 'btn-remote-mirror';
         shortcut.className = 'btn-settings remote-shortcut';
+        shortcut.textContent = '🎮';
+        shortcut.title = t('remote.title');
+        shortcut.setAttribute('aria-label', t('remote.title'));
         shortcut.addEventListener('click', () => dialog.showModal());
         document.getElementById('btn-settings').before(shortcut);
+        enabled.addEventListener('change', () => { open.disabled = !enabled.checked; });
+        loadSettingsRemote(config);
         return;
     }
     panel.innerHTML = `<h3>${t('remote.title')}</h3><p>${t('remote.host_help')}</p>
@@ -78,4 +88,24 @@ export function initSettingsRemote() {
     });
     stop.addEventListener('click', () => act('remote_stop'));
     act('remote_status');
+}
+
+export function loadSettingsRemote(config) {
+    if (!isAndroid()) return;
+    const enabled = config.remote_client_enabled ?? true;
+    document.getElementById('remote-client-enabled').checked = enabled;
+    _applyClientEnabled(enabled);
+}
+
+export async function saveSettingsRemote() {
+    if (!isAndroid()) return;
+    const enabled = document.getElementById('remote-client-enabled').checked;
+    await invoke('set_toolbar_button', { button: 'remote_client', visible: enabled });
+    _applyClientEnabled(enabled);
+}
+
+function _applyClientEnabled(enabled) {
+    document.getElementById('btn-remote-mirror').classList.toggle('hidden', !enabled);
+    document.querySelector('#s-remote > button').disabled = !enabled;
+    if (!enabled) document.querySelector('.remote-dialog').close();
 }

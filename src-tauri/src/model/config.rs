@@ -50,6 +50,8 @@ pub struct AppConfig {
     pub show_console_button: bool,
     #[serde(default = "default_true")]
     pub show_fixed_panel_button: bool,
+    #[serde(default = "default_true")]
+    pub remote_client_enabled: bool,
     #[serde(default)]
     pub active_profile_id: String,
     #[serde(default = "default_true")]
@@ -150,6 +152,7 @@ impl Default for AppConfig {
             console_mode: default_console_mode(),
             show_console_button: true,
             show_fixed_panel_button: true,
+            remote_client_enabled: true,
             active_profile_id: "perfil_1".to_string(),
             clock_24h: true,
             last_update_check: 0,

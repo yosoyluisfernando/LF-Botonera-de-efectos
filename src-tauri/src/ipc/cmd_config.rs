@@ -58,6 +58,7 @@ pub fn set_toolbar_button(
     match button.as_str() {
         "console" => cfg.show_console_button = visible,
         "fixed_panel" => cfg.show_fixed_panel_button = visible,
+        "remote_client" => cfg.remote_client_enabled = visible,
         _ => return Err("unknown_toolbar_button".to_string()),
     }
     config::save_config(&cfg)
