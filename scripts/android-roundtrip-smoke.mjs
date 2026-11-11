@@ -69,7 +69,7 @@ export async function verifyExportRoundtrip({ evaluate, until, adb, pkg, tapDocu
         || (tapDocument('Show roots', 'Open navigation drawer', 'Browse'), false),
         'No se encontró el MP3 de prueba');
     original = (await assignment).buttons.find(b => b.index === 1);
-    await invoke('analyze_track', { path: original.path });
+    await invoke('analyze_track', { path: original.path, buckets: 256 });
     await invoke('set_track_cue', { path: original.path, startS: 0.5, endS: 1.5 });
     await invoke('set_track_gain', { path: original.path, gainDb: -1 });
     const originalMeta = await invoke('get_track_meta', { path: original.path });

@@ -3,12 +3,24 @@ on:
   push:
     branches: [codex/android]
   workflow_dispatch:
+    inputs:
+      build_run:
+        description: Reutilizar el APK de esta ejecución para repetir las pruebas
+        required: false
+        type: string
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
+  verify-existing:
+    if: ${{ inputs.build_run != '' }}
+    uses: ./.github/workflows/android-verify.yml
+    with:
+      build_run: ${{ inputs.build_run }}
   apk:
+    if: ${{ inputs.build_run == '' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:

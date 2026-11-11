@@ -1,0 +1,114 @@
+name: Verificar APK Android existente
+on:
+  workflow_call:
+    inputs:
+      build_run:
+        description: Ejecución que generó el APK
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Prepare emulator tools and the synthetic MP3 encoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y ffmpeg
+          export ANDROID_HOME="${ANDROID_HOME:-$RUNNER_TEMP/android-sdk}"
+          mkdir -p "$ANDROID_HOME/cmdline-tools"
+          if ! command -v sdkmanager >/dev/null; then
+            curl --fail --silent --show-error --location --retry 3 \
+              https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip \
+              --output "$RUNNER_TEMP/android-tools.zip"
+            unzip -q "$RUNNER_TEMP/android-tools.zip" -d "$RUNNER_TEMP/android-tools"
+            mv "$RUNNER_TEMP/android-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/lf-ci"
+            export PATH="$ANDROID_HOME/cmdline-tools/lf-ci/bin:$PATH"
+            echo "$ANDROID_HOME/cmdline-tools/lf-ci/bin" >> "$GITHUB_PATH"
+          fi
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses > /dev/null
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+      - name: Locate the source APK
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_RUN: ${{ inputs.build_run }}
+        run: |
+          [[ "$BUILD_RUN" =~ ^[0-9]+$ ]]
+          api="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN"
+          curl --fail --silent --show-error -H "Authorization: Bearer $GH_TOKEN" "$api" -o "$RUNNER_TEMP/source-run.json"
+          curl --fail --silent --show-error -H "Authorization: Bearer $GH_TOKEN" "$api/artifacts" -o "$RUNNER_TEMP/source-artifacts.json"
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          temp = Path(os.environ['RUNNER_TEMP'])
+          run = json.loads((temp / 'source-run.json').read_text())
+          assert run['head_branch'] == os.environ['GITHUB_REF_NAME']
+          artifacts = json.loads((temp / 'source-artifacts.json').read_text())['artifacts']
+          candidates = [a for a in artifacts if not a['expired'] and a['name'] in (
+              'LF-Botonera-Android-ARM64-debug', 'LF-Botonera-Android-ARM64-unverified')]
+          assert len(candidates) == 1, 'Se esperaba un único artefacto APK'
+          artifact = candidates[0]
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('sha=' + run['head_sha'] + '\n')
+              output.write('url=' + artifact['archive_download_url'] + '\n')
+              output.write('digest=' + (artifact.get('digest') or '') + '\n')
+          PY
+      - name: Confirm that application code matches the source APK
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          git fetch --depth=1 origin "$SOURCE_SHA"
+          git diff --exit-code "$SOURCE_SHA" HEAD -- src src-tauri package.json package-lock.json vite.config.js
+      - name: Download and verify the source artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_URL: ${{ steps.source.outputs.url }}
+          ARTIFACT_DIGEST: ${{ steps.source.outputs.digest }}
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" "$ARTIFACT_URL" -o "$RUNNER_TEMP/source-apk.zip"
+          python3 - <<'PY'
+          import hashlib
+          import os
+          import shutil
+          import zipfile
+          from pathlib import Path
+          archive = Path(os.environ['RUNNER_TEMP']) / 'source-apk.zip'
+          digest = 'sha256:' + hashlib.file_digest(archive.open('rb'), 'sha256').hexdigest()
+          assert not os.environ['ARTIFACT_DIGEST'] or digest == os.environ['ARTIFACT_DIGEST']
+          target = Path('android-artifact')
+          target.mkdir()
+          name = 'LF-Botonera-1.6.0-alpha-android-arm64.apk'
+          with zipfile.ZipFile(archive) as package:
+              for filename in (name, name + '.sha256'):
+                  with package.open(filename) as source, (target / filename).open('wb') as destination:
+                      shutil.copyfileobj(source, destination)
+          expected = (target / (name + '.sha256')).read_text().split()[0]
+          assert hashlib.file_digest((target / name).open('rb'), 'sha256').hexdigest() == expected
+          PY
+      - name: Test the existing APK on Android 35
+        id: smoke
+        timeout-minutes: 15
+        run: bash scripts/android-smoke.sh android-artifact/LF-Botonera-1.6.0-alpha-android-arm64.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: LF-Botonera-Android-startup-logs
+          path: android-smoke/
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LF-Botonera-Android-ARM64-debug
+          path: android-artifact/
+          if-no-files-found: error
