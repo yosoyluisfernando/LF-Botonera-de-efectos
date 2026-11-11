@@ -5,6 +5,7 @@
  * Solo dibuja (Regla 4): la preferencia la guarda Rust.
  */
 import { invoke } from '../bridge/api.js';
+import { isAndroid } from '../bridge/platform.js';
 
 /**
  * Los que se pueden esconder: el botón de la barra, su casilla en Ajustes y el
@@ -36,6 +37,7 @@ export function loadToolbarButtons(config) {
 export async function saveToolbarButtons() {
     const estado = {};
     for (const b of BUTTONS) {
+        if (isAndroid() && b.bus === 'console') continue;
         const visible = document.getElementById(b.box).checked;
         estado[b.flag] = visible;
         await invoke('set_toolbar_button', { button: b.bus, visible });

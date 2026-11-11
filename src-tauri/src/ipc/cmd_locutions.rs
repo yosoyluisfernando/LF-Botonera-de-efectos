@@ -64,10 +64,18 @@ pub fn set_locution_config(
 
 /// Abre el selector nativo de carpetas y devuelve ruta mas nombre visible.
 #[tauri::command(async)]
-pub fn pick_named_folder() -> Result<PickedFolder, String> {
-    let path = crate::engine::files::FileDialog::new()
-        .pick_folder()?
-        .ok_or("Operación cancelada.".to_string())?;
+pub fn pick_named_folder(locution: Option<bool>) -> Result<PickedFolder, String> {
+    #[cfg(not(target_os = "android"))]
+    let _ = locution;
+    #[cfg(target_os = "android")]
+    let path = if locution == Some(true) {
+        crate::engine::files::pick_locution_folder()?
+    } else {
+        crate::engine::files::FileDialog::new().pick_folder()?
+    };
+    #[cfg(not(target_os = "android"))]
+    let path = crate::engine::files::FileDialog::new().pick_folder()?;
+    let path = path.ok_or("Operación cancelada.")?;
     let name = path
         .file_name()
         .unwrap_or_default()

@@ -3,6 +3,7 @@
  * Propósito: Plantilla traducida del panel Hora y Clima.
  */
 
+import { isAndroid } from '../bridge/platform.js';
 import { t } from '../util/i18n.js';
 import { typeIcon } from '../util/typeIcons.js';
 
@@ -12,6 +13,7 @@ export function locutionsTemplate() {
     <label><input type="checkbox" id="loc-module"> <b>${t('settings_loc.module')}</b></label>
     <p class="hint">${t('settings_loc.module_hint')}</p>
     <div id="loc-blocks" class="hidden">
+      ${isAndroid() ? `<p class="hint">${t('settings_loc.android_folders')}</p>` : ''}
       <hr class="modal-divider">
       <label><input type="checkbox" id="loc-time-on"> <b>${typeIcon('time')} ${t('settings_loc.time_block')}</b></label>
       <div id="loc-time-fields" class="hidden" style="margin-top:8px">

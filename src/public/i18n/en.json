@@ -506,6 +506,9 @@
     "label_hum": "HUMIDITY"
   },
   "settings_loc": {
+    "android_folders": "Android copies audio from the top level of each folder. Select the folder again to update its audio.",
+    "err_locution_folder_empty": "The folder has no supported audio files at the top level.",
+    "err_locution_folder_import": "The folder audio could not be copied. Check that the files are available and try again.",
     "module": "Enable Dynamic Voice-overs module",
     "module_hint": "Spoken time and weather announcements for radio stations. Also asked in the first-run wizard.",
     "time_block": "Time Voice-over",

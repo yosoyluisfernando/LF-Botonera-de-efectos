@@ -25,6 +25,7 @@ export function initWizard() {
                     <label>
                         <input type="checkbox" id="wizard-weather">
                         <span>${t('wizard.module_question')}</span>
+                        <span class="wizard-switch" aria-hidden="true"></span>
                     </label>
                     <p class="hint" style="margin-left:24px">${t('wizard.module_desc')}</p>
                 </div>

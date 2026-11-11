@@ -94,7 +94,7 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
     document.getElementById('btn-select-file').onclick = async () => {
         try {
             if (isFolderType(typeEl.value)) {
-                const folder = await invoke('pick_named_folder');
+                const folder = await invoke('pick_named_folder', { locution: isLocution(typeEl.value) });
                 if (folder?.path) {
                     pathEl.value = folder.path;
                     if (typeEl.value === 'random_folder' && _shouldAutoname(nameEl, btnData)) {
@@ -115,7 +115,13 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
                 document.getElementById('edit-text-color').value = updated.color_text;
                 await refreshColorInputs();
             }
-        } catch (_) { /* Usuario canceló el diálogo */ }
+        } catch (error) {
+            if (isLocution(typeEl.value) && error !== 'Operación cancelada.') {
+                const key = `settings_loc.err_${error}`;
+                const message = t(key);
+                await appAlert(message === key ? String(error) : message);
+            }
+        }
     };
 
     // Pre-escucha: solo aplica a archivos de audio

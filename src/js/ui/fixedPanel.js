@@ -19,6 +19,7 @@ let _buttons = {};
 export function initFixedPanel(state, onRefresh) {
     _refresh = onRefresh;
     document.getElementById('btn-fixed-panel').addEventListener('click', toggleFixedPanel);
+    document.getElementById('fixed-panel-close').addEventListener('click', toggleFixedPanel);
     initFixedPlaybackModes();
     initFixedPanelResize();
     initPlayerView();
@@ -45,6 +46,7 @@ export function drawFixedPanel(state) {
     const list = document.getElementById('fixed-panel-items');
     const settings = state.settings;
     shell.dataset.fixedSide = settings.side;
+    document.getElementById('app-section').classList.toggle('fixed-panel-open', settings.visible);
     panel.classList.toggle('hidden', !settings.visible);
     panel.dataset.view = settings.view;
     panel.dataset.modes = settings.modes_position;

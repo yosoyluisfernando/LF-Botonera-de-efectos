@@ -13,12 +13,14 @@ const MODAL = 'console-modal';
 
 /** Abre por donde diga la preferencia. En la propia ventana, siempre modal. */
 export async function openPreferred() {
+    if (isAndroid()) return;
     const cfg = await invoke('get_config').catch(() => ({}));
     if (cfg.console_mode !== 'modal' && !_isWindow() && _openWindow()) return;
     await openModal();
 }
 
 export async function openModal() {
+    if (isAndroid()) return;
     await renderConsole();
     _syncPopout();
     document.getElementById(MODAL)?.classList.remove('hidden');

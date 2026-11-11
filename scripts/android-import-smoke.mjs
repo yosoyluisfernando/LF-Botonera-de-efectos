@@ -5,6 +5,7 @@ import { writeFileSync } from 'node:fs';
 import { verifyTouchEditor } from './android-editor-smoke.mjs';
 import { verifyAndroidMenus } from './android-menus-smoke.mjs';
 import { verifyMidiUsb } from './android-midi-smoke.mjs';
+import { verifyWelcome, verifyPanelGeometry, verifyLocutions } from './android-locutions-smoke.mjs';
 
 const adb = (...args) => execFileSync(process.argv[2], args, { encoding: 'utf8', timeout: 20000 }).trim();
 const pkg = 'io.github.yosoyluisfernando.lfbotonera.lanprueba';
@@ -112,7 +113,8 @@ async function verifyLayout(evaluate) {
             return !panel.classList.contains('hidden') && transport.width > 0
                 && transport.right <= innerWidth + 1;
         })()`), 'El reproductor del panel fijo no apareció dentro de la pantalla');
-        await evaluate(togglePanel);
+        await verifyPanelGeometry(evaluate, landscape);
+        await evaluate(landscape ? togglePanel : "document.getElementById('fixed-panel-close').click()");
         await until(() => evaluate("document.getElementById('fixed-panel').classList.contains('hidden')"),
             'No se pudo cerrar el panel fijo');
         await evaluate("document.getElementById('btn-settings').click()");
@@ -148,7 +150,7 @@ async function verifyLayout(evaluate) {
 
 const { evaluate, close } = await connect();
 try {
-    // Completa el primer inicio sin modificar el modelo ni saltarse el selector nativo.
+    await verifyWelcome(evaluate, until);
     await until(async () => {
         return evaluate(`(() => {
             const grid = document.querySelector('.grid-item');
@@ -189,6 +191,7 @@ try {
     await evaluate(`window.__TAURI__.core.invoke('play_button', { id: ${JSON.stringify(button.id)} })`);
     console.log('Importación SAF, copia verificada y disparo aceptado', button.id, button.duration);
     await verifyTouchEditor(evaluate, until, button.path);
+    await verifyLocutions({ evaluate, until, adb, pkg, tapDocument });
 } finally {
     close();
 }

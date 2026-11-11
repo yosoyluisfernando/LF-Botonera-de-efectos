@@ -10,6 +10,56 @@ body[data-platform="android"] #wizard-area {
   overflow-y: auto;
 }
 body[data-platform="android"] #wizard-area .modal-content { width: 100% !important; }
+.wizard-switch { display: none; }
+body[data-platform="android"] #wizard-start-btn { min-height: 48px; }
+body[data-platform="android"] .wizard-option {
+  padding: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+body[data-platform="android"] .wizard-option label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  gap: 12px;
+  cursor: pointer;
+}
+body[data-platform="android"] #wizard-weather {
+  position: absolute;
+  opacity: 0;
+}
+body[data-platform="android"] .wizard-switch {
+  display: block;
+  flex: 0 0 48px;
+  padding: 3px;
+  background: var(--border-color);
+  border-radius: 100px;
+  box-sizing: border-box;
+}
+body[data-platform="android"] .wizard-switch::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text-primary);
+}
+body[data-platform="android"] #wizard-weather:checked ~ .wizard-switch {
+  background: var(--accent-color);
+}
+body[data-platform="android"] #wizard-weather:checked ~ .wizard-switch::before {
+  margin-inline-start: auto;
+  background: var(--bg-primary);
+}
+body[data-platform="android"] #wizard-weather:focus-visible ~ .wizard-switch {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+}
+body[data-platform="android"] .wizard-option .hint { margin-inline: 0 !important; }
+
 body[data-platform="android"] .modal-overlay {
   padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
     max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));

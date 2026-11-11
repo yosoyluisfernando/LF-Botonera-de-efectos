@@ -30,7 +30,10 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
     // Reproductor auxiliar: "" = mismo dispositivo que los efectos.
     let player_device_cfg = cfg.player.output_device.clone();
     let player_volume = cfg.player.volume;
+    #[cfg(not(target_os = "android"))]
     let console_faders = cfg.console.clone();
+    #[cfg(target_os = "android")]
+    let console_faders = crate::model::console::ConsoleConfig::default();
     drop(cfg);
 
     let engine = state.audio.lock().unwrap();

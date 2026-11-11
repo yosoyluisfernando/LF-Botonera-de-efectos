@@ -3,7 +3,7 @@
 #[path = "files_android.rs"]
 mod android;
 #[cfg(target_os = "android")]
-pub use android::{commit_export, initialize, FileDialog};
+pub use android::{commit_export, initialize, locution_folder_plugin, pick_locution_folder, FileDialog};
 
 #[cfg(not(target_os = "android"))]
 pub fn initialize(_: tauri::AppHandle) {}

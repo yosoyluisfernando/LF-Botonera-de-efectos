@@ -143,7 +143,20 @@ body[data-platform="android"] .fixed-panel-header button {
   min-height: 44px;
 }
 
+#fixed-panel-close { display: none; }
+body[data-platform="android"] #btn-console,
+body[data-platform="android"] .checkbox-line:has(#config-show-console) { display: none; }
+
 @media (orientation: portrait) {
+  body[data-platform="android"] #fixed-panel-close {
+    display: inline-grid; place-items: center; border: 1px solid var(--border-color);
+    border-radius: 6px; color: var(--text-primary); background: var(--bg-secondary);
+    font-size: 22px;
+  }
+  body[data-platform="android"] .fixed-panel-open :is(.workspace-main, #bottom-bar, #touch-hint),
+  body[data-platform="android"] .fixed-panel-open > .tabs-container {
+    display: none;
+  }
   body[data-platform="android"] .workspace-shell {
     flex-direction: column;
     overflow: hidden;
@@ -151,7 +164,7 @@ body[data-platform="android"] .fixed-panel-header button {
   body[data-platform="android"] .fixed-panel {
     width: 100% !important;
     max-width: none;
-    flex: 0 0 54%;
+    flex: 1 1 0;
     min-height: 0;
   }
 }

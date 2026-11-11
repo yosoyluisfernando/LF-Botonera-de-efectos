@@ -7,6 +7,7 @@
 
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
+import { appAlert } from './appDialog.js';
 import { locutionsTemplate } from './settingsLocutionsTemplate.js';
 
 /** Construye el panel y conecta sus controles. Llamar una sola vez. */
@@ -161,11 +162,17 @@ function _wireCitySearch() {
 }
 
 function _wireBrowse(btnId, inputId) {
-    document.getElementById(btnId).addEventListener('click', async () => {
+    const button = document.getElementById(btnId);
+    button.addEventListener('click', async () => {
+        button.disabled = true;
         try {
-            const folder = await invoke('pick_named_folder');
+            const folder = await invoke('pick_named_folder', { locution: true });
             if (folder?.path) document.getElementById(inputId).value = folder.path;
-        } catch (_) { /* Usuario canceló. */ }
+        } catch (error) {
+            if (error !== 'Operación cancelada.') await appAlert(_errMessage(error));
+        } finally {
+            button.disabled = false;
+        }
     });
 }
 

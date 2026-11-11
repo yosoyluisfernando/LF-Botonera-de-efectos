@@ -506,6 +506,9 @@
     "label_hum": "HUMEDAD"
   },
   "settings_loc": {
+    "android_folders": "Android copia los audios del primer nivel de cada carpeta. Vuelve a seleccionar la carpeta para actualizar sus audios.",
+    "err_locution_folder_empty": "La carpeta no contiene archivos de audio compatibles en el primer nivel.",
+    "err_locution_folder_import": "No se pudieron copiar los audios de la carpeta. Comprueba que estén disponibles y vuelve a intentarlo.",
     "module": "Activar módulo de Locuciones Dinámicas",
     "module_hint": "Anuncios hablados de hora y clima para emisoras de radio. También se pregunta en el asistente de primer arranque.",
     "time_block": "Locución de Hora",

@@ -6,9 +6,9 @@ import xml.etree.ElementTree as ET
 
 def prepare(project):
     main = project / 'app/src/main'
-    source = Path(__file__).resolve().parents[1] / 'src-tauri/android/midi'
-    target = main / 'java/lf/botonera/midi'
-    shutil.copytree(source, target, dirs_exist_ok=True)
+    source = Path(__file__).resolve().parents[1] / 'src-tauri/android'
+    for package in ('midi', 'locutions'):
+        shutil.copytree(source / package, main / 'java/lf/botonera' / package, dirs_exist_ok=True)
 
     android = 'http://schemas.android.com/apk/res/android'
     ET.register_namespace('android', android)
@@ -42,10 +42,12 @@ def prepare(project):
     tree.write(manifest, encoding='utf-8', xml_declaration=True)
 
     proguard = project / 'app/proguard-rules.pro'
-    keep = '-keep class lf.botonera.midi.** { *; }'
     rules = proguard.read_text(encoding='utf-8') if proguard.exists() else ''
-    if keep not in rules:
-        proguard.write_text(rules + '\n' + keep + '\n', encoding='utf-8')
+    for package in ('midi', 'locutions'):
+        keep = f'-keep class lf.botonera.{package}.** {{ *; }}'
+        if keep not in rules:
+            rules += '\n' + keep + '\n'
+    proguard.write_text(rules, encoding='utf-8')
 
 
 if __name__ == '__main__':

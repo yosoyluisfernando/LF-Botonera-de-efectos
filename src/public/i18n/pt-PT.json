@@ -506,6 +506,9 @@
     "label_hum": "HUMIDADE"
   },
   "settings_loc": {
+    "android_folders": "O Android copia os áudios do primeiro nível de cada pasta. Selecione novamente a pasta para atualizar os áudios.",
+    "err_locution_folder_empty": "A pasta não tem ficheiros de áudio compatíveis no primeiro nível.",
+    "err_locution_folder_import": "Não foi possível copiar os áudios da pasta. Verifique se os ficheiros estão disponíveis e tente novamente.",
     "module": "Ativar módulo de Locuções Dinâmicas",
     "module_hint": "Anúncios falados de hora e clima para estações de rádio. Também é perguntado no assistente do primeiro arranque.",
     "time_block": "Locução de Hora",

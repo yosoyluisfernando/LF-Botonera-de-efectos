@@ -10,6 +10,9 @@ use tauri_plugin_dialog::{DialogExt, FilePath};
 use tauri_plugin_fs::{FsExt, OpenOptions};
 #[path = "files_import.rs"]
 mod imports;
+#[path = "files_android_locutions.rs"]
+mod locutions;
+pub use locutions::{locution_folder_plugin, pick_locution_folder};
 use imports::{import, safe_name, stamp};
 static APP: OnceLock<tauri::AppHandle> = OnceLock::new();
 static EXPORTS: OnceLock<Mutex<HashMap<PathBuf, FilePath>>> = OnceLock::new();
