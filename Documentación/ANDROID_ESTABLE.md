@@ -13,8 +13,8 @@ Preparación autorizada por el autor el 2026-11-11. La rama sigue siendo
   sus datos. Se puede instalar junto a la estable. No se migran datos solos;
   el autor puede exportar/importar sus perfiles mediante las funciones de la app.
 - El 2026-11-12 el autor aprobó también preparar escritorio estable 1.6.0.
-  Android mantiene su identidad propia. Las versiones efectivas de
-  About, notas y actualizaciones consultan la versión efectiva de Tauri,
+  Android mantiene su identidad propia. About, notas y actualizaciones
+  consultan la versión efectiva de Tauri,
   no `CARGO_PKG_VERSION`, para respetar el override Android.
 - Incrementar versionCode en cada futura entrega pública Android. Mantener
   paquete y certificado para que las actualizaciones conserven sus datos.

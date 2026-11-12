@@ -1,5 +1,12 @@
 # Continuidad de escritorio después de Android estable
 
+**Cierre vigente 2026-11-12:** el autor autorizó estable PC 1.6.0. Ya se generaron
+MSI/EXE/DEB/RPM/AppImage y APK firmado 1006002; están en Compilados/1.6.0 y en el
+release borrador ID 442932997. No publicado. Los párrafos siguientes que mantienen
+PC en Beta o prohíben empaquetar corresponden al estado anterior, ya superado.
+Siguen pendientes la prueba manual del autor, MIDI físico y cualquier envío a
+Microsoft Store. Ver CONTINUIDAD_SESION.md para hashes, CI y URL del borrador.
+
 Estado actualizado con el autor el 2026-11-11. Repositorio C:/OVERLAY/BOTONERA,
 rama codex/desarrollo. Android 1.6.0/1006001 está cerrado para su primera entrega.
 No recompilar Android ni generar instaladores de escritorio ahora. Las pruebas

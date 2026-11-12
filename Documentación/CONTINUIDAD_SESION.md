@@ -17,6 +17,31 @@ Borrador fuente actualizado: Documentación/BORRADOR_RELEASE_1.6.0.md. El HTML
 anterior estaba en D:/BOTONERA/Informacion para el usuario/Borrador-release-1.6.0
 y describía Android como alfa; el autor permite mejorar y trasladar a GitHub.
 No reutilizar NOTAS_RELEASE_GITHUB_SIGUIENTE.md: es histórico de 1.3.0.
+Código enviado: 18f27b728302e73627d7f75ee1b510c9a2e85945.
+Release DRAFT creado: ID 442932997, URL
+https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/releases/tag/untagged-acd7d16faf618af8bded
+No existe tag final v1.6.0 ni publicación. El autor ya puede leer/editar el borrador.
+CI escritorio: 43220382889; Android sin emulador: 43220387765. En curso.
+Estado persistido en D:/BOTONERA/Compilados/1.6.0/estado-compilacion.json.
+Helper temporal de seguimiento/descarga/subida:
+C:/Users/Streaming/AppData/Local/Temp/lf-release-assets.py (poll,
+download-desktop RUN, register-android RUN, upload). No imprime credenciales.
+CI terminado correctamente en las tres plataformas. Windows: 423 pruebas Rust
+aprobadas, 19 omitidas; Linux: 425 aprobadas, 19 omitidas. Biblioteca sin tests y
+empaquetado correctos en ambos. Android de producción sin emulador correcto.
+Entrega local: D:/BOTONERA/Compilados/1.6.0. Seis instaladores canónicos más
+SHA256SUMS.txt, archivos.json y metadatos de verificación. Los seis instaladores
+y hashes ya están adjuntos al borrador; sigue draft=true y published_at=null.
+MSI/EXE: LF Botonera de Efectos 1.6.0; UpgradeCode estable
+43888972-c5a4-5e8d-a996-ca913f3b6d8e. DEB 1.6.0/amd64, RPM 1.6.0/x86_64,
+AppImage ELF64/x86_64. APK 1.6.0/1006002/ARM64, no depuración, misma firma de
+producción b64c372578ac7749c70742bc018f6cbc072d900ac943b9b5a94fca8a200a212f.
+APK SHA256: 61d5c7c1c78cccc89a86aca2b4b08cf29d4fba9c1e62d938f5e9170ad67ef2d0.
+Payload APK coincide con CI salvo firma. Eliminados APK anterior 1006001 y copia
+intermedia: solo queda el APK final en Compilados. No se crearon tags finales,
+no se publicó ni se movió main ni se envió una actualización a Microsoft Store.
+La instalación/uso en los equipos del autor y MIDI físico siguen siendo manuales.
+La copia HTML/Markdown del borrador en D: ya está sincronizada con el texto nuevo.
 
 ## Panel fijo: ayuda vacía y añadir canciones — 2026-11-12
 
