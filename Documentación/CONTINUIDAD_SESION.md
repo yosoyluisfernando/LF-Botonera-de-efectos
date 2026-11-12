@@ -15,6 +15,18 @@ buscar/vincular HID. Nuevos IPC keyboard_devices/keyboard_open_bluetooth_setting
 y evento keyboard-devices-changed, sin cambiar configuración.
 La prueba con controladores y teclados físicos corresponde al autor.
 
+Verificado: 410 pruebas Rust aprobadas y 19 omitidas, cargo build --lib,
+frontend y 25 pruebas Node/interfaz. GitHub Actions 43123719954 compiló
+el commit 3a217c7951029faf4313db3e9874cd96cdc7c5d8 y pasó Android 35:
+arranque, ajustes vertical/horizontal, consulta nativa de teclados, editor,
+importación/exportación de pestaña/perfil y carpetas de locuciones.
+El APK final está en D:/BOTONERA/Compilados/Pruebas-Android-MIDI-beta.5/,
+con nombre LF-Botonera-1.6.0-beta.5-android-arm64.apk, SHA-256 y procedencia.
+Se firmó con el certificado local de pruebas ya usado en Perfiles (SHA-256
+2f17553a5b961c8e2fbd0bc868ed82d1ecf279086bd9f793bbe827381bfd3c58).
+Se comprobó contenido idéntico al APK de GitHub tras la firma, identidad Beta,
+versión interna, ARM64 y firma válida. La copia de origen queda en Origen-GitHub/.
+
 ## Canales de compilación y nombre Beta — 2026-11-11
 
 El autor pidió documentar cómo compilar Beta y Estable para próximos chats.
