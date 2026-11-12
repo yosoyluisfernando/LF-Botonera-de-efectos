@@ -12,6 +12,20 @@ separadores y formato en línea. El navegador decide el ajuste de línea por anc
 Android mueve el botón de Acerca de al final sin alterar la navegación de escritorio.
 Pruebas de regresión cubren notas a 390/768px, texto real Android y orden de ajustes.
 
+Segunda revisión entregada en:
+D:/BOTONERA/Compilados/Android-Estable-1.6.0-Revision2/LF-Botonera-1.6.0-android-arm64.apk.
+GitHub Actions 43137025520 compiló 620c72790f1c1d939cfc366545ee5d2c93d3e4a2;
+comprobación Android 35 y APK de producción correctos. El menú real también
+comprueba Acerca de al final. Local: 422 Rust aprobadas, 19 omitidas; 30 pruebas
+de interfaz aprobadas; biblioteca Rust y frontend compilan.
+APK final SHA-256:
+06b0809d525e650f5600e2c7becd2eaf206ec7e4db71d09eea83ad727972d0f5.
+Mismo certificado de producción b64c372578ac7749c70742bc018f6cbc072d900ac943b9b5a94fca8a200a212f,
+firma v2/v3 válida, identidad/versión/versionCode sin cambios y sin depuración.
+La entrega anterior se conserva. El contenido coincide con CI salvo firma.
+No se publicó ningún release. Al conservar versión, las notas ya leídas no
+se abren automáticamente otra vez; no se borró ni alteró ese estado del usuario.
+
 ## Primera estable Android: alcance aprobado — 2026-11-11
 
 El autor aprobó las propuestas de editor/etiquetas/notas y una estable Android

@@ -117,3 +117,14 @@ certificado propio de producción. SHA-256 del APK:
 Se comprobaron Android 35, Atrás nativo, metadatos Android/GitHub/1.6.0,
 contenido idéntico salvo firma y arranque del APK de producción. La compilación
 no publica automáticamente el archivo: el release público sigue pendiente.
+
+## Segunda revisión anterior a la publicación
+
+El autor confirmó la instalación y solicitó corregir los párrafos de las notas
+y dejar Acerca de al final de ajustes Android. Se conserva 1.6.0/versionCode 1006000
+y el certificado de producción. La revisión comprobada en
+[GitHub Actions 43137025520](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/actions/runs/43137025520),
+commit 620c72790f1c1d939cfc366545ee5d2c93d3e4a2, está en
+`D:/BOTONERA/Compilados/Android-Estable-1.6.0-Revision2/`.
+SHA-256: `06b0809d525e650f5600e2c7becd2eaf206ec7e4db71d09eea83ad727972d0f5`.
+La entrega anterior se conserva; todavía no se ha publicado un release.
