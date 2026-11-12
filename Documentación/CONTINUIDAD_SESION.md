@@ -22,7 +22,19 @@ nativo confirmó IPC, configuración, idioma e interfaz inicializados; la captur
 mostró el selector de precarga abierto por una pulsación de la automatización.
 La prueba release ahora fija 1080x2400/densidad 420, registra cada pulsación y
 captura antes de actuar. Se permite repetir solo producción después de comprobar
-debug. Ejecución en curso: 43146658641, código d69b6f5; aún sin entrega final.
+debug. El autor pidió después detener las pruebas en emulador por consumo de
+tokens y probar personalmente en su teléfono. Se canceló 43146658641. No seguir
+intentando automatizar la prueba funcional de esta entrega. Compilación sin
+emulador: 43147367027, código 4ba1ce3. Verificar solo firma, identidad e integridad
+y entregar un único APK; la prueba funcional queda a cargo del autor.
+Entrega final firmada: D:/BOTONERA/Compilados/LF-Botonera-1.6.0-Android-1006001.apk.
+GitHub 43147367027 completado correctamente, sin emulador. Versión 1.6.0,
+versionCode 1006001, ARM64, identidad estable, sin depuración y misma firma
+de producción. Las 937 entradas de aplicación coinciden con CI tras firmar.
+SHA-256: baa4b7028dec74d302480821e815ffe0e172a4c58dec9771c550e062568a4765.
+Comprobado: un único APK en ambos directorios Compilados; retirada también la
+copia intermedia de esta entrega. No afirmar que pasó la prueba funcional:
+el autor la hará en su teléfono. No se publicó ningún release.
 
 ## Ajustes finales Android 1.6.0 antes de publicar — 2026-11-11
 
