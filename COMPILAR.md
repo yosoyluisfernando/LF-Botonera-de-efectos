@@ -7,7 +7,9 @@ La versión, el nombre, el identificador y el código de actualización deben
 corresponder al canal. Quitar `-beta.N` de la versión no convierte la edición
 de pruebas en estable. Esta comprobación aplica también a GitHub Actions.
 
-La configuración actual es **LF Botonera de Efectos Beta**, aislada de la estable.
+Escritorio conserva **LF Botonera de Efectos Beta**, aislada de la estable.
+Android prepara **LF Botonera de Efectos 1.6.0** con identidad y firma propias;
+leer [ANDROID_ESTABLE.md](Documentación/ANDROID_ESTABLE.md).
 La ruta principal es `C:/OVERLAY/BOTONERA`, rama `codex/desarrollo`.
 Herramientas, SDK, cachés, informes y compilados se conservan en D: en este equipo.
 
@@ -107,7 +109,7 @@ carpetas, permisos y ajustes del proyecto generado. `gen/android` no sustituye
 al código fuente versionado en `src-tauri/android/`.
 
 Localizar el APK en `src-tauri/gen/android/app/build/outputs/apk/` y comprobar
-su firma con `apksigner verify --verbose`. El flujo actual usa firma de debug:
+su firma con `apksigner verify --verbose`. El flujo de comprobación usa firma de debug:
 no es el procedimiento para una publicación estable de Android.
 
 ## Dónde encontrar los resultados
@@ -125,8 +127,9 @@ sistema, canal y versión. Conservar versiones anteriores y comprobar SHA-256.
   petición de publicación y un release de destino ya preparado.
 - `build.yml`: los tags finales `vX.Y.Z` pueden publicar automáticamente un
   release estable. Excluye tags con guion, como `v1.6.0-beta.5`.
-- `android.yml`: APK de pruebas; se dispara en `codex/desarrollo` o manualmente.
-  La presencia del workflow no significa que Android tenga publicación estable.
+- `android.yml`: comprobación Android en `codex/desarrollo`; la ejecución manual
+  con `build_release=true` añade un APK de producción para firma local.
+  Compilar no publica automáticamente un release ni registra una tienda.
 
 **No crear ni empujar tags ni activar publicación como parte de una simple
 verificación, cambio de nombre o actualización de documentación.**

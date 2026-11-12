@@ -4,6 +4,8 @@
 `codex/desarrollo`, versión de trabajo `1.6.0-beta.5`. Windows, Linux y Android
 comparten este repositorio. Main conserva la versión estable publicada.
 Las referencias posteriores a la antigua rama local de OBS son históricas.
+Android prepara su primera estable 1.6.0 con override e identidad propios;
+ver `Documentación/ANDROID_ESTABLE.md`. Escritorio continúa en Beta.
 Leer primero la sección vigente de `Documentación/CONTINUIDAD_SESION.md`.
 
 Guía para cualquier IA colaboradora (independientemente del modelo o plataforma).
@@ -346,7 +348,9 @@ Los datos de los **botones** (qué archivo, qué volumen, qué loop) viven en `b
 El parser de Tauri rechaza este archivo si tiene marca BOM (Byte Order Mark). Guardarlo siempre como UTF-8 sin BOM.
 
 ### Sincronización de versión
-Al publicar una nueva versión, los tres archivos siguientes deben coincidir:
+Al publicar una nueva versión de escritorio, los tres archivos siguientes deben coincidir.
+Android tiene un override independiente aprobado (ANDROID_ESTABLE.md); su versión
+efectiva se consulta en Tauri y su versionCode se incrementa en cada entrega:
 - `package.json` → `"version"`
 - `src-tauri/Cargo.toml` → `version` en `[package]`
 - `src-tauri/tauri.conf.json` → `"version"`

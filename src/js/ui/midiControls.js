@@ -24,6 +24,8 @@ export function initMidiField(inputId, captureId, clearId) {
     };
 }
 
+export function hasActiveMidiCapture() { return activeCapture !== null; }
+
 export async function cancelMidiCapture() {
     if (!activeCapture) return;
     try {
@@ -71,7 +73,7 @@ async function captureInto(inputId, buttonId) {
         await appAlert(t(`midi.${error}`) === `midi.${error}` ? String(error) : t(`midi.${error}`));
     } finally {
         activeCapture = null;
-        button.disabled = false;
+        button.disabled = button.dataset.unavailable === 'true';
         button.textContent = t('midi.capture');
     }
 }

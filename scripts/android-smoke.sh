@@ -39,7 +39,7 @@ test "$attempt" -lt 90
 "$adb" install "$1"
 "$adb" shell input keyevent 82
 "$adb" logcat -c
-pkg=io.github.yosoyluisfernando.lfbotonera.lanprueba
+pkg=${LF_ANDROID_PACKAGE:-io.github.yosoyluisfernando.lfbotonera}
 activity=$("$adb" shell cmd package resolve-activity --brief "$pkg" | tail -1 | tr -d '\r')
 for attempt in 1 2; do
     "$adb" shell am force-stop "$pkg"

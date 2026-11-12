@@ -118,7 +118,15 @@
     "show_console": "Mostrar o Console de áudio",
     "show_fixed_panel": "Mostrar o Painel fixo",
     "tab_midi_keys": "MIDI e teclado",
-    "keyboard_shortcuts": "Atalhos do teclado"
+    "keyboard_shortcuts": "Atalhos do teclado",
+    "shortcut_labels_title": "Etiquetas dos botões",
+    "show_keyboard_shortcut_labels": "Mostrar etiquetas de atalhos do teclado",
+    "show_midi_shortcut_labels": "Mostrar etiquetas de atalhos MIDI",
+    "about_platform_android": "Android",
+    "about_channel_play_store": "Google Play",
+    "about_channel_fdroid": "F-Droid",
+    "about_updates_google_play": "Google Play",
+    "about_updates_fdroid": "F-Droid"
   },
   "audio_device": {
     "title": "Saída de áudio indisponível",
@@ -190,7 +198,7 @@
     "connecting": "conectando…",
     "retry": "Tentar novamente",
     "connection_failed": "Não foi possível conectar. Verifique se o dispositivo está ligado e disponível.",
-    "bluetooth_hint": "Ligue seu controlador Bluetooth MIDI e coloque-o no modo de conexão. Busque aqui e pressione Conectar ao lado do nome."
+    "bluetooth_hint": "Ative o Bluetooth nas configurações do celular ou tablet e coloque o controlador MIDI no modo de conexão. A permissão de dispositivos próximos permite buscar e conectar dispositivos, mas não ativa o Bluetooth. O aplicativo não o liga automaticamente; a ativação permanece sob seu controle. Depois, busque aqui e toque em Conectar ao lado do nome do dispositivo."
   },
   "prelisten": {
     "title": "Pré-escuta",
@@ -572,7 +580,12 @@
     "prelisten_btn": "Pré-escutar",
     "edit_track_btn": "Editor de faixa…",
     "ok": "Confirmar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "keyboard_shortcuts": "Atalho do teclado",
+    "midi_shortcuts": "Atalho MIDI",
+    "keyboard_unavailable": "Conecte um teclado físico para capturar um atalho. As atribuições salvas são preservadas.",
+    "midi_unavailable": "Ative o MIDI e conecte um dispositivo para capturar um atalho. As atribuições salvas são preservadas.",
+    "shortcuts_unavailable": "Não foi possível verificar a conexão dos dispositivos."
   },
   "visuals": {
     "title": "Escolher identificador visual",
@@ -931,7 +944,10 @@
     "back": "Voltar à botonera",
     "activate_track": "Reproduzir ou marcar como próxima",
     "hint": "Toque num botão para reproduzir. Mantenha pressionado para ver as ações. Deslize para percorrer a grade.",
-    "add_audio": "Adicionar áudio"
+    "add_audio": "Adicionar áudio",
+    "exit_confirm": "Deseja sair do LF Botonera de Efectos? A reprodução será interrompida.",
+    "exit_app": "Sair do aplicativo",
+    "stay_in_app": "Continuar no aplicativo"
   },
   "obs": {
     "title": "OBS Studio",

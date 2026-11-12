@@ -17,6 +17,8 @@ pub mod cmd_fixed_playback;
 pub mod cmd_grid;
 pub mod cmd_history;
 pub mod cmd_keys;
+pub mod cmd_shortcut_ui;
+pub mod cmd_android_app;
 pub mod cmd_keyboard;
 pub mod cmd_library;
 pub mod cmd_library_actions;

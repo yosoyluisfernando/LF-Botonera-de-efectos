@@ -1,12 +1,11 @@
 /**
  * Archivo: editModal.js
- * Propósito: Modal de edición de botón, calcado de la botonera del LFA:
- * un selector nativo elige el tipo (Audio / Hora / Temperatura / Humedad) y
- * el botón "..." abre archivo de audio (tipo Audio) o carpeta (locuciones).
- * Cada locución guarda SU PROPIA carpeta en el botón. Reglas 1, 4 y 6.
+ * Propósito: Edición de botón con selección nativa de audio o carpetas.
+ * Cada locución conserva su propia carpeta. Reglas 1, 4 y 6.
  */
 
 import { openObsEditor, setObsEditor } from './obsEditor.js';
+import { prepareEditShortcutSections } from './editShortcutSections.js';
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
 import { invokeShortcutSave } from './shortcutSave.js';
@@ -57,6 +56,7 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
     document.getElementById('edit-shortcut').value   = btnData?.shortcut   ?? '';
     initMidiField('edit-midi', 'edit-midi-capture', 'edit-midi-clear');
     setMidiField('edit-midi', btnData?.midi);
+    await prepareEditShortcutSections();
     initEditVisual(btnData?.visual);
     await attachPalette(
         document.getElementById('edit-bg-color'),

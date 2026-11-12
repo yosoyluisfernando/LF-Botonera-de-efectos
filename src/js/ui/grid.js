@@ -61,11 +61,11 @@ function _makeCell(index, btnData) {
         btn.dataset.obs = String(btnData.type === 'obs');
         paintAdaptive(btn, btnData.color_bg, btnData.color_text, 'button');
         const shortcutHtml = btnData.shortcut
-            ? `<span class="shortcut-badge">${_escapeHtml(btnData.shortcut)}</span>`
+            ? `<span class="shortcut-badge" data-shortcut-kind="keyboard">${_escapeHtml(btnData.shortcut)}</span>`
             : '';
         const midi = midiDisplay(btnData.midi);
         const midiHtml = midi
-            ? `<span class="shortcut-badge">${_escapeHtml(midi)}</span>`
+            ? `<span class="shortcut-badge" data-shortcut-kind="midi">${_escapeHtml(midi)}</span>`
             : '';
         const timerText = _staticTimer(btnData);
         btn.innerHTML = `

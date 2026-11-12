@@ -8,6 +8,10 @@ on:
         description: Reutilizar el APK de esta ejecución para repetir las pruebas
         required: false
         type: string
+      build_release:
+        description: Generar además el APK de producción para firma local
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -22,7 +26,7 @@ jobs:
   apk:
     if: ${{ inputs.build_run == '' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -65,7 +69,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y ffmpeg
       - run: npm ci
-      - run: node --test --test-concurrency=1 scripts/mobile-locales.test.mjs scripts/touch-controls.test.mjs scripts/android-midi-settings.test.mjs scripts/android-midi-connection.test.mjs
+      - run: node --test --test-concurrency=1 scripts/*.test.mjs
       - run: npm run tauri -- android init --ci --skip-targets-install
       - run: python scripts/prepare-android-midi.py src-tauri/gen/android
       - name: Apply the LF launcher icon
@@ -83,13 +87,13 @@ jobs:
           test "${#apks[@]}" -eq 1
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "${apks[0]}"
           mkdir -p android-artifact
-          cp "${apks[0]}" android-artifact/LF-Botonera-1.6.0-alpha-android-arm64.apk
+          cp "${apks[0]}" android-artifact/LF-Botonera-Android-ARM64-debug.apk
           cd android-artifact
-          sha256sum *.apk > LF-Botonera-1.6.0-alpha-android-arm64.apk.sha256
+          sha256sum *.apk > LF-Botonera-Android-ARM64-debug.apk.sha256
       - name: Install and launch the ARM64 APK on Android 35
         id: android-smoke
         timeout-minutes: 10
-        run: bash scripts/android-smoke.sh android-artifact/LF-Botonera-1.6.0-alpha-android-arm64.apk
+        run: bash scripts/android-smoke.sh android-artifact/LF-Botonera-Android-ARM64-debug.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -107,3 +111,18 @@ jobs:
           name: LF-Botonera-Android-ARM64-unverified
           path: android-artifact/
           retention-days: 2
+      - name: Build production APK
+        if: inputs.build_release == true
+        run: npm run tauri -- android build --ci --apk --target aarch64
+        env:
+          TAURI_ENV_PLATFORM: android
+      - name: Verify production APK
+        if: inputs.build_release == true
+        timeout-minutes: 8
+        run: bash scripts/android-release-smoke.sh
+      - uses: actions/upload-artifact@v4
+        if: inputs.build_release == true
+        with:
+          name: LF-Botonera-Android-ARM64-release
+          path: android-release-artifact/
+          if-no-files-found: error

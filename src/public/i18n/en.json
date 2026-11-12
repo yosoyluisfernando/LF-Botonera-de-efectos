@@ -118,7 +118,15 @@
     "show_console": "Show the Audio console",
     "show_fixed_panel": "Show the Fixed panel",
     "tab_midi_keys": "MIDI and keyboard",
-    "keyboard_shortcuts": "Keyboard shortcuts"
+    "keyboard_shortcuts": "Keyboard shortcuts",
+    "shortcut_labels_title": "Button labels",
+    "show_keyboard_shortcut_labels": "Show keyboard shortcut labels",
+    "show_midi_shortcut_labels": "Show MIDI shortcut labels",
+    "about_platform_android": "Android",
+    "about_channel_play_store": "Google Play",
+    "about_channel_fdroid": "F-Droid",
+    "about_updates_google_play": "Google Play",
+    "about_updates_fdroid": "F-Droid"
   },
   "audio_device": {
     "title": "Audio output unavailable",
@@ -190,7 +198,7 @@
     "connecting": "connecting…",
     "retry": "Retry",
     "connection_failed": "Could not connect. Check that the device is turned on and available.",
-    "bluetooth_hint": "Turn on your Bluetooth MIDI controller and put it in connection mode. Search here, then press Connect next to its name."
+    "bluetooth_hint": "Enable Bluetooth in your phone or tablet settings and put the MIDI controller in pairing mode. The Nearby devices permission allows device discovery and connection, but does not turn Bluetooth on. The app does not enable it automatically; activation remains under your control. Then search here and tap Connect next to the device name."
   },
   "prelisten": {
     "title": "Pre-listen",
@@ -572,7 +580,12 @@
     "prelisten_btn": "Pre-listen",
     "edit_track_btn": "Track editor…",
     "ok": "OK",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "keyboard_shortcuts": "Keyboard shortcut",
+    "midi_shortcuts": "MIDI shortcut",
+    "keyboard_unavailable": "Connect a physical keyboard to capture a shortcut. Saved assignments are preserved.",
+    "midi_unavailable": "Enable MIDI and connect a device to capture a shortcut. Saved assignments are preserved.",
+    "shortcuts_unavailable": "Could not check device connections."
   },
   "visuals": {
     "title": "Choose visual identifier",
@@ -931,7 +944,10 @@
     "back": "Back to soundboard",
     "activate_track": "Play or mark as next",
     "hint": "Tap a button to play. Touch and hold for actions. Swipe to scroll the grid.",
-    "add_audio": "Add audio"
+    "add_audio": "Add audio",
+    "exit_confirm": "Do you want to exit LF Botonera de Efectos? Playback will stop.",
+    "exit_app": "Exit the app",
+    "stay_in_app": "Stay in the app"
   },
   "obs": {
     "title": "OBS Studio",

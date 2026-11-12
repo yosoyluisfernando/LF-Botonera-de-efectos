@@ -1,4 +1,5 @@
 import { initSettingsAppearance } from './settingsAppearance.js';
+import { initShortcutLabels, loadShortcutLabels, saveShortcutLabels } from './settingsShortcutLabels.js';
 import { initAndroidSettingsNavigation, resetAndroidSettingsNavigation } from './settingsAndroid.js';
 import { initSettingsRemote, loadSettingsRemote, saveSettingsRemote } from './settingsRemote.js';
 import { isAndroid } from '../bridge/platform.js';
@@ -56,6 +57,7 @@ export function initSettingsModal(onSaved, config) {
     initLocutionsPanel();
     initPreloadPanel();
     initSettingsMidi();
+    initShortcutLabels(config);
     initAndroidSettingsNavigation();
     initKeyInputs();
     _wireDonateButton();
@@ -89,6 +91,7 @@ async function _openSettings() {
     }
 
     loadKeyboardSettings(profile?.audio);
+    loadShortcutLabels(config);
 
     document.getElementById('config-theme').value    = config.theme    || 'dark';
     document.getElementById('config-language').value = config.language || 'es';
@@ -118,6 +121,7 @@ async function _saveSettings() {
         // Salida de pre-escucha: Rust aplica el fallback (vacía o = principal → principal)
         if (!isAndroid()) await invoke('set_pre_device', { deviceName: document.getElementById('config-out-pre').value });
         await saveKeyboardSettings();
+        await saveShortcutLabels();
         await saveSettingsMidi();
         if (!isAndroid()) await saveSettingsObs();
         await saveLocutions();

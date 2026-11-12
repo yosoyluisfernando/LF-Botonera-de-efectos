@@ -30,15 +30,12 @@ directamente desde Windows:
 
 ---
 
+Las notas de Android se muestran desde [CHANGELOG.android.md](CHANGELOG.android.md).
+El historial anterior conserva las notas compartidas de los prelanzamientos.
+
 ## [Sin publicar]
 
 ### Añadido
-- **MIDI en Android:** ajustes MIDI y búsqueda Bluetooth visibles al inicio,
-  atajos del teclado plegados al final y conexión directa por dispositivo con
-  acciones Conectar, Desconectar y Reintentar e indicación del estado.
-  Mejora la consulta y conservación de nombres de controladores Bluetooth MIDI.
-- **Teclados físicos en Android:** detección de teclados de escritura USB/Bluetooth
-  por nombre y acceso a la vinculación Bluetooth del sistema desde los atajos.
 - **Apariencia en Windows y Linux:** selector Predeterminado/Moderno integrado en Principal,
   con aplicación y guardado inmediatos y compatibilidad con claro, oscuro y sistema.
   Principal agrupa apariencia, botones de barra y salidas de audio.

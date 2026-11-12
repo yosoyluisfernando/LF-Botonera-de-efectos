@@ -1,23 +1,14 @@
-/// Módulo: cmd_updates.rs
-/// Propósito: Revisión segura de nuevas versiones publicadas en GitHub Releases.
-/// La UI no consulta GitHub directamente: Rust controla cadencia y comparación.
+//! Revisión de GitHub por plataforma; las tiendas administran sus propias versiones.
 use crate::core::AppState;
-use crate::domain::distribution;
+use crate::domain::{distribution, update_release};
 use crate::engine::persist::config_io as config;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::State;
 
 const CHECK_INTERVAL_SECS: i64 = 12 * 60 * 60;
-const LATEST_RELEASE_URL: &str =
-    "https://api.github.com/repos/yosoyluisfernando/LF-Botonera-de-efectos/releases/latest";
-
-#[derive(Deserialize)]
-struct GithubRelease {
-    tag_name: String,
-    html_url: String,
-    body: Option<String>,
-}
+const RELEASES_URL: &str =
+    "https://api.github.com/repos/yosoyluisfernando/LF-Botonera-de-efectos/releases?per_page=100";
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -31,40 +22,41 @@ pub struct UpdateCheck {
     pub notes: String,
 }
 
-/// Revisa GitHub Releases. El arranque consulta siempre; los ciclos en segundo
-/// plano respetan una ventana de 12 horas para no golpear GitHub de mas.
 #[tauri::command]
-pub fn check_for_updates(
-    state: State<AppState>,
+pub async fn check_for_updates(
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
     force: bool,
     startup: Option<bool>,
 ) -> Result<UpdateCheck, String> {
-    if updates_managed_externally() {
-        return Ok(store_managed());
+    let current = app.package_info().version.to_string();
+    let channel = super::cmd_meta::distribution_channel(&app).await?;
+    if channel.managed_externally() {
+        return Ok(empty_check(current, false, true));
     }
-
     let now = unix_now();
-    let startup = startup.unwrap_or(false);
-    if !force && !startup {
+    if !force && !startup.unwrap_or(false) {
         let cfg = state.config.lock().map_err(|e| e.to_string())?;
         if now - cfg.last_update_check < CHECK_INTERVAL_SECS {
-            return Ok(no_check());
+            return Ok(empty_check(current, false, false));
         }
     }
-
-    let release = fetch_latest_release()?;
+    let release = tauri::async_runtime::spawn_blocking(fetch_latest_release)
+        .await
+        .map_err(|error| error.to_string())??;
     {
         let mut cfg = state.config.lock().map_err(|e| e.to_string())?;
         cfg.last_update_check = now;
         config::save_config(&cfg)?;
     }
-
-    let current = env!("CARGO_PKG_VERSION").to_string();
-    let latest = normalize_version(&release.tag_name);
+    let Some(release) = release else {
+        return Ok(empty_check(current, true, false));
+    };
+    let latest = update_release::normalize_version(&release.tag_name).to_string();
     Ok(UpdateCheck {
         checked: true,
         store_managed: false,
-        update_available: is_newer(&latest, &current),
+        update_available: update_release::is_newer(&latest, &current),
         current_version: current,
         latest_version: latest,
         release_url: release.html_url,
@@ -72,43 +64,31 @@ pub fn check_for_updates(
     })
 }
 
-fn fetch_latest_release() -> Result<GithubRelease, String> {
-    ureq::get(LATEST_RELEASE_URL)
+fn fetch_latest_release() -> Result<Option<update_release::GithubRelease>, String> {
+    let releases = ureq::get(RELEASES_URL)
         .set("User-Agent", "LF-Botonera")
         .set("Accept", "application/vnd.github+json")
         .timeout(Duration::from_secs(10))
         .call()
-        .map_err(|e| e.to_string())?
+        .map_err(|error| error.to_string())?
         .into_json()
-        .map_err(|e| e.to_string())
+        .map_err(|error| error.to_string())?;
+    Ok(update_release::latest_for(
+        releases,
+        distribution::current_platform(),
+    ))
 }
 
-fn no_check() -> UpdateCheck {
+fn empty_check(current: String, checked: bool, store_managed: bool) -> UpdateCheck {
     UpdateCheck {
-        checked: false,
-        store_managed: false,
+        checked,
+        store_managed,
         update_available: false,
-        current_version: env!("CARGO_PKG_VERSION").to_string(),
+        current_version: current,
         latest_version: String::new(),
         release_url: String::new(),
         notes: String::new(),
     }
-}
-
-fn store_managed() -> UpdateCheck {
-    UpdateCheck {
-        checked: false,
-        store_managed: true,
-        update_available: false,
-        current_version: env!("CARGO_PKG_VERSION").to_string(),
-        latest_version: String::new(),
-        release_url: String::new(),
-        notes: String::new(),
-    }
-}
-
-fn updates_managed_externally() -> bool {
-    distribution::current_channel().managed_externally()
 }
 
 fn unix_now() -> i64 {
@@ -116,19 +96,4 @@ fn unix_now() -> i64 {
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs() as i64
-}
-
-fn normalize_version(value: &str) -> String {
-    value.trim().trim_start_matches('v').to_string()
-}
-
-fn is_newer(latest: &str, current: &str) -> bool {
-    parse_version(latest) > parse_version(current)
-}
-
-fn parse_version(value: &str) -> Vec<u32> {
-    normalize_version(value)
-        .split('.')
-        .map(|p| p.parse::<u32>().unwrap_or(0))
-        .collect()
 }

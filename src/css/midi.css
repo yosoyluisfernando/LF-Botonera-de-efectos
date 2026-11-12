@@ -81,3 +81,9 @@
   min-height: 48px;
   white-space: normal;
 }
+
+.shortcut-label-settings { margin-block: 16px; }
+.edit-shortcut-disclosure { margin-block: 8px; }
+.edit-shortcut-disclosure > summary { min-height: 48px; cursor: pointer; align-content: center; }
+body[data-keyboard-shortcut-labels="false"] .grid-item [data-shortcut-kind="keyboard"],
+body[data-midi-shortcut-labels="false"] .grid-item [data-shortcut-kind="midi"] { display: none; }

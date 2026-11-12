@@ -5,12 +5,13 @@ import { writeFileSync } from 'node:fs';
 import { verifyTouchEditor } from './android-editor-smoke.mjs';
 import { verifyAndroidMenus } from './android-menus-smoke.mjs';
 import { verifyMidiUsb } from './android-midi-smoke.mjs';
+import { verifyAndroidBack } from './android-back-smoke.mjs';
 import { dismissStartup, verifyAndroidToolbar } from './android-toolbar-smoke.mjs';
 import { verifyExportRoundtrip } from './android-roundtrip-smoke.mjs';
 import { verifyWelcome, verifyPanelGeometry, verifyLocutions } from './android-locutions-smoke.mjs';
 
 const adb = (...args) => execFileSync(process.argv[2], args, { encoding: 'utf8', timeout: 20000 }).trim();
-const pkg = 'io.github.yosoyluisfernando.lfbotonera.lanprueba';
+const pkg = process.env.LF_ANDROID_PACKAGE || 'io.github.yosoyluisfernando.lfbotonera';
 const port = 9222;
 
 async function until(fn, message) {
@@ -193,6 +194,7 @@ try {
     await verifyTouchEditor(evaluate, until, button.path);
     await verifyExportRoundtrip({ evaluate, until, adb, pkg, tapDocument }, button);
     await verifyLocutions({ evaluate, until, adb, pkg, tapDocument });
+    await verifyAndroidBack({ evaluate, until, adb, pkg });
 } finally {
     close();
 }

@@ -89,7 +89,7 @@ jobs:
           assert not os.environ['ARTIFACT_DIGEST'] or digest == os.environ['ARTIFACT_DIGEST']
           target = Path('android-artifact')
           target.mkdir()
-          name = 'LF-Botonera-1.6.0-alpha-android-arm64.apk'
+          name = 'LF-Botonera-Android-ARM64-debug.apk'
           with zipfile.ZipFile(archive) as package:
               for filename in (name, name + '.sha256'):
                   with package.open(filename) as source, (target / filename).open('wb') as destination:
@@ -100,7 +100,7 @@ jobs:
       - name: Test the existing APK on Android 35
         id: smoke
         timeout-minutes: 15
-        run: bash scripts/android-smoke.sh android-artifact/LF-Botonera-1.6.0-alpha-android-arm64.apk
+        run: bash scripts/android-smoke.sh android-artifact/LF-Botonera-Android-ARM64-debug.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:

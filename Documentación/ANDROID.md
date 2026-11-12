@@ -95,7 +95,10 @@ una conexión fallida. No hace falta abrir los ajustes Bluetooth del teléfono.
 USB usa el servicio MIDI de Android y lista controladores compatibles con
 el transporte MIDI 1.0, sin pedir acceso general al bus USB. El hardware debe
 ser reconocido por Android en modo anfitrión USB. Bluetooth busca el servicio
-BLE MIDI solo desde su botón. Android 12 y posteriores piden Dispositivos
+BLE MIDI solo desde su botón. El permiso de dispositivos cercanos permite
+buscar y conectar dispositivos, pero no activa Bluetooth. El usuario debe
+activarlo en los ajustes de Android; la app no lo enciende automáticamente
+y conserva esa decisión bajo el control del usuario. Android 12 y posteriores piden Dispositivos
 cercanos en ese momento. En Android 11 y anteriores se pide ubicación para
 la búsqueda BLE, como exige el sistema. Ver USB no solicita estos permisos.
 
@@ -133,3 +136,9 @@ Para compilar localmente, tras `npm run tauri -- android init` ejecuta
 `npm run tauri -- android build`. El script copia el adaptador versionado y
 aplica los permisos y reglas de empaquetado al proyecto generado. GitHub
 Actions ejecuta el mismo paso.
+
+## Prueba física confirmada por el autor
+
+El 2026-11-11 el autor confirmó la conexión de Launchpad por Bluetooth MIDI
+desde la aplicación Android beta.5. El teclado Bluetooth de escritura sigue
+sin prueba física; no hay uno disponible para esta comprobación.

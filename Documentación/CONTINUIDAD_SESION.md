@@ -1,5 +1,47 @@
 # Continuidad de sesión — estado actual
 
+## Primera estable Android: alcance aprobado — 2026-11-11
+
+El autor aprobó las propuestas de editor/etiquetas/notas y una estable Android
+independiente de la Beta. Se prepara Android 1.6.0, paquete
+io.github.yosoyluisfernando.lfbotonera y versionCode 1006000, con clave propia
+de producción fuera de Git. Escritorio conserva versión/identidad Beta y main
+la estable 1.5.0. Leer ANDROID_ESTABLE.md y PENDIENTES_ESCRITORIO.md.
+La clave de producción y su respaldo están fuera del repositorio en D:/BOTONERA;
+la documentación de firma explica recuperación y respaldo externo. Nunca subirlos.
+
+About identifica Android y distingue GitHub actual de futuras instalaciones
+Google Play/F-Droid mediante el instalador del sistema. Las tiendas administran
+sus actualizaciones; GitHub filtra releases con archivos del sistema actual.
+CHANGELOG.android.md contiene la presentación inicial y límites; escritorio
+conserva CHANGELOG.md. La versión efectiva Android se obtiene de Tauri.
+
+Atrás nativo usa el dispatcher Android: cierra superficies con sus manejadores
+reales, ajustes: detalle → secciones → principal, panel fijo → principal y confirma
+salida solo en principal; salir detiene reproducción y guarda historial.
+El editor Android pliega teclado/MIDI sin dispositivo y habilita cada captura
+según disponibilidad calculada por Rust. Dos preferencias globales permiten
+ocultar sus etiquetas de rejilla independientemente; ambas visibles por defecto.
+
+Esta preparación no publica un release ni registra Google Play/F-Droid.
+Los pendientes de PC quedan en PENDIENTES_ESCRITORIO.md para el siguiente trabajo.
+
+## Prueba física Android y preparación pública — 2026-11-11
+
+El autor confirmó conexión satisfactoria de Launchpad por Bluetooth MIDI
+desde la propia aplicación Android beta.5. No se ha probado un teclado
+Bluetooth de escritura: el autor no dispone de uno. La ayuda de búsqueda
+explica que Dispositivos cercanos no activa Bluetooth: el usuario debe
+encenderlo en Android y la app no lo activa automáticamente.
+El autor pidió preparar la primera estable Android con una nota explícita
+sobre apartados aún en desarrollo y posibles desajustes visuales en móviles
+y tablets; changelog separado por plataforma, sin historial de correcciones
+previo a su primera publicación Android. También pidió plegar los atajos
+del editor Android según disponibilidad y poder ocultar las etiquetas de
+teclado/MIDI en la rejilla, visibles por defecto en todas las plataformas.
+La identidad y firma de producción Android deben concretarse antes de generar
+un paquete estable; no se ha publicado ni cambiado el canal por esta nota.
+
 ## MIDI Android beta.5 — 2026-11-11
 
 El autor aprobó priorizar MIDI en Android y plegar todos los atajos del teclado

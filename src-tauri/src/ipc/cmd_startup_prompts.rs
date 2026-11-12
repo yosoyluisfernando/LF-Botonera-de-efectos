@@ -3,7 +3,6 @@ use crate::engine::persist::config_io as config;
 use serde::Serialize;
 use tauri::State;
 
-const CHANGELOG: &str = include_str!("../../../CHANGELOG.md");
 const FIRST_DONATION_PROMPT: u32 = 5;
 const DONATION_INTERVAL: u32 = 100;
 
@@ -18,11 +17,14 @@ pub struct StartupPrompts {
 }
 
 #[tauri::command]
-pub fn prepare_startup_prompts(state: State<AppState>) -> Result<StartupPrompts, String> {
-    let current = env!("CARGO_PKG_VERSION").to_string();
+pub fn prepare_startup_prompts(
+    app: tauri::AppHandle,
+    state: State<AppState>,
+) -> Result<StartupPrompts, String> {
+    let current = app.package_info().version.to_string();
     let mut cfg = state.config.lock().map_err(|e| e.to_string())?;
     cfg.startup.launch_count = cfg.startup.launch_count.saturating_add(1);
-    let notes = release_notes_for(&current);
+    let notes = crate::domain::release_notes::for_platform(&current, cfg!(target_os = "android"));
     let show = cfg.startup.last_seen_version != current && !notes.is_empty();
     let donation_due = donation_due(
         cfg.startup.launch_count,
@@ -40,9 +42,12 @@ pub fn prepare_startup_prompts(state: State<AppState>) -> Result<StartupPrompts,
 }
 
 #[tauri::command]
-pub fn mark_release_notes_seen(state: State<AppState>) -> Result<(), String> {
+pub fn mark_release_notes_seen(
+    app: tauri::AppHandle,
+    state: State<AppState>,
+) -> Result<(), String> {
     let mut cfg = state.config.lock().map_err(|e| e.to_string())?;
-    cfg.startup.last_seen_version = env!("CARGO_PKG_VERSION").to_string();
+    cfg.startup.last_seen_version = app.package_info().version.to_string();
     config::save_config(&cfg)
 }
 
@@ -59,33 +64,6 @@ fn donation_due(launch_count: u32, last_prompt: u32) -> bool {
         && last_prompt != launch_count
 }
 
-fn release_notes_for(version: &str) -> String {
-    let unreleased = section("[Sin publicar]");
-    if has_release_content(&unreleased) {
-        return unreleased;
-    }
-    section(&format!("[{version}]"))
-}
-
-fn has_release_content(notes: &str) -> bool {
-    notes.lines().any(|line| {
-        let text = line.trim();
-        !text.is_empty() && text != "---"
-    })
-}
-
-fn section(marker: &str) -> String {
-    let header = format!("## {marker}");
-    let Some(start) = CHANGELOG.find(&header) else {
-        return String::new();
-    };
-    let body = &CHANGELOG[start + header.len()..];
-    let end = body.find("\n## ").unwrap_or(body.len());
-    body[..end]
-        .trim_matches(|c| c == '\n' || c == '\r' || c == ' ')
-        .to_string()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -98,10 +76,5 @@ mod tests {
         assert!(!donation_due(35, 5));
         assert!(donation_due(105, 5));
         assert!(donation_due(205, 105));
-    }
-
-    #[test]
-    fn extracts_current_release_notes() {
-        assert!(release_notes_for(env!("CARGO_PKG_VERSION")).contains("###"));
     }
 }

@@ -24,6 +24,7 @@ pub fn run() {
         .plugin(tauri_plugin_drag::init());
     #[cfg(target_os = "android")]
     let builder = builder
+        .plugin(core::android_app::plugin())
         .plugin(tauri_plugin_fs::init())
         .plugin(engine::files::locution_folder_plugin())
         .plugin(engine::input::midi_android::plugin());

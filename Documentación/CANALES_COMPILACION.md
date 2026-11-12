@@ -100,25 +100,29 @@ los dos archivos npm; eso no cambia los archivos Rust/Tauri ni el canal.
 8. Publicar solo por petición del autor. `build.yml` puede publicar al empujar un
    tag final, por lo que el tag es un paso de publicación, no de comprobación.
 
-## Android: canal de pruebas actual y futura estable
+## Android: primera estable 1.6.0 y Beta anterior
 
-`tauri.android.conf.json` se combina con la configuración principal según la
-[configuración de Tauri](https://v2.tauri.app/reference/config/#platform-specific-configuration). Actualmente
-fija el nombre **LF Botonera de Efectos Beta** y el paquete
-`io.github.yosoyluisfernando.lfbotonera.lanprueba`, incluso si se prepara una
-configuración estable para escritorio. Mantenerlo para las pruebas existentes.
+El autor aprobó una edición estable Android independiente el 2026-11-11.
+El override `tauri.android.conf.json` fija LF Botonera de Efectos, versión 1.6.0,
+paquete `io.github.yosoyluisfernando.lfbotonera` y versionCode 1006000.
+Los espacios entre nombre y versión son solo tipográficos; los valores de
+configuración se verifican directamente en el paquete compilado.
 
-El flujo actual genera APK ARM64 con firma debug y pruebas en Android 35.
-Antes de la primera estable Android hay que definir y fijar su application ID
-definitivo, nombre, firma de producción y versionCode creciente. No copiar
-literalmente el ID de escritorio con guiones y mayúsculas al paquete Android.
-No anunciar que un APK debug se actualizará como una estable: la continuidad
-depende del mismo paquete, certificado de firma y una versión admitida.
+Escritorio mantiene su versión e identidad Beta. Esta separación de versiones
+por plataforma es deliberada: Android usa la versión efectiva de la configuración
+Tauri, mientras Cargo/package.json conservan el desarrollo de escritorio.
+La Beta anterior Android (`...lfbotonera.lanprueba`) mantiene sus propios datos
+y certificado. Se puede instalar junto a la estable; no hay migración automática.
 
-Para publicar una estable Android se debe revisar y cambiar expresamente el
-override Android y los scripts que usan el paquete, preparar la firma de
-producción y verificar la actualización. No se decide esa migración por editar
-el nombre visible ni por quitar el sufijo beta de la versión.
+El workflow verifica una compilación de depuración en Android 35 y, al activar
+`build_release`, genera y comprueba un APK de producción sin depuración.
+La entrega se firma localmente con la clave privada del autor, con respaldo
+fuera del repositorio. No publicar ni enviar esa clave a GitHub.
+
+El único canal disponible actualmente es GitHub Releases. La identificación
+futura de Google Play/F-Droid no supone disponibilidad en esas tiendas.
+Ver [ANDROID_ESTABLE.md](ANDROID_ESTABLE.md) para firma, respaldo, canales,
+versionCode, comprobaciones y pasos que siguen separados de la publicación.
 
 ## Comprobaciones obligatorias del paquete resultante
 

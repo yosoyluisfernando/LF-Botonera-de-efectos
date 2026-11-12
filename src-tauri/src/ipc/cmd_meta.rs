@@ -9,10 +9,10 @@ use tauri::State;
 
 pub use clock::start_clock_thread;
 
-/// Devuelve la version del ejecutable compilada desde Cargo.toml.
+/// Versión efectiva del paquete; respeta el override de cada plataforma.
 #[tauri::command]
-pub fn get_app_version() -> String {
-    env!("CARGO_PKG_VERSION").to_string()
+pub fn get_app_version(app: tauri::AppHandle) -> String {
+    app.package_info().version.to_string()
 }
 
 #[derive(Serialize)]
@@ -24,15 +24,33 @@ pub struct DistributionInfo {
     update_manager: &'static str,
 }
 
-/// Metadatos compilados que la pantalla Acerca de puede representar.
+/// Metadatos del paquete y del canal responsable de sus actualizaciones.
 #[tauri::command]
-pub fn get_distribution_info() -> DistributionInfo {
-    let channel = distribution::current_channel();
-    DistributionInfo {
-        version: env!("CARGO_PKG_VERSION").to_string(),
+pub async fn get_distribution_info(app: tauri::AppHandle) -> Result<DistributionInfo, String> {
+    let channel = distribution_channel(&app).await?;
+    Ok(DistributionInfo {
+        version: app.package_info().version.to_string(),
         channel: channel.code(),
         platform: distribution::current_platform(),
         update_manager: channel.update_manager(),
+    })
+}
+
+pub async fn distribution_channel(
+    app: &tauri::AppHandle,
+) -> Result<distribution::DistributionChannel, String> {
+    #[cfg(target_os = "android")]
+    {
+        let installer = crate::core::android_app::installer_source(app).await?;
+        Ok(distribution::android_channel(
+            &installer,
+            option_env!("LF_DISTRIBUTION_CHANNEL"),
+        ))
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        let _ = app;
+        Ok(distribution::current_channel())
     }
 }
 

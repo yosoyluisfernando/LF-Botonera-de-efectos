@@ -14,3 +14,6 @@ pub mod player;
 pub mod search_text;
 pub mod track_response;
 pub mod obs;
+
+pub mod update_release;
+pub mod release_notes;

@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 def prepare(project):
     main = project / 'app/src/main'
     source = Path(__file__).resolve().parents[1] / 'src-tauri/android'
-    for package in ('midi', 'locutions'):
+    for package in ('midi', 'locutions', 'app'):
         shutil.copytree(source / package, main / 'java/lf/botonera' / package, dirs_exist_ok=True)
 
     android = 'http://schemas.android.com/apk/res/android'
@@ -38,12 +38,13 @@ def prepare(project):
             root.insert(0, ET.Element('uses-feature', {
                 name_attr: name, f'{{{android}}}required': 'false',
             }))
+    root.find('application').set(f'{{{android}}}enableOnBackInvokedCallback', 'true')
     ET.indent(tree)
     tree.write(manifest, encoding='utf-8', xml_declaration=True)
 
     proguard = project / 'app/proguard-rules.pro'
     rules = proguard.read_text(encoding='utf-8') if proguard.exists() else ''
-    for package in ('midi', 'locutions'):
+    for package in ('midi', 'locutions', 'app'):
         keep = f'-keep class lf.botonera.{package}.** {{ *; }}'
         if keep not in rules:
             rules += '\n' + keep + '\n'

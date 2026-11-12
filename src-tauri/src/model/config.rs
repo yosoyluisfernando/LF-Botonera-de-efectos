@@ -41,6 +41,10 @@ pub struct AppConfig {
     pub language: String,
     #[serde(default = "default_button_text_size")]
     pub button_text_size: String,
+    #[serde(default = "default_true")]
+    pub show_keyboard_shortcut_labels: bool,
+    #[serde(default = "default_true")]
+    pub show_midi_shortcut_labels: bool,
     #[serde(default = "default_editor_mode")]
     pub editor_mode: String,
     /// Cómo abre la consola de audio: "window" (flotante) | "modal".
@@ -152,6 +156,8 @@ impl Default for AppConfig {
             desktop_style: Default::default(),
             language: default_lang(),
             button_text_size: default_button_text_size(),
+            show_keyboard_shortcut_labels: true,
+            show_midi_shortcut_labels: true,
             editor_mode: default_editor_mode(),
             console_mode: default_console_mode(),
             show_console_button: true,
@@ -178,3 +184,7 @@ impl Default for AppConfig {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "config_shortcut_tests.rs"]
+mod shortcut_tests;
