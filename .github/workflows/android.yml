@@ -12,6 +12,10 @@ on:
         description: Generar además el APK de producción para firma local
         type: boolean
         default: false
+      release_only:
+        description: Omitir la suite debug ya comprobada y verificar producción
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -65,6 +69,7 @@ jobs:
       # FFmpeg se usa solo para generar un MP3 sintético en el emulador.
       # No se incluye en la aplicación ni cambia sus dependencias.
       - name: Prepare the synthetic MP3 test encoder
+        if: inputs.release_only != true
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y ffmpeg
@@ -78,9 +83,11 @@ jobs:
           cp -R src-tauri/icons/android/. "$res/"
           cp "$res/mipmap-anydpi-v26/ic_launcher.xml" "$res/mipmap-anydpi-v26/ic_launcher_round.xml"
       - run: npm run tauri -- android build --ci --debug --apk --target aarch64
+        if: inputs.release_only != true
         env:
           TAURI_ENV_PLATFORM: android
       - name: Verify and stage APK
+        if: inputs.release_only != true
         run: |
           test ! -f src/dist/library.html
           mapfile -t apks < <(find src-tauri/gen/android/app/build/outputs/apk -type f -name '*.apk')
@@ -91,6 +98,7 @@ jobs:
           cd android-artifact
           sha256sum *.apk > LF-Botonera-Android-ARM64-debug.apk.sha256
       - name: Install and launch the ARM64 APK on Android 35
+        if: inputs.release_only != true
         id: android-smoke
         timeout-minutes: 10
         run: bash scripts/android-smoke.sh android-artifact/LF-Botonera-Android-ARM64-debug.apk
@@ -101,6 +109,7 @@ jobs:
           path: android-smoke/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
+        if: inputs.release_only != true
         with:
           name: LF-Botonera-Android-ARM64-debug
           path: android-artifact/

@@ -5,6 +5,13 @@ tools="$sdk/build-tools/36.0.0"
 adb="$sdk/platform-tools/adb"
 export ANDROID_USER_HOME="$RUNNER_TEMP/lf-android-user"
 export ANDROID_AVD_HOME="$ANDROID_USER_HOME/avd"
+if [ ! -f "$ANDROID_AVD_HOME/lf-smoke.ini" ]; then
+  mkdir -p "$ANDROID_AVD_HOME"
+  test -c /dev/kvm
+  sudo chmod a+rw /dev/kvm
+  sdkmanager --sdk_root="$sdk" 'platform-tools' 'emulator' 'system-images;android-35;google_apis;x86_64'
+  printf 'no\n' | avdmanager create avd -n lf-smoke -k 'system-images;android-35;google_apis;x86_64' -p "$ANDROID_AVD_HOME/lf-smoke.avd"
+fi
 mapfile -t apks < <(find src-tauri/gen/android/app/build/outputs/apk -type f -iname '*release*.apk')
 test "${#apks[@]}" -eq 1
 mkdir -p android-release-artifact
@@ -41,10 +48,16 @@ for ((attempt=0; attempt<90; attempt++)); do
   sleep 2
 done
 test "$attempt" -lt 90
+# La comprobación release usa un teléfono normal, independiente del AVD mínimo.
+"$adb" shell wm size 1080x2400
+"$adb" shell wm density 420
+"$adb" shell settings put system accelerometer_rotation 0
+"$adb" shell settings put system user_rotation 0
+"$adb" shell input keyevent 82
 # Solo se retira la aplicación del emulador de CI, nunca de un teléfono real.
 test "$("$adb" shell getprop ro.kernel.qemu | tr -d '\r')" = 1
 pkg=io.github.yosoyluisfernando.lfbotonera
-"$adb" uninstall "$pkg"
+"$adb" uninstall "$pkg" || true
 "$adb" install "android-release-artifact/$name"
 activity=$("$adb" shell cmd package resolve-activity --brief "$pkg" | tail -1 | tr -d '\r')
 "$adb" logcat -c

@@ -31,8 +31,12 @@ def bounds(node):
 
 
 def click(node):
+    name = 'action-' + str(time.time_ns())
+    snapshot(name)
+    screenshot(name)
     left, top, right, bottom = bounds(node)
     assert right > left and bottom > top, 'Action has no visible bounds'
+    print('Tap:', text(node), (left, top, right, bottom), flush=True)
     shell('input', 'tap', str((left + right) // 2), str((top + bottom) // 2))
     time.sleep(1)
 
@@ -52,7 +56,11 @@ def wait_for(predicate, message, attempts=20):
 
 
 def label(nodes, value):
-    return next((n for n in nodes if text(n) == value), None)
+    matches = [n for n in nodes if text(n) == value and n.get('enabled') == 'true'
+               and len(bounds(n)) == 4 and bounds(n)[2] > bounds(n)[0]
+               and bounds(n)[3] > bounds(n)[1]]
+    return next((n for n in matches if n.get('clickable') == 'true'),
+                matches[0] if matches else None)
 
 
 def screenshot(name):
