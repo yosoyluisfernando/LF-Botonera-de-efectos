@@ -6,6 +6,7 @@
 import { t } from '../util/i18n.js';
 
 export async function startupStage(key) {
+    performance.mark(`lf-startup-${key}`);
     const target = document.getElementById('startup-stage');
     const translationKey = `startup.${key}`;
     const translated = t(translationKey);

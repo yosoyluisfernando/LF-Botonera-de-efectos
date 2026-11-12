@@ -47,6 +47,7 @@ def wait_for(predicate, message, attempts=20):
         except (subprocess.SubprocessError, ET.ParseError):
             pass
         time.sleep(1)
+    screenshot('production-failure')
     raise AssertionError(message)
 
 

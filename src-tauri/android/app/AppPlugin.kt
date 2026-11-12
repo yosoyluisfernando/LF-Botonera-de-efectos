@@ -32,6 +32,11 @@ class AppPlugin(private val activity: Activity) : Plugin(activity) {
     override fun load(webView: WebView) {
         val host = activity as AppCompatActivity
         host.onBackPressedDispatcher.addCallback(host, callback)
+        main.postDelayed({
+            webView.evaluateJavascript("JSON.stringify({ready:document.readyState,marks:performance.getEntriesByType('mark').map(e=>e.name),stage:document.getElementById('startup-stage')?.textContent,bridge:!!window.__TAURI__})") {
+                android.util.Log.i("LFStartup", it)
+            }
+        }, 20000)
     }
 
     @Command
