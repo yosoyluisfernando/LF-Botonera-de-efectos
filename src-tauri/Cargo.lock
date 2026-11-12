@@ -4659,7 +4659,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-app"
-version = "1.6.0-beta.5"
+version = "1.6.0"
 dependencies = [
  "base64 0.22.1",
  "btleplug",

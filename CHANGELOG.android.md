@@ -53,3 +53,15 @@ La versión 1.6.0 prepara la primera distribución pública de Android.
   para una posible distribución futura. La aplicación aún no se publica en
   esas tiendas. Cuando corresponda, las actualizaciones quedarán a cargo del
   canal desde el que se haya instalado.
+
+## [1.6.0-beta.1] — 2026-11-10
+
+Registro histórico del prelanzamiento; no forma parte de las notas de Android 1.6.0.
+
+### Android ARM64 · Alfa
+
+- Primera edición móvil en desarrollo. Incluye importación de audio mediante el selector de Android, modos de reproducción de la botonera y MIDI por USB y Bluetooth LE. La conexión MIDI Bluetooth ya se probó en un teléfono.
+- Interfaz táctil adaptada para vertical y horizontal, con menús por pulsación larga, Ajustes por secciones, volumen accesible y panel fijo que empieza cerrado en una instalación limpia.
+- Editor de pistas táctil con cursor en la onda, marcadores de inicio y fin, zoom y ajuste de ganancia.
+
+**Android sigue en alfa.** Algunas funciones pueden fallar y algunas pantallas pueden verse incompletas o desalineadas según el dispositivo.

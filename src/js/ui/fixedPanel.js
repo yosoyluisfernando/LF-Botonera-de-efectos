@@ -54,6 +54,13 @@ export function drawFixedPanel(state) {
     list.style.gridTemplateColumns = settings.view === 'buttons'
         ? `repeat(${settings.columns}, minmax(0, 1fr))` : '1fr';
     list.innerHTML = '';
+    if (!state.buttons.length) {
+        const hint = document.createElement('p');
+        hint.className = 'fixed-panel-empty player-empty';
+        hint.dataset.i18n = 'fixed_panel.empty_hint';
+        hint.textContent = t('fixed_panel.empty_hint');
+        list.appendChild(hint);
+    }
     _buttons = Object.fromEntries(state.buttons.map(button => [button.id, button]));
     state.buttons.sort((a, b) => a.index - b.index).forEach(btn => list.appendChild(_item(btn)));
     document.getElementById('btn-fixed-panel').classList.toggle('active', settings.visible);

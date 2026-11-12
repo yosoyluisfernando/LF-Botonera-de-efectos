@@ -47,11 +47,18 @@ for (const platform of ['desktop', 'android']) {
           (async()=>{
             document.body.dataset.platform=platform;
             initShortcutLabels({});
+            if(platform==='desktop') {
+              const first=document.getElementById('s-atajos').firstElementChild;
+              assert(first.contains(document.getElementById('btn-enter-mapping')),'mapping is not first');
+              assert(first.nextElementSibling.classList.contains('shortcut-label-settings'),'labels not after mapping');
+            }
             for(const kind of ['keyboard','midi'])
               assert(document.getElementById('config-show-'+kind+'-shortcut-labels').checked,kind+' default hidden');
             const grid=document.getElementById('main-grid');
             grid.innerHTML='<div class="grid-item"><span data-shortcut-kind="keyboard">Ctrl+F2</span><span data-shortcut-kind="midi">Launchpad</span></div>';
             const badge=kind=>grid.querySelector('[data-shortcut-kind="'+kind+'"]');
+            loadShortcutLabels({show_keyboard_shortcut_labels:false,show_midi_shortcut_labels:true});
+            assert(getComputedStyle(badge('keyboard')).display==='none','loaded preference not applied');
             for(const lang of Object.keys(locales)) {
               language=lang;
               for(const [keyboard,midi] of [[true,true],[false,true],[true,false],[false,false]]) {
@@ -73,7 +80,18 @@ for (const platform of ['desktop', 'android']) {
             if(platform==='desktop') {
               assert(!document.getElementById('edit-keyboard-disclosure'),'desktop editor was folded');
               assert(!document.getElementById('edit-shortcut').disabled,'desktop keyboard disabled');
-              assert(!document.getElementById('edit-midi-capture').disabled,'desktop MIDI disabled');
+              assert(midiGroup.classList.contains('hidden'),'inactive MIDI editor still visible');
+              assert(document.getElementById('edit-midi-capture').disabled,'inactive MIDI captures');
+              availability.midi_available=true;events['midi-devices-changed']();await tick();
+              assert(!midiGroup.classList.contains('hidden'),'active MIDI editor hidden');
+              assert(!document.getElementById('edit-midi-capture').disabled,'active MIDI disabled');
+              availability.midi_available=false;events['midi-devices-changed']();await tick();
+              assert(midiGroup.classList.contains('hidden')&&cancellations>0,'disconnected MIDI stays active');
+              assert(document.getElementById('edit-midi').value==='Launchpad','hiding MIDI erased binding');
+              assert(document.getElementById('edit-shortcut').value==='Ctrl+F2','keyboard binding changed');
+              queryError=true;await prepareEditShortcutSections();
+              assert(midiGroup.classList.contains('hidden'),'failed query revealed MIDI');
+              assert(!document.getElementById('edit-shortcut').disabled,'failed MIDI query blocked keyboard');
             } else {
               const keyboard=document.getElementById('edit-keyboard-disclosure');
               const midi=document.getElementById('edit-midi-disclosure');

@@ -99,6 +99,7 @@
     "clear_shortcut": "Clear",
     "about_version_label": "Version",
     "about_channel_label": "Distribution channel:",
+    "about_info_unavailable": "Information unavailable",
     "about_channel_direct": "GitHub Releases",
     "about_channel_store": "Microsoft Store",
     "about_platform_label": "System:",
@@ -154,6 +155,8 @@
     "reserved_system": "The {key} shortcut is reserved by the application and cannot be reassigned."
   },
   "midi": {
+    "bluetooth_alternative": "Bluetooth MIDI: alternative connection",
+    "desktop_pairing_hint": "Pair the device in your computer’s Bluetooth settings, then click Refresh MIDI devices. If it does not appear in the list, try the alternative Bluetooth connection.",
     "bluetooth_transport": "Bluetooth LE",
     "add_device": "Add device",
     "find_usb": "Show USB devices",
@@ -690,6 +693,10 @@
     "reminder_title": "Update available"
   },
   "release_notes": {
+    "support_title": "Finding LF Botonera useful?",
+    "support_message": "Share your experience on Microsoft Store or give the project a star on GitHub. Your support helps more people discover the software and encourages new contributors to join. Thank you!",
+    "rate_store": "Rate on Microsoft Store",
+    "star_github": "Star on GitHub",
     "title": "What's new",
     "ok": "Got it"
   },
@@ -719,6 +726,7 @@
     "cancel": "Cancel"
   },
   "fixed_panel": {
+    "empty_hint": "Drag your sounds here from the file explorer",
     "title": "Fixed buttons",
     "title_compact": "Fixed",
     "change_view": "Select fixed panel view",
@@ -770,6 +778,7 @@
     }
   },
   "player": {
+    "add_audio": "Add songs",
     "title": "Player",
     "title_compact": "Player",
     "col_title": "Title",
@@ -950,6 +959,7 @@
     "stay_in_app": "Stay in the app"
   },
   "obs": {
+    "in_development": "FEATURE IN DEVELOPMENT",
     "title": "OBS Studio",
     "enable": "Enable OBS Studio integration",
     "setup_hint": "In OBS, enable the WebSocket server under Tools → WebSocket Server Settings.",
@@ -1061,6 +1071,7 @@
     "quick_hint": "Runs the quick transition configured in OBS with its original duration. Requires Studio Mode. OBS only provides its internal number, not its name or duration. If the list is empty, configure a quick transition in OBS."
   },
   "remote": {
+    "in_development": "FEATURE IN DEVELOPMENT",
     "client_enabled": "Enable remote control",
     "title": "Remote control",
     "client_help": "Sounds play on the PC. Connect both devices to the same local network.",
@@ -1081,8 +1092,11 @@
     "disable": "Disable LAN access",
     "enabled": "LAN access enabled",
     "disabled": "LAN access disabled",
-    "host_help": "Share the address and key with a browser or Remote control in the APK. Access starts disabled and the key changes each time you enable it.",
-    "network_help": "Use a trusted network: this local connection uses unencrypted HTTP. Allow the port in the PC firewall. With multiple adapters, use the IPv4 address of the shared network. Do not expose the port to the Internet.",
+    "encryption_warning": "Unencrypted local connection. Use it on a trusted network.",
+    "inactive_help": "Disabled by default. Until you enable it, no port is opened and no remote control server runs in the background. Disabling it closes access and invalidates this session’s key.",
+    "apply_hint": "Save settings to enable remote access.",
+    "host_help": "Control this PC’s sounds from a browser or the Android app. Share the address and key shown when access is enabled.",
+    "network_help": "Connect both devices to the same local network.",
     "errors": {
       "remote_auth": "Check the access key.",
       "remote_connection": "Could not connect to the PC. Check the address, network and firewall.",

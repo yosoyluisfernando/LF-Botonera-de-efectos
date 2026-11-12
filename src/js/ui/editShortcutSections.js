@@ -8,7 +8,6 @@ let request = 0;
 let previous = null;
 
 export async function prepareEditShortcutSections() {
-    if (!isAndroid()) return;
     if (!wired) wireSections();
     previous = null;
     await refreshSections();
@@ -16,7 +15,7 @@ export async function prepareEditShortcutSections() {
 
 function wireSections() {
     wired = true;
-    for (const kind of ['keyboard', 'midi']) {
+    for (const kind of isAndroid() ? ['keyboard', 'midi'] : []) {
         const group = document.getElementById(`edit-${kind}-shortcut`);
         const details = document.createElement('details');
         details.id = `edit-${kind}-disclosure`;
@@ -52,6 +51,16 @@ async function refreshSections() {
 }
 
 function applyState(state, failed = false) {
+    if (!isAndroid()) {
+        const available = !!state.midi_available;
+        document.getElementById('edit-midi-shortcut').classList.toggle('hidden', !available);
+        const capture = document.getElementById('edit-midi-capture');
+        capture.dataset.unavailable = String(!available);
+        capture.disabled = !available || hasActiveMidiCapture();
+        if (!available) void cancelMidiCapture();
+        previous = state;
+        return;
+    }
     for (const kind of ['keyboard', 'midi']) {
         const available = state[`${kind}_available`];
         const details = document.getElementById(`edit-${kind}-disclosure`);

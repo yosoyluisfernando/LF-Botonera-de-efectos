@@ -12,13 +12,17 @@ const browser = process.env.LF_TEST_BROWSER || (process.platform === 'win32'
 const source = readFileSync(join(root, 'src/js/ui/startupPrompts.js'), 'utf8')
     .replace(/^import .*;\r?\n/gm, '').replace(/export /g, '');
 const androidNotes = readFileSync(join(root, 'CHANGELOG.android.md'), 'utf8')
-    .split('## [1.6.0]')[1].split('\n').slice(1).join('\n');
+    .split('## [1.6.0]')[1].split('\n').slice(1).join('\n').split('\n## ')[0];
+const desktopNotes = readFileSync(join(root, 'CHANGELOG.md'), 'utf8')
+    .split('## [1.6.0]')[1].split('\n').slice(1).join('\n').split('\n## ')[0];
 
-for (const width of [390, 768]) {
+for (const width of [390, 768, 1366]) {
     test(`release notes flow as complete paragraphs at ${width}px`, { skip: !existsSync(browser) }, () => {
         const folder = mkdtempSync(join(tmpdir(), 'lf-release-notes-'));
         const sample = '### Heading\r\n- First **bold** line\r\n  continues with `code`.\r\n- Second item.\r\n\r\nA paragraph\r\ncontinues here.\r\n\r\n---\r\n### Next\r\n- <script>safe</script>';
         const script = `
+            const t=key=>key,isAndroid=()=>false,links=[];
+            window.__TAURI__={opener:{openUrl:async url=>{links.push(url);}}};
             ${source}
             const host=document.getElementById('notes');
             const assert=(value,message)=>{if(!value)throw Error(message);};
@@ -36,6 +40,20 @@ for (const width of [390, 768]) {
                 assert([...host.querySelectorAll('p')].some(p=>p.textContent.includes(
                     'GitHub Releases. La app identifica Android y muestra el canal responsable')),'distribution paragraph split');
                 assert(host.scrollWidth<=host.clientWidth+1,'notes overflow horizontally');
+                host.innerHTML=_renderNotes(${JSON.stringify(desktopNotes)});
+                assert(!host.querySelector('p:not(.release-note-item)'),'desktop list continuations became standalone paragraphs');
+                assert([...host.querySelectorAll('p')].some(p=>p.textContent.includes(
+                    'MIDI sin cables: conecta controladores compatibles por Bluetooth LE en Windows y Linux.')),'desktop paragraph split');
+                assert(host.querySelectorAll('h4').length===1,'unpublished features presented as corrections');
+                assert(host.scrollWidth<=host.clientWidth+1,'desktop notes overflow horizontally');
+                _ensureReleaseModal();
+                _prompts={currentVersion:'1.6.0',releaseNotes:${JSON.stringify(desktopNotes)}};
+                _showReleaseNotes();
+                const body=document.getElementById('release-notes-body');
+                assert(body.lastElementChild.classList.contains('release-notes-support'),'support is not at the end');
+                body.querySelectorAll('[data-community-link]').forEach(button=>button.click());
+                assert(links.length===2 && links[0].startsWith('https://apps.microsoft.com/')
+                    && links[1].includes('github.com/yosoyluisfernando/'),'support links are incorrect');
                 document.body.dataset.notesResult='passed';
             } catch(error) {document.body.dataset.notesResult='failed: '+error.message;}
         `;

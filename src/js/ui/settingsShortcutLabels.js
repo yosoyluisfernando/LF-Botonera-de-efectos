@@ -1,5 +1,6 @@
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
+import { isAndroid } from '../bridge/platform.js';
 
 export function initShortcutLabels(config) {
     const section = document.createElement('section');
@@ -21,9 +22,14 @@ export function initShortcutLabels(config) {
         label.append(input, text);
         section.appendChild(label);
     }
-    document.getElementById('settings-midi-section').appendChild(section);
+    if (isAndroid()) document.getElementById('settings-midi-section').appendChild(section);
+    else {
+        const panel = document.getElementById('s-atajos');
+        const mapping = document.getElementById('btn-enter-mapping').parentElement;
+        panel.prepend(mapping);
+        mapping.after(section);
+    }
     loadShortcutLabels(config);
-    applyShortcutLabels(config);
 }
 
 export function loadShortcutLabels(config) {
@@ -31,6 +37,7 @@ export function loadShortcutLabels(config) {
         document.getElementById(`config-show-${kind}-shortcut-labels`).checked =
             config[`show_${kind}_shortcut_labels`] !== false;
     }
+    applyShortcutLabels(config);
 }
 
 export async function saveShortcutLabels() {

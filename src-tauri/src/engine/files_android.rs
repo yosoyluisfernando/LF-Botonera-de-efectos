@@ -72,6 +72,16 @@ impl FileDialog {
         // Los proveedores SAF no son directorios observables mediante notify.
         Err("mobile_folder_unavailable".into())
     }
+    pub fn pick_files(self) -> Result<Option<Vec<PathBuf>>, String> {
+        let Some(uris) = self.builder().blocking_pick_files() else {
+            return Ok(None);
+        };
+        let audio = self.filters.iter().any(|(_, extensions)| {
+            extensions.iter().any(|ext| super::super::audio::formats::is_audio_extension(ext))
+        });
+        uris.into_iter().map(|uri| import(uri, audio))
+            .collect::<Result<Vec<_>, _>>().map(Some)
+    }
     pub fn save_file(self) -> Result<Option<PathBuf>, String> {
         let Some(uri) = self.builder().blocking_save_file() else {
             return Ok(None);

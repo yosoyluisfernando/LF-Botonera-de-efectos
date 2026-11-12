@@ -30,6 +30,7 @@ export function mountClient(root, { browser = false, send }) {
     };
     const disconnect = () => {
         active = false; generation++; clearTimeout(timer);
+        root.dataset.ready = 'false';
         session.hidden = true; form.hidden = false; token = ''; form.elements.token.value = '';
         root.querySelector('.remote-grid').replaceChildren();
         root.querySelector('.remote-playing').replaceChildren();

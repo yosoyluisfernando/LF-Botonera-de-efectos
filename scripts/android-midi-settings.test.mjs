@@ -52,9 +52,12 @@ for (const platform of ['desktop', 'android']) {
                 let clicks=0;button.addEventListener('click',()=>clicks++);
                 initAndroidSettingsNavigation();
                 assert(document.getElementById('android-midi-bluetooth')===button,'device button replaced');
+                if(platform==='desktop') assert(panel.innerHTML===original,'desktop settings changed');
+                button.click();assert(clicks===0,'MIDI button active while disabled');
+                const options=document.getElementById('settings-midi-options');
+                options.disabled=options.inert=false;
                 button.click();assert(clicks===1,'device listener lost');
                 if(platform==='desktop') {
-                    assert(panel.innerHTML===original,'desktop settings changed');
                     assert(tabs.innerHTML===originalTabOrder,'desktop navigation changed');
                     assert(document.querySelector('[data-target="s-atajos"]').dataset.i18n==='settings.tab_keys','desktop title changed');
                 } else {

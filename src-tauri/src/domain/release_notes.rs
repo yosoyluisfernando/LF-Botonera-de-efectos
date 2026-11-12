@@ -53,7 +53,7 @@ mod tests {
         assert!(android.contains("teléfonos y tablets"));
         assert!(!android.contains("### Corregido"));
         let desktop = for_platform(env!("CARGO_PKG_VERSION"), false);
-        assert!(desktop.contains("Apariencia en Windows y Linux"));
+        assert!(desktop.contains("Controla OBS desde la botonera"));
         assert!(!desktop.contains("### Botonera de sonidos para teléfonos"));
     }
 

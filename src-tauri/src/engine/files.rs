@@ -30,6 +30,9 @@ impl FileDialog {
     pub fn pick_file(self) -> Result<Option<std::path::PathBuf>, String> {
         Ok(self.0.pick_file())
     }
+    pub fn pick_files(self) -> Result<Option<Vec<std::path::PathBuf>>, String> {
+        Ok(self.0.pick_files())
+    }
     pub fn pick_folder(self) -> Result<Option<std::path::PathBuf>, String> {
         Ok(self.0.pick_folder())
     }
@@ -45,4 +48,17 @@ pub fn pick_audio_file() -> Result<Option<String>, String> {
         .add_filter("Audio", crate::engine::audio::formats::AUDIO_EXTENSIONS)
         .pick_file()
         .map(|path| path.map(|p| p.to_string_lossy().into_owned()))
+}
+
+/// Selección múltiple de audio para añadir a la cola, fuera del hilo de interfaz.
+#[tauri::command(async)]
+pub fn pick_audio_files() -> Result<Vec<String>, String> {
+    FileDialog::new()
+        .add_filter("Audio", crate::engine::audio::formats::AUDIO_EXTENSIONS)
+        .pick_files()
+        .map(|paths| {
+            paths.unwrap_or_default().into_iter()
+                .map(|path| path.to_string_lossy().into_owned())
+                .collect()
+        })
 }

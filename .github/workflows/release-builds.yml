@@ -30,6 +30,7 @@ permissions:
 jobs:
   build:
     name: Build ${{ matrix.platform }}
+    timeout-minutes: 90
     runs-on: ${{ matrix.platform }}
     strategy:
       fail-fast: false
@@ -73,11 +74,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: desktop-release
+          cache-on-failure: true
 
       - name: Install frontend dependencies
         run: npm ci
@@ -88,6 +95,10 @@ jobs:
       - name: Run Rust tests
         working-directory: src-tauri
         run: cargo test
+
+      - name: Verify Rust library without test imports
+        working-directory: src-tauri
+        run: cargo build --lib
 
       - name: Build Tauri bundles (Linux)
         if: runner.os == 'Linux'

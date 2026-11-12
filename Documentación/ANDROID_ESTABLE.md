@@ -7,13 +7,13 @@ Preparación autorizada por el autor el 2026-11-11. La rama sigue siendo
 
 - Producto Android: LF Botonera de Efectos.
 - Paquete: `io.github.yosoyluisfernando.lfbotonera`.
-- Versión inicial: `1.6.0`; versionCode inicial: `1006000`; revisión actual: `1006001`.
+- Versión inicial: `1.6.0`; versionCode inicial: `1006000`; revisión actual: `1006002`.
 - Fuente de identidad Android: `src-tauri/tauri.android.conf.json`.
 - La Beta anterior conserva `...lfbotonera.lanprueba`, su firma de pruebas y
   sus datos. Se puede instalar junto a la estable. No se migran datos solos;
   el autor puede exportar/importar sus perfiles mediante las funciones de la app.
-- Escritorio conserva su identidad Beta y su versión de desarrollo. Es una
-  excepción deliberada a la sincronización de versiones entre plataformas:
+- El 2026-11-12 el autor aprobó también preparar escritorio estable 1.6.0.
+  Android mantiene su identidad propia. Las versiones efectivas de
   About, notas y actualizaciones consultan la versión efectiva de Tauri,
   no `CARGO_PKG_VERSION`, para respetar el override Android.
 - Incrementar versionCode en cada futura entrega pública Android. Mantener

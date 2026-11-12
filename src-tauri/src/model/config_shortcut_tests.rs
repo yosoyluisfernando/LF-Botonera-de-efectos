@@ -1,6 +1,16 @@
 use super::AppConfig;
 
 #[test]
+fn remote_client_is_opt_in_and_preserves_explicit_preferences() {
+    assert!(!AppConfig::default().remote_client_enabled);
+    let old: AppConfig = serde_json::from_str("{}").unwrap();
+    assert!(!old.remote_client_enabled);
+    let enabled: AppConfig =
+        serde_json::from_str(r#"{"remote_client_enabled":true}"#).unwrap();
+    assert!(enabled.remote_client_enabled);
+}
+
+#[test]
 fn older_configs_show_both_shortcut_labels_by_default() {
     let cfg: AppConfig = serde_json::from_str("{}").unwrap();
     assert!(cfg.show_keyboard_shortcut_labels);

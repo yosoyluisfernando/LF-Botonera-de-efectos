@@ -1,5 +1,149 @@
 # Continuidad de sesión — estado actual
 
+## Preparación estable multiplataforma y borrador GitHub — 2026-11-12
+
+El autor autorizó explícitamente ESTABLE 1.6.0 para Windows/Linux, manteniendo
+OBS y Control remoto en desarrollo. Android 1.6.0 pasa a versionCode 1006002.
+Se restauran nombre, título, identificador y upgradeCode PC desde v1.5.0; main
+no se mueve. Compilar en GitHub y reunir MSI/EXE/DEB/RPM/AppImage/APK firmado en
+un RELEASE EN BORRADOR, sin publicarlo. No usar emulador Android.
+Últimos ajustes: + del reproductor con estilo normal del tema y selección múltiple
+nativa vía pick_audio_files; cola por player_add_tracks existente, sin sustituirla.
+Invitación discreta al final de las novedades de PC para valorar Microsoft Store
+y dar estrella en GitHub. Traducciones en los cuatro idiomas. En el borrador,
+poner invitación después de descargas en ES/EN/pt-BR/pt-PT. 37 pruebas Node/DOM
+aprobadas y frontend Windows compilado. Rust queda sujeto a los checks de CI.
+Borrador fuente actualizado: Documentación/BORRADOR_RELEASE_1.6.0.md. El HTML
+anterior estaba en D:/BOTONERA/Informacion para el usuario/Borrador-release-1.6.0
+y describía Android como alfa; el autor permite mejorar y trasladar a GitHub.
+No reutilizar NOTAS_RELEASE_GITHUB_SIGUIENTE.md: es histórico de 1.3.0.
+
+## Panel fijo: ayuda vacía y añadir canciones — 2026-11-12
+
+El autor pidió texto en Botones fijos vacío: Arrastra aquí tus sonidos desde el
+explorador de archivos, equivalente al aviso de canciones del reproductor.
+Añadido con traducciones en los cuatro idiomas. El reproductor muestra un + azul
+inmediatamente antes de Abrir playlist. Reutiliza pick_audio_file/player_add_track
+para añadir una canción al final de la cola sin reemplazarla. La acción de importar
+que solo estaba habilitada en Android ahora se usa también en PC. Cabecera del
+reproductor permite ajuste de fila si el panel es estrecho. Tres pruebas Node
+aprobadas: añadir, cancelar y error; sin compilar ni abrir la aplicación.
+No ampliar el changelog de bienvenida con cada detalle menor de esta revisión.
+
+## Aviso visual de Control remoto — 2026-11-12
+
+El autor pidió el mismo aviso en OBS Studio: añadido encima de su casilla, fuera
+del fieldset desactivable, con estilo compartido y traducciones en los cuatro idiomas.
+
+Solicitud del autor: FUNCIÓN EN DESARROLLO al principio del panel principal de
+Ajustes → Control remoto. Añadido fuera de las opciones desactivables, con color
+de acento y traducciones es/en/pt-BR/pt-PT. No añadirlo como novedad al changelog.
+Sin compilar ni iniciar la aplicación.
+
+## MIDI de PC: sistema primero y editor según disponibilidad — 2026-11-12
+
+El autor propuso vincular Bluetooth desde Windows/Linux y actualizar la lista,
+retirando conexión directa solo si el sistema garantiza que aparece como MIDI.
+Auditoría: Windows usa WinMM y Linux ALSA Sequencer; vincular Bluetooth no garantiza
+que esos adaptadores reciban una entrada MIDI. Se consultaron fuentes primarias:
+https://microsoft.github.io/MIDI/kb/api-back-compat/ y
+https://pipewire.pages.freedesktop.org/wireplumber/daemon/configuration/bluetooth.html
+Decisión implementada sin cambiar backend/IPC: mostrar en PC la orientación de
+vincular en el sistema y usar Actualizar dispositivos MIDI; mantener la conexión
+BLE directa plegada, rotulada Bluetooth MIDI: conexión alternativa. No retirarla
+completamente sin comprobar el hardware y la compatibilidad de cada sistema.
+El editor de botones de PC, incluidos OBS y botones fijos que comparten controles,
+oculta la sección MIDI si get_shortcut_editor_state no informa una entrada activa
+(MIDI apagado o ninguna entrada seleccionada/conectada). Teclado siempre visible.
+Se conservan asignaciones al ocultar, se cancela captura y se actualiza en caliente.
+Android conserva sus desplegables y conexión directa. Seis últimas pruebas Node/DOM
+aprobadas, más dos de conexión MIDI; sin compilar, abrir la app ni empaquetar.
+No extender la bienvenida con estos detalles: conservar sus cinco novedades breves.
+
+## Bienvenida breve para el usuario final — 2026-11-12
+
+El autor volvió a señalar que las notas contaban ajustes internos y resultaban
+abrumadoras. Se consultó CHANGELOG.md del tag v1.5.0 directamente en GitHub y
+se comparó el código actual con ese tag local. OBS, control remoto, BLE MIDI,
+diseño Moderno y visibilidad de etiquetas son novedades frente a esa versión.
+La bienvenida ahora muestra solo esas cinco funciones, con frases orientadas
+al uso y unas 90 palabras. No narra casillas, controles atenuados, reconexiones,
+IDs de dispositivos ni correcciones de funciones aún inéditas. Los detalles
+técnicos permanecen en esta continuidad y los pendientes, fuera de la bienvenida.
+Mantener este criterio para futuras ediciones: comparar con la última estable
+publicada, priorizar beneficios y evitar convertir cada ajuste del desarrollo
+en una novedad. Android conserva sus notas independientes. No compilar.
+
+## Casillas y opciones dependientes como Precarga — 2026-11-11
+
+El autor probó el DEV correcto y pidió: control remoto con casilla en lugar de
+dos botones; eliminar avisos duplicados y simplificar el aviso de HTTP; atenuar
+y bloquear controles dependientes en remoto/OBS/MIDI/Reproducción; Mapeo primero
+y etiquetas después. Implementado con fieldsets disabled/inert y opacidad 0.45.
+Remoto: marcar prepara los campos, Guardar activa el servidor y desmarcar lo
+detiene inmediatamente. El estado del servidor lo sigue devolviendo Rust.
+Reproducción bloquea las opciones de avance al desmarcar su casilla; los fundidos
+son independientes de esa función. MIDI incluye búsqueda, dispositivos y captura.
+Las notas Sin publicar describen novedades, sin presentar ajustes de funciones
+inéditas como correcciones. Se añadió resumen de OBS a las novedades actuales.
+34 pruebas Node/DOM aprobadas; repetición dirigida tras últimos cambios: 6/6.
+Sin compilar ni abrir la app, sin emulador/Actions/instaladores; Rust pendiente de
+compilar en el próximo dev del autor. DEV.bat consume un marcador temporal para
+mostrar Qué hay de nuevo una vez en el próximo arranque. Marcador preparado en
+TEMP de Streaming: LF-Botonera-Desarrollo-Novedades.once. Rust solo lo permite
+en debug y una vez por proceso; no modifica perfiles ni reinicia el asistente.
+También se puede repetir manualmente con DEV.bat novedades. El APK cerrado no
+se recompiló. No iniciar desde la antigua raíz D:/BOTONERA.
+
+## Evitar iniciar la copia antigua de desarrollo — 2026-11-11
+
+El autor mostró una ventana 1.5.0 sin los cambios nuevos. Se comprobó el proceso:
+D:/BOTONERA/src-tauri/target/debug/tauri-app.exe; Vite se ejecutaba desde
+D:/BOTONERA/node_modules y ocupaba localhost:1420. Esa raíz conserva 1.5.0.
+El DEV.bat vigente es C:/OVERLAY/BOTONERA/DEV.bat, proyecto 1.6.0-beta.5.
+Cerrar la ventana y consola antiguas antes de iniciar el actual para liberar 1420.
+El lanzador actual muestra carpeta y versión al abrirse. No se cerraron procesos
+del usuario, no se lanzó otra instancia ni se compiló durante este diagnóstico.
+
+## Control remoto optativo y aviso de cifrado — 2026-11-11
+
+El autor pidió control remoto apagado por defecto y sin recursos de red activos
+cuando no se usa, más aviso permanente al final sobre conexión no cifrada.
+Auditoría: servidor PC ya era por sesión, sin inicio automático; start abre TCP
+y crea el hilo, stop marca sesión inactiva, espera al hilo y descarta su clave.
+Se mantiene ese mecanismo sin nueva preferencia/IPC. El aviso de HTTP sin cifrar
+se sacó del bloque ocultable y queda al final, visible también con servidor apagado.
+Cliente remoto: serde/default y JS pasan a false; preferencias explícitas existentes
+se respetan. Apagar cierra el diálogo y corta el sondeo al momento, aun antes de
+Guardar. Tres pruebas JS/DOM aprobadas; no compilar ni ejecutar emuladores.
+Regresión Rust añadida para defaults y preferencia explícita, aún sin ejecutar.
+Continuar prueba manual desde dev.bat. Android entregado no se recompiló.
+
+## Ajustes de escritorio para dev.bat — 2026-11-11
+
+El autor corrigió el inventario: editor con escalado y temas Predeterminado/Moderno
+ya están probados; OBS y remoto también. Pruebas físicas generales quedan pendientes.
+Pidió confirmar nombres Bluetooth MIDI en PC, completar las etiquetas y empezar
+por Acerca de al final. Se aplicaron ajustes de orden, presentación de preferencias,
+recuperación de controles remotos y mensajes de error de OBS/About. Auditoría del
+código confirmó BLE MIDI y conservación de nombres para Windows/Linux; falta hardware.
+Notas de PC/Android separadas, incluido historial alfa; párrafos reales probados en
+390/768/1366px. Siete pruebas Node/DOM aprobadas; sintaxis/i18n/diff correctos.
+El autor pidió NO compilar; se respetó: sin cargo test/build, npm build, Actions ni
+instaladores. Probar personalmente desde dev.bat. Leer PENDIENTES_ESCRITORIO.md.
+Las notas ya leídas no reaparecen automáticamente si se mantiene la misma versión;
+no se alteró last_seen_version ni la configuración del usuario.
+
+## Android cerrado; retomar escritorio — 2026-11-11
+
+El autor confirmó listo el APK y cerró los cambios de la primera versión Android.
+La entrega vigente es 1.6.0/1006001, única en Compilados; no recompilarla ahora.
+Solicitó que Acerca de quede al final también en Windows/Linux y pidió recordar
+pendientes y recomendaciones directamente en el chat, sin HTML informativo.
+Ver PENDIENTES_ESCRITORIO.md para solicitudes confirmadas, comprobaciones y
+recomendaciones aún no aprobadas. Este turno solo registra y explica prioridades;
+no aplica cambios de interfaz ni genera instaladores de escritorio.
+
 ## Entrega única Android y verificación de producción — 2026-11-11
 
 El autor informó que seguía viendo los cortes de notas y Acerca de antes

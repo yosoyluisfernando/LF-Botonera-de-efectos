@@ -99,6 +99,7 @@
     "clear_shortcut": "Limpiar",
     "about_version_label": "Versión",
     "about_channel_label": "Canal de distribución:",
+    "about_info_unavailable": "Información no disponible",
     "about_channel_direct": "GitHub Releases",
     "about_channel_store": "Microsoft Store",
     "about_platform_label": "Sistema:",
@@ -154,6 +155,8 @@
     "reserved_system": "La tecla {key} está reservada por la aplicación y no se puede reasignar."
   },
   "midi": {
+    "bluetooth_alternative": "Bluetooth MIDI: conexión alternativa",
+    "desktop_pairing_hint": "Vincula el dispositivo desde los ajustes Bluetooth de la computadora y pulsa Actualizar dispositivos MIDI. Si no aparece en la lista, prueba la conexión Bluetooth alternativa.",
     "bluetooth_transport": "Bluetooth LE",
     "add_device": "Añadir dispositivo",
     "find_usb": "Ver dispositivos USB",
@@ -690,6 +693,10 @@
     "reminder_title": "Actualizacion disponible"
   },
   "release_notes": {
+    "support_title": "¿Te resulta útil LF Botonera?",
+    "support_message": "Comparte tu experiencia en Microsoft Store o deja una estrella en GitHub. Nos ayudas a dar a conocer el software y a sumar nuevas personas que colaboren con el proyecto. ¡Gracias por tu apoyo!",
+    "rate_store": "Valorar en Microsoft Store",
+    "star_github": "Dar una estrella en GitHub",
     "title": "Qué hay de nuevo",
     "ok": "Entendido"
   },
@@ -719,6 +726,7 @@
     "cancel": "Cancelar"
   },
   "fixed_panel": {
+    "empty_hint": "Arrastra aquí tus sonidos desde el explorador de archivos",
     "title": "Botones fijos",
     "title_compact": "B. fijos",
     "change_view": "Seleccionar presentación del panel fijo",
@@ -770,6 +778,7 @@
     }
   },
   "player": {
+    "add_audio": "Añadir canciones",
     "title": "Reproductor",
     "title_compact": "Reprod.",
     "col_title": "Título",
@@ -950,6 +959,7 @@
     "stay_in_app": "Continuar en la aplicación"
   },
   "obs": {
+    "in_development": "FUNCIÓN EN DESARROLLO",
     "title": "OBS Studio",
     "enable": "Activar integración con OBS Studio",
     "setup_hint": "En OBS, habilita el servidor WebSocket desde Herramientas → Ajustes del servidor WebSocket.",
@@ -1061,6 +1071,7 @@
     "quick_hint": "Se ejecuta la transición rápida configurada en OBS, con su duración original. Requiere modo estudio. OBS solo comunica su número interno, no su nombre ni duración. Si la lista está vacía, configura una transición rápida en OBS."
   },
   "remote": {
+    "in_development": "FUNCIÓN EN DESARROLLO",
     "client_enabled": "Activar control remoto",
     "title": "Control remoto",
     "client_help": "Los sonidos se reproducen en la PC. Conecta ambos equipos a la misma red local.",
@@ -1081,8 +1092,11 @@
     "disable": "Desactivar acceso LAN",
     "enabled": "Acceso LAN activo",
     "disabled": "Acceso LAN desactivado",
-    "host_help": "Comparte la dirección y la clave con el navegador o con Control remoto del APK. El acceso empieza desactivado y la clave cambia cada vez que lo activas.",
-    "network_help": "Usa una red de confianza: esta conexión local usa HTTP sin cifrar. Permite el puerto en el cortafuegos de la PC. Si tienes varias tarjetas, usa la dirección IPv4 de la red compartida. No abras el puerto al Internet.",
+    "encryption_warning": "Conexión local sin cifrar. Úsala en una red de confianza.",
+    "inactive_help": "Desactivado por defecto. Mientras no lo actives, no se abre ningún puerto ni se mantiene un servidor de control remoto en segundo plano. Al desactivarlo se cierra el acceso y se invalida la clave de esta sesión.",
+    "apply_hint": "Guarda la configuración para activar el acceso remoto.",
+    "host_help": "Controla los sonidos de esta PC desde el navegador o desde la app Android. Comparte la dirección y la clave que aparecen al activar el acceso.",
+    "network_help": "Conecta ambos dispositivos a la misma red local.",
     "errors": {
       "remote_auth": "Revisa la clave de acceso.",
       "remote_connection": "No se pudo conectar con la PC. Revisa la dirección, la red y el cortafuegos.",

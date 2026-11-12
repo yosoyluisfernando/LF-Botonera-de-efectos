@@ -1,11 +1,16 @@
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
+import { isAndroid } from '../bridge/platform.js';
 
 let _prompts = null;
 let _resolveRelease = null;
 let _resolveDonation = null;
 
 const DONATION_URL = 'https://www.paypal.com/donate/?hosted_button_id=3JJVFFBVR4MQQ';
+const COMMUNITY_LINKS = {
+    store: 'https://apps.microsoft.com/detail/9NJ8ST39QP7V',
+    github: 'https://github.com/yosoyluisfernando/LF-Botonera-de-efectos',
+};
 
 export async function runStartupPrompts() {
     try {
@@ -23,6 +28,21 @@ function _showReleaseNotes() {
         _resolveRelease = resolve;
         document.getElementById('release-notes-version').textContent = _prompts.currentVersion;
         document.getElementById('release-notes-body').innerHTML = _renderNotes(_prompts.releaseNotes);
+        if (!isAndroid()) {
+            const support = document.createElement('aside');
+            support.className = 'release-notes-support';
+            support.innerHTML = `<h4>${t('release_notes.support_title')}</h4>
+                <p>${t('release_notes.support_message')}</p>
+                <div class="release-notes-support-links">
+                  <button type="button" class="btn-dark" data-community-link="store">${t('release_notes.rate_store')}</button>
+                  <button type="button" class="btn-dark" data-community-link="github">${t('release_notes.star_github')}</button>
+                </div>`;
+            support.querySelectorAll('[data-community-link]').forEach(button => {
+                button.addEventListener('click', () => window.__TAURI__?.opener
+                    ?.openUrl(COMMUNITY_LINKS[button.dataset.communityLink]).catch(console.error));
+            });
+            document.getElementById('release-notes-body').appendChild(support);
+        }
         document.getElementById('release-notes-modal').classList.remove('hidden');
     });
 }

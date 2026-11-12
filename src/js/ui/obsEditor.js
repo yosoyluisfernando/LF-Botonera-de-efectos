@@ -5,6 +5,7 @@ import { appAlert } from './appDialog.js';
 import { invokeShortcutSave } from './shortcutSave.js';
 import { attachPalette, refreshColorInputs } from './colorPalette.js';
 import { initMidiField, setMidiField, getMidiField } from './midiControls.js';
+import { prepareEditShortcutSections } from './editShortcutSections.js';
 import { initEditVisual, currentEditVisual } from './visualSelector.js';
 import { initObsTargets } from './obsTargets.js';
 
@@ -57,6 +58,7 @@ export async function openObsEditor(index, data, onSave) {
     document.getElementById('edit-shortcut').value = data?.shortcut || '';
     initMidiField('edit-midi', 'edit-midi-capture', 'edit-midi-clear');
     setMidiField('edit-midi', data?.midi); initEditVisual(data?.visual);
+    await prepareEditShortcutSections();
     await attachPalette(document.getElementById('edit-bg-color'), document.getElementById('edit-text-color'), 'button');
     await refreshColorInputs();
     const action = document.getElementById('obs-action'); action.replaceChildren();

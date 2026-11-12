@@ -30,7 +30,7 @@ unset LF_CI_SIGN_PASSWORD
 "$tools/aapt" dump badging "android-release-artifact/$name" > android-release-artifact/package.txt
 grep -F "name='io.github.yosoyluisfernando.lfbotonera'" android-release-artifact/package.txt
 grep -F "versionName='1.6.0'" android-release-artifact/package.txt
-grep -F "versionCode='1006001'" android-release-artifact/package.txt
+grep -F "versionCode='1006002'" android-release-artifact/package.txt
 grep -F "application-label:'LF Botonera de Efectos'" android-release-artifact/package.txt
 grep -F "native-code: 'arm64-v8a'" android-release-artifact/package.txt
 ! grep -q 'application-debuggable' android-release-artifact/package.txt

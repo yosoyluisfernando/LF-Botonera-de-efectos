@@ -1,4 +1,4 @@
-import { addTouchTrackAction, initTouchAudioImport } from './touchTrackAction.js';
+import { addTouchTrackAction, initPlayerAudioImport } from './touchTrackAction.js';
 /**
  * Archivo: playerView.js
  * Proposito: dibuja el modo reproductor del panel fijo (cola + transporte) y
@@ -27,7 +27,7 @@ let _tracks = [];
 export function initPlayerView() {
     if (_wired) return;
     _wired = true;
-    initTouchAudioImport(drawPlayerView);
+    initPlayerAudioImport(drawPlayerView);
     initPlayerProgress();
     initPlayerModes();
     initPlayerVolume();
@@ -90,9 +90,7 @@ export async function drawPlayerView() {
     prunePlayerSelection(_tracks);
     const rows = document.getElementById('player-rows');
     rows.innerHTML = '';
-    // Con la lista vacía no hay nada que hacer evidente: los botones fijos tienen
-    // su "+", pero aquí las canciones entran arrastrándolas y eso no se ve por
-    // ningún lado. Hasta que haya un explorador propio, se dice con palabras.
+    // La lista vacía muestra también la alternativa de arrastrar canciones.
     if (!view.tracks.length) rows.appendChild(_emptyHint());
     view.tracks.forEach((track, position) => rows.appendChild(_row(track, position)));
     // El total lo suma Rust: que cuenta y que no es regla de negocio, no de la UI.

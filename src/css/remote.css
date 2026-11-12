@@ -47,3 +47,11 @@
 .remote-duration { font-size: .75rem; }
 
 .remote-shortcut { width: 48px; padding-inline: 4px; flex: none; }
+
+.settings-development-notice {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-inline-start: 3px solid var(--accent-color);
+  color: var(--accent-color);
+  font-weight: 700;
+}

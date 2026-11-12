@@ -18,15 +18,17 @@ export function initPlaybackPanel() {
         <input type="checkbox" id="playback-progress-enabled">
         <span>${t('playback_progress.enabled')}</span>
       </label>
+      <fieldset id="playback-progress-options" class="settings-dependent" disabled inert>
       <div class="row"><div class="col">
         <label>${t('playback_progress.step')}</label>
         <select id="playback-progress-step">${_stepOptions()}</select>
       </div></div>
-      <p class="hint">${t('playback_progress.hint')}</p>
+      <p class="hint">${t('playback_progress.hint')}</p></fieldset>
       <hr class="modal-divider">`;
     const fade = document.querySelector('.fade-settings-section');
     if (fade) panel.appendChild(fade);
     document.getElementById('s-atajos')?.before(panel);
+    document.getElementById('playback-progress-enabled').addEventListener('change', syncProgressOptions);
 }
 
 export function loadPlaybackPanel(config) {
@@ -39,6 +41,12 @@ export function loadPlaybackPanel(config) {
     _setChecked('playback-progress-enabled', !!progress.enabled);
     const step = ALLOWED_STEPS.includes(progress.seek_step_s) ? progress.seek_step_s : 10;
     _setValue('playback-progress-step', String(step));
+    syncProgressOptions();
+}
+
+function syncProgressOptions() {
+    const options = document.getElementById('playback-progress-options');
+    options.disabled = options.inert = !_getChecked('playback-progress-enabled');
 }
 
 export async function savePlaybackPanel() {

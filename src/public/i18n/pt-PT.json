@@ -99,6 +99,7 @@
     "clear_shortcut": "Limpar",
     "about_version_label": "Versão",
     "about_channel_label": "Canal de distribuição:",
+    "about_info_unavailable": "Informação indisponível",
     "about_channel_direct": "GitHub Releases",
     "about_channel_store": "Microsoft Store",
     "about_platform_label": "Sistema:",
@@ -154,6 +155,8 @@
     "reserved_system": "A tecla {key} está reservada pela aplicação e não pode ser reatribuída."
   },
   "midi": {
+    "bluetooth_alternative": "Bluetooth MIDI: ligação alternativa",
+    "desktop_pairing_hint": "Emparelhe o dispositivo nas definições Bluetooth do computador e clique em Atualizar dispositivos MIDI. Se não aparecer na lista, experimente a ligação Bluetooth alternativa.",
     "bluetooth_transport": "Bluetooth LE",
     "add_device": "Adicionar dispositivo",
     "find_usb": "Ver dispositivos USB",
@@ -690,6 +693,10 @@
     "reminder_title": "Atualização disponível"
   },
   "release_notes": {
+    "support_title": "A LF Botonera é-lhe útil?",
+    "support_message": "Partilhe a sua experiência na Microsoft Store ou deixe uma estrela no GitHub. Ajuda mais pessoas a conhecer o software e incentiva novas colaborações com o projeto. Obrigado pelo apoio!",
+    "rate_store": "Avaliar na Microsoft Store",
+    "star_github": "Dar uma estrela no GitHub",
     "title": "Novidades",
     "ok": "Entendi"
   },
@@ -719,6 +726,7 @@
     "cancel": "Cancelar"
   },
   "fixed_panel": {
+    "empty_hint": "Arraste os seus sons para aqui a partir do explorador de ficheiros",
     "title": "Botões fixos",
     "title_compact": "B. fixos",
     "change_view": "Selecionar a vista do painel fixo",
@@ -770,6 +778,7 @@
     }
   },
   "player": {
+    "add_audio": "Adicionar músicas",
     "title": "Reprodutor",
     "title_compact": "Reprod.",
     "col_title": "Título",
@@ -950,6 +959,7 @@
     "stay_in_app": "Continuar na aplicação"
   },
   "obs": {
+    "in_development": "FUNÇÃO EM DESENVOLVIMENTO",
     "title": "OBS Studio",
     "enable": "Ativar integração com o OBS Studio",
     "setup_hint": "No OBS, ative o servidor WebSocket em Ferramentas → Definições do servidor WebSocket.",
@@ -1061,6 +1071,7 @@
     "quick_hint": "Executa a transição rápida configurada no OBS com a duração original. Requer modo estúdio. O OBS indica apenas o número interno, não o nome nem a duração. Se a lista estiver vazia, configure uma transição rápida no OBS."
   },
   "remote": {
+    "in_development": "FUNÇÃO EM DESENVOLVIMENTO",
     "client_enabled": "Ativar controlo remoto",
     "title": "Controlo remoto",
     "client_help": "Os sons são reproduzidos no PC. Ligue ambos os dispositivos à mesma rede local.",
@@ -1081,8 +1092,11 @@
     "disable": "Desativar acesso LAN",
     "enabled": "Acesso LAN ativo",
     "disabled": "Acesso LAN desativado",
-    "host_help": "Partilhe o endereço e a chave com o navegador ou com Controlo remoto no APK. O acesso começa desativado e a chave muda em cada ativação.",
-    "network_help": "Use uma rede de confiança: esta ligação local usa HTTP sem encriptação. Permita a porta na firewall do PC. Com vários adaptadores, use o endereço IPv4 da rede partilhada. Não exponha a porta à Internet.",
+    "encryption_warning": "Ligação local sem encriptação. Utilize numa rede de confiança.",
+    "inactive_help": "Desativado por predefinição. Enquanto não o ativar, não é aberta nenhuma porta nem fica um servidor de controlo remoto em segundo plano. Desativar encerra o acesso e invalida a chave desta sessão.",
+    "apply_hint": "Guarde as definições para ativar o acesso remoto.",
+    "host_help": "Controle os sons deste PC através do navegador ou da aplicação Android. Partilhe o endereço e a chave apresentados ao ativar o acesso.",
+    "network_help": "Ligue ambos os dispositivos à mesma rede local.",
     "errors": {
       "remote_auth": "Verifique a chave de acesso.",
       "remote_connection": "Não foi possível ligar ao PC. Verifique o endereço, a rede e a firewall.",

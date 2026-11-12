@@ -16,14 +16,13 @@ export function addTouchTrackAction(row, index) {
     row.appendChild(button);
 }
 
-export function initTouchAudioImport(onUpdate) {
-    if (!isAndroid()) return;
+export function initPlayerAudioImport(onUpdate) {
     const button = document.getElementById('player-add-audio');
     button.addEventListener('click', async () => {
         button.disabled = true;
         try {
-            const path = await invoke('pick_audio_file');
-            if (path) { await invoke('player_add_track', { path }); await onUpdate(); }
+            const paths = await invoke('pick_audio_files');
+            if (paths.length) { await invoke('player_add_tracks', { paths }); await onUpdate(); }
         } catch (error) { await alertIpcError(error); }
         finally { button.disabled = false; }
     });

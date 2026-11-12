@@ -111,7 +111,7 @@ for (const platform of ['android', 'desktop']) {
         const css = pathToFileURL(join(root, 'src/css/midi.css')).href;
         writeFileSync(file, '<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="'
             + css + '"></head><body><input type="checkbox" id="config-midi-enabled">'
-            + '<div id="config-midi-devices"></div><script>' + script + '</script></body></html>');
+            + '<fieldset id="settings-midi-options"><div id="config-midi-devices"></div></fieldset><script>' + script + '</script></body></html>');
         const result = spawnSync(browser, ['--headless', '--disable-gpu', '--no-first-run',
             '--no-default-browser-check', '--disable-background-networking', '--allow-file-access-from-files',
             '--user-data-dir=' + join(folder, 'browser'), '--window-size=390,640',

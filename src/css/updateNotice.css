@@ -56,6 +56,17 @@
   position: absolute;
 }
 
+.release-notes-support {
+  margin-top: 20px;
+  padding: 12px 14px;
+  border-inline-start: 3px solid var(--accent-color);
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+}
+.release-notes-support h4 { margin-top: 0; }
+.release-notes-support-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.release-notes-support-links button { white-space: normal; }
+
 .donation-body p {
   color: var(--text-primary);
   font-size: 13px;

@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "LF Botonera de Efectos Beta",
-  "version": "1.6.0-beta.5",
-  "identifier": "io.github.yosoyluisfernando.lfbotonera.lanprueba",
+  "productName": "LF Botonera de Efectos",
+  "version": "1.6.0",
+  "identifier": "io.github.yosoyluisfernando.LF-Botonera-de-efectos",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "LF Botonera de Efectos Beta",
+        "title": "LF Botonera de Efectos",
         "width": 1000,
         "height": 700,
         "center": true,
@@ -54,14 +54,28 @@
       "icons/icon.ico"
     ],
     "linux": {
-      "deb": { "depends": ["libwebkit2gtk-4.1-0", "libssl3", "libdbus-1-3"] },
-      "appimage": { "bundleMediaFramework": true },
-      "rpm": { "depends": ["webkit2gtk4.1", "openssl", "dbus-libs"] }
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libssl3",
+          "libdbus-1-3"
+        ]
+      },
+      "appimage": {
+        "bundleMediaFramework": true
+      },
+      "rpm": {
+        "depends": [
+          "webkit2gtk4.1",
+          "openssl",
+          "dbus-libs"
+        ]
+      }
     },
     "windows": {
       "wix": {
-        "version": "1.6.0.5",
-        "upgradeCode": "7eeb01c0-09c5-5e7c-b5ce-f69c2081adbf"
+        "version": "1.6.0",
+        "upgradeCode": "43888972-c5a4-5e8d-a996-ca913f3b6d8e"
       },
       "nsis": {
         "installMode": "perMachine"

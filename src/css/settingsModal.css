@@ -82,6 +82,9 @@
 
 .about-spacer { flex: 1; }
 
+.settings-dependent { border: 0; margin: 0; padding: 0; min-width: 0; }
+.settings-dependent:disabled { opacity: 0.45; pointer-events: none; }
+
 .update-box {
   border: 1px solid var(--border-color);
   background: var(--input-bg);

@@ -1,5 +1,11 @@
 # Canales de compilación: Beta y Estable
 
+**Actualización 2026-11-12:** el autor autorizó preparar estable 1.6.0 para
+Windows y Linux, con OBS/Control remoto marcados en desarrollo. Identidad estable
+restaurada desde v1.5.0. Android conserva 1.6.0 y avanza a versionCode 1006002.
+Crear borrador con instaladores; no publicarlo ni mover main. Las indicaciones
+anteriores que mantienen PC en Beta son históricas para este cierre.
+
 Decisión del autor, 2026-11-11. Leer junto a [COMPILAR.md](../COMPILAR.md).
 La rama de trabajo es `codex/desarrollo`; main conserva la referencia estable.
 

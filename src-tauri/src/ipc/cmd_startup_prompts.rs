@@ -1,7 +1,10 @@
 use crate::core::AppState;
 use crate::engine::persist::config_io as config;
 use serde::Serialize;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::State;
+
+static PREVIEW_USED: AtomicBool = AtomicBool::new(false);
 
 const FIRST_DONATION_PROMPT: u32 = 5;
 const DONATION_INTERVAL: u32 = 100;
@@ -25,7 +28,10 @@ pub fn prepare_startup_prompts(
     let mut cfg = state.config.lock().map_err(|e| e.to_string())?;
     cfg.startup.launch_count = cfg.startup.launch_count.saturating_add(1);
     let notes = crate::domain::release_notes::for_platform(&current, cfg!(target_os = "android"));
-    let show = cfg.startup.last_seen_version != current && !notes.is_empty();
+    let preview = cfg!(debug_assertions)
+        && std::env::var_os("LF_PREVIEW_RELEASE_NOTES").is_some()
+        && !PREVIEW_USED.swap(true, Ordering::Relaxed);
+    let show = (cfg.startup.last_seen_version != current || preview) && !notes.is_empty();
     let donation_due = donation_due(
         cfg.startup.launch_count,
         cfg.startup.last_donation_prompt_launch,

@@ -24,8 +24,11 @@
   background:var(--playback-hover-bg); }
 .fixed-view-menu button[aria-checked="true"]::before { content:"✓ "; }
 .fixed-header-actions { display:flex; align-items:center; gap:4px; flex:none; }
+.fixed-panel[data-view="player"] .fixed-panel-header { flex-wrap:wrap; gap:6px; }
 .fixed-panel-add { border:0; border-radius:4px; padding:2px 8px; cursor:pointer;
   color:#fff; background:var(--action-accent); font-weight:bold; }
+#player-add-audio:disabled { opacity:.45; cursor:wait; }
+.fixed-panel-empty { grid-column:1 / -1; }
 .fixed-panel:not([data-view="buttons"]) .fixed-panel-add { display:none; }
 .library-roots-open { display:none; border:0; border-radius:4px; padding:3px 6px;
   cursor:pointer; color:var(--text-primary); background:transparent; }

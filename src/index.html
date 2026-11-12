@@ -102,8 +102,8 @@
               <button id="fixed-panel-add" class="fixed-panel-add" data-i18n-title="fixed_panel.add">+</button>
               <span id="player-drop-progress" class="player-drop-progress hidden"></span>
               <span class="player-actions">
-                <button id="player-add-audio" data-i18n-title="mobile.add_audio" data-i18n-aria-label="mobile.add_audio">+</button>
                 <button id="player-clear" data-i18n-title="player.clear">🧹</button>
+                <button id="player-add-audio" type="button" data-i18n-title="player.add_audio" data-i18n-aria-label="player.add_audio">+</button>
                 <button id="player-open" data-i18n-title="player.open">📂</button>
                 <button id="player-save" data-i18n-title="player.save">💾</button>
                 <button id="player-modes">→</button>
@@ -689,6 +689,7 @@
               <input type="checkbox" id="config-midi-enabled">
               <span data-i18n="midi.enabled">Permitir disparos desde dispositivos MIDI</span>
             </label>
+            <fieldset id="settings-midi-options" class="settings-dependent" disabled inert>
             <div id="config-midi-devices" class="midi-device-list"></div>
             <button type="button" id="config-midi-refresh" class="btn-dark" data-i18n="midi.refresh">Actualizar dispositivos MIDI</button>
             <details id="android-midi-add" class="midi-add hidden">
@@ -729,6 +730,7 @@
               </div>
             </div>
             <hr class="modal-divider">
+            </fieldset>
             </section>
             <div id="settings-keyboard-extra">
             <div class="reserved-shortcuts">

@@ -1,5 +1,4 @@
-#touch-hint, #player-add-audio { display: none; }
-body[data-platform="android"] #player-add-audio { display: inline-block; }
+#touch-hint { display: none; }
 /* Presentación táctil de Android. */
 @media (any-pointer: coarse) {
   :where(body[data-platform="android"]) #touch-hint { display: block; font-size: 12px; color: var(--text-secondary); padding: 5px; }

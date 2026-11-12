@@ -7,7 +7,9 @@ La versión, el nombre, el identificador y el código de actualización deben
 corresponder al canal. Quitar `-beta.N` de la versión no convierte la edición
 de pruebas en estable. Esta comprobación aplica también a GitHub Actions.
 
-Escritorio conserva **LF Botonera de Efectos Beta**, aislada de la estable.
+El autor autorizó preparar **LF Botonera de Efectos 1.6.0 estable** para Windows
+y Linux el 2026-11-12, restaurando la identidad de la estable 1.5.0. La Beta
+anterior conserva su instalación separada. No publicar ni mover main.
 Android prepara **LF Botonera de Efectos 1.6.0** con identidad y firma propias;
 leer [ANDROID_ESTABLE.md](Documentación/ANDROID_ESTABLE.md).
 La ruta principal es `C:/OVERLAY/BOTONERA`, rama `codex/desarrollo`.

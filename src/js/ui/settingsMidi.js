@@ -26,7 +26,16 @@ function initDeviceDiscovery() {
     const status = document.getElementById('android-midi-status');
     add.classList.remove('hidden');
     if (isAndroid()) document.getElementById('config-midi-refresh').classList.add('hidden');
-    else usb.classList.add('hidden');
+    else {
+        usb.classList.add('hidden');
+        add.querySelector('summary').textContent = t('midi.bluetooth_alternative');
+        add.querySelector('summary').dataset.i18n = 'midi.bluetooth_alternative';
+        const hint = document.createElement('p');
+        hint.className = 'hint';
+        hint.dataset.i18n = 'midi.desktop_pairing_hint';
+        hint.textContent = t('midi.desktop_pairing_hint');
+        document.getElementById('config-midi-devices').before(hint);
+    }
     usb.addEventListener('click', async () => {
         const devices = await loadMidiDevices();
         status.textContent = t(devices.some(device => device.available && device.id.startsWith('usb:'))
@@ -56,6 +65,7 @@ function initDeviceDiscovery() {
 
 export async function loadSettingsMidi(config) {
     document.getElementById('config-midi-enabled').checked = !!config.midi?.enabled;
+    updateDeviceSelectionState();
     const profile = config.profiles.find(p => p.id === config.active_profile_id);
     setMidiField('config-midi-stop', profile?.audio?.midi_stop);
     setMidiField('config-midi-next', profile?.audio?.midi_next);
@@ -159,6 +169,8 @@ function deviceAction(key, device, save) {
 
 function updateDeviceSelectionState() {
     const enabled = !!document.getElementById('config-midi-enabled')?.checked;
+    const options = document.getElementById('settings-midi-options');
+    options.disabled = options.inert = !enabled;
     document.querySelectorAll('[data-midi-device], [data-midi-action]')
         .forEach(input => { input.disabled = !enabled; });
 }

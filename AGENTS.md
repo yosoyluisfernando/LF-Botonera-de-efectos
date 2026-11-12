@@ -1,11 +1,12 @@
 # AGENTS.md — LF Botonera de Efectos
 
-**Estado vigente (2026-11-11):** continuar en `C:/OVERLAY/BOTONERA`, rama
-`codex/desarrollo`, versión de trabajo `1.6.0-beta.5`. Windows, Linux y Android
+**Estado vigente (2026-11-12):** continuar en `C:/OVERLAY/BOTONERA`, rama
+`codex/desarrollo`, preparación estable `1.6.0` autorizada para PC y Android. Windows, Linux y Android
 comparten este repositorio. Main conserva la versión estable publicada.
 Las referencias posteriores a la antigua rama local de OBS son históricas.
 Android prepara su primera estable 1.6.0 con override e identidad propios;
-ver `Documentación/ANDROID_ESTABLE.md`. Escritorio continúa en Beta.
+ver `Documentación/ANDROID_ESTABLE.md`. Escritorio restaura la identidad estable de 1.5.0.
+Preparar compilaciones y borrador de GitHub; no publicar ni mover main.
 Leer primero la sección vigente de `Documentación/CONTINUIDAD_SESION.md`.
 
 Guía para cualquier IA colaboradora (independientemente del modelo o plataforma).
