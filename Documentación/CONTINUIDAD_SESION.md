@@ -1,5 +1,17 @@
 # Continuidad de sesión — estado actual
 
+## Ajustes finales Android 1.6.0 antes de publicar — 2026-11-11
+
+El autor confirmó que el APK estable se instala correctamente y solicitó solo
+dos ajustes: notas de bienvenida sin cortes artificiales y Acerca de al final
+de las secciones de ajustes Android. Se conserva versión 1.6.0/versionCode 1006000
+y la misma firma de producción, porque aún no se ha publicado.
+El visor estaba convirtiendo cada línea física del Markdown en un párrafo;
+ahora une las continuaciones de cada párrafo/viñeta y conserva los encabezados,
+separadores y formato en línea. El navegador decide el ajuste de línea por ancho.
+Android mueve el botón de Acerca de al final sin alterar la navegación de escritorio.
+Pruebas de regresión cubren notas a 390/768px, texto real Android y orden de ajustes.
+
 ## Primera estable Android: alcance aprobado — 2026-11-11
 
 El autor aprobó las propuestas de editor/etiquetas/notas y una estable Android

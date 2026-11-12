@@ -5,6 +5,7 @@ export async function verifyAndroidBack({ evaluate, until, adb, pkg }) {
     const hidden = id => evaluate(`document.getElementById('${id}').classList.contains('hidden')`);
     await evaluate(`document.getElementById('btn-settings').click()`);
     await until(async () => !(await hidden('settings-modal')), 'No abrió Ajustes para probar Atrás');
+    assert.equal(await evaluate(`document.querySelector('.settings-tabs').lastElementChild.dataset.target`), 's-about');
     await evaluate(`document.querySelector('[data-target="s-about"]').click()`);
     const info = await evaluate(`window.__TAURI__.core.invoke('get_distribution_info')`);
     assert.equal(info.platform, 'android');

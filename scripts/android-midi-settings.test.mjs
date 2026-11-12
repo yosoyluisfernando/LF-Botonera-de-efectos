@@ -47,6 +47,7 @@ for (const platform of ['desktop', 'android']) {
             (async()=>{
                 document.body.dataset.platform=platform;
                 const panel=document.getElementById('s-atajos'), original=panel.innerHTML;
+                const tabs=document.querySelector('.settings-tabs'), originalTabOrder=tabs.innerHTML;
                 const button=document.getElementById('android-midi-bluetooth');
                 let clicks=0;button.addEventListener('click',()=>clicks++);
                 initAndroidSettingsNavigation();
@@ -54,8 +55,10 @@ for (const platform of ['desktop', 'android']) {
                 button.click();assert(clicks===1,'device listener lost');
                 if(platform==='desktop') {
                     assert(panel.innerHTML===original,'desktop settings changed');
+                    assert(tabs.innerHTML===originalTabOrder,'desktop navigation changed');
                     assert(document.querySelector('[data-target="s-atajos"]').dataset.i18n==='settings.tab_keys','desktop title changed');
                 } else {
+                    assert(tabs.lastElementChild.dataset.target==='s-about','About is not the final settings section');
                     const keyboard=document.getElementById('android-keyboard-shortcuts');
                     assert(!keyboard.open,'keyboard opens by default');
                     const physical=document.getElementById('android-keyboard-devices');

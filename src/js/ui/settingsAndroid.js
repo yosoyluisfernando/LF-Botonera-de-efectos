@@ -10,6 +10,7 @@ export function initAndroidSettingsNavigation() {
     const header = modal.querySelector('.modal-header');
     const title = header.querySelector('h3');
     const tabs = modal.querySelector('.settings-tabs');
+    tabs.appendChild(tabs.querySelector('[data-target="s-about"]'));
     const content = modal.querySelector('.settings-content');
     const back = document.createElement('button');
     back.type = 'button';

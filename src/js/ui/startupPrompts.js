@@ -91,11 +91,27 @@ async function _closeReleaseNotes() {
 }
 
 function _renderNotes(markdown) {
-    return markdown
-        .split(/\r?\n/)
-        .map(line => _renderLine(line.trim()))
-        .filter(Boolean)
-        .join('');
+    const blocks = [];
+    let paragraph = '';
+    const flush = () => {
+        if (paragraph) blocks.push(_renderLine(paragraph));
+        paragraph = '';
+    };
+    for (const source of markdown.split(/\r?\n/)) {
+        const line = source.trim();
+        if (!line) { flush(); continue; }
+        if (line.startsWith('### ') || /^-{3,}$/.test(line)) {
+            flush();
+            blocks.push(_renderLine(line));
+        } else if (line.startsWith('- ')) {
+            flush();
+            paragraph = line;
+        } else {
+            paragraph = paragraph ? `${paragraph} ${line}` : line;
+        }
+    }
+    flush();
+    return blocks.join('');
 }
 
 function _showDonationPrompt() {
