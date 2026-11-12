@@ -5,7 +5,7 @@ tools="$sdk/build-tools/36.0.0"
 adb="$sdk/platform-tools/adb"
 export ANDROID_USER_HOME="$RUNNER_TEMP/lf-android-user"
 export ANDROID_AVD_HOME="$ANDROID_USER_HOME/avd"
-if [ ! -f "$ANDROID_AVD_HOME/lf-smoke.ini" ]; then
+if [ "${1:-}" != --no-emulator ] && [ ! -f "$ANDROID_AVD_HOME/lf-smoke.ini" ]; then
   mkdir -p "$ANDROID_AVD_HOME"
   test -c /dev/kvm
   sudo chmod a+rw /dev/kvm
@@ -34,6 +34,10 @@ grep -F "versionCode='1006001'" android-release-artifact/package.txt
 grep -F "application-label:'LF Botonera de Efectos'" android-release-artifact/package.txt
 grep -F "native-code: 'arm64-v8a'" android-release-artifact/package.txt
 ! grep -q 'application-debuggable' android-release-artifact/package.txt
+if [ "${1:-}" = --no-emulator ]; then
+  (cd android-release-artifact && sha256sum "$name" > "$name.sha256")
+  exit 0
+fi
 "$sdk/emulator/emulator" -avd lf-smoke -no-window -no-audio -no-boot-anim -no-snapshot \
   -gpu swiftshader -memory 3072 > android-release-artifact/emulator.txt 2>&1 &
 emulator_pid=$!

@@ -13,6 +13,16 @@ Control remoto, Android/GitHub y Atrás. Se guardan XML y capturas de producció
 Control remoto Android inserta su pestaña antes de Acerca de desde su creación.
 El retiro de APK se limita a los directorios de Compilados del proyecto; no
 se borran SDK, emuladores, claves de firma ni instaladores de escritorio.
+Retirados los 19 APK locales antiguos (incluidas copias intermedias) de
+C:/OVERLAY/BOTONERA/Compilados y D:/BOTONERA/Compilados. Falta dejar solo el
+nuevo APK firmado cuando pase producción. No copiar otra entrega antigua.
+La primera prueba por accesibilidad falló al completar el primer inicio en el
+AVD mínimo de 320x640; no demuestra un bloqueo de la aplicación. Diagnóstico
+nativo confirmó IPC, configuración, idioma e interfaz inicializados; la captura
+mostró el selector de precarga abierto por una pulsación de la automatización.
+La prueba release ahora fija 1080x2400/densidad 420, registra cada pulsación y
+captura antes de actuar. Se permite repetir solo producción después de comprobar
+debug. Ejecución en curso: 43146658641, código d69b6f5; aún sin entrega final.
 
 ## Ajustes finales Android 1.6.0 antes de publicar — 2026-11-11
 

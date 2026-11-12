@@ -16,6 +16,10 @@ on:
         description: Omitir la suite debug ya comprobada y verificar producción
         type: boolean
         default: false
+      skip_emulator:
+        description: Entregar producción para prueba física del autor
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -126,9 +130,12 @@ jobs:
         env:
           TAURI_ENV_PLATFORM: android
       - name: Verify production APK
-        if: inputs.build_release == true
+        if: inputs.build_release == true && inputs.skip_emulator != true
         timeout-minutes: 8
         run: bash scripts/android-release-smoke.sh
+      - name: Sign and stage production APK without emulator
+        if: inputs.build_release == true && inputs.skip_emulator == true
+        run: bash scripts/android-release-smoke.sh --no-emulator
       - uses: actions/upload-artifact@v4
         if: always() && inputs.build_release == true
         with:
