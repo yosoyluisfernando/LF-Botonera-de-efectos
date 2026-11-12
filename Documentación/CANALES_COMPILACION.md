@@ -104,7 +104,7 @@ los dos archivos npm; eso no cambia los archivos Rust/Tauri ni el canal.
 
 El autor aprobó una edición estable Android independiente el 2026-11-11.
 El override `tauri.android.conf.json` fija LF Botonera de Efectos, versión 1.6.0,
-paquete `io.github.yosoyluisfernando.lfbotonera` y versionCode 1006000.
+paquete `io.github.yosoyluisfernando.lfbotonera` y versionCode 1006001 (revisión interna posterior al paquete inicial).
 Los espacios entre nombre y versión son solo tipográficos; los valores de
 configuración se verifican directamente en el paquete compilado.
 

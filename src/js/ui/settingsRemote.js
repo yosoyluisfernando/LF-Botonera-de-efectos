@@ -8,7 +8,9 @@ export function initSettingsRemote(config) {
     const tabs = document.querySelector('.settings-tabs');
     const tab = document.createElement('button');
     tab.type = 'button'; tab.className = 's-tab'; tab.dataset.target = 's-remote';
-    tab.textContent = t('remote.title'); tabs.append(tab);
+    tab.textContent = t('remote.title');
+    if (isAndroid()) tabs.insertBefore(tab, tabs.querySelector('[data-target="s-about"]'));
+    else tabs.append(tab);
     const panel = document.createElement('div');
     panel.id = 's-remote'; panel.className = 's-panel hidden';
     document.querySelector('.settings-content').append(panel);

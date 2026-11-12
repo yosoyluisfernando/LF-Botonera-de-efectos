@@ -121,6 +121,17 @@ jobs:
         timeout-minutes: 8
         run: bash scripts/android-release-smoke.sh
       - uses: actions/upload-artifact@v4
+        if: always() && inputs.build_release == true
+        with:
+          name: LF-Botonera-Android-production-proof
+          path: |
+            android-release-artifact/*.xml
+            android-release-artifact/*.png
+            android-release-artifact/production-ui-proof.json
+            android-release-artifact/package.txt
+            android-release-artifact/logcat.txt
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
         if: inputs.build_release == true
         with:
           name: LF-Botonera-Android-ARM64-release

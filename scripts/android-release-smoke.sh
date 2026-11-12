@@ -23,7 +23,7 @@ unset LF_CI_SIGN_PASSWORD
 "$tools/aapt" dump badging "android-release-artifact/$name" > android-release-artifact/package.txt
 grep -F "name='io.github.yosoyluisfernando.lfbotonera'" android-release-artifact/package.txt
 grep -F "versionName='1.6.0'" android-release-artifact/package.txt
-grep -F "versionCode='1006000'" android-release-artifact/package.txt
+grep -F "versionCode='1006001'" android-release-artifact/package.txt
 grep -F "application-label:'LF Botonera de Efectos'" android-release-artifact/package.txt
 grep -F "native-code: 'arm64-v8a'" android-release-artifact/package.txt
 ! grep -q 'application-debuggable' android-release-artifact/package.txt
@@ -55,6 +55,7 @@ for attempt in 1 2; do
   "$adb" shell pidof "$pkg"
   "$adb" shell dumpsys activity activities | grep -E "(topResumedActivity|mResumedActivity).* $pkg/"
 done
+python3 scripts/android-release-ui.py "$adb" android-release-artifact
 "$adb" logcat -d > android-release-artifact/logcat.txt
 ! grep -E 'FATAL EXCEPTION|Fatal signal|Android MIDI attach:|Android app attach:' android-release-artifact/logcat.txt
 (cd android-release-artifact && sha256sum "$name" > "$name.sha256")

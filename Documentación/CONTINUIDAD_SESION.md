@@ -1,5 +1,19 @@
 # Continuidad de sesión — estado actual
 
+## Entrega única Android y verificación de producción — 2026-11-11
+
+El autor informó que seguía viendo los cortes de notas y Acerca de antes
+del control remoto. Solicitó retirar todos los APK anteriores y dejar solo
+una entrega comprobada. Se conserva versión visible 1.6.0 y firma; se incrementa
+versionCode a 1006001 para identificar inequívocamente la nueva instalación.
+La revisión anterior probó esos detalles en debug; producción solo tenía
+prueba de instalación/arranque. Se añade verificación nativa por accesibilidad
+del APK release: viñeta completa sin párrafos partidos, Acerca de después de
+Control remoto, Android/GitHub y Atrás. Se guardan XML y capturas de producción.
+Control remoto Android inserta su pestaña antes de Acerca de desde su creación.
+El retiro de APK se limita a los directorios de Compilados del proyecto; no
+se borran SDK, emuladores, claves de firma ni instaladores de escritorio.
+
 ## Ajustes finales Android 1.6.0 antes de publicar — 2026-11-11
 
 El autor confirmó que el APK estable se instala correctamente y solicitó solo
