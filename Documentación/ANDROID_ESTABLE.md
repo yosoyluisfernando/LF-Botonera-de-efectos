@@ -105,3 +105,15 @@ de escritorio ausentes se enumeran en las notas Android.
 
 Fuentes: [firma Android](https://developer.android.com/studio/publish/app-signing),
 [configuración Tauri](https://v2.tauri.app/reference/config/).
+
+## Primera compilación preparada
+
+Comprobada en [GitHub Actions 43131269897](https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/actions/runs/43131269897),
+commit df90c10daae840c7dc528ec0cf650d49508766a3. APK final en
+`D:/BOTONERA/Compilados/Android-Estable-1.6.0/`, firmado localmente con el
+certificado propio de producción. SHA-256 del APK:
+`8127c5c170454368cd0e4394e13a91806cb478ca2f6fbdc91011731b9409bbde`.
+
+Se comprobaron Android 35, Atrás nativo, metadatos Android/GitHub/1.6.0,
+contenido idéntico salvo firma y arranque del APK de producción. La compilación
+no publica automáticamente el archivo: el release público sigue pendiente.

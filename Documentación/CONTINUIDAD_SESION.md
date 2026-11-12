@@ -26,6 +26,25 @@ ocultar sus etiquetas de rejilla independientemente; ambas visibles por defecto.
 Esta preparación no publica un release ni registra Google Play/F-Droid.
 Los pendientes de PC quedan en PENDIENTES_ESCRITORIO.md para el siguiente trabajo.
 
+Entrega verificada: APK de producción 1.6.0 ARM64 en
+D:/BOTONERA/Compilados/Android-Estable-1.6.0/LF-Botonera-1.6.0-android-arm64.apk.
+GitHub Actions 43131269897 compiló df90c10daae840c7dc528ec0cf650d49508766a3,
+pasó la comprobación funcional de Android 35 (incluido Atrás nativo real y
+About Android/GitHub/1.6.0) y dos arranques del APK de producción sin depuración.
+Local: 422 pruebas Rust aprobadas, 19 omitidas; biblioteca y frontend compilan;
+28 pruebas Node/interfaz aprobadas. Solo el código de Android se empaquetó.
+Firma propia de producción RSA 4096, certificado público SHA-256
+b64c372578ac7749c70742bc018f6cbc072d900ac943b9b5a94fca8a200a212f.
+SHA-256 APK final:
+8127c5c170454368cd0e4394e13a91806cb478ca2f6fbdc91011731b9409bbde.
+Se compararon todas las entradas del ZIP salvo los archivos de firma:
+el contenido de aplicación coincide con el APK de CI. Firma válida v2/v3.
+El directorio incluye notas, hashes, certificado público y procedencia;
+Origen-GitHub es copia intermedia de auditoría, no la entrega pública firmada.
+La clave privada y contraseña de recuperación permanecen fuera de Compilados y Git.
+No se publicó ningún release ni se modificó main. El autor puede probar este APK;
+el teclado Bluetooth de escritura continúa sin comprobación física.
+
 ## Prueba física Android y preparación pública — 2026-11-11
 
 El autor confirmó conexión satisfactoria de Launchpad por Bluetooth MIDI
