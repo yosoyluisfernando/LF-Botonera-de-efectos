@@ -1,20 +1,7 @@
-//! Modulo: engine/audio/seek_source.rs
-//! Proposito: abrir un archivo de audio YA POSICIONADO, con seek de verdad.
-//!
-//! **Por que existe.** `rodio::Decoder` envuelve el lector en su `ReadSeekSource`,
-//! que informa `byte_len() = None`. Symphonia necesita el tamano del archivo para
-//! posicionarse en formatos sin indice, asi que su `try_seek` falla siempre
-//! (FLAC: `Unseekable`; MP3: `end of stream`). Al fallar, la aplicacion caia a
-//! `CuedSource`, que llega al punto pedido **descartando las muestras una a una**:
-//! medido, ~55 ms por cada segundo saltado, o sea 6,6 s de silencio para saltar a
-//! los 2 minutos. Solo no se notaba en los efectos cortos, porque estan en la
-//! cache de RAM y ahi el salto ya era O(1).
-//!
-//! La solucion es no pasar por rodio para esto: symphonia acepta el `File`
-//! directamente y `File` **si** implementa `MediaSource` informando del tamano.
-//! Con eso, `format.seek` posiciona de verdad, en milisegundos.
-//!
-//! Sirve a los dos motores: efectos y reproductor comparten `source_from_path_at`.
+//! Fuente Symphonia para reproducción y seek, con File que conserva tamaño y búsqueda.
+//! Evita el adaptador de Rodio 0.19 que convierte SeekError de apertura en panic.
+//! Canales y frecuencia se toman del primer bloque decodificado, no de metadatos
+//! incompletos del contenedor (algunos MP4 anuncian 48 kHz para AAC de 44,1 kHz).
 use crate::engine::audio::decode::BoxSource;
 use rodio::Source;
 use std::collections::VecDeque;
@@ -63,27 +50,26 @@ impl SeekSource {
             .format(
                 &hint,
                 mss,
-                &FormatOptions::default(),
+                &FormatOptions {
+                    enable_gapless: true,
+                    ..Default::default()
+                },
                 &MetadataOptions::default(),
             )
             .ok()?;
         let mut format = probed.format;
 
-        let track = format
+        let (track_id, params, mut decoder) = format
             .tracks()
             .iter()
-            .find(|t| t.codec_params.codec != CODEC_TYPE_NULL)?;
-        let track_id = track.id;
-        let params = track.codec_params.clone();
-        let channels = params.channels?.count() as u16;
-        let sample_rate = params.sample_rate?;
-
-        let mut decoder = symphonia::default::get_codecs()
-            .make(&params, &DecoderOptions::default())
-            .ok()?;
-
-        let channels = channels.max(1);
-        let mut skip = 0usize;
+            .filter(|track| track.codec_params.codec != CODEC_TYPE_NULL)
+            .find_map(|track| {
+                symphonia::default::get_codecs()
+                    .make(&track.codec_params, &DecoderOptions::default())
+                    .ok()
+                    .map(|decoder| (track.id, track.codec_params.clone(), decoder))
+            })?;
+        let mut skip_s = 0.0;
         if start_s > 0.0 {
             let seeked = format
                 .seek(
@@ -98,18 +84,33 @@ impl SeekSource {
             decoder.reset();
             // El salto cae al principio del bloque que contiene el punto, asi que
             // sobra el trozo que va desde ahi hasta lo pedido: se descarta.
-            skip = seeked.required_ts.saturating_sub(seeked.actual_ts) as usize * channels as usize;
+            let difference = seeked.required_ts.saturating_sub(seeked.actual_ts);
+            skip_s = params
+                .time_base
+                .map(|base| {
+                    let time = base.calc_time(difference);
+                    time.seconds as f64 + time.frac
+                })
+                .unwrap_or_else(|| {
+                    difference as f64 / params.sample_rate.unwrap_or(1).max(1) as f64
+                });
         }
 
-        Some(Self {
+        let mut source = Self {
             format,
             decoder,
             track_id,
-            channels,
-            sample_rate: sample_rate.max(1),
+            channels: 1,
+            sample_rate: 1,
             pending: VecDeque::new(),
-            skip,
-        })
+            skip: 0,
+        };
+        if !source.fill() {
+            return None;
+        }
+        source.skip =
+            (skip_s * source.sample_rate as f64 * source.channels as f64).round() as usize;
+        Some(source)
     }
 
     /// Decodifica el siguiente paquete de nuestra pista. `false` = se acabo.
@@ -124,6 +125,8 @@ impl SeekSource {
             let Ok(decoded) = self.decoder.decode(&packet) else {
                 continue; // un paquete roto no debe cortar la cancion entera
             };
+            self.channels = decoded.spec().channels.count().max(1) as u16;
+            self.sample_rate = decoded.spec().rate.max(1);
             let mut buf = SampleBuffer::<f32>::new(decoded.capacity() as u64, *decoded.spec());
             buf.copy_interleaved_ref(decoded);
             self.pending.extend(buf.samples().iter().copied());

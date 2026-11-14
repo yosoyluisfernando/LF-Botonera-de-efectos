@@ -1,5 +1,6 @@
 //! Proceso externo; adapta la conversión aportada por Danilo Wenner.
 //! No se ejecuta desde el hilo de audio ni desde el hilo de ventana.
+use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::OnceLock;
@@ -55,6 +56,11 @@ pub fn convert(input: &str, output: &Path) -> Result<(), String> {
         let mut child = command
             .args([
                 "-nostdin",
+                "-nostats",
+                "-progress",
+                "pipe:1",
+                "-stats_period",
+                "0.2",
                 "-hide_banner",
                 "-loglevel",
                 "error",
@@ -79,24 +85,35 @@ pub fn convert(input: &str, output: &Path) -> Result<(), String> {
             ])
             .arg(&partial)
             .stdin(Stdio::null())
-            .stdout(Stdio::null())
+            .stdout(Stdio::piped())
             .stderr(Stdio::null())
             .spawn()
             .map_err(|_| "audio_converter_missing")?;
+        let path = input.to_string();
+        let duration = crate::engine::audio::formats::probe_duration_secs(input);
+        let stdout = child.stdout.take().ok_or("audio_convert_failed")?;
+        let reader = std::thread::spawn(move || {
+            for line in BufReader::new(stdout).lines().map_while(Result::ok) {
+                super::progress::advance(&path, &line, duration);
+            }
+        });
         let start = Instant::now();
-        loop {
+        let success = loop {
             match child.try_wait() {
-                Ok(Some(status)) if status.success() => break,
-                Ok(Some(_)) => return Err("audio_convert_failed".to_string()),
+                Ok(Some(status)) => break status.success(),
                 Ok(None) if start.elapsed() < Duration::from_secs(300) => {
-                    std::thread::sleep(Duration::from_millis(50))
+                    std::thread::sleep(Duration::from_millis(50));
                 }
                 _ => {
                     let _ = child.kill();
                     let _ = child.wait();
-                    return Err("audio_convert_failed".to_string());
+                    break false;
                 }
             }
+        };
+        let _ = reader.join();
+        if !success {
+            return Err("audio_convert_failed".to_string());
         }
         // No publicar una copia vacía o que el decodificador compartido no abra.
         if !crate::engine::audio::decode::can_decode_native(&partial.to_string_lossy()) {

@@ -87,6 +87,10 @@ no hay clic derecho, y mostrar cuál está activo. Requiere propuesta de UI e IP
 
 ### 5. Conversión automática con FFmpeg
 
+Actualización de la primera fase: apertura directa segura del audio compatible
+MP4/M4A/AAC, modal ocultable e indicadores de porcentaje real en los botones.
+La solicitud del autor y las comprobaciones están en CONTINUIDAD_SESION.md.
+
 Conservar la idea de una conversión auxiliar para archivos no decodificables
 de forma nativa. Procesar en Rust con trabajador y cola fuera del hilo de audio;
 no modificar originales. Proponer caché, invalidación, limpieza, progreso y

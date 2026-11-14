@@ -1133,5 +1133,13 @@
     "settings_unavailable": "No se pudieron abrir los ajustes de Bluetooth. Ábrelos desde los ajustes de Android.",
     "devices_unavailable": "No se pudieron consultar los teclados conectados. Vuelve a abrir este apartado para reintentar."
   },
-  "conversion": {"preparing": "Preparando audio compatible"}
+  "conversion": {
+  "preparing": "Preparando…",
+  "title": "Conversión de audio",
+  "hide": "Ocultar",
+  "hide_hint": "Puedes ocultar esta ventana y seguir trabajando. La conversión continúa.",
+  "queued": "En cola…",
+  "percent": "Conversión {percent}%",
+  "ready": "Conversión completada"
+}
 }

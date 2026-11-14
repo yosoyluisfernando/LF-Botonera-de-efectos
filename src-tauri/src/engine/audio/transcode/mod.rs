@@ -7,16 +7,14 @@ mod cache;
 mod ffmpeg;
 #[cfg(not(target_os = "android"))]
 mod probe;
+pub mod progress;
 #[cfg(not(target_os = "android"))]
 mod state;
 #[cfg(not(target_os = "android"))]
 mod worker;
 
 pub fn set_app(app: tauri::AppHandle) {
-    #[cfg(not(target_os = "android"))]
-    worker::set_app(app);
-    #[cfg(target_os = "android")]
-    let _ = app;
+    progress::set_app(app);
 }
 pub fn prepare(path: &str) -> Result<(), String> {
     #[cfg(not(target_os = "android"))]
@@ -53,3 +51,9 @@ pub fn is_candidate(path: &str) -> bool {
 
 #[cfg(all(test, not(target_os = "android")))]
 mod integration_tests;
+
+#[cfg(all(test, not(target_os = "android")))]
+mod real_file_tests;
+
+#[cfg(all(test, not(target_os = "android")))]
+mod native_file_tests;

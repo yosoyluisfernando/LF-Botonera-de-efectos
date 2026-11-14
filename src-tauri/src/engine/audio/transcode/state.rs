@@ -31,7 +31,13 @@ impl State {
         true
     }
     pub fn finish(&self, target: PathBuf, status: Status) {
-        self.entries.lock().unwrap().insert(target, status);
+        self.finish_with(target, status, || {});
+    }
+    pub fn finish_with(&self, target: PathBuf, status: Status, publish: impl FnOnce()) {
+        let mut entries = self.entries.lock().unwrap();
+        entries.insert(target, status);
+        publish();
+        drop(entries);
         self.changed.notify_all();
     }
 }

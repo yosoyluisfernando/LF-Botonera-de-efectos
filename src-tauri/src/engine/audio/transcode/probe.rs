@@ -30,7 +30,7 @@ pub fn is_candidate(path: &str) -> bool {
 /// true = se reproduce directo con calidad completa.
 /// false = hay que convertirlo (o no se puede abrir: dañado, codec ajeno).
 pub fn plays_natively(path: &str) -> bool {
-    probe(path).unwrap_or(false)
+    probe(path).unwrap_or(false) && crate::engine::audio::decode::can_decode_native(path)
 }
 
 fn probe(path: &str) -> Option<bool> {

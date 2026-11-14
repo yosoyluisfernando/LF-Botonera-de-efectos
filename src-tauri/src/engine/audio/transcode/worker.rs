@@ -1,13 +1,11 @@
 //! Cola única de conversión, con estados publicados antes de encolar.
 use super::{cache, ffmpeg, probe};
-use serde::Serialize;
 use std::path::PathBuf;
 use std::sync::{
     mpsc::{channel, Sender},
     Arc, OnceLock,
 };
 use std::time::Duration;
-use tauri::Emitter;
 
 use super::state::{State, Status};
 struct Shared {
@@ -15,27 +13,13 @@ struct Shared {
     sender: Sender<(String, PathBuf)>,
 }
 static SHARED: OnceLock<Shared> = OnceLock::new();
-static APP: OnceLock<tauri::AppHandle> = OnceLock::new();
-#[derive(Clone, Serialize)]
-struct Event<'a> {
-    path: &'a str,
-    status: &'a str,
-    error: Option<&'a str>,
-}
-pub fn set_app(app: tauri::AppHandle) {
-    let _ = APP.set(app);
-}
 fn emit(path: &str, status: &str, error: Option<&str>) {
-    if let Some(app) = APP.get() {
-        let _ = app.emit(
-            "audio-convert-status",
-            Event {
-                path,
-                status,
-                error,
-            },
-        );
-    }
+    super::progress::publish(
+        path,
+        status,
+        if status == "ready" { Some(100) } else { None },
+        error,
+    );
 }
 fn shared() -> &'static Shared {
     SHARED.get_or_init(|| {
@@ -66,12 +50,21 @@ fn shared() -> &'static Shared {
                     Ok(ready) => Status::Ready(ready.clone()),
                     Err(error) => Status::Failed(error.clone()),
                 };
-                worker.finish(target, status);
-                if let Err(error) = &result {
-                    emit(&path, "failed", Some(error));
-                } else if result.as_ref().is_ok_and(|ready| ready != &path) {
-                    emit(&path, "ready", None);
-                }
+                worker.finish_with(target, status, || {
+                    if let Err(error) = &result {
+                        emit(&path, "failed", Some(error));
+                    } else {
+                        emit(
+                            &path,
+                            if result.as_ref().is_ok_and(|p| p == &path) {
+                                "native"
+                            } else {
+                                "ready"
+                            },
+                            None,
+                        );
+                    }
+                });
             }
         });
         Shared { state, sender }
@@ -80,16 +73,18 @@ fn shared() -> &'static Shared {
 fn request(path: &str) -> Result<(&'static Shared, PathBuf), String> {
     let target = cache::target_for(path).ok_or("audio_file_not_found")?;
     let shared = shared();
-    if shared.state.insert_pending(&target)
-        && shared
+    if shared.state.insert_pending(&target) {
+        emit(path, "queued", None);
+        if shared
             .sender
             .send((path.to_string(), target.clone()))
             .is_err()
-    {
-        shared.state.finish(
-            target.clone(),
-            Status::Failed("audio_convert_failed".into()),
-        );
+        {
+            shared.state.finish(
+                target.clone(),
+                Status::Failed("audio_convert_failed".into()),
+            );
+        }
     }
     Ok((shared, target))
 }

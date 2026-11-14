@@ -7,6 +7,7 @@ pub mod cmd_button_playback;
 pub mod cmd_button_types;
 pub mod cmd_button_update;
 pub mod cmd_config;
+pub mod cmd_conversion;
 pub mod cmd_console;
 pub mod cmd_export;
 mod cmd_export_io;

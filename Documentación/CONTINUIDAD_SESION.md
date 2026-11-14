@@ -1,6 +1,25 @@
 # Continuidad de sesión — estado actual
 
 
+## Conversión: panic de apertura y seguimiento — 2026-11-13
+
+El autor reportó «Audio thread died». El registro identifica el panic de
+Rodio 0.19 (`decoder/symphonia.rs:44`, SeekError inesperado) y el PoisonError
+secundario del monitor. La apertura MP4/M4A/AAC/M4B/3GP compatible usa ahora
+File/SeekSource directamente, sin catch_unwind ni sustituir el error por silencio.
+Inicializa frecuencia y canales a partir del primer bloque decodificado; un MP4
+con vídeo selecciona solo audio. HE-AAC sigue usando FFmpeg como respaldo.
+El autor solicitó modal ocultable y «Conversión x%» en botones: implementados
+con progreso real de FFmpeg calculado por Rust, cola, estados indeterminados,
+100 solo al validar y revisión de snapshots. Ocultar no cancela; acceso flotante
+para reabrir. La lista oculta no se redibuja a cada actualización.
+Validación: 435 pruebas Rust aprobadas, 24 omitidas; 16 pruebas de conversión
+aprobadas incluidas opcionales, muestras reales en buses de memoria y MP4 con
+vídeo/AAC-LC nativo. Dos pruebas DOM de modal/botones aprobadas (390/1366 px).
+Sin abrir la aplicación, tocar sus datos, crear instaladores ni compilar en GitHub.
+Reiniciar la sesión DEV.bat que sufrió el panic para cargar la corrección.
+
+
 ## Danilo: primera fase autorizada — 2026-11-13
 
 El autor aprobó rueda de pestañas, barra inferior ocultable y conversión FFmpeg.

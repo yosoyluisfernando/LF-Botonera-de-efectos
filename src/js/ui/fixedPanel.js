@@ -1,3 +1,4 @@
+import { paintConversionButtons } from './conversionButtons.js';
 import { reportPlayError } from './notice.js';
 import { invoke } from '../bridge/api.js';
 import { isAndroid } from '../bridge/platform.js';
@@ -65,6 +66,7 @@ export function drawFixedPanel(state) {
     _buttons = Object.fromEntries(state.buttons.map(button => [button.id, button]));
     state.buttons.sort((a, b) => a.index - b.index).forEach(btn => list.appendChild(_item(btn)));
     document.getElementById('btn-fixed-panel').classList.toggle('active', settings.visible);
+    paintConversionButtons();
     refreshFixedPlaybackModes();
     refreshFixedPanelView(settings);
     // El modo reproductor tiene cola propia: se dibuja aparte de los botones fijos.
@@ -91,6 +93,7 @@ export async function toggleFixedPanel() {
 function _item(btn) {
     const el = document.createElement('button');
     el.className = 'fixed-panel-item'; el.dataset.id = btn.id; el.dataset.index = btn.index;
+    el.dataset.audioPath = btn.path || '';
     paintAdaptive(el, btn.color_bg, btn.color_text, 'button');
     el.innerHTML = `<span class="fixed-panel-name"></span>
         <span class="timer fixed-panel-time">${btn.duration_str || ''}</span>

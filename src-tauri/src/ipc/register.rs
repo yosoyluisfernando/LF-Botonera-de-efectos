@@ -8,7 +8,7 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_remote::remote_request,
             core::platform::get_platform_capabilities,
             engine::files::pick_audio_file, engine::files::pick_audio_files,
-            ipc::cmd_config::get_config, ipc::cmd_shortcut_ui::get_shortcut_editor_state,
+            ipc::cmd_conversion::get_audio_conversions, ipc::cmd_config::get_config, ipc::cmd_shortcut_ui::get_shortcut_editor_state,
             ipc::cmd_shortcut_ui::set_shortcut_label_visibility,
             ipc::cmd_android_app::android_back_attach, ipc::cmd_android_app::android_exit_app,
             ipc::cmd_obs::obs_get,

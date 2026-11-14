@@ -38,6 +38,12 @@ fn converts_unsupported_mp4_codec_preserves_original_and_shared_analysis_timing(
     assert_ne!(resolved, pathstr);
     assert_eq!(Path::new(&resolved).extension().unwrap(), "flac");
     assert_eq!(resolve(pathstr).unwrap(), resolved);
+    let job = super::progress::snapshots()
+        .into_iter()
+        .find(|j| j.path == pathstr)
+        .unwrap();
+    assert_eq!(job.status, "ready");
+    assert_eq!(job.percent, Some(100));
     let source = crate::engine::audio::decode::source_from_path(pathstr, false).unwrap();
     assert_eq!(source.sample_rate(), 48000);
     let total = source.collect::<Vec<_>>();
@@ -49,7 +55,8 @@ fn converts_unsupported_mp4_codec_preserves_original_and_shared_analysis_timing(
     assert_eq!(result.meta.path, pathstr);
     assert_eq!(result.meta.sample_rate, 48000);
     assert!((result.meta.duration_s - 1.0).abs() < 0.1);
-    let mut button = crate::domain::button::defaults::new_button("paleta_1", 1, "Test", "#000000", "#ffffff");
+    let mut button =
+        crate::domain::button::defaults::new_button("paleta_1", 1, "Test", "#000000", "#ffffff");
     button.path = pathstr.to_string();
     button.duration = -1.0;
     let view = crate::domain::grid::view::button_to_view(&button);

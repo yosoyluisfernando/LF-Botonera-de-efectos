@@ -57,10 +57,25 @@ No se descarga software automáticamente durante el arranque de la aplicación.
 
 ## Funcionamiento y persistencia
 
-- No hay un botón de conversión: la asignación o consulta prepara el audio.
+- No hay una conversión manual: la asignación o consulta prepara el audio.
+  El modal de seguimiento se puede ocultar sin cancelar. Su acceso flotante
+  permite reabrirlo; los botones de rejilla y panel fijo mantienen el estado.
+- Rust calcula el porcentaje con `out_time_us` de `ffmpeg -progress pipe:1`
+  y la duración disponible. Se limita a 99 hasta validar/publicar la copia;
+  solo entonces se emite 100. Si falta duración, muestra preparación sin
+  inventar un porcentaje. La UI nunca calcula ese progreso.
+- `get_audio_conversions` hidrata eventos perdidos al arrancar; cada snapshot
+  trae una revisión para no sustituir eventos nuevos por resultados viejos.
+  El modal oculto no reconstruye su lista durante cada actualización.
 - Una única cola hace la detección y conversión en segundo plano. Las peticiones
   concurrentes de una misma ruta y sello comparten un solo trabajo.
 - Si el decodificador nativo resuelve el formato, se usa el original.
+  MP4/M4A/AAC/M4B/3GP y las copias FLAC convertidas pasan por `SeekSource`
+  con File completo, evitando el
+  `unreachable!` de Rodio 0.19 ante SeekError de inicialización. Se selecciona
+  una pista decodificable de audio, no el vídeo. Canales y frecuencia se toman
+  del primer bloque real, porque la cabecera MP4 puede estar incompleta.
+  HE-AAC/HE-AAC v2 siguen usando FFmpeg; no se añaden nuevas dependencias.
 - Si necesita FFmpeg, muestra un aviso de preparación. Un disparo pendiente
   devuelve `audio_converting`; no detiene los otros efectos por Solo/Stop others.
 - No se reproduce automáticamente al terminar la conversión. Reintentar el
@@ -104,5 +119,8 @@ apuntando al mismo FFmpeg; redirigir APPDATA a un perfil descartable de tests:
 cargo test --lib engine::audio::transcode::integration_tests -- --ignored --test-threads=1
 ```
 
-Las pruebas unitarias normales no requieren FFmpeg. La prueba funcional con
-DEV.bat, audio real y hardware corresponde al autor.
+Las pruebas unitarias normales no requieren FFmpeg. Las pruebas opcionales adicionales reciben `LF_TEST_CONVERSION_FILES`, una lista
+separada por punto y coma de muestras reales. Reproducen en buses de memoria,
+sin abrir tarjetas; otra prueba genera un MP4 con vídeo y AAC-LC y comprueba
+que solo se lee audio nativo, con seek y especificación correctos.
+La prueba funcional con DEV.bat y hardware corresponde al autor.

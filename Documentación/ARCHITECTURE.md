@@ -6,7 +6,12 @@ Documentación técnica para programadores que colaboran o estudian el proyecto.
 
 `engine/audio/transcode/` resuelve copias FLAC auxiliares mediante una cola de
 FFmpeg; reproducción y análisis mantienen la identidad del archivo original.
-El evento `audio-convert-status` solo informa preparación, finalización y error.
+`audio-convert-status` informa cola, preparación, porcentaje, fin y error.
+`get_audio_conversions` permite recuperar el estado al iniciar. La revisión de
+cada snapshot ordena respuestas/eventos; Rust calcula el porcentaje con la
+salida de FFmpeg. Modal, indicadores y progreso de reproducción son independientes.
+El audio nativo de MP4/M4A/AAC usa File y SeekSource, evitando el panic de apertura
+de Rodio 0.19; su frecuencia/canales se inicializan con un bloque decodificado.
 Ver [CONVERSION_AUDIO.md](CONVERSION_AUDIO.md) para caché, seguridad y distribución.
 `AppConfig.show_bottom_bar` nace en true y se persiste mediante el IPC existente
 `set_toolbar_button("bottom_bar", visible)`. La UI solo aplica visibilidad.

@@ -43,6 +43,10 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
   que requieren preparación. Usa copias FLAC, conserva los originales y muestra
   avisos sin interrumpir el audio activo. FFmpeg está preparado para desarrollo
   local; su inclusión en instaladores queda pendiente.
+- Seguimiento de conversiones en un modal ocultable y en los botones, con progreso
+  real calculado por Rust. Ocultar el modal no detiene los trabajos.
+- Reproducción directa del audio compatible de MP4/M4A/AAC. Los archivos MP4
+  con vídeo utilizan únicamente su pista de audio.
 
 Estas tres funciones se basan en aportaciones de **Danilo Wenner**, publicadas
 originalmente en [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos),

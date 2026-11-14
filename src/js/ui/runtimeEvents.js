@@ -5,7 +5,7 @@
  * niveles usan el evento ligero "meter-tick" a 50 FPS.
  */
 
-import { paintConversion } from './audioConversion.js';
+import { paintConversion, loadConversions } from './audioConversion.js';
 import { paintObsState } from './obsView.js';
 import { listen } from '../bridge/api.js';
 import { updateTabPlayback } from './tabs.js';
@@ -43,6 +43,7 @@ export async function wireRuntimeEvents({ onRefresh, onDockEditor }) {
             return executeLibraryAction(payload.action, payload.selection ?? []);
         }),
     ]);
+    await loadConversions();
     _wired = true;
 }
 

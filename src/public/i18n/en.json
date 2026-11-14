@@ -1133,5 +1133,13 @@
     "settings_unavailable": "Could not open Bluetooth settings. Open them from Android settings.",
     "devices_unavailable": "Could not check connected keyboards. Reopen this section to try again."
   },
-  "conversion": {"preparing": "Preparing compatible audio"}
+  "conversion": {
+  "preparing": "Preparing…",
+  "title": "Audio conversion",
+  "hide": "Hide",
+  "hide_hint": "You can hide this window and keep working. Conversion continues.",
+  "queued": "Queued…",
+  "percent": "Converting {percent}%",
+  "ready": "Conversion complete"
+}
 }

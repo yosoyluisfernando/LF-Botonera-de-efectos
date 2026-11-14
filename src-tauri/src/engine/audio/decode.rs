@@ -16,8 +16,9 @@ pub type BoxSource = Box<dyn Source<Item = f32> + Send + 'static>;
 
 /// Abre un archivo como fuente de audio. Usa Rodio primero y cae a Ogg/Opus.
 pub fn source_from_path(path: &str, loop_mode: bool) -> Option<BoxSource> {
-    let path = super::transcode::resolve(path).ok()?;
-    rodio_source(&path, loop_mode).or_else(|| opus_source(&path, loop_mode))
+    let resolved = super::transcode::resolve(path).ok()?;
+    if resolved != path { return container_source(&resolved, loop_mode, 0.0); }
+    rodio_source(&resolved, loop_mode).or_else(|| opus_source(&resolved, loop_mode))
 }
 
 /// Abre un archivo ya posicionado en `start_s`. En formatos soportados por
@@ -32,6 +33,7 @@ pub fn source_from_path_at(path: &str, loop_mode: bool, start_s: f64) -> Option<
     // cuando falla hay que descartar las muestras una a una hasta el punto
     // pedido: ~55 ms por segundo saltado. Ver `seek_source.rs`.
     let resolved = super::transcode::resolve(path).ok()?;
+    if resolved != path { return container_source(&resolved, loop_mode, start_s); }
     let path = resolved.as_str();
     if !loop_mode {
         if let Some(source) = seek_source::seek_source(path, start_s) {
@@ -48,10 +50,11 @@ pub fn can_decode(path: &str) -> bool {
 
 #[cfg(not(target_os = "android"))]
 pub(crate) fn can_decode_native(path: &str) -> bool {
-    rodio_source(path, false).is_some() || opus_source(path, false).is_some()
+    seek_source::SeekSource::open_at(path, 0.0).is_some() || opus_source(path, false).is_some()
 }
 
 fn rodio_source(path: &str, loop_mode: bool) -> Option<BoxSource> {
+    if container_audio(path) { return container_source(path, loop_mode, 0.0); }
     let file = File::open(path).ok()?;
     let decoder = Decoder::new(BufReader::new(file)).ok()?;
     if loop_mode {
@@ -62,6 +65,7 @@ fn rodio_source(path: &str, loop_mode: bool) -> Option<BoxSource> {
 }
 
 fn rodio_source_at(path: &str, loop_mode: bool, start_s: f64) -> Option<BoxSource> {
+    if container_audio(path) { return container_source(path, loop_mode, start_s); }
     let file = File::open(path).ok()?;
     let mut decoder = Decoder::new(BufReader::new(file)).ok()?;
     if start_s > 0.0 {
@@ -72,6 +76,17 @@ fn rodio_source_at(path: &str, loop_mode: bool, start_s: f64) -> Option<BoxSourc
     } else {
         Some(Box::new(decoder.convert_samples::<f32>()))
     }
+}
+
+// Rodio 0.19 envuelve el lector sin tamaño y convierte SeekError de apertura en panic.
+// El File de SeekSource conserva tamaño/seek y los errores siguen siendo Result.
+fn container_audio(path: &str) -> bool {
+    Path::new(path).extension().and_then(|e| e.to_str())
+        .is_some_and(|e| ["mp4", "m4a", "aac", "m4b", "3gp"].contains(&e.to_ascii_lowercase().as_str()))
+}
+fn container_source(path: &str, looping: bool, start: f64) -> Option<BoxSource> {
+    let source = seek_source::SeekSource::open_at(path, start)?;
+    if looping { Some(Box::new(source.repeat_infinite())) } else { Some(Box::new(source)) }
 }
 
 fn opus_source(path: &str, loop_mode: bool) -> Option<BoxSource> {
