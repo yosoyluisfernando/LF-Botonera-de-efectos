@@ -14,5 +14,6 @@ pub mod sequence;
 pub mod thread;
 pub mod thread_play;
 pub mod tick;
+pub mod transcode;
 
 pub use engine::AudioEngine;

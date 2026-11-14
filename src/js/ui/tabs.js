@@ -5,6 +5,7 @@
  */
 
 import { invoke } from '../bridge/api.js';
+import { initTabWheel } from './tabWheel.js';
 import { placeMenu } from '../util/menuPosition.js';
 import { isMapping, captureTab } from './mapping.js';
 import { t } from '../util/i18n.js';
@@ -28,6 +29,10 @@ export function initTabs(config, onRefresh) {
         return;
     }
     _wired = true;
+    initTabWheel(document.querySelector('.tabs-container'), async offset => {
+        await invoke('cycle_paleta', { offset });
+        await _onRefresh?.();
+    });
 
     document.getElementById('btn-add-tab')
         .addEventListener('click', () => _openTabModal(null));

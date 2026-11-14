@@ -11,13 +11,14 @@ import { isAndroid } from '../bridge/platform.js';
  * Los que se pueden esconder: el botón de la barra, su casilla en Ajustes y el
  * nombre que entiende el IPC.
  *
- * Solo estos dos. El resto de la barra no es opcional: sin el "+" no se pueden
+ * También se puede ocultar la barra inferior completa. En la superior, sin el "+" no se pueden
  * crear pestañas, sin 👤 no se cambia de perfil y sin ⚙️ no hay forma de volver
  * aquí a recuperar lo que se escondió.
  */
 const BUTTONS = [
     { bus: 'console', btn: 'btn-console', box: 'config-show-console', flag: 'show_console_button' },
     { bus: 'fixed_panel', btn: 'btn-fixed-panel', box: 'config-show-fixed-panel', flag: 'show_fixed_panel_button' },
+    { bus: 'bottom_bar', btn: 'bottom-bar', box: 'config-show-bottom-bar', flag: 'show_bottom_bar' },
 ];
 
 /** Aplica la configuración a la barra. Se llama al arrancar y al guardar. */

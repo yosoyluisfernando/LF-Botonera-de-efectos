@@ -118,6 +118,7 @@
     "toolbar_buttons": "Botones de la barra superior:",
     "show_console": "Mostrar la Consola de audio",
     "show_fixed_panel": "Mostrar el Panel fijo",
+    "show_bottom_bar": "Mostrar la barra inferior (reloj, modos, Mic, volumen, Detener todo)",
     "tab_midi_keys": "MIDI y teclado",
     "keyboard_shortcuts": "Atajos del teclado",
     "shortcut_labels_title": "Etiquetas de los botones",
@@ -910,7 +911,11 @@
     "obs_record_split_paused": "Reanuda la grabación antes de dividirla en otro archivo.",
     "obs_record_pause_failed": "OBS no confirmó el cambio de pausa. Revisa si su configuración de grabación admite pausar y comprueba el estado en OBS.",
     "obs_record_split_unavailable": "OBS no pudo dividir el archivo. Revisa que la división de archivos esté habilitada en sus ajustes de salida y que la configuración sea compatible.",
-    "obs_quick_unavailable": "La transición rápida ya no está disponible en OBS. Revisa la colección de escenas y vuelve a seleccionarla."
+    "obs_quick_unavailable": "La transición rápida ya no está disponible en OBS. Revisa la colección de escenas y vuelve a seleccionarla.",
+    "audio_converting": "Este audio se está preparando. Vuelve a intentarlo en unos segundos.",
+    "audio_convert_failed": "No se pudo convertir el audio. Comprueba el archivo y vuelve a asignarlo.",
+    "audio_converter_missing": "No se encontró FFmpeg. Instala el conversor para preparar este audio.",
+    "audio_convert_changed": "El archivo cambió durante la conversión. Vuelve a asignarlo."
   },
   "mic": {
     "label": "Mic",
@@ -1127,5 +1132,6 @@
     "bluetooth_hint": "Android gestiona la búsqueda y vinculación de los teclados de escritura. Abre sus ajustes y vuelve a la app para ver el teclado conectado.",
     "settings_unavailable": "No se pudieron abrir los ajustes de Bluetooth. Ábrelos desde los ajustes de Android.",
     "devices_unavailable": "No se pudieron consultar los teclados conectados. Vuelve a abrir este apartado para reintentar."
-  }
+  },
+  "conversion": {"preparing": "Preparando audio compatible"}
 }

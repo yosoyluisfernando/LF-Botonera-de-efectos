@@ -137,3 +137,18 @@ Third-party components remain subject to their respective licenses and copyright
 notices. The lockfiles listed above are the authoritative inventory for version 1.2.0.
 The linked Rust and Node reports contain the generated release-specific license texts
 and notices and must be regenerated and included with every distributed package.
+
+
+## FFmpeg opcional y aportaciones de Danilo Wenner
+
+La rama variante-danilo integra la base de conversión auxiliar, la rueda de
+pestañas y la barra inferior ocultable de Danilo Wenner, originalmente en
+https://github.com/danilo-wenner-1/LF-Botonera-de-efectos, GPL-3.0-or-later.
+Procedencia: commit 7c1f1ae484cdb4bd0110b4761b8a221023bdea6f.
+Las adaptaciones al proyecto oficial se registran por separado.
+
+FFmpeg es un proceso externo opcional, no una biblioteca enlazada a la app.
+La copia local de desarrollo usa Gyan 9.0.2 essentials (GPLv3); su binario y
+licencia están en src-tauri/binaries, excluidos de Git. No se redistribuye en
+esta fase. Antes de empaquetarlo se deben incluir avisos, licencia y fuente
+correspondiente al build y sus componentes. Ver Documentación/CONVERSION_AUDIO.md.

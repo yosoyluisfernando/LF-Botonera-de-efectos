@@ -45,3 +45,17 @@ fn solo_la_familia_mp4_es_candidata() {
     assert!(!is_candidate("efecto.mp3"));
     assert!(!is_candidate("sin_extension"));
 }
+
+#[test]
+fn lc_with_explicitly_disabled_sbr_stays_native() {
+    // FFmpeg 9 AAC-LC mono/48 kHz, sync extension 0x2b7/type 5, SBR flag = 0.
+    assert!(aac_is_plain_lc(
+        Some(&[0x11, 0x88, 0x56, 0xe5, 0x00]),
+        48_000
+    ));
+    // La misma señalización, ahora con SBR presente.
+    assert!(!aac_is_plain_lc(
+        Some(&[0x11, 0x88, 0x56, 0xe5, 0x80]),
+        48_000
+    ));
+}

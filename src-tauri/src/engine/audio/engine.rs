@@ -113,6 +113,7 @@ impl AudioEngine {
         if cfg!(target_os = "android") && (to_pre || group == PlaybackGroup::Cue) {
             return Err("mobile_prelisten_unavailable".into());
         }
+        super::transcode::resolve(path)?;
         if !to_pre && !id.starts_with("__") && group == PlaybackGroup::Main {
             *self.last_pressed.lock().unwrap() = Some(LastPressedInfo { id: id.clone() });
         }

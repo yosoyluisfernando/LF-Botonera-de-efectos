@@ -21,6 +21,7 @@ pub fn analyze_track(
     path: String,
     buckets: usize,
 ) -> Result<AnalyzeResponse, String> {
+    crate::engine::audio::transcode::for_analysis(&path)?;
     emit(&app, &path, "cache");
     let state = app.state::<AppState>();
     let key = db::normalize_key(&path);
@@ -134,6 +135,7 @@ fn valid_track_row(
     mtime: i64,
     size: i64,
 ) -> Result<Option<TrackMeta>, String> {
+    if crate::engine::audio::transcode::resolve(path)? != path { return Ok(None); }
     let row = state.tracks.lock().unwrap().get(path)?;
     Ok(row.filter(|r| {
         r.mtime == mtime

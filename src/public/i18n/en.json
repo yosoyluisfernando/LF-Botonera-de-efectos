@@ -118,6 +118,7 @@
     "toolbar_buttons": "Top bar buttons:",
     "show_console": "Show the Audio console",
     "show_fixed_panel": "Show the Fixed panel",
+    "show_bottom_bar": "Show the bottom bar (clock, modes, Mic, volume, Stop all)",
     "tab_midi_keys": "MIDI and keyboard",
     "keyboard_shortcuts": "Keyboard shortcuts",
     "shortcut_labels_title": "Button labels",
@@ -910,7 +911,11 @@
     "obs_record_split_paused": "Resume recording before splitting it into another file.",
     "obs_record_pause_failed": "OBS did not confirm the pause change. Check whether its recording settings support pausing and verify the status in OBS.",
     "obs_record_split_unavailable": "OBS could not split the file. Check that file splitting is enabled in its output settings and that the configuration is compatible.",
-    "obs_quick_unavailable": "The quick transition is no longer available in OBS. Check the scene collection and select it again."
+    "obs_quick_unavailable": "The quick transition is no longer available in OBS. Check the scene collection and select it again.",
+    "audio_converting": "This audio is being prepared. Try again in a few seconds.",
+    "audio_convert_failed": "Could not convert the audio. Check the file and assign it again.",
+    "audio_converter_missing": "FFmpeg was not found. Install the converter to prepare this audio.",
+    "audio_convert_changed": "The file changed during conversion. Assign it again."
   },
   "mic": {
     "label": "Mic",
@@ -1127,5 +1132,6 @@
     "bluetooth_hint": "Android manages discovery and pairing for typing keyboards. Open its settings, then return to the app to see the connected keyboard.",
     "settings_unavailable": "Could not open Bluetooth settings. Open them from Android settings.",
     "devices_unavailable": "Could not check connected keyboards. Reopen this section to try again."
-  }
+  },
+  "conversion": {"preparing": "Preparing compatible audio"}
 }

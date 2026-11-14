@@ -35,22 +35,28 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 
 ## [Sin publicar]
 
-### Integración prevista — todavía sin implementar
+### Añadido
 
-Aportaciones seleccionadas de **Danilo Wenner**, publicadas originalmente en
-[LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos):
+- Cambio de pestaña con la rueda del ratón sobre la barra de pestañas.
+- Opción para mostrar u ocultar la barra inferior desde Ajustes → Principal.
+- Conversión auxiliar automática con FFmpeg en escritorio para variantes de audio
+  que requieren preparación. Usa copias FLAC, conserva los originales y muestra
+  avisos sin interrumpir el audio activo. FFmpeg está preparado para desarrollo
+  local; su inclusión en instaladores queda pendiente.
 
-- Cambio de pestaña con la rueda del ratón.
-- Edición de colores HEX y degradados.
-- Salida de audio por pestaña, adaptada a la consola oficial.
-- Búsqueda de botones del perfil, con acceso unificado al catálogo de archivos.
-- Conversión auxiliar automática con FFmpeg para audio no compatible nativamente.
-- Opción para mostrar u ocultar la barra inferior.
+Estas tres funciones se basan en aportaciones de **Danilo Wenner**, publicadas
+originalmente en [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos),
+y adaptadas para LF Botonera de Efectos. Todavía sin nueva versión publicada.
 
-Reserva de crédito para la próxima versión; no anuncia funciones disponibles.
+### Integración prevista — fases posteriores
+
+Aportaciones seleccionadas de Danilo, todavía sin implementar:
+- Edición de colores HEX y degradados, con mejoras de configuración.
+- Salida de audio por pestaña integrada en la consola oficial.
+- Búsqueda de botones del perfil con acceso unificado al catálogo de archivos.
+
 Al implementarlas, mover cada entrada a su categoría definitiva y conservar
-la atribución y procedencia. Alcance, limitaciones y plan:
-[Integración de la variante de Danilo](Documentación/INTEGRACION_VARIANTE_DANILO.md).
+su atribución. [Alcance y procedencia](Documentación/INTEGRACION_VARIANTE_DANILO.md).
 
 ## [1.6.0] — 2026-11-12
 

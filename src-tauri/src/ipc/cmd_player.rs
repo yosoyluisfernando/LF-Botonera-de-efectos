@@ -36,7 +36,7 @@ fn queue_total_s(tracks: &[crate::model::ButtonData]) -> f64 {
     tracks
         .iter()
         .filter(|t| t.type_field == "audio")
-        .map(|t| t.duration.max(0.0))
+        .map(|t| button_to_view(t).data.duration.max(0.0))
         .sum()
 }
 
@@ -68,15 +68,26 @@ pub fn get_player_snapshot(state: tauri::State<AppState>) -> PlayerSnapshot {
 }
 
 #[tauri::command]
-pub fn player_play_index(index: u32, state: tauri::State<AppState>) {
+pub fn player_play_index(index: u32, state: tauri::State<AppState>) -> Result<(), String> {
+    conversion_ready(index, &state)?;
     state.player.lock().unwrap().play_index(index as usize);
+    Ok(())
 }
 
 /// Doble clic en una fila. El MOTOR decide: si esta detenido la reproduce; si
 /// algo suena la marca como siguiente, sin cortar la musica. La UI no decide.
 #[tauri::command]
-pub fn player_activate_index(index: u32, state: tauri::State<AppState>) {
+pub fn player_activate_index(index: u32, state: tauri::State<AppState>) -> Result<(), String> {
+    if !state.player.lock().unwrap().snapshot().playing { conversion_ready(index, &state)?; }
     state.player.lock().unwrap().activate_index(index as usize);
+    Ok(())
+}
+fn conversion_ready(index: u32, state: &AppState) -> Result<(), String> {
+    let cfg = state.config.lock().unwrap();
+    if let Some(track) = cfg.player.tracks.get(index as usize).filter(|t| t.type_field == "audio") {
+        crate::engine::audio::transcode::resolve(&track.path)?;
+    }
+    Ok(())
 }
 
 #[tauri::command]

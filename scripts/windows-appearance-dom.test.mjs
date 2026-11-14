@@ -37,6 +37,7 @@ test('Principal mounts and switches its designs in a real desktop browser DOM', 
       ${moduleBody('desktopAppearance.js')}
       ${moduleBody('settingsAppearance.js')}
       ${moduleBody('settingsPlayback.js')}
+      ${moduleBody('toolbarButtons.js')}
       const assert = (value,message) => { if(!value) throw Error(message); };
       (async () => {
         document.body.dataset.platform='desktop';
@@ -58,7 +59,7 @@ test('Principal mounts and switches its designs in a real desktop browser DOM', 
         document.documentElement.dataset.theme='dark';
         document.getElementById('master-volume-panel').classList.remove('hidden');
         const original = ['config-theme','config-language','config-button-text-size',
-          'config-show-console','config-show-fixed-panel','config-out-main','config-out-pre','player-device']
+          'config-show-console','config-show-fixed-panel','config-show-bottom-bar','config-out-main','config-out-pre','player-device']
           .map(id => document.getElementById(id));
         await initializeDesktopAppearance();
         initPlaybackPanel();
@@ -110,6 +111,14 @@ test('Principal mounts and switches its designs in a real desktop browser DOM', 
           assert(!document.documentElement.dataset.desktopStyle,'Default not restored');
           assert(getComputedStyle(profile).backgroundColor==='rgb(0, 140, 58)','Default profile color changed');
         }
+        const bottom=document.getElementById('bottom-bar');
+        applyToolbarButtons({show_bottom_bar:false});
+        assert(getComputedStyle(bottom).display==='none','Bottom bar did not hide');
+        assert(getComputedStyle(document.getElementById('btn-settings')).display!=='none','Settings became inaccessible');
+        applyToolbarButtons({});
+        assert(getComputedStyle(bottom).display!=='none','Old configuration must show the bottom bar');
+        loadToolbarButtons({show_bottom_bar:false});
+        assert(!document.getElementById('config-show-bottom-bar').checked,'Saved checkbox not loaded');
         document.body.dataset.appearanceTest='passed';
       })().catch(error=>{document.body.dataset.appearanceTest='failed: '+error.message;});
     `;

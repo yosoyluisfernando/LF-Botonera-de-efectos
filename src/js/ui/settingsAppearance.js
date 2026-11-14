@@ -31,7 +31,7 @@ export function initSettingsAppearance() {
     const buttons = document.getElementById('config-show-console').closest('.row');
     buttons.querySelector('[data-i18n="settings.toolbar_buttons"]').remove();
     toolbar.classList.add('settings-main-toolbar');
-    toolbar.append(buttons);
+    toolbar.append(buttons, document.getElementById('config-show-bottom-bar').closest('.checkbox-line'));
 
     const outputs = section('themes.outputs');
     outputs.append(field('config-out-main'), field('config-out-pre'), field('player-device'));

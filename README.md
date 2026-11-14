@@ -176,6 +176,12 @@ Si esta herramienta te resulta útil en radio, producción o streaming, puedes a
 
 **Autor y creador:** Luis Fernando Velásquez
 
+**Aportaciones de Danilo Wenner:** cambio de pestaña con la rueda, barra inferior
+ocultable y base de la conversión auxiliar con FFmpeg, publicadas originalmente
+en [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos).
+Integradas y adaptadas en la rama `variante-danilo`; todavía sin nueva publicación.
+
+
 Este proyecto fue desarrollado con asistencia de herramientas de inteligencia artificial:
 
 - **[Claude AI](https://claude.ai)** (Anthropic) — asistencia en arquitectura Rust, implementación del motor de audio, documentación técnica y revisión de código.

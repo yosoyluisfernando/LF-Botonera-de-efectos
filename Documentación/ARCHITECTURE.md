@@ -2,6 +2,17 @@
 
 Documentación técnica para programadores que colaboran o estudian el proyecto.
 
+## Aportaciones de Danilo: primera fase
+
+`engine/audio/transcode/` resuelve copias FLAC auxiliares mediante una cola de
+FFmpeg; reproducción y análisis mantienen la identidad del archivo original.
+El evento `audio-convert-status` solo informa preparación, finalización y error.
+Ver [CONVERSION_AUDIO.md](CONVERSION_AUDIO.md) para caché, seguridad y distribución.
+`AppConfig.show_bottom_bar` nace en true y se persiste mediante el IPC existente
+`set_toolbar_button("bottom_bar", visible)`. La UI solo aplica visibilidad.
+`tabWheel.js` interpreta la rueda y llama a `cycle_paleta`, sin lógica de perfil
+en JavaScript. Aportaciones originales de Danilo Wenner, adaptadas para 1.6.0.
+
 ---
 
 ## Mic: control temporal de volumen

@@ -2,10 +2,12 @@
 
 ## Estado y alcance — 2026-11-13
 
-Preparación documental; ninguna función de este plan está implementada todavía.
+Primera fase autorizada e implementada localmente: rueda, barra inferior y FFmpeg.
+Las otras tres funciones siguen pendientes; no se compila ni publica en GitHub.
 El autor seleccionó seis aportaciones de LF Botonera Radio. La integración parte
 de la rama de desarrollo oficial 1.6.0, no de sustituirla por el fork 1.5.1.
-La propuesta técnica se revisará antes de modificar módulos, modelo o IPC.
+El autor aprobó explícitamente la primera fase; las fases restantes requieren
+revisión individual antes de modificar módulos, modelo o IPC.
 
 ## Entorno aislado
 
@@ -89,8 +91,8 @@ Conservar la idea de una conversión auxiliar para archivos no decodificables
 de forma nativa. Procesar en Rust con trabajador y cola fuera del hilo de audio;
 no modificar originales. Proponer caché, invalidación, limpieza, progreso y
 errores; integrar reproducción, editor, cues y análisis con la misma resolución.
-En el fork se convierte a MP3 320 kbps: no llamarlo conversión sin pérdidas.
-Evaluar formato de caché antes de adoptarlo.
+En el fork se convierte a MP3 320 kbps. Esta integración usa FLAC para no
+introducir otra compresión con pérdida; ver CONVERSION_AUDIO.md.
 
 Antes de añadir FFmpeg, justificar necesidad, origen y mantenimiento, licencia
 y distribución de su código fuente, tamaño de instaladores, seguridad y builds.
@@ -106,17 +108,18 @@ la preferencia. Revisar escritorio y Android antes de definir el alcance final.
 
 ## Orden propuesto y comprobaciones
 
-1. Rueda y barra ocultable.
-2. Buscador unificado y editor de colores con su propuesta visual aprobada.
+1. Primera fase: rueda, barra inferior y conversión FFmpeg para desarrollo local.
+2. Buscador unificado y editor de colores, cada uno con su revisión individual.
 3. Ruteo integrado en consola, con diseño de buses y reconexión aprobado.
-4. FFmpeg tras resolver distribución y compatibilidad por plataforma.
+4. Distribución de FFmpeg en instaladores, después de validar la primera fase.
 
 Trabajar en cambios pequeños por función, con procedencia y créditos trazables.
 Mantener archivos de máximo 200 líneas y traducciones es/en/pt-BR/pt-PT.
 Al modificar código: `cargo test --lib`, `cargo build --lib` y `npm run build`,
 más pruebas dirigidas cuando verifiquen comportamiento real. No lanzar la app;
 la validación funcional y de tarjetas la realiza el autor con su equipo.
-No compilar para esta preparación exclusivamente documental.
+Verificaciones locales de biblioteca y frontend, sin abrir la app ni crear
+instaladores. El autor prueba con el DEV.bat del worktree aislado.
 
 ## Encontrar las opciones en el instalador de Danilo
 
@@ -126,4 +129,6 @@ No compilar para esta preparación exclusivamente documental.
   M4A/MP4/AAC candidato, decide si puede reproducirlo nativamente; si no,
   prepara una copia MP3 en segundo plano. No todo M4A fuerza conversión.
   Si se dispara durante la preparación, muestra un aviso para reintentar.
-- Ninguna de estas dos funciones se ha probado funcionalmente en esta sesión.
+- La prueba manual del instalador de Danilo sigue a cargo del autor.
+- Esta rama tiene pruebas sintéticas de conversión y pruebas DOM; su prueba
+  funcional con DEV.bat queda a cargo del autor.

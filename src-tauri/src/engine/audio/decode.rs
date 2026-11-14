@@ -16,7 +16,8 @@ pub type BoxSource = Box<dyn Source<Item = f32> + Send + 'static>;
 
 /// Abre un archivo como fuente de audio. Usa Rodio primero y cae a Ogg/Opus.
 pub fn source_from_path(path: &str, loop_mode: bool) -> Option<BoxSource> {
-    rodio_source(path, loop_mode).or_else(|| opus_source(path, loop_mode))
+    let path = super::transcode::resolve(path).ok()?;
+    rodio_source(&path, loop_mode).or_else(|| opus_source(&path, loop_mode))
 }
 
 /// Abre un archivo ya posicionado en `start_s`. En formatos soportados por
@@ -30,6 +31,8 @@ pub fn source_from_path_at(path: &str, loop_mode: bool, start_s: f64) -> Option<
     // de rodio falla siempre (no informa del tamano del archivo a symphonia), y
     // cuando falla hay que descartar las muestras una a una hasta el punto
     // pedido: ~55 ms por segundo saltado. Ver `seek_source.rs`.
+    let resolved = super::transcode::resolve(path).ok()?;
+    let path = resolved.as_str();
     if !loop_mode {
         if let Some(source) = seek_source::seek_source(path, start_s) {
             return Some(source);
@@ -41,6 +44,11 @@ pub fn source_from_path_at(path: &str, loop_mode: bool, start_s: f64) -> Option<
 /// Indica si el backend puede decodificar realmente este archivo.
 pub fn can_decode(path: &str) -> bool {
     source_from_path(path, false).is_some()
+}
+
+#[cfg(not(target_os = "android"))]
+pub(crate) fn can_decode_native(path: &str) -> bool {
+    rodio_source(path, false).is_some() || opus_source(path, false).is_some()
 }
 
 fn rodio_source(path: &str, loop_mode: bool) -> Option<BoxSource> {

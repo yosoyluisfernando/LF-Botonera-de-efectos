@@ -30,3 +30,13 @@ fn label_preferences_round_trip_without_modifying_bindings() {
     assert!(restored.show_midi_shortcut_labels);
     assert_eq!(restored.profiles[0].audio.key_stop, "Ctrl+F1");
 }
+
+#[test]
+fn bottom_bar_defaults_visible_and_round_trips_when_hidden() {
+    let old: AppConfig = serde_json::from_str("{}").unwrap();
+    assert!(old.show_bottom_bar && AppConfig::default().show_bottom_bar);
+    let mut cfg = old;
+    cfg.show_bottom_bar = false;
+    let restored: AppConfig = serde_json::from_str(&serde_json::to_string(&cfg).unwrap()).unwrap();
+    assert!(!restored.show_bottom_bar);
+}

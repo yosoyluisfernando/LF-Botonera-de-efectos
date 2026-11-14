@@ -5,6 +5,7 @@
  */
 
 import { appAlert } from './appDialog.js';
+import { noticeError } from './notice.js';
 import { t } from '../util/i18n.js';
 
 /** Traduce la clave de error; devuelve el texto crudo si no hay traduccion. */
@@ -15,5 +16,8 @@ export function ipcErrorMessage(err) {
 }
 
 export async function alertIpcError(err) {
+    if (String(err).startsWith('audio_convert') || String(err) === 'audio_converting') {
+        noticeError(err); return;
+    }
     await appAlert(ipcErrorMessage(err));
 }

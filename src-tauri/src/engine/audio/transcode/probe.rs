@@ -41,7 +41,12 @@ fn probe(path: &str) -> Option<bool> {
         hint.with_extension(ext);
     }
     let probed = symphonia::default::get_probe()
-        .format(&hint, mss, &FormatOptions::default(), &MetadataOptions::default())
+        .format(
+            &hint,
+            mss,
+            &FormatOptions::default(),
+            &MetadataOptions::default(),
+        )
         .ok()?;
     let mut format = probed.format;
     let track = format
@@ -53,7 +58,10 @@ fn probe(path: &str) -> Option<bool> {
     let full_quality = if params.codec == CODEC_TYPE_ALAC {
         true
     } else if params.codec == CODEC_TYPE_AAC {
-        aac_is_plain_lc(params.extra_data.as_deref(), params.sample_rate.unwrap_or(0))
+        aac_is_plain_lc(
+            params.extra_data.as_deref(),
+            params.sample_rate.unwrap_or(0),
+        )
     } else {
         // Otro codec dentro de un MP4 (MP3, por ejemplo): si symphonia lo abre,
         // lo decodifica entero.
@@ -104,7 +112,7 @@ fn has_sync_extension(asc: &[u8]) -> bool {
     let total = asc.len() * 8;
     (16..total.saturating_sub(10)).any(|start| {
         let mut bits = Bits::at(asc, start);
-        bits.read(11) == 0x2B7 && bits.read(5) == 5
+        bits.read(11) == 0x2B7 && bits.read(5) == 5 && bits.read(1) == 1
     })
 }
 

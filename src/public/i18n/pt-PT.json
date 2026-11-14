@@ -118,6 +118,7 @@
     "toolbar_buttons": "Botões da barra superior:",
     "show_console": "Mostrar a Consola de áudio",
     "show_fixed_panel": "Mostrar o Painel fixo",
+    "show_bottom_bar": "Mostrar a barra inferior (relógio, modos, Mic, volume, Parar tudo)",
     "tab_midi_keys": "MIDI e teclado",
     "keyboard_shortcuts": "Atalhos do teclado",
     "shortcut_labels_title": "Etiquetas dos botões",
@@ -910,7 +911,11 @@
     "obs_record_split_paused": "Retome a gravação antes de a dividir noutro ficheiro.",
     "obs_record_pause_failed": "O OBS não confirmou a alteração da pausa. Verifique se as definições de gravação permitem pausar e confirme o estado no OBS.",
     "obs_record_split_unavailable": "O OBS não conseguiu dividir o ficheiro. Verifique se a divisão de ficheiros está ativada nas definições de saída e se a configuração é compatível.",
-    "obs_quick_unavailable": "A transição rápida já não está disponível no OBS. Verifique a coleção de cenas e selecione-a novamente."
+    "obs_quick_unavailable": "A transição rápida já não está disponível no OBS. Verifique a coleção de cenas e selecione-a novamente.",
+    "audio_converting": "Este áudio está a ser preparado. Tente novamente dentro de alguns segundos.",
+    "audio_convert_failed": "Não foi possível converter o áudio. Verifique o ficheiro e atribua-o novamente.",
+    "audio_converter_missing": "O FFmpeg não foi encontrado. Instale o conversor para preparar este áudio.",
+    "audio_convert_changed": "O ficheiro foi alterado durante a conversão. Atribua-o novamente."
   },
   "mic": {
     "label": "Mic",
@@ -1127,5 +1132,6 @@
     "bluetooth_hint": "O Android gere a pesquisa e o emparelhamento dos teclados de escrita. Abra as definições e volte à aplicação para ver o teclado ligado.",
     "settings_unavailable": "Não foi possível abrir as definições de Bluetooth. Abra-as nas definições do Android.",
     "devices_unavailable": "Não foi possível consultar os teclados ligados. Volte a abrir esta secção para tentar novamente."
-  }
+  },
+  "conversion": {"preparing": "A preparar áudio compatível"}
 }

@@ -1,3 +1,4 @@
+import { reportPlayError } from './notice.js';
 import { invoke } from '../bridge/api.js';
 import { isAndroid } from '../bridge/platform.js';
 import { paintAdaptive } from '../util/colorAdapter.js';
@@ -97,7 +98,7 @@ function _item(btn) {
     paintButtonContent(el.querySelector('.fixed-panel-name'), btn);
     el.addEventListener('click', e => {
         if (e.altKey) return; // Alt+clic = reordenar/mover (gridDnd.js)
-        invoke('play_button', { id: btn.id }).catch(console.error);
+        invoke('play_button', { id: btn.id }).catch(reportPlayError);
     });
     el.addEventListener('contextmenu', e => {
         e.preventDefault();

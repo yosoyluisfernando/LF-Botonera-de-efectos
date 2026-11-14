@@ -1,10 +1,31 @@
 # Continuidad de sesión — estado actual
 
 
+## Danilo: primera fase autorizada — 2026-11-13
+
+El autor aprobó rueda de pestañas, barra inferior ocultable y conversión FFmpeg.
+Implementadas en `variante-danilo`, worktree dentro de C:/OVERLAY/BOTONERA.
+La aplicación se prueba manualmente con el DEV.bat de ese worktree; no ejecutar
+el de la raíz esperando estos cambios. No abrir la botonera desde herramientas.
+Sin compilaciones en GitHub, tags, cambios de versión ni instaladores.
+Detector y pruebas originales importados en 7788c6b conservando a Danilo Wenner
+como autor; ajustes posteriores en un commit separado del mantenedor.
+Crédito de Danilo en CHANGELOG/README/avisos; procedencia y adaptaciones en
+INTEGRACION_VARIANTE_DANILO.md. FFmpeg local 9.0.2 preparado desde el instalado
+por el autor, excluido de Git; sin descarga automática ni empaquetado.
+Ver CONVERSION_AUDIO.md. Validación local: 434 pruebas Rust aprobadas, 22
+omitidas; 13 pruebas de conversión incluidas las 3 opcionales aprobadas;
+frontend y prueba DOM de barra/apariencia correctos, 4 pruebas de rueda y
+3 de notas de versión aprobadas. Sin prueba funcional manual de la botonera.
+Caché FLAC compartida por reproducción y análisis;
+Android conserva su ruta nativa. Colores, buscador y salidas por pestaña siguen
+pendientes de trabajo individual. Conservar cambios de la raíz sin sobrescribir.
+
+
 ## Variante Danilo: entorno de integración — 2026-11-13
 
 Rama de esta copia: `variante-danilo`, base oficial 1.6.0 en `3502072`.
-Solo preparación documental; implementación pendiente de revisión del plan.
+Preparación inicial ya superada para las tres funciones autorizadas arriba.
 Leer [INTEGRACION_VARIANTE_DANILO.md](INTEGRACION_VARIANTE_DANILO.md).
 Seis aportaciones seleccionadas y crédito de Danilo reservados en CHANGELOG.
 Buscador: izquierdo = botones; derecho = archivos del catálogo. El ruteo por
