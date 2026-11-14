@@ -20,6 +20,22 @@ No hay convertidor, procesos externos, cola, caché ni IPC/eventos de conversió
 Formatos, cue/ganancia, metadatos y persistencias originales mantienen su flujo.
 Ver [REPRODUCCION_NATIVA.md](REPRODUCCION_NATIVA.md) para alcance y pruebas.
 
+## Colores y degradados del botón
+
+ButtonData.style (ButtonStyle) conserva gradient, bg2, text2 y exact, con
+serde(default) y omisión del valor vacío; colores primarios siguen en color_bg
+y color_text. El estilo se valida al deserializar y junto a colores primarios
+antes de guardar en update_button_data, update_fixed_button y obs_save_button.
+La edición fija está en cmd_fixed_update.rs. Los argumentos son opcionales y
+no se crean comandos o eventos nuevos. El formato LFA de pestañas y perfiles
+conserva el campo opcional; una app antigua puede ignorarlo.
+editStyle.js solo gestiona controles y borrador; buttonStyle.js representa el
+mismo estilo en vista previa, rejilla y panel fijo. La paleta notifica cambios
+mediante input; los colores exactos no se incluyen en el repintado adaptativo.
+La pintura múltiple elimina el estilo avanzado de los botones seleccionados.
+No se incorpora tamaño de fuente por botón. Procedencia y pruebas:
+[EDITOR_COLORES.md](EDITOR_COLORES.md).
+
 ## Buscador de botones y acceso al catálogo
 
 `domain/grid/search.rs` busca en las pestañas del perfil activo con las reglas

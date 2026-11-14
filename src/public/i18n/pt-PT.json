@@ -911,7 +911,9 @@
     "obs_record_split_paused": "Retome a gravação antes de a dividir noutro ficheiro.",
     "obs_record_pause_failed": "O OBS não confirmou a alteração da pausa. Verifique se as definições de gravação permitem pausar e confirme o estado no OBS.",
     "obs_record_split_unavailable": "O OBS não conseguiu dividir o ficheiro. Verifique se a divisão de ficheiros está ativada nas definições de saída e se a configuração é compatível.",
-    "obs_quick_unavailable": "A transição rápida já não está disponível no OBS. Verifique a coleção de cenas e selecione-a novamente."
+    "obs_quick_unavailable": "A transição rápida já não está disponível no OBS. Verifique a coleção de cenas e selecione-a novamente.",
+    "invalid_hex_color": "Há um código de cor inválido. Use o formato #RRGGBB, por exemplo #3498DB.",
+    "invalid_gradient": "Gradiente inválido. Verifique a direção e a segunda cor."
   },
   "mic": {
     "label": "Mic",
@@ -1130,11 +1132,28 @@
     "devices_unavailable": "Não foi possível consultar os teclados ligados. Volte a abrir esta secção para tentar novamente."
   },
   "search": {
-  "tooltip": "Procurar efeitos em todos os separadores",
-  "placeholder": "Procurar por nome, ficheiro, separador ou posição…",
-  "hint": "Exemplos: «aplausos», «genéricos 5», «12».",
-  "no_results": "Nenhum efeito encontrado.",
-  "location": "Separador {n}: {tab} · botão {index} (linha {row}, coluna {col})",
-  "access_tooltip": "Clique esquerdo: procurar botões nos separadores. Clique direito: abrir a Pesquisa no painel fixo."
-}
+    "tooltip": "Procurar efeitos em todos os separadores",
+    "placeholder": "Procurar por nome, ficheiro, separador ou posição…",
+    "hint": "Exemplos: «aplausos», «genéricos 5», «12».",
+    "no_results": "Nenhum efeito encontrado.",
+    "location": "Separador {n}: {tab} · botão {index} (linha {row}, coluna {col})",
+    "access_tooltip": "Clique esquerdo: procurar botões nos separadores. Clique direito: abrir a Pesquisa no painel fixo."
+  },
+  "colors": {
+    "fill": "Preenchimento:",
+    "solid": "Cor sólida",
+    "horizontal": "Gradiente horizontal",
+    "vertical": "Gradiente vertical",
+    "diagonal": "Gradiente diagonal ↘",
+    "diagonal_inv": "Gradiente diagonal ↗",
+    "bg2": "Segunda cor de fundo:",
+    "text_gradient": "Texto em gradiente (segunda cor):",
+    "exact": "Cor exata (não adaptar ao tema)",
+    "preview": "Pré-visualização:",
+    "hex_hint": "Código HEX: #RRGGBB (também pode colar)",
+    "hex_invalid": "Há um código de cor inválido. Use o formato #RRGGBB, por exemplo #3498DB.",
+    "presets": "Predefinidos",
+    "text2": "Segunda cor do texto:",
+    "preview_sample": "Texto de exemplo"
+  }
 }

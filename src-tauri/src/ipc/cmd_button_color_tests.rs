@@ -68,3 +68,19 @@ fn it_also_paints_the_fixed_panel() {
     assert_eq!(n, 1);
     assert_eq!(cfg.fixed_panel.global_buttons[0].color_bg, "#DB2424");
 }
+
+#[test]
+fn predefined_paint_replaces_advanced_style_only_on_selected_buttons() {
+    let mut cfg = cfg_with(&["#111111", "#222222"]);
+    for b in &mut cfg.profiles[0].paletas[0].botones {
+        b.style = crate::model::ButtonStyle {
+            gradient: "horizontal".into(),
+            bg2: "#000000".into(),
+            text2: "#FFD700".into(),
+            exact: true,
+        };
+    }
+    paint(&mut cfg, &[1], "#DB2424", "#FFFFFF", "grid").unwrap();
+    assert!(cfg.profiles[0].paletas[0].botones[0].style.is_default());
+    assert!(!cfg.profiles[0].paletas[0].botones[1].style.is_default());
+}

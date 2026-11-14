@@ -24,5 +24,6 @@ pub fn new_button(paleta_id: &str, index: u32, label: &str, bg: &str, text: &str
         shortcut: String::new(),
         midi: Default::default(),
         visual: Default::default(),
+        style: Default::default(),
     }
 }

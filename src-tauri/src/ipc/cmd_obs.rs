@@ -67,11 +67,13 @@ pub fn obs_save_button(
     shortcut: String,
     midi: MidiBinding,
     visual: ButtonVisual,
+    style: Option<crate::model::ButtonStyle>,
     replace_shortcut: Option<bool>,
     app: tauri::AppHandle,
     state: tauri::State<AppState>,
 ) -> Result<(), String> {
     if cfg!(target_os = "android") { return Err("platform_unavailable".into()); }
+    if let Some(value) = style.as_ref() { value.validate_colors(&color_bg, &color_text)?; }
     obs::actions::validate(&action)?;
     crate::engine::visuals::validate_button_visual(&visual)?;
     let mut cfg = state.config.lock().unwrap();
@@ -101,6 +103,7 @@ pub fn obs_save_button(
     b.shortcut = shortcut;
     b.midi = midi;
     b.visual = visual;
+    b.style = style.unwrap_or_default();
     p.botones.retain(|b| b.index != index);
     p.botones.push(b);
     config_io::save_config(&next)?;

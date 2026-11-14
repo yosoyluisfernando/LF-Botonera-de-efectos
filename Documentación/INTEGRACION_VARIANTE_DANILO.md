@@ -4,8 +4,8 @@
 
 Primera fase vigente: rueda, barra inferior y reproducción nativa de audio
 compatible, incluido MP4. El autor retiró la conversión externa el 2026-11-13.
-Buscador integrado por autorización individual; colores y salidas por pestaña
-siguen pendientes. No se compila ni publica en GitHub.
+Buscador y editor unificado de colores integrados por autorización individual;
+las salidas por pestaña siguen pendientes. No se compila ni publica en GitHub.
 El autor mantiene cinco aportaciones seleccionadas de LF Botonera Radio. La integración parte
 de la rama de desarrollo oficial 1.6.0, no de sustituirla por el fork 1.5.1.
 El autor aprobó explícitamente la primera fase; las fases restantes requieren
@@ -52,10 +52,11 @@ Arriba: pestaña anterior; abajo: siguiente, mediante el comando Rust existente
 scroll horizontal y evitar saltos excesivos de trackpad. Fuera de la barra,
 la rueda mantiene su comportamiento actual. Sin nuevos campos ni IPC.
 
-### 2. Colores HEX y degradados
+### 2. Colores HEX y degradados — implementados para prueba del autor
 
-Incorporar edición HEX y degradados con vista previa, revisando la claridad del
-editor antes de implementarlo. Preservar colores anteriores, temas y selección
+Selector único: Predefinidos primero, sólido y cuatro degradados. Vista previa
+inmediata compartida con la rejilla y el panel fijo. Ver EDITOR_COLORES.md.
+La revisión funcional y los ajustes posteriores corresponden a las pruebas del autor. Preservar colores anteriores, temas y selección
 múltiple. Proponer campos opcionales con `serde(default)` y validación en Rust;
 CSS/JS solo representan y editan visualmente. Comprobar exportación/importación
 con LF Automatizador y los cuatro idiomas. La antigua política automática de
@@ -101,7 +102,7 @@ la preferencia. Revisar escritorio y Android antes de definir el alcance final.
 ## Orden propuesto y comprobaciones
 
 1. Primera fase vigente: rueda, barra inferior y reproducción nativa compatible.
-2. Buscador integrado; editor de colores pendiente de su revisión individual.
+2. Buscador y editor de colores integrados; pendientes pruebas del autor.
 3. Ruteo integrado en consola, con diseño de buses y reconexión aprobado.
 4. No distribuir ni reintroducir el convertidor retirado.
 

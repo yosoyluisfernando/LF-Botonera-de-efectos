@@ -1,135 +1,116 @@
-/**
- * Archivo: editStyle.js
- * Propósito: controles avanzados del editor de botón: códigos HEX, degradado
- * de dos colores (fondo y texto), color exacto, tamaño de texto propio y vista
- * previa en vivo. Rust valida y guarda (`style` en update_button_data).
- */
+/** Editor unificado de colores. Base: editStyle de Danilo Wenner (7c1f1ae).
+ * JS sincroniza el borrador visual; Rust valida y persiste al aceptar. */
+import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
-import { refreshColorInputs } from './colorPalette.js';
 import { paintButtonStyle } from './buttonStyle.js';
-import { bindFontControl, globalFontPx } from './fontSizeControl.js';
-
+import { paintButtonContent } from './buttonVisual.js';
+import { currentEditVisual } from './visualSelector.js';
+import { refreshColorInputs } from './colorPalette.js';
 const $ = id => document.getElementById(id);
-const PAIRS = [
-    ['edit-bg-color', 'edit-bg-hex', true],
-    ['edit-text-color', 'edit-text-hex', true],
-    ['edit-bg2-color', 'edit-bg2-hex', false],
-    ['edit-text2-color', 'edit-text2-hex', false],
-];
-
-let _font = null;
-let _tabFont = 0;
-let _wired = false;
-
-/** Normaliza lo que se escribe o pega: `ff0000`, `#F00` → `#FF0000`. */
+const PAIRS = ['bg', 'text', 'bg2', 'text2'];
+let wired = false;
+let mode = 'preset';
+let preset = {};
 export function normalizeHex(raw) {
     let v = String(raw || '').trim().replace(/^#/, '');
     if (/^[0-9a-f]{3}$/i.test(v)) v = v.split('').map(c => c + c).join('');
     return /^[0-9a-f]{6}$/i.test(v) ? `#${v.toUpperCase()}` : null;
 }
-
-/**
- * Carga el estilo del botón en el formulario.
- * @param {object} btnData  ButtonData (o null para una celda vacía).
- * @param {number} tabFont  Tamaño predeterminado de la pestaña (0 = global).
- */
-export function initEditStyle(btnData, tabFont = 0) {
-    _wire();
-    _tabFont = tabFont;
-    const style = btnData?.style ?? {};
-    $('edit-gradient').value = style.gradient || '';
-    $('edit-bg2-color').value = style.bg2 || '#000000';
+export async function initEditStyle(data) {
+    wire();
+    const style = data?.style ?? {};
+    mode = style.gradient || (style.exact || style.text2 ? 'solid' : 'preset');
+    $('edit-fill').value = mode;
+    $('edit-custom-bg2').value = style.bg2 || '#000000';
+    $('edit-custom-text2').value = style.text2 || '#FFD700';
     $('edit-text-gradient').checked = Boolean(style.text2);
-    $('edit-text2-color').value = style.text2 || '#FFD700';
-    $('edit-color-exact').checked = Boolean(style.exact);
-    _font.set(style.font_size || 0);
+    preset = { bg: $('edit-bg-color').value, text: $('edit-text-color').value };
+    if (mode !== 'preset') {
+        const palette = await invoke('get_color_palette');
+        const match = palette.find(c => c.base.toLowerCase() === preset.bg.toLowerCase()) || palette[0];
+        if (match) preset = { bg: match.base, text: match.darkText || '#FFFFFF' };
+    }
     syncEditStyleFromInputs();
+    await refreshColorInputs();
 }
-
-/** Tras cambiar los colores desde fuera (archivo nuevo, color sugerido). */
 export function syncEditStyleFromInputs() {
-    PAIRS.forEach(([color, hex]) => {
-        $(hex).value = normalizeHex($(color).value) ?? '';
-        $(hex).classList.remove('invalid');
-    });
-    _toggleRows();
-    _preview();
+    for (const key of ['bg', 'text']) {
+        $('edit-custom-' + key).value = $('edit-' + key + '-color').value;
+    }
+    for (const key of PAIRS) {
+        $('edit-' + key + '-hex').value = $('edit-custom-' + key).value.toUpperCase();
+        $('edit-' + key + '-hex').setAttribute('aria-invalid', 'false');
+    }
+    toggleRows(); preview();
 }
-
-/** El `style` a enviar a Rust. */
 export function currentEditStyle() {
-    const gradient = $('edit-gradient').value;
-    const textGradient = $('edit-text-gradient').checked;
+    if (mode === 'preset') return {};
     return {
-        font_size: _font?.get() ?? 0,
-        gradient,
-        bg2: gradient ? normalizeHex($('edit-bg2-color').value) ?? '' : '',
-        text2: textGradient ? normalizeHex($('edit-text2-color').value) ?? '' : '',
-        exact: $('edit-color-exact').checked || Boolean(gradient) || textGradient,
+        gradient: mode === 'solid' ? '' : mode,
+        bg2: mode === 'solid' ? '' : $('edit-custom-bg2').value,
+        text2: $('edit-text-gradient').checked ? $('edit-custom-text2').value : '',
+        exact: true,
     };
 }
-
-/** null si todo es válido; si no, el mensaje a mostrar. */
 export function editStyleError() {
-    const bad = PAIRS.some(([, hex]) => {
-        const el = $(hex);
-        return el.offsetParent !== null && el.value && !normalizeHex(el.value);
-    });
-    return bad ? t('colors.hex_invalid') : null;
-}
-
-function _wire() {
-    if (_wired) return;
-    _wired = true;
-    _font = bindFontControl('edit', () => _tabFont || globalFontPx(),
-        () => (_tabFont ? 'font_size.from_tab' : 'font_size.from_global'), () => _preview());
-    PAIRS.forEach(([color, hex, palette]) => {
-        $(hex).addEventListener('input', () => _onHex(color, hex, palette));
-        $(color).addEventListener('input', () => {
-            $(hex).value = normalizeHex($(color).value) ?? '';
-            $(hex).classList.remove('invalid');
-            // Elegir de la paleta es elegir el color adaptado al tema.
-            if (palette) $('edit-color-exact').checked = false;
-            _preview();
-        });
-    });
-    $('edit-gradient').addEventListener('change', () => { _toggleRows(); _preview(); });
-    $('edit-text-gradient').addEventListener('change', () => { _toggleRows(); _preview(); });
-    $('edit-color-exact').addEventListener('change', _preview);
-    $('edit-name').addEventListener('input', _preview);
-}
-
-function _onHex(color, hex, palette) {
-    const value = normalizeHex($(hex).value);
-    $(hex).classList.toggle('invalid', !value && $(hex).value.trim() !== '');
-    if (!value) return;
-    $(color).value = value;
-    // Quien escribe un HEX quiere ESE color, no su versión adaptada al tema.
-    if (palette) {
-        $('edit-color-exact').checked = true;
-        refreshColorInputs();
+    if (mode === 'preset') return null;
+    const keys = ['bg', 'text'];
+    if (mode !== 'solid') keys.push('bg2');
+    if ($('edit-text-gradient').checked) keys.push('text2');
+    for (const key of keys) {
+        const field = $('edit-' + key + '-hex');
+        const value = normalizeHex(field.value);
+        if (!value) { field.setAttribute('aria-invalid', 'true'); field.focus(); return t('colors.hex_invalid'); }
     }
-    _preview();
+    return null;
 }
-
-function _toggleRows() {
-    const gradient = Boolean($('edit-gradient').value);
-    $('edit-bg2-col').style.visibility = gradient ? 'visible' : 'hidden';
-    $('edit-text2-pair').style.display = $('edit-text-gradient').checked ? '' : 'none';
-    const exact = $('edit-color-exact');
-    exact.disabled = gradient || $('edit-text-gradient').checked;
-    if (exact.disabled) exact.checked = true;
+function wire() {
+    if (wired) return;
+    wired = true;
+    $('edit-fill').addEventListener('change', () => {
+        if (mode === 'preset') preset = { bg: $('edit-bg-color').value, text: $('edit-text-color').value };
+        mode = $('edit-fill').value;
+        for (const key of ['bg', 'text']) {
+            $('edit-' + key + '-color').value = mode === 'preset' ? preset[key] : $('edit-custom-' + key).value;
+        }
+        refreshColorInputs(); toggleRows(); preview();
+    });
+    for (const key of ['bg', 'text']) $('edit-' + key + '-color').addEventListener('input', syncEditStyleFromInputs);
+    for (const key of PAIRS) {
+        const picker = $('edit-custom-' + key), hex = $('edit-' + key + '-hex');
+        picker.addEventListener('input', () => {
+            hex.value = picker.value.toUpperCase(); hex.setAttribute('aria-invalid', 'false');
+            setBase(key, picker.value); preview();
+        });
+        hex.addEventListener('input', () => {
+            const value = normalizeHex(hex.value);
+            hex.setAttribute('aria-invalid', String(!value));
+            if (!value) return;
+            picker.value = value; setBase(key, value); preview();
+        });
+    }
+    $('edit-text-gradient').addEventListener('change', () => { toggleRows(); preview(); });
+    $('edit-name').addEventListener('input', preview);
+    document.addEventListener('lf-edit-visual-change', preview);
+    document.addEventListener('lf-theme-change', preview);
 }
-
-function _preview() {
+function setBase(key, value) {
+    if (key === 'bg' || key === 'text') $('edit-' + key + '-color').value = value;
+}
+function toggleRows() {
+    $('edit-preset-colors').classList.toggle('hidden', mode !== 'preset');
+    $('edit-custom-colors').classList.toggle('hidden', mode === 'preset');
+    $('edit-second-bg').classList.toggle('hidden', mode === 'solid' || mode === 'preset');
+    $('edit-second-text').classList.toggle('hidden', !$('edit-text-gradient').checked);
+}
+function preview() {
     const el = $('edit-style-preview');
-    if (!el) return;
-    el.querySelector('.button-visual-text').textContent = $('edit-name').value || 'ABC';
-    paintButtonStyle(el, {
-        color_bg: $('edit-bg-color').value,
-        color_text: $('edit-text-color').value,
-        style: currentEditStyle(),
-    }, _tabFont);
-    const size = currentEditStyle().font_size || _tabFont || globalFontPx();
-    el.style.fontSize = `${size}px`;
+    if (!el || !wired) return;
+    const data = {
+        name: $('edit-name').value || t('colors.preview_sample'),
+        color_bg: $('edit-bg-color').value, color_text: $('edit-text-color').value,
+        style: currentEditStyle(), visual: currentEditVisual(),
+    };
+    paintButtonContent(el.querySelector('.label'), data);
+    paintButtonStyle(el, data);
 }

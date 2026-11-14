@@ -55,6 +55,7 @@ function setChoice(nextKind, value) {
 }
 
 function paintChoice() {
+    document.dispatchEvent(new Event('lf-edit-visual-change'));
     const preview = document.getElementById('edit-visual-preview');
     paintPreview(preview, current, document.getElementById('edit-type')?.value);
     document.getElementById('edit-visual-mode').value =

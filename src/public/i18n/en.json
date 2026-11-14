@@ -911,7 +911,9 @@
     "obs_record_split_paused": "Resume recording before splitting it into another file.",
     "obs_record_pause_failed": "OBS did not confirm the pause change. Check whether its recording settings support pausing and verify the status in OBS.",
     "obs_record_split_unavailable": "OBS could not split the file. Check that file splitting is enabled in its output settings and that the configuration is compatible.",
-    "obs_quick_unavailable": "The quick transition is no longer available in OBS. Check the scene collection and select it again."
+    "obs_quick_unavailable": "The quick transition is no longer available in OBS. Check the scene collection and select it again.",
+    "invalid_hex_color": "There is an invalid color code. Use the #RRGGBB format, e.g. #3498DB.",
+    "invalid_gradient": "Invalid gradient. Check the direction and second color."
   },
   "mic": {
     "label": "Mic",
@@ -1130,11 +1132,28 @@
     "devices_unavailable": "Could not check connected keyboards. Reopen this section to try again."
   },
   "search": {
-  "tooltip": "Search effects in all tabs",
-  "placeholder": "Search by name, file, tab or position…",
-  "hint": "Examples: “applause”, “jingles 5”, “12”.",
-  "no_results": "No effect found.",
-  "location": "Tab {n}: {tab} · button {index} (row {row}, column {col})",
-  "access_tooltip": "Left click: find buttons across tabs. Right click: open Search in the fixed panel."
-}
+    "tooltip": "Search effects in all tabs",
+    "placeholder": "Search by name, file, tab or position…",
+    "hint": "Examples: “applause”, “jingles 5”, “12”.",
+    "no_results": "No effect found.",
+    "location": "Tab {n}: {tab} · button {index} (row {row}, column {col})",
+    "access_tooltip": "Left click: find buttons across tabs. Right click: open Search in the fixed panel."
+  },
+  "colors": {
+    "fill": "Fill:",
+    "solid": "Solid color",
+    "horizontal": "Horizontal gradient",
+    "vertical": "Vertical gradient",
+    "diagonal": "Diagonal gradient ↘",
+    "diagonal_inv": "Diagonal gradient ↗",
+    "bg2": "Second background color:",
+    "text_gradient": "Gradient text (second color):",
+    "exact": "Exact color (do not adapt to theme)",
+    "preview": "Preview:",
+    "hex_hint": "HEX code: #RRGGBB (paste is supported)",
+    "hex_invalid": "There is an invalid color code. Use the #RRGGBB format, e.g. #3498DB.",
+    "presets": "Presets",
+    "text2": "Second text color:",
+    "preview_sample": "Sample text"
+  }
 }

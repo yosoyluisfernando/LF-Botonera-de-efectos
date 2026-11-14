@@ -1,5 +1,6 @@
 // Editor de acciones OBS: comparte identidad visual y controles de entrada existentes.
 import { invoke } from '../bridge/api.js';
+import { initEditStyle, currentEditStyle, editStyleError } from './editStyle.js';
 import { t } from '../util/i18n.js';
 import { appAlert } from './appDialog.js';
 import { invokeShortcutSave } from './shortcutSave.js';
@@ -61,6 +62,7 @@ export async function openObsEditor(index, data, onSave) {
     await prepareEditShortcutSections();
     await attachPalette(document.getElementById('edit-bg-color'), document.getElementById('edit-text-color'), 'button');
     await refreshColorInputs();
+    await initEditStyle(data);
     const action = document.getElementById('obs-action'); action.replaceChildren();
     for (const item of state.actions.filter(item => item.kind !== 'transition_select' || data?.obs?.kind === item.kind)) {
         const option = document.createElement('option'); option.value = item.kind;
@@ -68,7 +70,8 @@ export async function openObsEditor(index, data, onSave) {
     }
     action.value = data?.obs?.kind || state.actions[0].kind;
     const completeName = () => {
-        if (automaticName) name.value = targets.label() || t('obs.actions.' + action.value);
+        if (automaticName) { name.value = targets.label() || t('obs.actions.' + action.value);
+            name.dispatchEvent(new Event('input')); }
     };
     const targets = initObsTargets(state, data?.obs, completeName);
     const render = () => {
@@ -81,6 +84,8 @@ export async function openObsEditor(index, data, onSave) {
     document.getElementById('obs-duration').value = data?.obs?.duration_ms ?? '';
     document.getElementById('obs-editor-status').textContent = t('obs.status.' + (state.status || 'disabled'));
     document.getElementById('btn-save-edit').onclick = async () => {
+        const styleError = editStyleError();
+        if (styleError) { await appAlert(styleError); return; }
         const save = document.getElementById('btn-save-edit');
         save.disabled = true;
         const item = state.actions.find(item => item.kind === action.value);
@@ -90,6 +95,7 @@ export async function openObsEditor(index, data, onSave) {
                 label: document.getElementById('edit-name').value.trim() || t('obs.actions.' + action.value),
                 colorBg: document.getElementById('edit-bg-color').value,
                 colorText: document.getElementById('edit-text-color').value,
+                style: currentEditStyle(),
                 action: { kind: action.value, ...targets.draft(item),
                     duration_ms: item.duration && duration ? Number(duration) : null },
                 shortcut: document.getElementById('edit-shortcut').value,

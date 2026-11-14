@@ -140,6 +140,7 @@ fn migrate(old: LegacyConfig) -> AppConfig {
                         shortcut: String::new(),
                         midi: Default::default(),
                         visual: Default::default(),
+                        style: Default::default(),
                     })
                     .collect();
             }

@@ -1,0 +1,21 @@
+/* Colores de Danilo: misma representación en botones y vista previa. */
+.style-exact { background-image: var(--btn-gradient, none); }
+.style-exact.playing { background-image: none; }
+.text-gradient .button-visual-text {
+  background-image: var(--btn-text-gradient); background-clip: text;
+  -webkit-background-clip: text; color: transparent;
+}
+.playing .text-gradient .button-visual-text { color: inherit; background-image: none; }
+.edit-style-preview {
+  min-height: 80px; border: 1px solid var(--border-color); border-radius: 5px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 12px; margin-bottom: 16px; overflow-wrap: anywhere; font-weight: bold;
+}
+.edit-style-preview .label { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.color-hex-pair { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.color-hex-pair input[type="color"] { flex: 1; min-width: 40px; height: 38px; padding: 0; cursor: pointer; }
+.color-hex-pair .hex-input { flex: 1; min-width: 80px; margin: 0; }
+.hex-input[aria-invalid="true"] { border-color: var(--error-color); outline: 1px solid var(--error-color); }
+#edit-fill { margin-bottom: 14px; }
+#edit-custom-colors .checkbox-line { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
+#edit-custom-colors .checkbox-line input { width: auto; margin: 0; }

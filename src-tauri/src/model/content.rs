@@ -48,6 +48,8 @@ pub struct ButtonData {
     pub midi: MidiBinding,
     #[serde(default, skip_serializing_if = "ButtonVisual::is_default")]
     pub visual: ButtonVisual,
+    #[serde(default, skip_serializing_if = "crate::model::ButtonStyle::is_default")]
+    pub style: crate::model::ButtonStyle,
 }
 fn default_type() -> String {
     "audio".to_string()

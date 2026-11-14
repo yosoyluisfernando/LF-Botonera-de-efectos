@@ -1,6 +1,28 @@
 # Continuidad de sesión — estado actual
 
 
+## Editor de colores unificado — autorizado e implementado para prueba
+
+El autor aprobó EDITOR_COLORES.md y podrá solicitar ajustes al probar.
+Selector único: Predefinidos primero, sólido y cuatro direcciones de degradado.
+Controles condicionales, HEX, segundo color y texto en degradado; todos los
+cambios repintan la vista previa antes de aceptar. Los personalizados conservan
+el color exacto; los predefinidos mantienen adaptación a tema.
+ButtonData.style es opcional, omite el predeterminado y valida en Rust incluso
+al deserializar. Edición de rejilla, panel fijo y OBS recibe style opcional;
+cmd_fixed_update.rs separa la edición fija para respetar 200 líneas.
+Exportación .bdelf/.bdeplf conserva style; versiones de LFA que lo ignoren no
+conservan degradados en una ida y vuelta. Pintura múltiple vuelve al estilo
+predefinido únicamente en los botones seleccionados. No se importa font_size.
+Base original de Danilo importada en 75096df con su autoría; adaptaciones aparte.
+Validación: 445 pruebas Rust aprobadas, 22 omitidas; cargo build --lib correcto.
+Dos pruebas DOM aprobadas en tema claro/oscuro, incluyendo paleta, sólido,
+cuatro degradados, HEX inválido, persistencia del borrador y Aceptar/Cancelar
+en los editores reales de rejilla/panel con IPC simulado. npm run build correcto.
+No se abrió la app ni se lanzaron compilaciones en GitHub; probar con DEV.bat
+del worktree variante-danilo, reiniciando la sesión de desarrollo por el IPC.
+Solo queda el ruteo de salidas por pestaña de la lista de integraciones.
+
 ## Buscador: clic izquierdo Danilo y derecho panel fijo — 2026-11-13
 
 El autor autorizó integrar el buscador sin cambiar la interacción izquierda del

@@ -150,6 +150,8 @@ function _apply() {
     _target.bgInput.value = _choice.base;
     if (_target.textInput) _target.textInput.value = _choice.text;
     _paintInputs(_target, _palette || []);
+    _target.bgInput.dispatchEvent(new Event('input', { bubbles: true }));
+    _target.textInput?.dispatchEvent(new Event('input', { bubbles: true }));
     _hide();
 }
 

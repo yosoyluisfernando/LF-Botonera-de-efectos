@@ -911,7 +911,9 @@
     "obs_record_split_paused": "Reanuda la grabación antes de dividirla en otro archivo.",
     "obs_record_pause_failed": "OBS no confirmó el cambio de pausa. Revisa si su configuración de grabación admite pausar y comprueba el estado en OBS.",
     "obs_record_split_unavailable": "OBS no pudo dividir el archivo. Revisa que la división de archivos esté habilitada en sus ajustes de salida y que la configuración sea compatible.",
-    "obs_quick_unavailable": "La transición rápida ya no está disponible en OBS. Revisa la colección de escenas y vuelve a seleccionarla."
+    "obs_quick_unavailable": "La transición rápida ya no está disponible en OBS. Revisa la colección de escenas y vuelve a seleccionarla.",
+    "invalid_hex_color": "Hay un código de color no válido. Usa el formato #RRGGBB, por ejemplo #3498DB.",
+    "invalid_gradient": "El degradado no es válido. Revisa la dirección y el segundo color."
   },
   "mic": {
     "label": "Mic",
@@ -1130,11 +1132,28 @@
     "devices_unavailable": "No se pudieron consultar los teclados conectados. Vuelve a abrir este apartado para reintentar."
   },
   "search": {
-  "tooltip": "Buscar efectos en todas las pestañas",
-  "placeholder": "Buscar por nombre, archivo, pestaña o posición…",
-  "hint": "Ejemplos: «aplausos», «cortinas 5», «12».",
-  "no_results": "No se encontró ningún efecto.",
-  "location": "Pestaña {n}: {tab} · botón {index} (fila {row}, columna {col})",
-  "access_tooltip": "Clic izquierdo: buscar botones en las pestañas. Clic derecho: abrir el Buscador del panel fijo."
-}
+    "tooltip": "Buscar efectos en todas las pestañas",
+    "placeholder": "Buscar por nombre, archivo, pestaña o posición…",
+    "hint": "Ejemplos: «aplausos», «cortinas 5», «12».",
+    "no_results": "No se encontró ningún efecto.",
+    "location": "Pestaña {n}: {tab} · botón {index} (fila {row}, columna {col})",
+    "access_tooltip": "Clic izquierdo: buscar botones en las pestañas. Clic derecho: abrir el Buscador del panel fijo."
+  },
+  "colors": {
+    "fill": "Relleno:",
+    "solid": "Color sólido",
+    "horizontal": "Degradado horizontal",
+    "vertical": "Degradado vertical",
+    "diagonal": "Degradado diagonal ↘",
+    "diagonal_inv": "Degradado diagonal ↗",
+    "bg2": "Segundo color de fondo:",
+    "text_gradient": "Texto en degradado (segundo color):",
+    "exact": "Color exacto (no adaptar al tema)",
+    "preview": "Vista previa:",
+    "hex_hint": "Código HEX: #RRGGBB (también se puede pegar)",
+    "hex_invalid": "Hay un código de color no válido. Usa el formato #RRGGBB, por ejemplo #3498DB.",
+    "presets": "Predefinidos",
+    "text2": "Segundo color de texto:",
+    "preview_sample": "Texto de ejemplo"
+  }
 }

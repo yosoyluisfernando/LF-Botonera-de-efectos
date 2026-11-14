@@ -52,7 +52,7 @@ macro_rules! lf_invoke_handlers {
             ipc::cmd_fixed_panel::set_library_display_mode,
             ipc::cmd_fixed_buttons::assign_file_to_fixed_button,
             ipc::cmd_fixed_buttons::clear_fixed_button,
-            ipc::cmd_fixed_buttons::update_fixed_button,
+            ipc::cmd_fixed_update::update_fixed_button,
             ipc::cmd_fixed_buttons::toggle_fixed_button_flag,
             ipc::cmd_fixed_panel::clear_fixed_scope,
             ipc::cmd_fixed_playback::get_fixed_playback_state,

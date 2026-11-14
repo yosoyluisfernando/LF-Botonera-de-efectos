@@ -67,6 +67,7 @@ fn paint(
     for btn in buttons.iter_mut().filter(|b| indexes.contains(&b.index)) {
         btn.color_bg = color_bg.to_string();
         btn.color_text = color_text.to_string();
+        btn.style = Default::default();
         painted += 1;
     }
     Ok(painted)

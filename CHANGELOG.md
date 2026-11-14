@@ -46,7 +46,12 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
   entre las pestañas del perfil y resaltarlos sin dispararlos. Clic derecho para
   abrir el Buscador del panel fijo, mostrándolo si estaba oculto o cambiando su vista.
 
-El buscador de botones, la rueda de pestañas, la barra inferior ocultable y la base del detector de
+- Editor de colores unificado: Predefinidos como primera opción, colores sólidos
+  personalizados mediante selector o HEX y cuatro direcciones de degradado.
+  Vista previa inmediata antes de guardar, también para texto en degradado.
+
+El editor de colores y degradados, el buscador de botones, la rueda de pestañas,
+la barra inferior ocultable y la base del detector de
 perfiles AAC proceden de aportaciones de **Danilo Wenner**, publicadas en
 [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos),
 y adaptadas para LF Botonera de Efectos. Todavía sin nueva versión publicada.
@@ -54,7 +59,6 @@ y adaptadas para LF Botonera de Efectos. Todavía sin nueva versión publicada.
 ### Integración prevista — fases posteriores
 
 Aportaciones seleccionadas de Danilo, todavía sin implementar:
-- Edición de colores HEX y degradados, con mejoras de configuración.
 - Salida de audio por pestaña integrada en la consola oficial.
 
 Al implementarlas, mover cada entrada a su categoría definitiva y conservar

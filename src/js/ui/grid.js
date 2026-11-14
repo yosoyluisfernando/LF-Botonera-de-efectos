@@ -12,7 +12,7 @@ import { showContextMenu } from './contextMenu.js';
 import { alertIpcError } from './ipcError.js';
 import { setPlaybackButtons } from './gridPlayback.js';
 import { isMapping, captureButton } from './mapping.js';
-import { paintAdaptive } from '../util/colorAdapter.js';
+import { paintButtonStyle } from './buttonStyle.js';
 import { t } from '../util/i18n.js';
 import { paintButtonContent } from './buttonVisual.js';
 import { display as midiDisplay } from './midiControls.js';
@@ -59,7 +59,6 @@ function _makeCell(index, btnData) {
     if (btnData) {
         btn.dataset.id            = btnData.id;
         btn.dataset.obs = String(btnData.type === 'obs');
-        paintAdaptive(btn, btnData.color_bg, btnData.color_text, 'button');
         const shortcutHtml = btnData.shortcut
             ? `<span class="shortcut-badge" data-shortcut-kind="keyboard">${_escapeHtml(btnData.shortcut)}</span>`
             : '';
@@ -78,6 +77,7 @@ function _makeCell(index, btnData) {
               <div class="progress-bar"></div>
             </div>`;
         paintButtonContent(btn.querySelector('.label'), btnData);
+        paintButtonStyle(btn, btnData);
 
         btn.addEventListener('click', e => {
             if (e.altKey) return; // Alt+clic = reordenar (gridDnd.js)

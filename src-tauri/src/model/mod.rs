@@ -1,6 +1,8 @@
 pub mod appearance;
 pub mod audio;
 pub mod button_visual;
+pub mod button_style;
+pub use button_style::ButtonStyle;
 pub mod config;
 pub mod console;
 pub mod content;

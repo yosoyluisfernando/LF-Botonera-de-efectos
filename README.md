@@ -176,7 +176,8 @@ Si esta herramienta te resulta útil en radio, producción o streaming, puedes a
 
 **Autor y creador:** Luis Fernando Velásquez
 
-**Aportaciones de Danilo Wenner:** buscador de botones, cambio de pestaña con la rueda, barra inferior
+**Aportaciones de Danilo Wenner:** colores HEX y degradados, buscador de botones,
+cambio de pestaña con la rueda, barra inferior
 ocultable y base de la detección de perfiles AAC, publicadas originalmente
 en [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos).
 Integradas y adaptadas en la rama `variante-danilo`; todavía sin nueva publicación.

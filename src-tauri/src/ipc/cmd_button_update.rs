@@ -30,9 +30,13 @@ pub fn update_button_data(
     midi: Option<MidiBinding>,
     replace_shortcut: Option<bool>,
     visual: Option<ButtonVisual>,
+    style: Option<crate::model::ButtonStyle>,
     app: tauri::AppHandle,
     state: tauri::State<AppState>,
 ) -> Result<GridState, String> {
+    if let Some(value) = style.as_ref() {
+        value.validate_colors(&color_bg, &color_text)?;
+    }
     let mut cfg = state.config.lock().unwrap();
     obs_audio_grid(&cfg)?;
     if let Some(v) = btn_type.as_deref() {
@@ -70,6 +74,9 @@ pub fn update_button_data(
     btn.name = label;
     btn.color_bg = color_bg;
     btn.color_text = color_text;
+    if let Some(value) = style {
+        btn.style = value;
+    }
     if let Some(v) = btn_type {
         btn.type_field = v;
     }

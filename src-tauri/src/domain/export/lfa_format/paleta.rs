@@ -49,6 +49,7 @@ fn button_to_lfa(id: u32, b: &ButtonData) -> LfaButton {
         shortcut: b.shortcut.clone(),
         midi: b.midi.clone(),
         visual: b.visual.clone(),
+        style: b.style.clone(),
     }
 }
 
@@ -71,6 +72,7 @@ fn empty_button(id: u32) -> LfaButton {
         shortcut: String::new(),
         midi: Default::default(),
         visual: Default::default(),
+        style: Default::default(),
     }
 }
 
@@ -128,6 +130,7 @@ fn button_from_lfa(b: LfaButton, paleta_id: &str) -> ButtonData {
         shortcut: b.shortcut,
         midi: b.midi,
         visual: b.visual,
+        style: b.style,
     }
 }
 

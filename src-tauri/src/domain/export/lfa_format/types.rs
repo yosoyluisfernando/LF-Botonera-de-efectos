@@ -38,6 +38,8 @@ pub struct LfaButton {
         skip_serializing_if = "crate::model::ButtonVisual::is_default"
     )]
     pub visual: crate::model::ButtonVisual,
+    #[serde(default, skip_serializing_if = "crate::model::ButtonStyle::is_default")]
+    pub style: crate::model::ButtonStyle,
 }
 
 pub(super) fn default_type() -> String {

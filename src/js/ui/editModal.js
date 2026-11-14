@@ -7,6 +7,7 @@
 import { openObsEditor, setObsEditor } from './obsEditor.js';
 import { prepareEditShortcutSections } from './editShortcutSections.js';
 import { invoke } from '../bridge/api.js';
+import { initEditStyle, currentEditStyle, editStyleError, syncEditStyleFromInputs } from './editStyle.js';
 import { t } from '../util/i18n.js';
 import { invokeShortcutSave } from './shortcutSave.js';
 import { attachPalette, refreshColorInputs } from './colorPalette.js';
@@ -40,7 +41,6 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
     modal.querySelector('.modal-header h3').textContent =
         `${t('edit_modal.title')} ${index})`;
 
-    // Tipo original del botón (serde expone type_field como "type")
     await _loadTypeState(btnData?.type);
     syncTypeOptions(typeEl);
     const type0 = selectedType();
@@ -66,7 +66,8 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
     await refreshColorInputs();
     _applyPathHint(type0, pathEl);
     syncEditVolumeControl(type0);
-    if (!btnData) _applySuggestedStyle();
+    if (!btnData) await _applySuggestedStyle();
+    await initEditStyle(btnData);
 
     modal.classList.remove('hidden');
     nameEl.focus();
@@ -110,10 +111,10 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
             if (updated) {
                 pathEl.value = updated.path;
                 nameEl.value = updated.name || updated.label;
-                // Rust ya asignó un color aleatorio al botón nuevo
                 document.getElementById('edit-bg-color').value   = updated.color_bg;
                 document.getElementById('edit-text-color').value = updated.color_text;
                 await refreshColorInputs();
+                syncEditStyleFromInputs();
             }
         } catch (error) {
             if (isLocution(typeEl.value) && error !== 'Operación cancelada.') {
@@ -124,7 +125,6 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
         }
     };
 
-    // Pre-escucha: solo aplica a archivos de audio
     document.getElementById('btn-prelisten').onclick = () => {
         if (!canPrelisten(typeEl.value) || !pathEl.value) return;
         const vol = currentEditVolumeLinear(typeEl.value);
@@ -132,15 +132,15 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
             m.openPrelisten(pathEl.value, nameEl.value, vol, btnData?.duration ?? 0));
     };
 
-    // Editor de pista (onda + cue + normalizador): solo archivos de audio
     document.getElementById('btn-edit-track').onclick = () => {
         if (!canPrelisten(typeEl.value) || !pathEl.value) return;
         import('./trackEditor.js').then(m =>
             m.openPreferredTrackEditor(pathEl.value, nameEl.value, onSave));
     };
 
-    // Guardar: crea o actualiza el botón en Rust (upsert)
     document.getElementById('btn-save-edit').onclick = async () => {
+        const styleError = editStyleError();
+        if (styleError) { await appAlert(styleError); return; }
         const sel   = typeEl.value;
         const isFolder = isFolderType(sel);
         try {
@@ -154,6 +154,7 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
                 label:     nameEl.value.trim() || btnData?.label || String(index),
                 colorBg:   document.getElementById('edit-bg-color').value,
                 colorText: document.getElementById('edit-text-color').value,
+                style: currentEditStyle(),
                 btnType:   sel,
                 path:      isFolder ? '' : pathEl.value,
                 folder:    isFolder ? pathEl.value : '',
@@ -171,7 +172,6 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
         modal.classList.add('hidden');
     };
 }
-
 async function _applySuggestedStyle() {
     try {
         const style = await invoke('suggest_button_style');
