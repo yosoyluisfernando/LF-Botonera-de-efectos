@@ -4,8 +4,10 @@
 
 Primera fase vigente: rueda, barra inferior y reproducción nativa de audio
 compatible, incluido MP4. El autor retiró la conversión externa el 2026-11-13.
-Buscador y editor unificado de colores integrados por autorización individual;
-las salidas por pestaña siguen pendientes. No se compila ni publica en GitHub.
+Buscador, editor unificado de colores, atajos de pestaña y foco de consola
+integrados por autorización individual. Las funciones se preparan para una
+próxima entrega de escritorio 1.7.0; el release sigue sujeto a revisión del
+autor y no se publica sin autorización.
 El autor mantiene seis aportaciones seleccionadas de LF Botonera Radio. La integración parte
 de la rama de desarrollo oficial 1.6.0, no de sustituirla por el fork 1.5.1.
 El autor aprobó explícitamente la primera fase; las fases restantes requieren
@@ -21,7 +23,8 @@ revisión individual antes de modificar módulos, modelo o IPC.
 - La carpeta principal conserva `codex/desarrollo` y sus cambios sin commit.
   Esos cambios NO están incluidos en esta base; conciliarlos antes de integrar
   el resultado o preparar una entrega, sin sobrescribirlos ni descartarlos.
-- No modificar main, publicar releases ni cambiar versiones durante la preparación.
+- No modificar main ni publicar releases durante la preparación. El cambio de
+  versión de escritorio se prepara para 1.7.0, sin crear ni empujar el tag final.
 - D: queda para experimentos reversibles; el trabajo de integración reside en C:.
 
 ## Procedencia y crédito permanente
@@ -109,20 +112,20 @@ conectada, usando get_shortcut_editor_state. Desconexión/cierre cancelan captur
 sin borrar asignaciones. No hay cambios de modelo ni comandos nuevos.
 Ver ATAJOS_PESTANA_Y_CONSOLA.md. Corrección de foco de consola independiente.
 
-## Orden propuesto y comprobaciones
+## Estado de integración y comprobaciones
 
-1. Primera fase vigente: rueda, barra inferior y reproducción nativa compatible.
-2. Buscador y editor de colores integrados; pendientes pruebas del autor.
-3. Ruteo integrado en consola, con diseño de buses y reconexión aprobado.
-4. No distribuir ni reintroducir el convertidor retirado.
+La rueda, la barra inferior, la reproducción nativa compatible, el buscador,
+el editor de colores, los atajos de pestaña y el foco de consola están integrados.
+La salida independiente por pestaña sigue pendiente de un diseño aprobado. No
+distribuir ni reintroducir el convertidor FFmpeg retirado.
 
 Trabajar en cambios pequeños por función, con procedencia y créditos trazables.
 Mantener archivos de máximo 200 líneas y traducciones es/en/pt-BR/pt-PT.
 Al modificar código: `cargo test --lib`, `cargo build --lib` y `npm run build`,
-más pruebas dirigidas cuando verifiquen comportamiento real. No lanzar la app;
-la validación funcional y de tarjetas la realiza el autor con su equipo.
-Verificaciones locales de biblioteca y frontend, sin abrir la app ni crear
-instaladores. El autor prueba con el DEV.bat del worktree aislado.
+más pruebas dirigidas cuando verifiquen comportamiento real. La compilación de
+paquetes Windows/Linux para este borrador se ejecuta en GitHub Actions con
+publicación desactivada. No lanzar la app; la prueba funcional la hace el autor
+con el DEV.bat del worktree aislado.
 
 ## Encontrar las opciones en el instalador de Danilo
 

@@ -37,53 +37,24 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 
 ### Añadido
 
-- Acceso «Asignar atajo de teclado…» desde el menú contextual de una pestaña,
-  procedente de Danilo. Reutiliza la captura existente y añade una sección MIDI
-  plegada, visible cuando MIDI está habilitado y hay una entrada conectada.
-- Cambio de pestaña con la rueda del ratón sobre la barra de pestañas.
-- Opción para mostrar u ocultar la barra inferior desde Ajustes → Principal.
-- Reproducción directa del audio compatible de MP4/M4A/AAC. Los archivos MP4
-  con vídeo utilizan únicamente su pista de audio.
-- MP4 incluido en los formatos compatibles de Ajustes → Acerca de.
-- Buscador de botones de Danilo: clic izquierdo en la lupa para localizar botones
-  entre las pestañas del perfil y resaltarlos sin dispararlos. Clic derecho para
-  abrir el Buscador del panel fijo, mostrándolo si estaba oculto o cambiando su vista.
-
-- Editor de colores unificado: Predefinidos como primera opción, colores sólidos
-  personalizados mediante selector o HEX y cuatro direcciones de degradado.
-  Vista previa inmediata antes de guardar, también para texto en degradado.
-- Favoritos de colores globales con nombre para guardar y reutilizar combinaciones
-  completas de fondo, texto y degradados. Se conservan al cerrar la aplicación;
-  eliminar un favorito no cambia los botones donde ya se aplicó.
-
-El acceso contextual a los atajos, el editor de colores y degradados,
-el buscador de botones, la rueda de pestañas,
-la barra inferior ocultable y la base del detector de
-perfiles AAC proceden de aportaciones de **Danilo Wenner**, publicadas en
-[LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos),
-y adaptadas para LF Botonera de Efectos. Todavía sin nueva versión publicada.
+- Varias funciones se basan en aportes de **Danilo Wenner** para [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos), adaptados e integrados en esta botonera.
+- Cambia de pestaña con la rueda del ratón y muestra u oculta la barra inferior desde Ajustes → Principal.
+- Busca botones en todas las pestañas con la lupa; usa el clic derecho para abrir el Buscador del panel fijo.
+- Personaliza botones con colores HEX, cuatro estilos de degradado y una vista previa inmediata. Guarda combinaciones en favoritos globales con nombre.
+- Asigna atajos de teclado a pestañas desde su menú contextual; la sección MIDI aparece al habilitar MIDI y conectar una entrada.
+- Reproduce audio compatible en MP4, M4A y AAC directamente; en MP4 con vídeo se usa la pista de audio.
+- MP4 figura en la lista de formatos compatibles de Ajustes → Acerca de.
 
 ### Cambiado
 
-- El editor de botones se adapta al tamaño de la ventana, con cabecera y acciones
-  visibles y desplazamiento del contenido para acceder a todas las opciones.
-- Cambiar el archivo o el tipo de sonido conserva los colores y degradados del
-  botón existente. El color aleatorio se elige únicamente para botones nuevos.
-  La selección de archivo dentro del editor queda pendiente hasta Aceptar.
+- El editor de botones adapta su altura a la ventana y permite desplazarse por las opciones sin perder de vista la cabecera y las acciones.
+- Cambiar el sonido o su tipo conserva los colores existentes; el color aleatorio se asigna al crear un botón.
 
 ### Corregido
 
-- El botón de la consola de audio recupera su ventana existente: la restaura si
-  está minimizada, la muestra y le devuelve el foco. Ya no intenta crear otra
-  ventana con el mismo identificador cuando la consola quedó detrás.
+- El botón de la consola de audio restaura y enfoca la ventana que ya estaba abierta.
 
-### Integración prevista — fases posteriores
-
-Aportaciones seleccionadas de Danilo, todavía sin implementar:
-- Salida de audio por pestaña integrada en la consola oficial.
-
-Al implementarlas, mover cada entrada a su categoría definitiva y conservar
-su atribución. [Alcance y procedencia](Documentación/INTEGRACION_VARIANTE_DANILO.md).
+La salida de audio independiente por pestaña queda fuera de esta entrega.
 
 ## [1.6.0] — 2026-11-12
 

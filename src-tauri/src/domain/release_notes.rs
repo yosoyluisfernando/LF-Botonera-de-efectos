@@ -3,7 +3,15 @@ const DESKTOP: &str = include_str!("../../../CHANGELOG.md");
 const ANDROID: &str = include_str!("../../../CHANGELOG.android.md");
 
 pub fn for_platform(version: &str, android: bool) -> String {
-    extract(if android { ANDROID } else { DESKTOP }, version)
+    let changelog = if android { ANDROID } else { DESKTOP };
+    let published = extract(changelog, version);
+    if !published.is_empty() {
+        return published;
+    }
+    if version == env!("CARGO_PKG_VERSION") {
+        return section(changelog, "[Sin publicar]");
+    }
+    String::new()
 }
 
 fn extract(changelog: &str, version: &str) -> String {
@@ -53,7 +61,8 @@ mod tests {
         assert!(android.contains("teléfonos y tablets"));
         assert!(!android.contains("### Corregido"));
         let desktop = for_platform(env!("CARGO_PKG_VERSION"), false);
-        assert!(desktop.contains("Controla OBS desde la botonera"));
+        assert!(desktop.contains("Danilo Wenner"));
+        assert!(desktop.contains("colores HEX"));
         assert!(!desktop.contains("### Botonera de sonidos para teléfonos"));
     }
 
