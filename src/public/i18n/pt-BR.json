@@ -25,7 +25,8 @@
       "edit": "Editar Aba...",
       "export": "Exportar (.bdelf)",
       "import": "Importar (.bdelf)",
-      "delete": "Excluir Aba"
+      "delete": "Excluir Aba",
+      "shortcut": "Atribuir atalho de teclado..."
     }
   },
   "grid": {

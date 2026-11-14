@@ -25,7 +25,8 @@
       "edit": "Editar Separador...",
       "export": "Exportar (.bdelf)",
       "import": "Importar (.bdelf)",
-      "delete": "Eliminar Separador"
+      "delete": "Eliminar Separador",
+      "shortcut": "Atribuir atalho de teclado..."
     }
   },
   "grid": {

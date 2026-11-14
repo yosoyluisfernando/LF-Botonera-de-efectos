@@ -42,6 +42,16 @@ export function initTabs(config, onRefresh) {
     document.getElementById('tab-menu-editar')
         .addEventListener('click', () => { _hideCtxMenu(); _openTabModal(_ctxPaletaId); });
 
+    // Atajo de teclado propio de la pestaña sin pasar por el Modo Mapeo. Rust
+    // valida conflictos (otra pestaña, un botón o un atajo general).
+    document.getElementById('tab-menu-shortcut')
+        .addEventListener('click', () => {
+            _hideCtxMenu();
+            const profile = _config?.profiles.find(p => p.id === _config.active_profile_id);
+            const paleta = profile?.paletas.find(p => p.id === _ctxPaletaId);
+            if (paleta) captureTab(paleta, _config.active_profile_id);
+        });
+
     document.getElementById('tab-menu-eliminar')
         .addEventListener('click', () => { _hideCtxMenu(); _deleteTab(_ctxPaletaId); });
 

@@ -25,7 +25,8 @@
       "edit": "Edit Tab...",
       "export": "Export (.bdelf)",
       "import": "Import (.bdelf)",
-      "delete": "Delete Tab"
+      "delete": "Delete Tab",
+      "shortcut": "Assign keyboard shortcut..."
     }
   },
   "grid": {

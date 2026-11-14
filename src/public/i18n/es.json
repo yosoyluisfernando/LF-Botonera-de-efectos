@@ -25,7 +25,8 @@
       "edit": "Editar Pestaña...",
       "export": "Exportar (.bdelf)",
       "import": "Importar (.bdelf)",
-      "delete": "Eliminar Pestaña"
+      "delete": "Eliminar Pestaña",
+      "shortcut": "Asignar atajo de teclado..."
     }
   },
   "grid": {
