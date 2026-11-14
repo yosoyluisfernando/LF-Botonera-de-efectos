@@ -35,6 +35,23 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 
 ## [Sin publicar]
 
+### Integración prevista — todavía sin implementar
+
+Aportaciones seleccionadas de **Danilo Wenner**, publicadas originalmente en
+[LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos):
+
+- Cambio de pestaña con la rueda del ratón.
+- Edición de colores HEX y degradados.
+- Salida de audio por pestaña, adaptada a la consola oficial.
+- Búsqueda de botones del perfil, con acceso unificado al catálogo de archivos.
+- Conversión auxiliar automática con FFmpeg para audio no compatible nativamente.
+- Opción para mostrar u ocultar la barra inferior.
+
+Reserva de crédito para la próxima versión; no anuncia funciones disponibles.
+Al implementarlas, mover cada entrada a su categoría definitiva y conservar
+la atribución y procedencia. Alcance, limitaciones y plan:
+[Integración de la variante de Danilo](Documentación/INTEGRACION_VARIANTE_DANILO.md).
+
 ## [1.6.0] — 2026-11-12
 
 ### Novedades

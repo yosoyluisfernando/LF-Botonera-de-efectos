@@ -1,5 +1,13 @@
 # AGENTS.md — LF Botonera de Efectos
 
+
+**Excepción autorizada — integración Danilo (2026-11-13):** este worktree usa
+`variante-danilo` desde la base oficial 1.6.0. Leer primero
+`Documentación/INTEGRACION_VARIANTE_DANILO.md` y el apartado vigente de continuidad.
+Las seis funciones están seleccionadas; la propuesta técnica precede a cambios
+de módulos/modelo/IPC. Preservar crédito de Danilo y cambios pendientes de la
+copia principal. No reemplazar la aplicación por el fork ni mover main.
+
 **Estado vigente (2026-11-12):** continuar en `C:/OVERLAY/BOTONERA`, rama
 `codex/desarrollo`, preparación estable `1.6.0` autorizada para PC y Android. Windows, Linux y Android
 comparten este repositorio. Main conserva la versión estable publicada.

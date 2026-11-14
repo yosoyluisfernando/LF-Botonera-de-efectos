@@ -1,5 +1,19 @@
 # Continuidad de sesión — estado actual
 
+
+## Variante Danilo: entorno de integración — 2026-11-13
+
+Rama de esta copia: `variante-danilo`, base oficial 1.6.0 en `3502072`.
+Solo preparación documental; implementación pendiente de revisión del plan.
+Leer [INTEGRACION_VARIANTE_DANILO.md](INTEGRACION_VARIANTE_DANILO.md).
+Seis aportaciones seleccionadas y crédito de Danilo reservados en CHANGELOG.
+Buscador: izquierdo = botones; derecho = archivos del catálogo. El ruteo por
+pestaña debe integrarse en consola, máster, Mic y medición. No fusionar el fork
+completo ni cambiar la identidad oficial. La copia principal sigue en
+`codex/desarrollo` con cambios sin commit que deben preservarse y conciliarse.
+Este apartado prevalece para el worktree de la variante sobre la instrucción
+histórica de trabajar exclusivamente en `codex/desarrollo`.
+
 ## Preparación estable multiplataforma y borrador GitHub — 2026-11-12
 
 El autor autorizó explícitamente ESTABLE 1.6.0 para Windows/Linux, manteniendo

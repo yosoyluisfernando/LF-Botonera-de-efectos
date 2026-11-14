@@ -1,13 +1,16 @@
 # Organización de ramas
 
-Desde el 10 de noviembre de 2026, GitHub conserva dos ramas.
+Desde el 13 de noviembre de 2026 existe una rama adicional de integración.
 
 | Rama | Uso |
 | --- | --- |
 | main | Código estable publicado |
 | codex/desarrollo | Mejoras de Android y escritorio, OBS, MIDI y control remoto |
+| variante-danilo | Integración aislada de seis aportaciones de Danilo sobre la base oficial 1.6.0 |
 
-El trabajo nuevo continúa en codex/desarrollo. Una publicación o integración
+El desarrollo general continúa en codex/desarrollo. La integración seleccionada
+de Danilo se prepara en variante-danilo; consultar INTEGRACION_VARIANTE_DANILO.md.
+Una publicación o integración
 en main se realiza cuando el autor la solicite.
 
 ## Consolidación
