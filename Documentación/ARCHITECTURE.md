@@ -53,6 +53,17 @@ conserva color_bg/color_text/style; solo las nuevas sortean un color.
 El CSS del editor acota su contenedor al viewport con cabecera/pie fijos y
 contenido desplazable. Detalles en EDITOR_COLORES.md.
 
+## Atajos contextuales y foco de consola
+
+El menú de pestaña importa de Danilo un acceso a captureTab en mapping.js.
+Reutiliza PaletaData.shortcut/midi, update_paleta_meta y validación de conflictos.
+El details MIDI se muestra plegado cuando get_shortcut_editor_state confirma
+habilitación y entrada conectada; midi-devices-changed refresca en caliente.
+Cancelar/desconectar/plegar cancela captura sin borrar bindings guardados.
+consoleWindow.js recupera audio-console por etiqueta y espera restaurar,
+mostrar y enfocar; crea solo cuando no existe. No hay cambios al motor de audio,
+modelo o IPC. Ver ATAJOS_PESTANA_Y_CONSOLA.md para procedencia y verificación.
+
 ## Buscador de botones y acceso al catálogo
 
 `domain/grid/search.rs` busca en las pestañas del perfil activo con las reglas

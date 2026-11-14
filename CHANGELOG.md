@@ -37,6 +37,9 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 
 ### Añadido
 
+- Acceso «Asignar atajo de teclado…» desde el menú contextual de una pestaña,
+  procedente de Danilo. Reutiliza la captura existente y añade una sección MIDI
+  plegada, visible cuando MIDI está habilitado y hay una entrada conectada.
 - Cambio de pestaña con la rueda del ratón sobre la barra de pestañas.
 - Opción para mostrar u ocultar la barra inferior desde Ajustes → Principal.
 - Reproducción directa del audio compatible de MP4/M4A/AAC. Los archivos MP4
@@ -53,7 +56,8 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
   completas de fondo, texto y degradados. Se conservan al cerrar la aplicación;
   eliminar un favorito no cambia los botones donde ya se aplicó.
 
-El editor de colores y degradados, el buscador de botones, la rueda de pestañas,
+El acceso contextual a los atajos, el editor de colores y degradados,
+el buscador de botones, la rueda de pestañas,
 la barra inferior ocultable y la base del detector de
 perfiles AAC proceden de aportaciones de **Danilo Wenner**, publicadas en
 [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos),
@@ -66,6 +70,12 @@ y adaptadas para LF Botonera de Efectos. Todavía sin nueva versión publicada.
 - Cambiar el archivo o el tipo de sonido conserva los colores y degradados del
   botón existente. El color aleatorio se elige únicamente para botones nuevos.
   La selección de archivo dentro del editor queda pendiente hasta Aceptar.
+
+### Corregido
+
+- El botón de la consola de audio recupera su ventana existente: la restaura si
+  está minimizada, la muestra y le devuelve el foco. Ya no intenta crear otra
+  ventana con el mismo identificador cuando la consola quedó detrás.
 
 ### Integración prevista — fases posteriores
 

@@ -7,15 +7,17 @@
  */
 
 import { t } from '../util/i18n.js';
+import { invoke, listen } from '../bridge/api.js';
 import { initKeyInputs } from '../util/keyInputs.js';
 import { invokeShortcutSave } from './shortcutSave.js';
-import { getMidiField, initMidiField, setMidiField } from './midiControls.js';
+import { getMidiField, initMidiField, setMidiField, cancelMidiCapture, hasActiveMidiCapture } from './midiControls.js';
 
 let _onRefresh = null;
 let _target    = null; // ButtonData o PaletaData según _type
 let _type      = '';   // 'button' | 'tab'
 let _profileId = '';
 let _wired     = false;
+let _midiRequest = 0;
 
 /** Inicializa el botón de entrada y el modal de captura. Llamar una vez. */
 export function initMapping(onRefresh) {
@@ -30,11 +32,19 @@ export function initMapping(onRefresh) {
     });
 
     document.getElementById('btn-cancel-capture').addEventListener('click', () => {
-        document.getElementById('capture-modal').classList.add('hidden');
+        exitMapping();
     });
 
     document.getElementById('btn-save-capture').addEventListener('click', _saveCapture);
     initMidiField('capture-midi-input', 'btn-capture-midi', 'btn-clear-midi');
+    const refresh = () => {
+        if (!document.getElementById('capture-modal').classList.contains('hidden')) void _refreshMidi();
+    };
+    listen('midi-devices-changed', refresh).catch(console.error);
+    window.addEventListener('focus', refresh);
+    document.getElementById('capture-midi-section').addEventListener('toggle', event => {
+        if (!event.currentTarget.open) void cancelMidiCapture();
+    });
 
     // ESC sale del modo mapeo con prioridad máxima (fase de captura)
     document.addEventListener('keydown', e => {
@@ -67,10 +77,14 @@ function _openCapture(label, current) {
     setMidiField('capture-midi-input', _target?.midi);
     initKeyInputs(document.getElementById('capture-modal'));
     document.getElementById('capture-modal').classList.remove('hidden');
+    const section = document.getElementById('capture-midi-section');
+    section.open = false; section.classList.add('hidden');
+    void _refreshMidi();
     input.focus();
 }
 
 async function _saveCapture() {
+    if (hasActiveMidiCapture()) return;
     const key = document.getElementById('capture-key-input').value;
     try {
         if (_type === 'button') {
@@ -95,8 +109,25 @@ async function _saveCapture() {
 
 /** Sale del modo mapeo y cierra el modal de captura. */
 export function exitMapping() {
+    ++_midiRequest;
+    void cancelMidiCapture();
     _target = null; _type = '';
     document.body.classList.remove('mapping-mode');
     document.getElementById('mapping-banner').classList.add('hidden');
     document.getElementById('capture-modal').classList.add('hidden');
+}
+
+/** Rust decide disponibilidad: MIDI habilitado y al menos una entrada conectada. */
+async function _refreshMidi() {
+    const request = ++_midiRequest;
+    let available = false;
+    try { available = Boolean((await invoke('get_shortcut_editor_state')).midi_available); }
+    catch (error) { console.error('Error al consultar MIDI:', error); }
+    if (request !== _midiRequest) return;
+    const section = document.getElementById('capture-midi-section');
+    section.classList.toggle('hidden', !available);
+    const capture = document.getElementById('btn-capture-midi');
+    capture.dataset.unavailable = String(!available);
+    capture.disabled = !available || hasActiveMidiCapture();
+    if (!available) { section.open = false; await cancelMidiCapture(); }
 }

@@ -875,12 +875,14 @@
         <div class="modal-body">
           <p id="capture-target-name" style="font-weight:bold;font-size:14px;margin-bottom:15px"></p>
           <input type="text" id="capture-key-input" class="key-input" readonly data-i18n-placeholder="mapping.placeholder">
-          <label class="midi-capture-label" data-i18n="midi.shortcut">Atajo MIDI:</label>
+          <details id="capture-midi-section" class="hidden">
+            <summary data-i18n="midi.shortcut">Atajo MIDI:</summary>
           <div class="midi-input-row">
-            <input type="text" id="capture-midi-input" readonly data-i18n-placeholder="midi.none">
+            <input type="text" id="capture-midi-input" readonly data-i18n-placeholder="midi.none" data-i18n-aria-label="midi.shortcut">
             <button type="button" id="btn-capture-midi" class="btn-dark" data-i18n="midi.capture">Capturar MIDI</button>
             <button type="button" id="btn-clear-midi" class="btn-dark" data-i18n="settings.clear_shortcut">Limpiar</button>
           </div>
+          </details>
         </div>
         <div class="modal-footer" style="justify-content:center">
           <button id="btn-save-capture"   class="btn-blue" data-i18n="mapping.save">Guardar Atajo</button>

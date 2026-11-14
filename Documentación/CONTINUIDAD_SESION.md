@@ -1,6 +1,27 @@
 # Continuidad de sesión — estado actual
 
 
+## Consola y atajo de pestaña — 2026-11-13
+
+Petición nueva del autor: el botón de consola restaura/muestra/enfoca la ventana
+existente, sin intentar crearla de nuevo ni cerrarla. consoleWindow.js ahora
+espera getByLabel/unminimize/show/setFocus; mantiene modal/fallback y Android.
+Importado de Danilo el menú «Asignar atajo de teclado…» con captureTab en
+1d1f16c, conservando su autoría y comportamiento de teclado. MIDI se adapta al
+modal existente con details plegado y visible solo si Rust informa disponible.
+Se usa get_shortcut_editor_state y midi-devices-changed, sin nuevos campos/IPC.
+Ocultar MIDI no borra asignaciones. Desconexión, plegado y cierre cancelan captura.
+El modal acota tamaño y desplaza contenido para no perder acciones.
+Guardar atajo no activa otra pestaña ni reproduce audio; valida conflictos
+mediante las reglas existentes de teclado y MIDI. Créditos y changelog al día.
+Detalles y pruebas en ATAJOS_PESTANA_Y_CONSOLA.md. Trabajo en variante-danilo;
+no abrir la app ni compilar en GitHub. El usuario prueba con DEV.bat del worktree.
+
+Validación local: 453 pruebas Rust aprobadas, 22 omitidas; cargo build --lib
+correcto. Cinco pruebas de consola y dos pruebas DOM de pestaña/MIDI aprobadas;
+npm run build correcto. El foco nativo y el dispositivo MIDI real quedan para
+la prueba funcional del autor. No se han ejecutado compilaciones en GitHub.
+
 ## Ajustes de colores: modal, favoritos y reemplazo de sonido
 
 El autor pidió adaptar el modal a la ventana, guardar combinaciones favoritas y

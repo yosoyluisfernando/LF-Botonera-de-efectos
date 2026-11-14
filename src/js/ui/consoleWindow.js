@@ -15,7 +15,7 @@ const MODAL = 'console-modal';
 export async function openPreferred() {
     if (isAndroid()) return;
     const cfg = await invoke('get_config').catch(() => ({}));
-    if (cfg.console_mode !== 'modal' && !_isWindow() && _openWindow()) return;
+    if (cfg.console_mode !== 'modal' && !_isWindow() && await _openWindow()) return;
     await openModal();
 }
 
@@ -57,7 +57,7 @@ export function wire() {
 }
 
 async function popOut() {
-    if (!_openWindow()) return;
+    if (!await _openWindow()) return;
     await invoke('set_console_mode', { mode: 'window' }).catch(console.error);
     closeModal();
 }
@@ -71,10 +71,18 @@ async function dockIn() {
     window.__TAURI__?.window?.getCurrentWindow?.().close();
 }
 
-function _openWindow() {
+async function _openWindow() {
     if (isAndroid()) return false;
     try {
-        new window.__TAURI__.webviewWindow.WebviewWindow('audio-console', {
+        const WindowClass = window.__TAURI__.webviewWindow.WebviewWindow;
+        const existing = await WindowClass.getByLabel('audio-console');
+        if (existing) {
+            await existing.unminimize();
+            await existing.show();
+            await existing.setFocus();
+            return true;
+        }
+        new WindowClass('audio-console', {
             url: 'index.html?console=1',
             title: t('console.title'),
             width: 980,

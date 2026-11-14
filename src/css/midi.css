@@ -87,3 +87,13 @@
 .edit-shortcut-disclosure > summary { min-height: 48px; cursor: pointer; align-content: center; }
 body[data-keyboard-shortcut-labels="false"] .grid-item [data-shortcut-kind="keyboard"],
 body[data-midi-shortcut-labels="false"] .grid-item [data-shortcut-kind="midi"] { display: none; }
+
+#capture-midi-section { margin-top: 14px; text-align: left; }
+#capture-midi-section summary { cursor: pointer; color: var(--text-primary); }
+#capture-modal { padding: 8px; box-sizing: border-box; }
+#capture-modal .modal-content {
+  display: flex; flex-direction: column; max-width: 100%; max-height: 100%; min-width: 0;
+}
+#capture-modal .modal-header, #capture-modal .modal-footer { flex-shrink: 0; }
+#capture-modal .modal-body { min-height: 0; overflow-y: auto; }
+#capture-modal .modal-footer { flex-wrap: wrap; }

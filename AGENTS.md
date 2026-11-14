@@ -9,7 +9,9 @@ Conversión FFmpeg retirada expresamente por el autor (2026-11-13); no restaurar
 Buscador autorizado e integrado: izquierdo conserva Danilo; derecho abre el
 Buscador del panel fijo. Editor unificado de colores autorizado e implementado;
 ver Documentación/EDITOR_COLORES.md. Favoritos globales con nombre autorizados;
-modal adaptable y reemplazo de contenido conservando colores. Las salidas requieren revisión individual.
+modal adaptable y reemplazo de contenido conservando colores. Acceso contextual
+a atajos de pestaña autorizado, con MIDI plegado según disponibilidad; consola
+recupera foco de su ventana existente. Las salidas requieren revisión individual.
 No lanzar compilaciones en GitHub ni abrir la app; el autor prueba con DEV.bat. Preservar crédito de Danilo y cambios pendientes de la
 copia principal. No reemplazar la aplicación por el fork ni mover main.
 

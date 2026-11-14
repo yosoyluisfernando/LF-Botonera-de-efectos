@@ -6,7 +6,7 @@ Primera fase vigente: rueda, barra inferior y reproducción nativa de audio
 compatible, incluido MP4. El autor retiró la conversión externa el 2026-11-13.
 Buscador y editor unificado de colores integrados por autorización individual;
 las salidas por pestaña siguen pendientes. No se compila ni publica en GitHub.
-El autor mantiene cinco aportaciones seleccionadas de LF Botonera Radio. La integración parte
+El autor mantiene seis aportaciones seleccionadas de LF Botonera Radio. La integración parte
 de la rama de desarrollo oficial 1.6.0, no de sustituirla por el fork 1.5.1.
 El autor aprobó explícitamente la primera fase; las fases restantes requieren
 revisión individual antes de modificar módulos, modelo o IPC.
@@ -98,6 +98,16 @@ Añadir una preferencia persistente, visible por defecto para configuraciones
 anteriores. Mantener un acceso claro en Ajustes para volver a mostrarla y no
 alterar atajos ni audio. JS/CSS solo aplican visibilidad; Rust valida/persiste
 la preferencia. Revisar escritorio y Android antes de definir el alcance final.
+
+### 7. Acceso contextual al atajo de pestaña — añadido por petición del autor
+
+Conservado el acceso original de Danilo: menú de pestaña → Asignar atajo de
+teclado… abre captureTab sobre la pestaña pulsada, sin activar otra pestaña ni
+reproducir botones. La captura/limpieza/conflictos de teclado siguen igual.
+Adaptación: MIDI en details plegado, visible solo con MIDI habilitado y entrada
+conectada, usando get_shortcut_editor_state. Desconexión/cierre cancelan captura
+sin borrar asignaciones. No hay cambios de modelo ni comandos nuevos.
+Ver ATAJOS_PESTANA_Y_CONSOLA.md. Corrección de foco de consola independiente.
 
 ## Orden propuesto y comprobaciones
 
