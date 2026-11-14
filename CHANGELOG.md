@@ -42,8 +42,11 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 - Reproducción directa del audio compatible de MP4/M4A/AAC. Los archivos MP4
   con vídeo utilizan únicamente su pista de audio.
 - MP4 incluido en los formatos compatibles de Ajustes → Acerca de.
+- Buscador de botones de Danilo: clic izquierdo en la lupa para localizar botones
+  entre las pestañas del perfil y resaltarlos sin dispararlos. Clic derecho para
+  abrir el Buscador del panel fijo, mostrándolo si estaba oculto o cambiando su vista.
 
-La rueda de pestañas, la barra inferior ocultable y la base del detector de
+El buscador de botones, la rueda de pestañas, la barra inferior ocultable y la base del detector de
 perfiles AAC proceden de aportaciones de **Danilo Wenner**, publicadas en
 [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos),
 y adaptadas para LF Botonera de Efectos. Todavía sin nueva versión publicada.
@@ -53,7 +56,6 @@ y adaptadas para LF Botonera de Efectos. Todavía sin nueva versión publicada.
 Aportaciones seleccionadas de Danilo, todavía sin implementar:
 - Edición de colores HEX y degradados, con mejoras de configuración.
 - Salida de audio por pestaña integrada en la consola oficial.
-- Búsqueda de botones del perfil con acceso unificado al catálogo de archivos.
 
 Al implementarlas, mover cada entrada a su categoría definitiva y conservar
 su atribución. [Alcance y procedencia](Documentación/INTEGRACION_VARIANTE_DANILO.md).

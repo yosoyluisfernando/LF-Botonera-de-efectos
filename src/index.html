@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/css/themeConsole.css" />
     <link rel="stylesheet" href="/css/main.css" />
     <link rel="stylesheet" href="/css/tabs.css" />
+    <link rel="stylesheet" href="/css/buttonSearch.css" />
     <link rel="stylesheet" href="/css/grid.css" />
     <link rel="stylesheet" href="/css/obs.css" />
     <link rel="stylesheet" href="/css/contextMenu.css" />
@@ -57,6 +58,10 @@
 
       <!-- Barra de pestañas -->
       <div class="tabs-container">
+        <button id="btn-button-search" class="btn-settings btn-search"
+                data-i18n-title="search.access_tooltip" data-i18n-aria-label="search.tooltip">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
+        </button>
         <div id="tabs-list" class="tabs-scroll"></div>
         <button id="btn-add-tab" class="btn-add-tab" data-i18n-title="tabs.add_tooltip">+</button>
         <button id="btn-console" class="btn-settings" data-i18n-title="console.tooltip">🎛️</button>

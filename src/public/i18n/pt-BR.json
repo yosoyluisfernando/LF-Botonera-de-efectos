@@ -1128,5 +1128,13 @@
     "bluetooth_hint": "O Android gerencia a busca e o pareamento dos teclados de digitação. Abra as configurações e volte ao aplicativo para ver o teclado conectado.",
     "settings_unavailable": "Não foi possível abrir as configurações de Bluetooth. Abra-as nas configurações do Android.",
     "devices_unavailable": "Não foi possível consultar os teclados conectados. Reabra esta seção para tentar novamente."
-  }
+  },
+  "search": {
+  "tooltip": "Buscar efeitos em todas as abas",
+  "placeholder": "Buscar por nome, arquivo, aba ou posição…",
+  "hint": "Exemplos: «aplausos», «vinhetas 5», «12».",
+  "no_results": "Nenhum efeito encontrado.",
+  "location": "Aba {n}: {tab} · botão {index} (linha {row}, coluna {col})",
+  "access_tooltip": "Clique esquerdo: buscar botões nas abas. Clique direito: abrir a Busca no painel fixo."
+}
 }

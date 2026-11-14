@@ -1128,5 +1128,13 @@
     "bluetooth_hint": "Android manages discovery and pairing for typing keyboards. Open its settings, then return to the app to see the connected keyboard.",
     "settings_unavailable": "Could not open Bluetooth settings. Open them from Android settings.",
     "devices_unavailable": "Could not check connected keyboards. Reopen this section to try again."
-  }
+  },
+  "search": {
+  "tooltip": "Search effects in all tabs",
+  "placeholder": "Search by name, file, tab or position…",
+  "hint": "Examples: “applause”, “jingles 5”, “12”.",
+  "no_results": "No effect found.",
+  "location": "Tab {n}: {tab} · button {index} (row {row}, column {col})",
+  "access_tooltip": "Left click: find buttons across tabs. Right click: open Search in the fixed panel."
+}
 }

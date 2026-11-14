@@ -20,6 +20,17 @@ No hay convertidor, procesos externos, cola, caché ni IPC/eventos de conversió
 Formatos, cue/ganancia, metadatos y persistencias originales mantienen su flujo.
 Ver [REPRODUCCION_NATIVA.md](REPRODUCCION_NATIVA.md) para alcance y pruebas.
 
+## Buscador de botones y acceso al catálogo
+
+`domain/grid/search.rs` busca en las pestañas del perfil activo con las reglas
+originales de Danilo Wenner; `search_buttons(query)` solo lee AppConfig.
+`buttonSearch.js` mantiene la interacción original del clic izquierdo: resultados,
+navegación a pestaña y resaltado sin disparar audio. `tabs.js` proporciona la
+configuración actual al refrescar. El clic derecho reutiliza el selector del
+panel fijo con view=search y visible=true, conservando sus otras opciones.
+No se abre otra Biblioteca ni se duplica su catálogo; se enfoca su campo existente.
+Ver [BUSCADOR_BOTONES.md](BUSCADOR_BOTONES.md) para procedencia y comportamiento.
+
 ---
 
 ## Mic: control temporal de volumen

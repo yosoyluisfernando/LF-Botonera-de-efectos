@@ -7,6 +7,8 @@
  */
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
+import { openFixedPanelSearch } from './fixedPanelViews.js';
+import { alertIpcError } from './ipcError.js';
 
 const DEBOUNCE_MS = 90;
 const HIGHLIGHT_MS = 3000;
@@ -30,6 +32,10 @@ export function initButtonSearch(getConfig, onRefresh) {
     btn.addEventListener('click', e => {
         e.stopPropagation();
         if (_panel.classList.contains('hidden')) _open(btn); else _close();
+    });
+    btn.addEventListener('contextmenu', e => {
+        e.preventDefault(); e.stopPropagation(); _close();
+        openFixedPanelSearch().catch(alertIpcError);
     });
     document.addEventListener('mousedown', e => {
         if (!_panel.classList.contains('hidden') && !_panel.contains(e.target) && e.target !== btn

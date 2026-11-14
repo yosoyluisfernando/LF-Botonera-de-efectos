@@ -14,7 +14,7 @@ fn paleta(id: &str, nombre: &str, buttons: &[(u32, &str, &str)]) -> PaletaData {
         midi: Default::default(),
         tab_bg: String::new(),
         tab_text: String::new(),
-        font_size: 0,
+        obs: false,
         botones: buttons
             .iter()
             .map(|(index, label, path)| {

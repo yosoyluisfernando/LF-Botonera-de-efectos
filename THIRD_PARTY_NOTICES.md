@@ -141,7 +141,7 @@ and notices and must be regenerated and included with every distributed package.
 
 ## Aportaciones de Danilo Wenner
 
-La rama variante-danilo integra la rueda de pestañas, la barra inferior
+La rama variante-danilo integra el buscador de botones, la rueda de pestañas, la barra inferior
 ocultable y la base del detector de perfiles AAC de Danilo Wenner, originalmente
 publicados en https://github.com/danilo-wenner-1/LF-Botonera-de-efectos,
 bajo GPL-3.0-or-later. Procedencia: commit

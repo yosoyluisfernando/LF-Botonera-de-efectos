@@ -1,0 +1,53 @@
+/* Buscador y resaltado: aportación de Danilo Wenner. */
+/* ── Botón encontrado por el buscador ── */
+@keyframes lf-found-pulse {
+  0%, 100% { box-shadow: inset 0 0 0 3px var(--accent-color), 0 0 0 0 var(--accent-color); }
+  50%      { box-shadow: inset 0 0 0 3px var(--accent-color), 0 0 14px 4px var(--accent-color); }
+}
+.grid-item.search-found { animation: lf-found-pulse 0.7s ease-in-out 4; z-index: 2; }
+
+/* ── Buscador global (lupa a la izquierda de las pestañas) ── */
+.btn-search {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-search svg {
+  width: 18px; height: 18px;
+  fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round;
+}
+.button-search-panel {
+  position: fixed;
+  z-index: 3500;
+  width: min(440px, calc(100vw - 32px));
+  max-height: min(60vh, 520px);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+.button-search-panel.hidden { display: none; }
+.button-search-panel input {
+  margin: 8px;
+  padding: 7px 9px;
+  font-size: 14px;
+}
+.button-search-hint { margin: 0 10px 6px; font-size: 11px; color: var(--text-secondary); }
+.button-search-results { overflow-y: auto; padding: 0 4px 6px; }
+.button-search-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.button-search-row:hover,
+.button-search-row.active { background: var(--bg-tertiary, var(--bg-primary)); }
+.button-search-row .name { font-weight: bold; }
+.button-search-row .where { font-size: 11px; color: var(--text-secondary); }
+.button-search-empty { padding: 10px; color: var(--text-secondary); font-size: 12px; }

@@ -1,6 +1,25 @@
 # Continuidad de sesión — estado actual
 
 
+## Buscador: clic izquierdo Danilo y derecho panel fijo — 2026-11-13
+
+El autor autorizó integrar el buscador sin cambiar la interacción izquierda del
+fork. Añadido el botón de lupa a la izquierda de pestañas y search_buttons en Rust.
+Clic derecho en esa misma lupa: cerrar el flotante y abrir/fijar el panel existente
+en view=search, visible=true, manteniendo las otras opciones y enfocando el campo.
+No alternar el panel ni abrir otra Biblioteca; no cambiar transporte ni cola.
+El clic izquierdo conserva búsqueda, resultados, navegación y resaltado de Danilo.
+Procedencia, alcance y pruebas en BUSCADOR_BOTONES.md. Créditos añadidos a
+CHANGELOG, README y avisos; colores y salidas por pestaña siguen pendientes.
+No restaurar FFmpeg, no abrir la app ni compilar en GitHub. Trabajo exclusivamente
+en el worktree variante-danilo; raíz/desarrollo y cambios previos conservados.
+Archivos originales de Danilo importados en 758505b con su autoría; adaptación
+separada para registro IPC, modelo oficial y clic derecho. Validación local:
+5 pruebas Rust originales del buscador aprobadas; suite general 438 aprobadas,
+22 omitidas; cargo build --lib y npm run build correctos. Dos pruebas DOM
+aprobadas (768/1366 px), con cinco estados iniciales del panel y sin órdenes de audio.
+
+
 ## Estado vigente: sin conversión externa — 2026-11-13
 
 El autor decidió retirar FFmpeg y todo el flujo de conversión. Eliminados módulo,

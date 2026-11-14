@@ -4,7 +4,8 @@
 
 Primera fase vigente: rueda, barra inferior y reproducción nativa de audio
 compatible, incluido MP4. El autor retiró la conversión externa el 2026-11-13.
-Las otras tres funciones siguen pendientes; no se compila ni publica en GitHub.
+Buscador integrado por autorización individual; colores y salidas por pestaña
+siguen pendientes. No se compila ni publica en GitHub.
 El autor mantiene cinco aportaciones seleccionadas de LF Botonera Radio. La integración parte
 de la rama de desarrollo oficial 1.6.0, no de sustituirla por el fork 1.5.1.
 El autor aprobó explícitamente la primera fase; las fases restantes requieren
@@ -73,18 +74,13 @@ si falta una tarjeta antes de programar. La salida propia no puede quedar fuera
 del máster/Mic/medición como ocurre en el fork. Revisar Windows y Linux; no
 habilitar este ruteo en Android sin comprobar su backend.
 
-### 4. Unificar el acceso a los dos buscadores
+### 4. Buscador integrado — implementado por autorización del autor
 
-Decisión expresa del autor, aclarada durante la preparación:
-- Clic izquierdo: buscar botones colocados en todas las pestañas del perfil.
-- Clic derecho: buscar archivos del catálogo existente (`tracks.db`).
-
-Reutilizar la entrada visual del buscador actual y conservar las capacidades
-del catálogo. Buscar botones en Rust sobre AppConfig, sin duplicarlos en SQLite
-ni añadir otro catálogo: la ubicación de botones vive en la configuración.
-Al elegir un botón, abrir su pestaña y resaltarlo sin dispararlo ni interrumpir
-audio. Proponer cómo se accede a ambos modos con teclado y toque/Android, donde
-no hay clic derecho, y mostrar cuál está activo. Requiere propuesta de UI e IPC.
+Clic izquierdo: buscador de botones de Danilo, conservando su funcionamiento.
+Clic derecho: atajo al Buscador existente del panel fijo. Abre el panel si está
+oculto, cambia desde Reproductor/Botones fijos y permanece abierto si ya muestra
+Buscador. No abre otra ventana ni duplica el catálogo. Conserva las preferencias
+del panel y no toca audio. Ver BUSCADOR_BOTONES.md para procedencia y pruebas.
 
 ### 5. Conversión automática — retirada por decisión del autor
 
@@ -105,7 +101,7 @@ la preferencia. Revisar escritorio y Android antes de definir el alcance final.
 ## Orden propuesto y comprobaciones
 
 1. Primera fase vigente: rueda, barra inferior y reproducción nativa compatible.
-2. Buscador unificado y editor de colores, cada uno con su revisión individual.
+2. Buscador integrado; editor de colores pendiente de su revisión individual.
 3. Ruteo integrado en consola, con diseño de buses y reconexión aprobado.
 4. No distribuir ni reintroducir el convertidor retirado.
 

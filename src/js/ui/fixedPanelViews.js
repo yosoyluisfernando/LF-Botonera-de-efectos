@@ -40,14 +40,22 @@ export function refreshFixedPanelView(settings) {
     });
 }
 
-async function selectView(view) {
+/** Atajo de la lupa: abre el Buscador existente, sin alternar ni cerrar el panel. */
+export async function openFixedPanelSearch() {
+    if (isAndroid()) return;
+    await selectView('search', true);
+    document.getElementById('library-search-input')?.focus();
+}
+
+async function selectView(view, show = false) {
     closeMenu();
-    if (view === current) return;
+    if (view === current && !show) return;
     const state = await invoke('get_fixed_panel');
     const settings = state.settings;
     const next = await invoke('set_fixed_panel_settings', {
         scope: settings.scope,
         view,
+        visible: show ? true : undefined,
         side: settings.side,
         columns: settings.columns,
         rowMode: settings.row_mode,

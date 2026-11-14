@@ -2,6 +2,7 @@ pub mod cmd_appearance;
 pub mod cmd_audio;
 pub mod cmd_backup;
 pub mod cmd_button_color;
+pub mod cmd_button_search;
 pub mod cmd_button_flags;
 pub mod cmd_button_playback;
 pub mod cmd_button_types;
