@@ -913,7 +913,10 @@
     "obs_record_split_unavailable": "O OBS não conseguiu dividir o ficheiro. Verifique se a divisão de ficheiros está ativada nas definições de saída e se a configuração é compatível.",
     "obs_quick_unavailable": "A transição rápida já não está disponível no OBS. Verifique a coleção de cenas e selecione-a novamente.",
     "invalid_hex_color": "Há um código de cor inválido. Use o formato #RRGGBB, por exemplo #3498DB.",
-    "invalid_gradient": "Gradiente inválido. Verifique a direção e a segunda cor."
+    "invalid_gradient": "Gradiente inválido. Verifique a direção e a segunda cor.",
+    "color_favorite_name_invalid": "Escreva um nome de 1 a 80 caracteres para o favorito.",
+    "color_favorite_exists": "Já existe um favorito com esse nome. Escolha outro nome.",
+    "color_favorite_not_found": "Esse favorito já não está disponível."
   },
   "mic": {
     "label": "Mic",
@@ -1154,6 +1157,14 @@
     "hex_invalid": "Há um código de cor inválido. Use o formato #RRGGBB, por exemplo #3498DB.",
     "presets": "Predefinidos",
     "text2": "Segunda cor do texto:",
-    "preview_sample": "Texto de exemplo"
+    "preview_sample": "Texto de exemplo",
+    "favorites": "Favoritos",
+    "favorite_choose": "Escolher favorito:",
+    "favorites_empty": "Ainda não existem favoritos",
+    "favorite_remove": "Eliminar",
+    "favorite_save": "Guardar combinação nos favoritos",
+    "favorite_name": "Nome do favorito:",
+    "favorite_add": "Guardar favorito",
+    "favorite_remove_confirm": "Eliminar o favorito «{name}»? Os botões que o utilizam manterão as suas cores."
   }
 }

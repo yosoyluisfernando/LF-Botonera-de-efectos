@@ -913,7 +913,10 @@
     "obs_record_split_unavailable": "OBS could not split the file. Check that file splitting is enabled in its output settings and that the configuration is compatible.",
     "obs_quick_unavailable": "The quick transition is no longer available in OBS. Check the scene collection and select it again.",
     "invalid_hex_color": "There is an invalid color code. Use the #RRGGBB format, e.g. #3498DB.",
-    "invalid_gradient": "Invalid gradient. Check the direction and second color."
+    "invalid_gradient": "Invalid gradient. Check the direction and second color.",
+    "color_favorite_name_invalid": "Enter a favorite name between 1 and 80 characters.",
+    "color_favorite_exists": "A favorite with that name already exists. Choose another name.",
+    "color_favorite_not_found": "That favorite is no longer available."
   },
   "mic": {
     "label": "Mic",
@@ -1154,6 +1157,14 @@
     "hex_invalid": "There is an invalid color code. Use the #RRGGBB format, e.g. #3498DB.",
     "presets": "Presets",
     "text2": "Second text color:",
-    "preview_sample": "Sample text"
+    "preview_sample": "Sample text",
+    "favorites": "Favorites",
+    "favorite_choose": "Choose a favorite:",
+    "favorites_empty": "No favorites yet",
+    "favorite_remove": "Delete",
+    "favorite_save": "Save color combination to favorites",
+    "favorite_name": "Favorite name:",
+    "favorite_add": "Save favorite",
+    "favorite_remove_confirm": "Delete favorite “{name}”? Buttons using it will keep their colors."
   }
 }

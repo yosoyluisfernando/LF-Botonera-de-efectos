@@ -27,7 +27,7 @@ serde(default) y omisión del valor vacío; colores primarios siguen en color_bg
 y color_text. El estilo se valida al deserializar y junto a colores primarios
 antes de guardar en update_button_data, update_fixed_button y obs_save_button.
 La edición fija está en cmd_fixed_update.rs. Los argumentos son opcionales y
-no se crean comandos o eventos nuevos. El formato LFA de pestañas y perfiles
+no se crean comandos nuevos para editar el estilo del botón. El formato LFA de pestañas y perfiles
 conserva el campo opcional; una app antigua puede ignorarlo.
 editStyle.js solo gestiona controles y borrador; buttonStyle.js representa el
 mismo estilo en vista previa, rejilla y panel fijo. La paleta notifica cambios
@@ -35,6 +35,23 @@ mediante input; los colores exactos no se incluyen en el repintado adaptativo.
 La pintura múltiple elimina el estilo avanzado de los botones seleccionados.
 No se incorpora tamaño de fuente por botón. Procedencia y pruebas:
 [EDITOR_COLORES.md](EDITOR_COLORES.md).
+
+### Favoritos y reemplazo de contenido
+
+AppConfig.color_favorites contiene combinaciones globales opcionales con nombre,
+colores primarios y ButtonStyle, sin vinculación con perfiles o pistas.
+model/color_favorite.rs valida y ordena; cmd_color_favorites.rs ofrece lectura,
+guardado y eliminación, persistiendo antes de modificar RAM. El respaldo completo
+incluye la lista; las exportaciones de perfiles y pestañas no la incorporan.
+colorFavorites.js representa y aplica copias al borrador; borrar una combinación
+no modifica los botones. La operación de guardar favorito es independiente del
+posterior Aceptar/Cancelar del editor de botón.
+El selector de archivo del editor usa pick_audio_file, sin persistir ni cambiar
+colores hasta Aceptar. Las asignaciones directas de audio/carpeta usan
+new_button_preserving_colors y from_audio_file_preserving: una celda existente
+conserva color_bg/color_text/style; solo las nuevas sortean un color.
+El CSS del editor acota su contenedor al viewport con cabecera/pie fijos y
+contenido desplazable. Detalles en EDITOR_COLORES.md.
 
 ## Buscador de botones y acceso al catálogo
 

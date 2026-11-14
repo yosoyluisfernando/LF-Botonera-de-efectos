@@ -8,7 +8,8 @@ import { spawnSync } from 'node:child_process';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const browser=process.env.LF_TEST_BROWSER || 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const body=name=>readFileSync(join(root,'src/js',name),'utf8').replace(/^import[\s\S]*?from ['"][^'"]+['"];\r?\n/gm,'').replace(/export /g,'');
-for(const theme of ['dark','light']) test(`unified color draft, palette and rendered buttons in ${theme}`,{skip:!existsSync(browser)},()=>{
+for(const [width,height] of [[1366,900],[900,600],[640,420],[360,640],[568,320]])
+for(const theme of ['dark','light']) test(`color editor ${width}x${height} in ${theme}`,{skip:!existsSync(browser)},()=>{
     const folder=mkdtempSync(join(tmpdir(),'lf-button-colors-'));
     let html=readFileSync(join(root,'src/index.html'),'utf8')
         .replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'')
@@ -19,8 +20,12 @@ for(const theme of ['dark','light']) test(`unified color draft, palette and rend
       const createSvgVisual=()=>null,typeIcon=()=>'',currentEditVisual=()=>({kind:'auto',mode:'text'});
       const colorBg=c=>c.base,colorText=c=>c.darkText,_theme=()=>document.documentElement.dataset.theme;
       const palette=[{base:'#DB2424',darkText:'#FFFFFF'},{base:'#3324DB',darkText:'#FFFFFF'}];
-      const calls=[],writes=[];const invoke=async(cmd,args)=>{
+      let savedFavorites=[];const calls=[],writes=[];const invoke=async(cmd,args)=>{
         calls.push(cmd);if(cmd==='get_color_palette')return palette;
+        if(cmd==='get_color_favorites')return savedFavorites;
+        if(cmd==='save_color_favorite'){savedFavorites.push(structuredClone(args.favorite));return savedFavorites;}
+        if(cmd==='remove_color_favorite'){savedFavorites=savedFavorites.filter(f=>f.name!==args.name);return savedFavorites;}
+        if(cmd==='pick_audio_file')return 'C:/Music/otro.mp4';
         if(cmd==='get_grid_state')return {obs:false};if(cmd==='get_edit_button_types')return {};
         if(cmd==='update_button_data'||cmd==='update_fixed_button'){writes.push({cmd,args});return {};}
         throw Error(cmd);
@@ -32,11 +37,13 @@ for(const theme of ['dark','light']) test(`unified color draft, palette and rend
         canPrelisten=()=>true,initEditVisual=()=>{},refreshEditVisualPreview=()=>{},
         initMidiField=()=>{},setMidiField=()=>{},getMidiField=()=>({});
       const alerts=[];const appAlert=async text=>alerts.push(text);
+      const appConfirm=async()=>true;const alertIpcError=e=>{throw e;};
       const invokeShortcutSave=(cmd,args)=>invoke(cmd,args);
       ${body('util/colorAdapter.js')}
       ${body('ui/colorPalette.js')}
       ${body('ui/buttonVisual.js')}
       ${body('ui/buttonStyle.js')}
+      ${body('ui/colorFavorites.js').replace(/\bwired\b/g,'favoritesWired')}
       ${body('ui/editStyle.js')}
       ${body('ui/editModal.js')}
       const assert=(v,m)=>{if(!v)throw Error(m);};const wait=()=>new Promise(r=>setTimeout(r,20));
@@ -89,7 +96,7 @@ for(const theme of ['dark','light']) test(`unified color draft, palette and rend
         await initEditStyle({style:{gradient:'vertical',bg2:'#123456',text2:'#FFEEDD',exact:true}});
         assert(mode==='vertical' && visible('edit-second-bg') && visible('edit-second-text'),'saved mode not restored');
         await initEditStyle(null);assert(mode==='preset' && !visible('edit-custom-colors'),'next editor leaked previous style');
-        assert(calls.every(c=>c==='get_color_palette'),'draft triggered mutation or audio IPC');
+        assert(calls.every(c=>c==='get_color_palette'||c==='get_color_favorites'),'draft triggered mutation or audio IPC');
         const original={type:'audio',path:'aplausos.wav',label:'Original',color_bg:'#FF0000',color_text:'#FFFFFF',
           style:{gradient:'vertical',bg2:'#123456',text2:'#FFEEDD',exact:true}};
         for(const target of ['grid','fixed']){
@@ -107,13 +114,44 @@ for(const theme of ['dark','light']) test(`unified color draft, palette and rend
           assert(saved.cmd===(target==='grid'?'update_button_data':'update_fixed_button'),'wrong save command');
           assert(saved.args.style.gradient==='horizontal' && saved.args.style.bg2==='#abcdef' && saved.args.style.exact,'style missing from save IPC');
         }
+        await openEditModal(1,original,()=>{},'grid');
+        set('edit-bg-hex','#598042');set('edit-bg2-hex','#021927');
+        set('edit-favorite-name','Verde y noche');document.getElementById('edit-favorite-add').click();await wait();
+        assert(savedFavorites.length===1 && savedFavorites[0].style.gradient==='vertical','favorite not saved');
+        set('edit-fill','solid','change');set('edit-bg-hex','#FF0000');
+        set('edit-fill','favorites','change');set('edit-favorite-list','Verde y noche','change');await wait();
+        assert(currentEditStyle().gradient==='vertical' && document.getElementById('edit-bg-color').value==='#598042','favorite not applied');
+        assert(visible('edit-favorite-choices') && !visible('edit-custom-colors'),'favorites controls');
+        document.getElementById('btn-cancel-edit').click();await openEditModal(1,original,()=>{},'grid');
+        set('edit-fill','favorites','change');set('edit-favorite-list','Verde y noche','change');await wait();
+        assert(document.getElementById('edit-bg-color').value==='#598042','favorite not available when reopening');
+        const appearance=JSON.stringify(currentEditStyle()),bg=document.getElementById('edit-bg-color').value;
+        await document.getElementById('btn-select-file').onclick();
+        assert(document.getElementById('edit-filepath').value==='C:/Music/otro.mp4','new path not selected');
+        assert(bg===document.getElementById('edit-bg-color').value && JSON.stringify(currentEditStyle())===appearance,'sound change changed colors');
+        assert(writes.length===2,'choosing audio persisted a draft');
+        assert(!calls.some(c=>c==='assign_file_to_button'||c==='assign_file_to_fixed_button'),'editor assigned audio before accepting');
+        for(const type of ['random_folder','time','temperature','humidity','audio']) {
+          const typeEl=document.getElementById('edit-type');typeEl.value=type;typeEl.onchange();
+          assert(bg===document.getElementById('edit-bg-color').value && JSON.stringify(currentEditStyle())===appearance,'type change changed colors');
+        }
+        document.getElementById('edit-favorite-remove').click();await wait();
+        assert(savedFavorites.length===0 && JSON.stringify(currentEditStyle())===appearance,'deleting favorite changed button draft');
+        const box=document.querySelector('#edit-modal > .modal-content'),bodyEl=box.querySelector('.modal-body');
+        const rect=box.getBoundingClientRect(),footer=box.querySelector('.modal-footer').getBoundingClientRect();
+        assert(rect.top>=0 && rect.bottom<=innerHeight+1 && rect.left>=0 && rect.right<=innerWidth+1,'dialog outside viewport');
+        assert(footer.bottom<=innerHeight+1 && footer.top>=0,'actions outside viewport');
+        set('edit-fill','diagonal_inv','change');document.getElementById('edit-favorite-save').open=true;
+        bodyEl.scrollTop=bodyEl.scrollHeight;await wait();
+        assert(bodyEl.clientHeight>0 && bodyEl.scrollTop>0,'body cannot scroll to remaining controls');
+        assert(box.querySelector('.modal-header').getBoundingClientRect().top>=0,'header scrolled away');
         document.body.dataset.buttonColorsTest='passed';
       })().catch(e=>{document.body.dataset.buttonColorsTest='failed: '+e.message;});
     `;
-    html=html.replace('</body>',`<script>${script}</script></body>`);
+    html=html.replace('</body>',`<script>addEventListener('error',e=>document.body.dataset.buttonColorsTest='failed: '+e.message);</script><script>${script}</script></body>`);
     const fixture=join(folder,'colors.html');writeFileSync(fixture,html);
     const result=spawnSync(browser,['--headless','--disable-gpu','--no-first-run','--no-default-browser-check',
-        '--window-size=1366,900','--disable-background-networking','--allow-file-access-from-files',
+        `--window-size=${width},${height}`,'--disable-background-networking','--allow-file-access-from-files',
         `--user-data-dir=${resolve(folder,'browser')}`,'--virtual-time-budget=4000','--dump-dom',pathToFileURL(fixture).href],
         {encoding:'utf8',timeout:45000,maxBuffer:3*1024*1024});
     assert.ifError(result.error);

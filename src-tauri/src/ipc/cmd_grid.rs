@@ -2,7 +2,7 @@
 /// Proposito: comandos IPC para gestionar botones de la pestana activa.
 use super::AppState;
 use crate::domain::button::audio_file;
-use crate::domain::button::defaults::new_button;
+use crate::domain::button::defaults::new_button_preserving_colors;
 use crate::domain::button::random_folder;
 use crate::domain::colors::{color_palette, random_color, text_for_theme, ColorOption};
 use crate::domain::grid::view::paleta_to_grid;
@@ -62,8 +62,22 @@ pub fn assign_file_to_button(
     if std::path::Path::new(&file_path).is_dir() {
         return assign_folder(index, file_path, state);
     }
-    let theme = state.config.lock().unwrap().theme.clone();
-    let mut btn = audio_file::from_audio_file("pending", index, file_path, &theme)?;
+    let (theme, previous) = {
+        let cfg = state.config.lock().unwrap();
+        (
+            cfg.theme.clone(),
+            cfg.active_paleta()
+                .and_then(|p| p.botones.iter().find(|b| b.index == index))
+                .cloned(),
+        )
+    };
+    let mut btn = audio_file::from_audio_file_preserving(
+        "pending",
+        index,
+        file_path,
+        &theme,
+        previous.as_ref(),
+    )?;
     let mut cfg = state.config.lock().unwrap();
     let paleta = active_paleta(&mut cfg)?;
     crate::domain::obs::audio_paleta(paleta)?;
@@ -126,10 +140,9 @@ fn assign_folder(
     let theme = cfg.theme.clone();
     let paleta = active_paleta(&mut cfg)?;
     crate::domain::obs::audio_paleta(paleta)?;
+    let previous = paleta.botones.iter().find(|b| b.index == index);
+    let mut btn = new_button_preserving_colors(&paleta.id, index, &stem, &theme, previous);
     paleta.botones.retain(|b| b.index != index);
-    let bg = random_color();
-    let text = text_for_theme(&bg, &theme, "button");
-    let mut btn = new_button(&paleta.id, index, &stem, &bg, &text);
     btn.type_field = "random_folder".to_string();
     btn.folder = folder;
     btn.duration_str = "RND".to_string();
@@ -153,7 +166,9 @@ pub fn clear_button(index: u32, state: tauri::State<AppState>) -> Result<GridSta
 }
 
 fn pick_or_use_file(path: Option<String>) -> Result<String, String> {
-    if let Some(path) = path { return Ok(path); }
+    if let Some(path) = path {
+        return Ok(path);
+    }
     crate::engine::files::FileDialog::new()
         .add_filter("Audio", AUDIO_EXTENSIONS)
         .pick_file()?

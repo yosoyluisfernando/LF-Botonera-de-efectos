@@ -4,6 +4,7 @@ pub mod button_visual;
 pub mod button_style;
 pub use button_style::ButtonStyle;
 pub mod config;
+pub mod color_favorite;
 pub mod console;
 pub mod content;
 pub mod fade;

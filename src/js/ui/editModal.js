@@ -7,7 +7,7 @@
 import { openObsEditor, setObsEditor } from './obsEditor.js';
 import { prepareEditShortcutSections } from './editShortcutSections.js';
 import { invoke } from '../bridge/api.js';
-import { initEditStyle, currentEditStyle, editStyleError, syncEditStyleFromInputs } from './editStyle.js';
+import { initEditStyle, currentEditStyle, editStyleError } from './editStyle.js';
 import { t } from '../util/i18n.js';
 import { invokeShortcutSave } from './shortcutSave.js';
 import { attachPalette, refreshColorInputs } from './colorPalette.js';
@@ -100,21 +100,16 @@ export async function openEditModal(index, btnData, onSave, target = 'grid') {
                     pathEl.value = folder.path;
                     if (typeEl.value === 'random_folder' && _shouldAutoname(nameEl, btnData)) {
                         nameEl.value = folder.name || t('edit_modal.type_random_folder');
+                        nameEl.dispatchEvent(new Event('input'));
                     }
                 }
                 return;
             }
-            const assignCommand = target === 'fixed'
-                ? 'assign_file_to_fixed_button' : 'assign_file_to_button';
-            const newState = await invoke(assignCommand, { index, path: null });
-            const updated  = newState?.buttons?.find(b => b.index === index);
-            if (updated) {
-                pathEl.value = updated.path;
-                nameEl.value = updated.name || updated.label;
-                document.getElementById('edit-bg-color').value   = updated.color_bg;
-                document.getElementById('edit-text-color').value = updated.color_text;
-                await refreshColorInputs();
-                syncEditStyleFromInputs();
+            const path = await invoke('pick_audio_file');
+            if (path) {
+                pathEl.value = path;
+                nameEl.value = path.split(/[\\/]/).pop().replace(/\.[^.]+$/, '').toUpperCase();
+                nameEl.dispatchEvent(new Event('input'));
             }
         } catch (error) {
             if (isLocution(typeEl.value) && error !== 'Operación cancelada.') {

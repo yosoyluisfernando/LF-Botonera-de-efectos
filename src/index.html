@@ -344,12 +344,18 @@
           <label for="edit-fill" data-i18n="colors.fill">Relleno:</label>
           <select id="edit-fill">
             <option value="preset" data-i18n="colors.presets">Predefinidos</option>
+            <option value="favorites" data-i18n="colors.favorites">Favoritos</option>
             <option value="solid" data-i18n="colors.solid">Color sólido</option>
             <option value="horizontal" data-i18n="colors.horizontal">Degradado horizontal</option>
             <option value="vertical" data-i18n="colors.vertical">Degradado vertical</option>
             <option value="diagonal" data-i18n="colors.diagonal">Degradado diagonal ↘</option>
             <option value="diagonal_inv" data-i18n="colors.diagonal_inv">Degradado diagonal ↗</option>
           </select>
+          <div id="edit-favorite-choices" class="hidden">
+            <label for="edit-favorite-list" data-i18n="colors.favorite_choose">Elegir favorito:</label>
+            <div class="color-favorite-row"><select id="edit-favorite-list"></select>
+              <button type="button" id="edit-favorite-remove" class="btn-dark" data-i18n="colors.favorite_remove">Eliminar</button></div>
+          </div>
           <div class="row" id="edit-preset-colors">
             <div class="col">
               <label data-i18n="edit_modal.bg_color">Color de fondo:</label>
@@ -381,6 +387,12 @@
           </div>
           <label data-i18n="colors.preview">Vista previa:</label>
           <div id="edit-style-preview" class="edit-style-preview"><span class="label"></span></div>
+          <details id="edit-favorite-save">
+            <summary data-i18n="colors.favorite_save">Guardar combinación en favoritos</summary>
+            <label for="edit-favorite-name" data-i18n="colors.favorite_name">Nombre:</label>
+            <div class="color-favorite-row"><input type="text" id="edit-favorite-name" maxlength="80" autocomplete="off">
+              <button type="button" id="edit-favorite-add" class="btn-dark" data-i18n="colors.favorite_add">Guardar favorito</button></div>
+          </details>
           <div class="row">
             <div class="col">
               <div id="edit-keyboard-shortcut">

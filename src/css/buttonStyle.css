@@ -19,3 +19,27 @@
 #edit-fill { margin-bottom: 14px; }
 #edit-custom-colors .checkbox-line { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
 #edit-custom-colors .checkbox-line input { width: auto; margin: 0; }
+
+/* Cabecera y acciones siempre accesibles, también al redimensionar. */
+#edit-modal { padding: 8px; box-sizing: border-box; }
+#edit-modal > .modal-content {
+  display: flex; flex-direction: column; min-width: 0;
+  width: min(500px, 100%); max-width: 100%; max-height: 100%;
+}
+#edit-modal .modal-header, #edit-modal .modal-footer { flex-shrink: 0; }
+#edit-modal > .modal-content > .modal-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+#edit-modal .modal-footer { flex-wrap: wrap; }
+#edit-modal .col { min-width: 0; }
+#edit-modal .modal-footer button { min-width: 0; }
+@media (max-width: 480px) {
+  #edit-modal .row { flex-wrap: wrap; gap: 8px; }
+  #edit-modal .row > .col { flex-basis: 100%; }
+  #edit-modal .edit-visual-controls { flex-wrap: wrap; }
+}
+
+.color-favorite-row { display: flex; gap: 8px; margin: 8px 0 12px; }
+.color-favorite-row > input, .color-favorite-row > select { flex: 1; min-width: 0; }
+.color-favorite-row > button { flex-shrink: 0; }
+#edit-favorite-save { margin: 10px 0 16px; }
+#edit-favorite-save summary { cursor: pointer; color: var(--text-primary); margin-bottom: 8px; }
+@media (max-width: 400px) { .color-favorite-row { flex-wrap: wrap; } }

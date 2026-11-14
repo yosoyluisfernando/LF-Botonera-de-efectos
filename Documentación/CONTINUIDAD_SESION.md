@@ -1,6 +1,33 @@
 # Continuidad de sesión — estado actual
 
 
+## Ajustes de colores: modal, favoritos y reemplazo de sonido
+
+El autor pidió adaptar el modal a la ventana, guardar combinaciones favoritas y
+conservar colores al cambiar sonidos. Aprobó favoritos globales con nombre.
+Implementados get_color_favorites, save_color_favorite, remove_color_favorite
+y AppConfig.color_favorites opcional; contrato detallado en EDITOR_COLORES.md.
+Favoritos es la segunda opción de Relleno; «Guardar combinación en favoritos»
+debajo de la vista previa despliega nombre y guardado independiente del botón.
+Eliminar un favorito no cambia botones y requiere confirmación en la app.
+El modal tiene altura/ancho limitados por la ventana; cuerpo con scroll y
+cabecera/acciones visibles. En ventanas estrechas las filas/acciones se adaptan.
+Elegir archivo dentro del editor es un borrador hasta Aceptar, también al editar
+una celda vacía. Cancelar conserva el audio anterior y no toca colores.
+Asignaciones directas de audio/carpeta preservan los colores/estilo existentes;
+new_button_preserving_colors sortea únicamente si no hay botón anterior.
+No cambiar la semántica de la copia explícita desde el reproductor.
+Traducciones en cuatro idiomas, documentación y changelog actualizados.
+Validación final: 453 pruebas Rust aprobadas, 22 omitidas; cargo build --lib y
+npm run build correctos. Diez pruebas DOM del editor aprobadas a 1366×900,
+900×600, 640×420, 360×640 y 568×320 en claro/oscuro; dos de regresión del
+buscador aprobadas. Comprobados guardado/reapertura/eliminación de favoritos,
+colores al cambiar archivo/tipo, límites del modal, scroll y acciones visibles.
+Prueba Rust con WAV real conserva colores/estilo al cambiar ruta y duración.
+Se mantienen los créditos originales de Danilo separados de estas adaptaciones.
+Trabajar en variante-danilo; no tocar main ni cambios pendientes de la raíz,
+no abrir la app ni compilar en GitHub. El autor prueba desde DEV.bat del worktree.
+
 ## Editor de colores unificado — autorizado e implementado para prueba
 
 El autor aprobó EDITOR_COLORES.md y podrá solicitar ajustes al probar.

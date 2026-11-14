@@ -49,12 +49,23 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 - Editor de colores unificado: Predefinidos como primera opción, colores sólidos
   personalizados mediante selector o HEX y cuatro direcciones de degradado.
   Vista previa inmediata antes de guardar, también para texto en degradado.
+- Favoritos de colores globales con nombre para guardar y reutilizar combinaciones
+  completas de fondo, texto y degradados. Se conservan al cerrar la aplicación;
+  eliminar un favorito no cambia los botones donde ya se aplicó.
 
 El editor de colores y degradados, el buscador de botones, la rueda de pestañas,
 la barra inferior ocultable y la base del detector de
 perfiles AAC proceden de aportaciones de **Danilo Wenner**, publicadas en
 [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos),
 y adaptadas para LF Botonera de Efectos. Todavía sin nueva versión publicada.
+
+### Cambiado
+
+- El editor de botones se adapta al tamaño de la ventana, con cabecera y acciones
+  visibles y desplazamiento del contenido para acceder a todas las opciones.
+- Cambiar el archivo o el tipo de sonido conserva los colores y degradados del
+  botón existente. El color aleatorio se elige únicamente para botones nuevos.
+  La selección de archivo dentro del editor queda pendiente hasta Aceptar.
 
 ### Integración prevista — fases posteriores
 

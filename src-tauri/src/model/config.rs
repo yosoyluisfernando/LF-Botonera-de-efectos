@@ -59,6 +59,8 @@ pub struct AppConfig {
     pub show_fixed_panel_button: bool,
     #[serde(default = "default_true")]
     pub show_bottom_bar: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub color_favorites: Vec<crate::model::color_favorite::ColorFavorite>,
     /// Cliente remoto optativo; no inicia conexiones ni muestra el acceso por defecto.
     #[serde(default)]
     pub remote_client_enabled: bool,
@@ -166,6 +168,7 @@ impl Default for AppConfig {
             show_console_button: true,
             show_fixed_panel_button: true,
             show_bottom_bar: true,
+            color_favorites: Vec::new(),
             remote_client_enabled: false,
             active_profile_id: "perfil_1".to_string(),
             clock_24h: true,

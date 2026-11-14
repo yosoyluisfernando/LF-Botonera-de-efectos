@@ -8,7 +8,8 @@ Primera fase vigente: rueda, barra inferior y reproducción nativa compatible.
 Conversión FFmpeg retirada expresamente por el autor (2026-11-13); no restaurarla.
 Buscador autorizado e integrado: izquierdo conserva Danilo; derecho abre el
 Buscador del panel fijo. Editor unificado de colores autorizado e implementado;
-ver Documentación/EDITOR_COLORES.md. Las salidas requieren revisión individual.
+ver Documentación/EDITOR_COLORES.md. Favoritos globales con nombre autorizados;
+modal adaptable y reemplazo de contenido conservando colores. Las salidas requieren revisión individual.
 No lanzar compilaciones en GitHub ni abrir la app; el autor prueba con DEV.bat. Preservar crédito de Danilo y cambios pendientes de la
 copia principal. No reemplazar la aplicación por el fork ni mover main.
 

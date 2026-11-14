@@ -1,6 +1,8 @@
 /** Editor unificado de colores. Base: editStyle de Danilo Wenner (7c1f1ae).
  * JS sincroniza el borrador visual; Rust valida y persiste al aceptar. */
 import { invoke } from '../bridge/api.js';
+import { initColorFavorites } from './colorFavorites.js';
+import { appAlert } from './appDialog.js';
 import { t } from '../util/i18n.js';
 import { paintButtonStyle } from './buttonStyle.js';
 import { paintButtonContent } from './buttonVisual.js';
@@ -18,6 +20,18 @@ export function normalizeHex(raw) {
 }
 export async function initEditStyle(data) {
     wire();
+    await loadStyle(data);
+    await initColorFavorites({
+        read: () => ({ color_bg: $('edit-bg-color').value, color_text: $('edit-text-color').value, style: currentEditStyle() }),
+        invalid: async () => { const error = editStyleError(); if (error) await appAlert(error); return Boolean(error); },
+        apply: async favorite => {
+            $('edit-bg-color').value = favorite.color_bg; $('edit-text-color').value = favorite.color_text;
+            await loadStyle(favorite);
+            $('edit-fill').value = 'favorites'; toggleRows();
+        },
+    });
+}
+async function loadStyle(data) {
     const style = data?.style ?? {};
     mode = style.gradient || (style.exact || style.text2 ? 'solid' : 'preset');
     $('edit-fill').value = mode;
@@ -68,6 +82,7 @@ function wire() {
     if (wired) return;
     wired = true;
     $('edit-fill').addEventListener('change', () => {
+        if ($('edit-fill').value === 'favorites') { toggleRows(); return; }
         if (mode === 'preset') preset = { bg: $('edit-bg-color').value, text: $('edit-text-color').value };
         mode = $('edit-fill').value;
         for (const key of ['bg', 'text']) {
@@ -98,8 +113,10 @@ function setBase(key, value) {
     if (key === 'bg' || key === 'text') $('edit-' + key + '-color').value = value;
 }
 function toggleRows() {
-    $('edit-preset-colors').classList.toggle('hidden', mode !== 'preset');
-    $('edit-custom-colors').classList.toggle('hidden', mode === 'preset');
+    const browsing = $('edit-fill').value === 'favorites';
+    $('edit-favorite-choices').classList.toggle('hidden', !browsing);
+    $('edit-preset-colors').classList.toggle('hidden', browsing || mode !== 'preset');
+    $('edit-custom-colors').classList.toggle('hidden', browsing || mode === 'preset');
     $('edit-second-bg').classList.toggle('hidden', mode === 'solid' || mode === 'preset');
     $('edit-second-text').classList.toggle('hidden', !$('edit-text-gradient').checked);
 }

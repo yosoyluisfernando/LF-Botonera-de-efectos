@@ -3,7 +3,7 @@ use super::cmd_fixed_panel::{
 };
 use super::AppState;
 use crate::domain::button::audio_file;
-use crate::domain::button::defaults::new_button;
+use crate::domain::button::defaults::new_button_preserving_colors;
 use crate::engine::audio::formats::AUDIO_EXTENSIONS;
 use crate::engine::persist::config_io;
 #[tauri::command(async)]
@@ -15,7 +15,8 @@ pub fn assign_file_to_fixed_button(
     let path = match path {
         Some(path) => path,
         None => crate::engine::files::FileDialog::new()
-            .add_filter("Audio", AUDIO_EXTENSIONS).pick_file()?
+            .add_filter("Audio", AUDIO_EXTENSIONS)
+            .pick_file()?
             .map(|p| p.to_string_lossy().into_owned())
             .ok_or("Operación cancelada.")?,
     };
@@ -23,15 +24,27 @@ pub fn assign_file_to_fixed_button(
     if is_folder {
         crate::domain::button::random_folder::ensure_has_audio(&path)?;
     }
+    let (theme, previous) = {
+        let mut cfg = state_.config.lock().unwrap();
+        let old = if let Some(i) = index {
+            buttons_mut(&mut cfg)?
+                .iter()
+                .find(|b| b.index == i)
+                .cloned()
+        } else {
+            None
+        };
+        (cfg.theme.clone(), old)
+    };
     let prepared = if is_folder {
         None
     } else {
-        let theme = state_.config.lock().unwrap().theme.clone();
-        Some(audio_file::from_audio_file(
+        Some(audio_file::from_audio_file_preserving(
             "pending",
             1,
             path.clone(),
             &theme,
+            previous.as_ref(),
         )?)
     };
     let name = std::path::Path::new(&path)
@@ -52,9 +65,8 @@ pub fn assign_file_to_fixed_button(
         button.index = index;
         button
     } else {
-        let bg = crate::domain::colors::random_color();
-        let text = crate::domain::colors::text_for_theme(&bg, &theme, "button");
-        let mut button = new_button(&prefix, index, &name, &bg, &text);
+        let mut button =
+            new_button_preserving_colors(&prefix, index, &name, &theme, previous.as_ref());
         button.type_field = "random_folder".into();
         button.folder = path;
         button.duration_str = "RND".into();
