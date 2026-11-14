@@ -113,7 +113,7 @@
     "about_author": "Developed by Luis Fernando Velásquez.",
     "about_license": "Free software under the GPL-3.0 license. All software derived from this project must also be free software.",
     "about_formats_label": "Supported audio formats:",
-    "about_formats": "MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF",
+    "about_formats": "MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · MP4 · AIFF",
     "donate_btn": "☕ Support the creator here",
     "toolbar_buttons": "Top bar buttons:",
     "show_console": "Show the Audio console",
@@ -911,11 +911,7 @@
     "obs_record_split_paused": "Resume recording before splitting it into another file.",
     "obs_record_pause_failed": "OBS did not confirm the pause change. Check whether its recording settings support pausing and verify the status in OBS.",
     "obs_record_split_unavailable": "OBS could not split the file. Check that file splitting is enabled in its output settings and that the configuration is compatible.",
-    "obs_quick_unavailable": "The quick transition is no longer available in OBS. Check the scene collection and select it again.",
-    "audio_converting": "This audio is being prepared. Try again in a few seconds.",
-    "audio_convert_failed": "Could not convert the audio. Check the file and assign it again.",
-    "audio_converter_missing": "FFmpeg was not found. Install the converter to prepare this audio.",
-    "audio_convert_changed": "The file changed during conversion. Assign it again."
+    "obs_quick_unavailable": "The quick transition is no longer available in OBS. Check the scene collection and select it again."
   },
   "mic": {
     "label": "Mic",
@@ -1132,14 +1128,5 @@
     "bluetooth_hint": "Android manages discovery and pairing for typing keyboards. Open its settings, then return to the app to see the connected keyboard.",
     "settings_unavailable": "Could not open Bluetooth settings. Open them from Android settings.",
     "devices_unavailable": "Could not check connected keyboards. Reopen this section to try again."
-  },
-  "conversion": {
-  "preparing": "Preparing…",
-  "title": "Audio conversion",
-  "hide": "Hide",
-  "hide_hint": "You can hide this window and keep working. Conversion continues.",
-  "queued": "Queued…",
-  "percent": "Converting {percent}%",
-  "ready": "Conversion complete"
-}
+  }
 }

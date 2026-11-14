@@ -39,17 +39,13 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 
 - Cambio de pestaña con la rueda del ratón sobre la barra de pestañas.
 - Opción para mostrar u ocultar la barra inferior desde Ajustes → Principal.
-- Conversión auxiliar automática con FFmpeg en escritorio para variantes de audio
-  que requieren preparación. Usa copias FLAC, conserva los originales y muestra
-  avisos sin interrumpir el audio activo. FFmpeg está preparado para desarrollo
-  local; su inclusión en instaladores queda pendiente.
-- Seguimiento de conversiones en un modal ocultable y en los botones, con progreso
-  real calculado por Rust. Ocultar el modal no detiene los trabajos.
 - Reproducción directa del audio compatible de MP4/M4A/AAC. Los archivos MP4
   con vídeo utilizan únicamente su pista de audio.
+- MP4 incluido en los formatos compatibles de Ajustes → Acerca de.
 
-Estas tres funciones se basan en aportaciones de **Danilo Wenner**, publicadas
-originalmente en [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos),
+La rueda de pestañas, la barra inferior ocultable y la base del detector de
+perfiles AAC proceden de aportaciones de **Danilo Wenner**, publicadas en
+[LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos),
 y adaptadas para LF Botonera de Efectos. Todavía sin nueva versión publicada.
 
 ### Integración prevista — fases posteriores

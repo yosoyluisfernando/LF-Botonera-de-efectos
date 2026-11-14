@@ -1,6 +1,30 @@
 # Continuidad de sesión — estado actual
 
 
+## Estado vigente: sin conversión externa — 2026-11-13
+
+El autor decidió retirar FFmpeg y todo el flujo de conversión. Eliminados módulo,
+procesos, caché del producto, IPC/eventos, modal, porcentajes, scripts y binario
+local preparado. Las secciones anteriores sobre conversión quedan históricas;
+no restaurar esa función. No se borran cachés de datos personales ni originales.
+Se conservan rueda sobre pestañas, barra inferior ocultable, File/SeekSource
+para audio nativo compatible y la corrección del panic SeekError de Rodio 0.19.
+MP4 con vídeo utiliza solo audio; sus canales/frecuencia vienen del bloque real.
+Detector AAC conservado con crédito de Danilo para rechazar perfiles no admitidos
+sin reproducir solo el núcleo. No hay fallback para HE-AAC/SBR/PS.
+Ajustes → Acerca de muestra MP4 en los cuatro idiomas, también README/HTML.
+Los créditos vigentes reconocen rueda, barra y detección AAC de Danilo.
+La rama sigue en variante-danilo; raíz/desarrollo y cambios previos se preservan.
+No abrir la app ni compilar en GitHub; el autor prueba con DEV.bat del worktree.
+Validación: 433 pruebas Rust aprobadas, 22 omitidas; suite dirigida nativa con
+13 aprobadas incluidas las tres opcionales. MP4 con vídeo y AAC-LC, AAC real
+ADTS MPEG-2, seek/loop/análisis y rechazo de HE-AAC comprobados sin procesos
+externos en las pruebas. Rueda y barra: 5 pruebas JS/DOM aprobadas; frontend
+correcto. ADTS MPEG-2 adapta solo el ID de cabeceras indexadas al leer; payload
+y originales intactos, sin crear copias de audio. Transporte, cue/ganancia,
+vistas y caché de ondas comparados con dbdc75f: restaurados a la base inicial.
+
+
 ## Conversión: panic de apertura y seguimiento — 2026-11-13
 
 El autor reportó «Audio thread died». El registro identifica el panic de

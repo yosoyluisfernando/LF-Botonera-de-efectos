@@ -4,7 +4,8 @@
 **Excepción autorizada — integración Danilo (2026-11-13):** este worktree usa
 `variante-danilo` desde la base oficial 1.6.0. Leer primero
 `Documentación/INTEGRACION_VARIANTE_DANILO.md` y el apartado vigente de continuidad.
-Primera fase aprobada: rueda, barra inferior y FFmpeg para desarrollo local.
+Primera fase vigente: rueda, barra inferior y reproducción nativa compatible.
+Conversión FFmpeg retirada expresamente por el autor (2026-11-13); no restaurarla.
 Las otras tres funciones requieren revisión individual antes de cambios.
 No lanzar compilaciones en GitHub ni abrir la app; el autor prueba con DEV.bat. Preservar crédito de Danilo y cambios pendientes de la
 copia principal. No reemplazar la aplicación por el fork ni mover main.

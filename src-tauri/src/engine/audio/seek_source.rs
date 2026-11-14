@@ -5,7 +5,6 @@
 use crate::engine::audio::decode::BoxSource;
 use rodio::Source;
 use std::collections::VecDeque;
-use std::fs::File;
 use std::path::Path;
 use std::time::Duration;
 use symphonia::core::audio::SampleBuffer;
@@ -38,10 +37,9 @@ impl SeekSource {
     /// Abre `path` posicionado en `start_s`. `None` si el formato no se puede
     /// decodificar o no admite seek: quien llama decide el plan B.
     pub fn open_at(path: &str, start_s: f64) -> Option<Self> {
-        let file = File::open(path).ok()?;
-        // El `File` va tal cual: symphonia le pregunta el tamano y por eso puede
-        // posicionarse. Ese es todo el truco.
-        let mss = MediaSourceStream::new(Box::new(file), Default::default());
+        let file = crate::engine::audio::native_media::open(path).ok()?;
+        // El lector conserva tamaño y búsqueda del File, también al adaptar ADTS.
+        let mss = MediaSourceStream::new(file, Default::default());
         let mut hint = Hint::new();
         if let Some(ext) = Path::new(path).extension().and_then(|e| e.to_str()) {
             hint.with_extension(ext);

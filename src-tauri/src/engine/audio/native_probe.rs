@@ -1,14 +1,5 @@
-//! Modulo: engine/audio/transcode/probe.rs
-//! Proposito: decidir si un archivo MP4/M4A/AAC se puede reproducir TAL CUAL
-//! con calidad completa, o si hay que convertirlo.
-//!
-//! symphonia decodifica AAC-LC y ALAC, pero no HE-AAC (SBR/PS):
-//! - con señalizacion EXPLICITA (tipo de objeto 5/29, o extension 0x2B7) el
-//!   decodificador falla o ignora la extension;
-//! - con señalizacion IMPLICITA decodifica solo el nucleo a media frecuencia:
-//!   suena, pero opaco y sin agudos. Es una perdida de calidad silenciosa, y
-//!   por eso un nucleo AAC por debajo de 32 kHz se trata como HE-AAC.
-use std::fs::File;
+//! Compatibilidad nativa MP4/AAC; derivada del detector de Danilo Wenner.
+//! Rechaza perfiles que el decodificador no reproduce completos (HE-AAC/SBR/PS).
 use std::path::Path;
 use symphonia::core::codecs::{DecoderOptions, CODEC_TYPE_AAC, CODEC_TYPE_ALAC, CODEC_TYPE_NULL};
 use symphonia::core::formats::FormatOptions;
@@ -16,7 +7,7 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 
-/// Extensiones de la familia MP4/AAC a las que se aplica esta decision.
+/// Extensiones de la familia MP4/AAC a las que se aplica esta validación.
 pub const CANDIDATES: [&str; 5] = ["m4a", "mp4", "aac", "m4b", "3gp"];
 
 pub fn is_candidate(path: &str) -> bool {
@@ -28,14 +19,14 @@ pub fn is_candidate(path: &str) -> bool {
 }
 
 /// true = se reproduce directo con calidad completa.
-/// false = hay que convertirlo (o no se puede abrir: dañado, codec ajeno).
+/// false = no se puede reproducir directamente con este decodificador.
 pub fn plays_natively(path: &str) -> bool {
-    probe(path).unwrap_or(false) && crate::engine::audio::decode::can_decode_native(path)
+    probe(path).unwrap_or(false)
 }
 
 fn probe(path: &str) -> Option<bool> {
-    let file = File::open(path).ok()?;
-    let mss = MediaSourceStream::new(Box::new(file), Default::default());
+    let file = crate::engine::audio::native_media::open(path).ok()?;
+    let mss = MediaSourceStream::new(file, Default::default());
     let mut hint = Hint::new();
     if let Some(ext) = Path::new(path).extension().and_then(|e| e.to_str()) {
         hint.with_extension(ext);
@@ -141,5 +132,9 @@ impl<'a> Bits<'a> {
 }
 
 #[cfg(test)]
-#[path = "probe_tests.rs"]
+#[path = "native_probe_tests.rs"]
 mod probe_tests;
+
+pub fn supported(path: &str) -> bool {
+    !is_candidate(path) || plays_natively(path)
+}

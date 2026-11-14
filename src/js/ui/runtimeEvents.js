@@ -5,7 +5,6 @@
  * niveles usan el evento ligero "meter-tick" a 50 FPS.
  */
 
-import { paintConversion, loadConversions } from './audioConversion.js';
 import { paintObsState } from './obsView.js';
 import { listen } from '../bridge/api.js';
 import { updateTabPlayback } from './tabs.js';
@@ -26,7 +25,6 @@ let _wired = false;
 export async function wireRuntimeEvents({ onRefresh, onDockEditor }) {
     if (_wired) return;
     await Promise.all([
-        listen('audio-convert-status', e => paintConversion(e.payload, onRefresh).catch(console.error)),
         listen('obs-state', e => paintObsState(e.payload)),
         listen('clock-tick', e => updateClockTick(e.payload ?? {})),
         listen('audio-tick', e => _paintAudio(e.payload ?? {})),
@@ -43,7 +41,6 @@ export async function wireRuntimeEvents({ onRefresh, onDockEditor }) {
             return executeLibraryAction(payload.action, payload.selection ?? []);
         }),
     ]);
-    await loadConversions();
     _wired = true;
 }
 

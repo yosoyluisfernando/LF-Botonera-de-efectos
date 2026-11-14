@@ -1,4 +1,3 @@
-import { paintConversionButtons } from './conversionButtons.js';
 /**
  * Archivo: grid.js
  * Propósito: Dibuja las celdas de la cuadrícula activa y retransmite el clic
@@ -49,7 +48,6 @@ export function drawGrid(gridState, onRefresh) {
         const btnData = gridState.buttons.find(b => b.index === index) ?? null;
         gridEl.appendChild(_makeCell(index, btnData));
     }
-    paintConversionButtons();
     if (gridState.obs) refreshObsState().catch(console.error);
 }
 
@@ -60,7 +58,6 @@ function _makeCell(index, btnData) {
 
     if (btnData) {
         btn.dataset.id            = btnData.id;
-        btn.dataset.audioPath = btnData.path || '';
         btn.dataset.obs = String(btnData.type === 'obs');
         paintAdaptive(btn, btnData.color_bg, btnData.color_text, 'button');
         const shortcutHtml = btnData.shortcut

@@ -17,7 +17,6 @@ use tauri::Manager;
 
 /// Inicializa estado e hilos tras crear la ventana. Lo invoca `.setup` en lib.rs.
 pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    crate::engine::audio::transcode::set_app(app.handle().clone());
     let state = app.state::<AppState>();
     let cfg = state.config.lock().unwrap();
     let master_volume = cmd_master_volume::startup_volume(&cfg);

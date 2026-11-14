@@ -2,9 +2,10 @@
 
 ## Estado y alcance — 2026-11-13
 
-Primera fase autorizada e implementada localmente: rueda, barra inferior y FFmpeg.
+Primera fase vigente: rueda, barra inferior y reproducción nativa de audio
+compatible, incluido MP4. El autor retiró la conversión externa el 2026-11-13.
 Las otras tres funciones siguen pendientes; no se compila ni publica en GitHub.
-El autor seleccionó seis aportaciones de LF Botonera Radio. La integración parte
+El autor mantiene cinco aportaciones seleccionadas de LF Botonera Radio. La integración parte
 de la rama de desarrollo oficial 1.6.0, no de sustituirla por el fork 1.5.1.
 El autor aprobó explícitamente la primera fase; las fases restantes requieren
 revisión individual antes de modificar módulos, modelo o IPC.
@@ -85,23 +86,14 @@ Al elegir un botón, abrir su pestaña y resaltarlo sin dispararlo ni interrumpi
 audio. Proponer cómo se accede a ambos modos con teclado y toque/Android, donde
 no hay clic derecho, y mostrar cuál está activo. Requiere propuesta de UI e IPC.
 
-### 5. Conversión automática con FFmpeg
+### 5. Conversión automática — retirada por decisión del autor
 
-Actualización de la primera fase: apertura directa segura del audio compatible
-MP4/M4A/AAC, modal ocultable e indicadores de porcentaje real en los botones.
-La solicitud del autor y las comprobaciones están en CONTINUIDAD_SESION.md.
-
-Conservar la idea de una conversión auxiliar para archivos no decodificables
-de forma nativa. Procesar en Rust con trabajador y cola fuera del hilo de audio;
-no modificar originales. Proponer caché, invalidación, limpieza, progreso y
-errores; integrar reproducción, editor, cues y análisis con la misma resolución.
-En el fork se convierte a MP3 320 kbps. Esta integración usa FLAC para no
-introducir otra compresión con pérdida; ver CONVERSION_AUDIO.md.
-
-Antes de añadir FFmpeg, justificar necesidad, origen y mantenimiento, licencia
-y distribución de su código fuente, tamaño de instaladores, seguridad y builds.
-Separar disponibilidad Windows/Linux de Android: no copiar un EXE de Windows
-al paquete Android ni prometer paridad sin una solución verificada.
+No implementar ni restaurar FFmpeg como convertidor. Retirados sus módulos,
+procesos, caché, IPC, eventos, modal, indicadores, scripts y binario local.
+La decisión sustituye la autorización anterior de integrar la conversión.
+Se conserva la apertura nativa segura del audio compatible y el detector AAC,
+con crédito de Danilo. No se alteran archivos de audio ni datos del usuario.
+Los perfiles no admitidos devuelven formato no compatible; no hay fallback externo.
 
 ### 6. Barra inferior ocultable
 
@@ -112,10 +104,10 @@ la preferencia. Revisar escritorio y Android antes de definir el alcance final.
 
 ## Orden propuesto y comprobaciones
 
-1. Primera fase: rueda, barra inferior y conversión FFmpeg para desarrollo local.
+1. Primera fase vigente: rueda, barra inferior y reproducción nativa compatible.
 2. Buscador unificado y editor de colores, cada uno con su revisión individual.
 3. Ruteo integrado en consola, con diseño de buses y reconexión aprobado.
-4. Distribución de FFmpeg en instaladores, después de validar la primera fase.
+4. No distribuir ni reintroducir el convertidor retirado.
 
 Trabajar en cambios pequeños por función, con procedencia y créditos trazables.
 Mantener archivos de máximo 200 líneas y traducciones es/en/pt-BR/pt-PT.
@@ -129,10 +121,6 @@ instaladores. El autor prueba con el DEV.bat del worktree aislado.
 
 - Barra: Ajustes → Principal → «Mostrar la barra inferior (reloj, modos, Mic,
   volumen, Detener todo)»; desmarcar para ocultarla.
-- FFmpeg: no tiene botón ni pantalla de conversión. Al asignar/importar un
-  M4A/MP4/AAC candidato, decide si puede reproducirlo nativamente; si no,
-  prepara una copia MP3 en segundo plano. No todo M4A fuerza conversión.
-  Si se dispara durante la preparación, muestra un aviso para reintentar.
-- La prueba manual del instalador de Danilo sigue a cargo del autor.
-- Esta rama tiene pruebas sintéticas de conversión y pruebas DOM; su prueba
-  funcional con DEV.bat queda a cargo del autor.
+- La conversión de la variante original de Danilo no se conserva en la botonera
+  oficial. Las opciones anteriores se mantienen solo como contexto del fork.
+- La prueba funcional con DEV.bat queda a cargo del autor.

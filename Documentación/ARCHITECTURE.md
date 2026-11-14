@@ -2,21 +2,23 @@
 
 Documentación técnica para programadores que colaboran o estudian el proyecto.
 
-## Aportaciones de Danilo: primera fase
+## Aportaciones de Danilo: primera fase vigente
 
-`engine/audio/transcode/` resuelve copias FLAC auxiliares mediante una cola de
-FFmpeg; reproducción y análisis mantienen la identidad del archivo original.
-`audio-convert-status` informa cola, preparación, porcentaje, fin y error.
-`get_audio_conversions` permite recuperar el estado al iniciar. La revisión de
-cada snapshot ordena respuestas/eventos; Rust calcula el porcentaje con la
-salida de FFmpeg. Modal, indicadores y progreso de reproducción son independientes.
-El audio nativo de MP4/M4A/AAC usa File y SeekSource, evitando el panic de apertura
-de Rodio 0.19; su frecuencia/canales se inicializan con un bloque decodificado.
-Ver [CONVERSION_AUDIO.md](CONVERSION_AUDIO.md) para caché, seguridad y distribución.
 `AppConfig.show_bottom_bar` nace en true y se persiste mediante el IPC existente
 `set_toolbar_button("bottom_bar", visible)`. La UI solo aplica visibilidad.
 `tabWheel.js` interpreta la rueda y llama a `cycle_paleta`, sin lógica de perfil
-en JavaScript. Aportaciones originales de Danilo Wenner, adaptadas para 1.6.0.
+en JavaScript. Ambas aportaciones proceden de Danilo Wenner y se adaptan a 1.6.0.
+
+MP4/M4A/AAC/M4B/3GP compatibles se leen directamente con `SeekSource` y `File`,
+conservando tamaño y búsqueda y evitando el panic de apertura de Rodio 0.19.
+El lector selecciona audio y obtiene canales/frecuencia del primer bloque real.
+`native_media.rs` adapta únicamente el ID de cabeceras ADTS MPEG-2 durante la
+lectura para el lector AAC-LC existente, preservando payload, longitud y seek.
+`native_probe.rs`, derivado del detector de Danilo, valida perfiles AAC antes
+de reproducir o analizar; no se reproduce parcialmente HE-AAC/SBR/PS.
+No hay convertidor, procesos externos, cola, caché ni IPC/eventos de conversión.
+Formatos, cue/ganancia, metadatos y persistencias originales mantienen su flujo.
+Ver [REPRODUCCION_NATIVA.md](REPRODUCCION_NATIVA.md) para alcance y pruebas.
 
 ---
 

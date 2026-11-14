@@ -1,4 +1,4 @@
-//! Pruebas de la decision "nativo o convertir" para la familia MP4/AAC.
+//! Pruebas de la decision compatibilidad nativa para la familia MP4/AAC.
 use super::{aac_is_plain_lc, is_candidate};
 
 /// AAC-LC 44,1 kHz estereo: 00010 0100 0010 000 → 0x12 0x10.
@@ -16,19 +16,19 @@ fn aac_lc_a_44k_se_reproduce_directo() {
 }
 
 #[test]
-fn he_aac_explicito_se_convierte() {
+fn he_aac_explicito_se_rechaza() {
     assert!(!aac_is_plain_lc(Some(&HE_EXPLICIT), 44_100));
 }
 
 #[test]
-fn extension_sbr_compatible_se_convierte() {
+fn extension_sbr_compatible_se_rechaza() {
     assert!(!aac_is_plain_lc(Some(&LC_WITH_SBR_EXT), 48_000));
 }
 
 /// HE-AAC implicito: el contenedor dice 22,05/24 kHz (el nucleo). Reproducirlo
 /// directo sonaria opaco, sin agudos.
 #[test]
-fn nucleo_a_media_frecuencia_se_convierte() {
+fn nucleo_a_media_frecuencia_se_rechaza() {
     assert!(!aac_is_plain_lc(Some(&LC_44_STEREO), 22_050));
     assert!(!aac_is_plain_lc(None, 24_000));
 }
@@ -48,7 +48,7 @@ fn solo_la_familia_mp4_es_candidata() {
 
 #[test]
 fn lc_with_explicitly_disabled_sbr_stays_native() {
-    // FFmpeg 9 AAC-LC mono/48 kHz, sync extension 0x2b7/type 5, SBR flag = 0.
+    // AAC-LC mono/48 kHz, sync extension 0x2b7/type 5, SBR flag = 0.
     assert!(aac_is_plain_lc(
         Some(&[0x11, 0x88, 0x56, 0xe5, 0x00]),
         48_000

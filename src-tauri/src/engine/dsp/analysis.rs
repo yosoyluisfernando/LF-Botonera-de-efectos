@@ -94,8 +94,7 @@ pub fn analyze_waveform_only(
 }
 
 fn decode_samples(path: &str) -> Result<(Vec<f32>, u16, u32), String> {
-    let resolved = crate::engine::audio::transcode::for_analysis(path)?;
-    let path = resolved.as_str();
+    if !crate::engine::audio::native_probe::supported(path) { return Err("unsupported_audio_format".into()); }
     if let Some(decoded) = block_decode::decode(path) {
         return Ok((decoded.samples, decoded.channels, decoded.sample_rate));
     }

@@ -29,7 +29,6 @@ export function invoke(cmd, args) {
         platform: 'browser', multiple_outputs: true, multi_window: true,
         midi: false, mic: false, background_audio: false, prelisten: false,
     });
-    if (cmd === 'get_audio_conversions') return Promise.resolve([]);
     if (cmd === 'get_config') {
         return Promise.resolve({
             is_first_boot: false,

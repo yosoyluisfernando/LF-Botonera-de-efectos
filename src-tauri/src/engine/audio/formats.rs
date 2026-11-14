@@ -31,7 +31,6 @@ pub fn validate_audio_file(path: &str) -> Result<(), String> {
     if !is_audio_path(file) {
         return Err("unsupported_audio_format".to_string());
     }
-    if super::transcode::is_candidate(path) { return super::transcode::prepare(path); }
     if !audio_decode::can_decode(path) {
         return Err("unsupported_audio_format".to_string());
     }
@@ -48,8 +47,6 @@ pub fn validate_audio_file(path: &str) -> Result<(), String> {
 /// con el la duracion, que no tiene nada que ver con el texto. El audio estaba
 /// perfecto; solo sobraba leer lo que no usamos.
 pub fn probe_duration_secs(path: &str) -> f64 {
-    let resolved = super::transcode::resolve(path).unwrap_or_else(|_| path.to_string());
-    let path = resolved.as_str();
     use lofty::config::ParseOptions;
     use lofty::file::AudioFile;
     use lofty::probe::Probe;

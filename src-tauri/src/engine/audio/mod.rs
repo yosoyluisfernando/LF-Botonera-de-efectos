@@ -14,6 +14,9 @@ pub mod sequence;
 pub mod thread;
 pub mod thread_play;
 pub mod tick;
-pub mod transcode;
+pub mod native_probe;
+pub mod native_media;
+#[cfg(test)]
+mod native_playback_tests;
 
 pub use engine::AudioEngine;

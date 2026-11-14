@@ -1,5 +1,4 @@
 //! Decodificacion para analisis DSP, por paquetes en vez de muestra a muestra.
-use std::fs::File;
 use std::path::Path;
 use symphonia::core::audio::SampleBuffer;
 use symphonia::core::codecs::{DecoderOptions, CODEC_TYPE_NULL};
@@ -17,8 +16,8 @@ pub struct DecodedAudio {
 /// Usa Symphonia directamente para copiar bloques completos. `None` permite
 /// caer al decodificador central, que conserva el soporte Ogg/Opus especial.
 pub fn decode(path: &str) -> Option<DecodedAudio> {
-    let file = File::open(path).ok()?;
-    let mss = MediaSourceStream::new(Box::new(file), Default::default());
+    let file = crate::engine::audio::native_media::open(path).ok()?;
+    let mss = MediaSourceStream::new(file, Default::default());
     let mut hint = Hint::new();
     if let Some(extension) = Path::new(path).extension().and_then(|value| value.to_str()) {
         hint.with_extension(extension);

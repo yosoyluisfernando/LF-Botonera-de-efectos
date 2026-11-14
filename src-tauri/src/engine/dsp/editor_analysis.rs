@@ -21,7 +21,7 @@ pub fn analyze_track(
     path: String,
     buckets: usize,
 ) -> Result<AnalyzeResponse, String> {
-    crate::engine::audio::transcode::for_analysis(&path)?;
+    if !crate::engine::audio::native_probe::supported(&path) { return Err("unsupported_audio_format".into()); }
     emit(&app, &path, "cache");
     let state = app.state::<AppState>();
     let key = db::normalize_key(&path);
@@ -135,7 +135,6 @@ fn valid_track_row(
     mtime: i64,
     size: i64,
 ) -> Result<Option<TrackMeta>, String> {
-    if crate::engine::audio::transcode::resolve(path)? != path { return Ok(None); }
     let row = state.tracks.lock().unwrap().get(path)?;
     Ok(row.filter(|r| {
         r.mtime == mtime

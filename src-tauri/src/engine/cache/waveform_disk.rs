@@ -136,9 +136,7 @@ fn write_index(index: &Index) -> Result<(), String> {
 }
 
 fn key(path: &str, mtime: i64, size: i64) -> String {
-    let converted = crate::engine::audio::transcode::resolve(path).is_ok_and(|p| p != path);
-    let key = format!("{}|{}|{}", db::normalize_key(path), mtime, size);
-    if converted { format!("{key}|flac-v1") } else { key }
+    format!("{}|{}|{}", db::normalize_key(path), mtime, size)
 }
 
 fn dir() -> PathBuf {

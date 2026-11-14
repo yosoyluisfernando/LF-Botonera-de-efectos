@@ -54,7 +54,7 @@ export async function openTrackEditor(path, name, onSaved, options = {}) {
         if (version !== _analysisVersion) return;
         _loading = false;
         console.error('Error al analizar pista:', e);
-        loading.failed(t(String(e).startsWith('audio_convert') ? `errors.${e}` : 'track_editor.error'));
+        loading.failed(t('track_editor.error'));
     }
 }
 

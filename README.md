@@ -116,7 +116,7 @@ Capturas de Windows con interfaz en español, tomadas en julio de 2026. La versi
 
 ## Formatos de audio compatibles
 
-MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · AIFF
+MP3 · WAV · FLAC · OGG/Vorbis · OGG/Opus · AAC · M4A · MP4 · AIFF
 
 La decodificación se apoya en symphonia (decodificador puro Rust), sin depender de componentes propietarios de pago.
 
@@ -177,7 +177,7 @@ Si esta herramienta te resulta útil en radio, producción o streaming, puedes a
 **Autor y creador:** Luis Fernando Velásquez
 
 **Aportaciones de Danilo Wenner:** cambio de pestaña con la rueda, barra inferior
-ocultable y base de la conversión auxiliar con FFmpeg, publicadas originalmente
+ocultable y base de la detección de perfiles AAC, publicadas originalmente
 en [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos).
 Integradas y adaptadas en la rama `variante-danilo`; todavía sin nueva publicación.
 
