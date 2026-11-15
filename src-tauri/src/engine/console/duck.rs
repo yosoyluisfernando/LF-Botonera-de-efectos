@@ -24,13 +24,16 @@ impl DuckControl {
 
     fn advance(&self, rate: u32) -> f32 {
         let active = self.active.load(Ordering::Relaxed);
+        let wet = f32::from_bits(self.wet.load(Ordering::Relaxed));
+        if (!active && wet == 0.0) || (active && wet == 1.0) {
+            return wet;
+        }
         let ms = if active { &self.down_ms } else { &self.up_ms }.load(Ordering::Relaxed);
         let step = if ms == 0 {
             1.0
         } else {
             1000.0 / (ms as f32 * rate as f32)
         };
-        let wet = f32::from_bits(self.wet.load(Ordering::Relaxed));
         let wet = if active {
             (wet + step).min(1.0)
         } else {
@@ -49,6 +52,9 @@ pub struct DuckStage {
 impl DuckStage {
     pub fn gain(&self, base: f32, rate: u32) -> f32 {
         let wet = self.control.advance(rate);
+        if wet == 0.0 {
+            return base;
+        }
         let parent = self
             .parent
             .as_ref()

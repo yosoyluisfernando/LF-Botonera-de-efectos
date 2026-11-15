@@ -71,28 +71,6 @@ impl Source for CuedSource {
     }
 }
 
-/// Aplica cue (inicio/fin) y, si procede, bucle, a una fuente YA construida
-/// (p.ej. desde la caché de precarga). Misma lógica que `cued_source` pero sin
-/// abrir el archivo, para no duplicar el tratamiento del cue.
-pub fn cued_from<S>(base: S, loop_mode: bool, cue_start_s: f64, cue_end_s: Option<f64>) -> BoxSource
-where
-    S: Source<Item = f32> + Send + 'static,
-{
-    let has_cue = cue_start_s > 0.0 || cue_end_s.is_some();
-    if has_cue {
-        let cued = CuedSource::new(Box::new(base), cue_start_s, cue_end_s);
-        if loop_mode {
-            Box::new(cued.repeat_infinite())
-        } else {
-            Box::new(cued)
-        }
-    } else if loop_mode {
-        Box::new(base.repeat_infinite())
-    } else {
-        Box::new(base)
-    }
-}
-
 /// Construye la fuente final desde un archivo aplicando cue y, si procede, bucle.
 /// Sin cue (inicio 0 y sin fin) delega en el camino normal, sin coste extra.
 pub fn cued_source(

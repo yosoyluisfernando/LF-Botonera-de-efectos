@@ -1,6 +1,7 @@
 /// Modulo: playback_source.rs
 /// Proposito: construir fuentes de reproduccion normales y con seek.
 use crate::engine::audio::decode::BoxSource;
+use crate::engine::audio::prefetch::PlaybackSource;
 use crate::engine::cache::preload::{self as preload_cache, PreloadCache};
 use rodio::Source;
 use std::sync::{Arc, Mutex};
@@ -12,7 +13,7 @@ pub fn build(
     loop_mode: bool,
     cue_start_s: f64,
     cue_end_s: Option<f64>,
-) -> Option<BoxSource> {
+) -> Option<PlaybackSource> {
     preload_cache::build_play_source(cache, path, loop_mode, cue_start_s, cue_end_s)
 }
 
@@ -23,14 +24,21 @@ pub fn build_seek(
     base_cue_start_s: f64,
     position_s: f64,
     cue_end_s: Option<f64>,
-) -> Option<BoxSource> {
+) -> Option<PlaybackSource> {
     let start = base_cue_start_s + position_s.max(0.0);
     if !loop_mode || position_s <= 0.005 {
         return build(cache, path, loop_mode, start, cue_end_s);
     }
-    let first = build(cache, path, false, start, cue_end_s)?;
-    let looped = build(cache, path, true, base_cue_start_s, cue_end_s)?;
-    Some(Box::new(SeekLoopSource::new(first, looped)))
+    let (first, first_cached) =
+        preload_cache::build_play_input(cache, path, false, start, cue_end_s)?;
+    let (looped, looped_cached) =
+        preload_cache::build_play_input(cache, path, true, base_cue_start_s, cue_end_s)?;
+    let source = Box::new(SeekLoopSource::new(first, looped));
+    if first_cached && looped_cached {
+        Some(PlaybackSource::InMemory(source))
+    } else {
+        PlaybackSource::buffered(source)
+    }
 }
 
 struct SeekLoopSource {

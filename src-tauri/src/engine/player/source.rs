@@ -14,7 +14,7 @@
 //! El volumen no esta aqui: es el fader del bus `Reproductor`. Lo unico que la
 //! fuente se aplica a si misma es la ganancia de SU pista, que es del archivo y
 //! no del reproductor.
-use crate::engine::audio::decode::BoxSource;
+use crate::engine::audio::prefetch::{PcmRead, PlaybackSource};
 use rodio::Source;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
@@ -59,7 +59,7 @@ impl DeckHandle {
 }
 
 pub struct DeckSource {
-    inner: BoxSource,
+    inner: PlaybackSource,
     stop: Arc<AtomicBool>,
     paused: Arc<AtomicBool>,
     done: Arc<AtomicBool>,
@@ -72,7 +72,7 @@ pub struct DeckSource {
 impl DeckSource {
     /// Envuelve la fuente y devuelve el mando para controlarla. `gain` es la
     /// ganancia de la pista (cue/normalizacion), no el volumen del reproductor.
-    pub fn new(inner: BoxSource, gain: f32) -> (Self, DeckHandle) {
+    pub fn new(inner: PlaybackSource, gain: f32) -> (Self, DeckHandle) {
         let channels = inner.channels().max(1);
         let sample_rate = inner.sample_rate();
         let handle = DeckHandle {
@@ -110,12 +110,13 @@ impl Iterator for DeckSource {
         if self.paused.load(Ordering::Relaxed) {
             return Some(0.0);
         }
-        match self.inner.next() {
-            Some(s) => {
+        match self.inner.read() {
+            PcmRead::Sample(s) => {
                 self.samples.fetch_add(1, Ordering::Relaxed);
                 Some(s * self.gain)
             }
-            None => {
+            PcmRead::Pending => Some(0.0),
+            PcmRead::End => {
                 self.done.store(true, Ordering::Relaxed);
                 None
             }

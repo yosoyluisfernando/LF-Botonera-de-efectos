@@ -547,13 +547,13 @@ El panel lateral tiene tres presentaciones: `buttons` (botones fijos), `player` 
 lista de reproducción) y `search` (Buscador). El reproductor existe para dejar
 **música de fondo** sonando mientras se
 disparan los efectos, así que es un **motor propio**, no un grupo dentro del motor de efectos:
-tiene su hilo, su `OutputStream`, su dispositivo y su volumen. Por eso el Stop general y el
-Solo de los efectos no lo cortan; el reproductor tiene su propio Stop.
+tiene su propio hilo de control, transporte y volumen. El bus Reproductor
+entrega a Programa o a una salida dedicada de la consola, según el ruteo.
+El Stop general y el Solo de los efectos respetan el transporte del reproductor.
 
-Mantiene **dos decks** (cada uno envuelve un `Sink` de rodio) que se alternan en *ping-pong*:
-mientras suena uno, la siguiente pista queda **pre-cargada** (decodificada y en pausa) en el
-otro. Al terminar, el relevo es instantáneo: no hay que esperar a decodificar. El patrón está
-tomado del motor Rust de LF Automatizador 2.0, adaptado (dos decks bastan aquí).
+Mantiene **dos decks** como fuentes del bus. Mientras suena uno, el otro puede
+preparar la siguiente pista y conservarla en pausa para el relevo. El hilo de
+control comprueba si el deck activo llegó al final y ordena iniciar el siguiente.
 
 | Módulo | Responsabilidad |
 |---|---|
@@ -693,9 +693,18 @@ PreloadCache (HashMap<String, Arc<CachedPcm>> + VecDeque LRU + bytes_used)
 
 Al reproducir:
 build_play_source(cache, path, loop, cue_start, cue_end)
-    ├── cache.get(path) == Some → CachedSource::new_at(pcm, offset_samples) — O(1)
-    └── cache.get(path) == None → audio_decode::source_from_path + CuedSource — O(n)
+    ├── Acierto → CachedSource lee el PCM compartido y aplica los límites del cue
+    └── Fallo → decodificador y cue → productor PCM → cola de bloques → fuente del bus
 ```
+
+Rejilla, panel fijo y reproductor auxiliar comparten la preparación PCM. El
+hilo de control recibe el primer bloque antes de adjuntar al bus. El productor
+decodifica hasta unos diez segundos por adelantado para cada fuente de disco.
+La salida consulta la cola sin esperar. Si está temporalmente vacía, solo esa
+fuente aporta silencio durante un frame y el deck conserva su posición.
+El fin se señala después de consumir el último bloque y cerrar el productor.
+Las fuentes ya en RAM se leen directamente. Las locuciones convierten sus
+partes a estéreo a 48 kHz antes de encolarlas.
 
 ---
 

@@ -3,8 +3,9 @@
 //! importa— que el hilo se muere solo cuando el deck suelta su fuente.
 use super::*;
 use rodio::buffer::SamplesBuffer;
+use rodio::Source;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::thread::sleep;
+use std::{thread::sleep, time::Duration};
 
 fn fuente(muestras: Vec<f32>) -> BoxSource {
     Box::new(SamplesBuffer::new(2, 48_000, muestras))
@@ -15,7 +16,11 @@ fn fuente(muestras: Vec<f32>) -> BoxSource {
 #[test]
 fn las_muestras_salen_intactas_y_en_orden() {
     let original: Vec<f32> = (0..10_000).map(|i| i as f32).collect();
-    let salida: Vec<f32> = buffered(fuente(original.clone())).collect();
+    let mut source = PlaybackSource::buffered(fuente(original.clone())).unwrap();
+    let mut salida = Vec::new();
+    while let Some(sample) = next_wait(&mut source) {
+        salida.push(sample);
+    }
     assert_eq!(salida, original);
 }
 
@@ -24,24 +29,25 @@ fn las_muestras_salen_intactas_y_en_orden() {
 /// cancion y saltaria a la siguiente antes de tiempo.
 #[test]
 fn la_pista_termina_cuando_el_colchon_se_vacia() {
-    let mut fuente = buffered(fuente(vec![1.0, 2.0, 3.0]));
-    assert_eq!(fuente.next(), Some(1.0));
-    assert_eq!(fuente.next(), Some(2.0));
-    assert_eq!(fuente.next(), Some(3.0));
-    assert_eq!(fuente.next(), None, "se acabo de verdad");
-    assert_eq!(fuente.next(), None, "y sigue acabada");
+    let mut fuente = PlaybackSource::buffered(fuente(vec![1.0, 2.0, 3.0, 4.0])).unwrap();
+    assert_eq!(next_wait(&mut fuente), Some(1.0));
+    assert_eq!(next_wait(&mut fuente), Some(2.0));
+    assert_eq!(next_wait(&mut fuente), Some(3.0));
+    assert_eq!(next_wait(&mut fuente), Some(4.0));
+    assert_eq!(next_wait(&mut fuente), None, "se acabo de verdad");
+    assert_eq!(next_wait(&mut fuente), None, "y sigue acabada");
 }
 
 #[test]
 fn una_fuente_vacia_termina_sin_colgarse() {
-    assert_eq!(buffered(fuente(vec![])).next(), None);
+    assert!(PlaybackSource::buffered(fuente(vec![])).is_none());
 }
 
 /// El ritmo se pregunta antes de mandar la fuente al hilo, y el bus lo necesita
 /// desde el primer momento para saber a que velocidad va.
 #[test]
 fn el_colchon_conserva_el_ritmo_de_la_fuente() {
-    let fuente = buffered(fuente(vec![0.0; 10]));
+    let fuente = PlaybackSource::buffered(fuente(vec![0.0; 10])).unwrap();
     assert_eq!(fuente.channels(), 2);
     assert_eq!(fuente.sample_rate(), 48_000);
 }
@@ -87,7 +93,7 @@ fn soltar_la_fuente_mata_el_hilo_aunque_este_bloqueado() {
         }
     }
 
-    let colchon = buffered(Box::new(Infinita));
+    let colchon = PlaybackSource::buffered(Box::new(Infinita)).unwrap();
     // Sin sacar una sola muestra, el hilo llena la cola acotada y se queda
     // bloqueado en `send`. Es un estado que no se puede observar desde fuera, asi
     // que se le da un momento para llegar a el — es justo el caso que podria
@@ -101,6 +107,17 @@ fn soltar_la_fuente_mata_el_hilo_aunque_este_bloqueado() {
         esperar(|| !VIVA.load(Ordering::SeqCst)),
         "el hilo quedo colgado con la fuente: cada cancion filtraria un hilo"
     );
+}
+
+// Estas pruebas consumen a velocidad de CPU y pueden adelantar al productor.
+pub(super) fn next_wait(source: &mut PlaybackSource) -> Option<f32> {
+    loop {
+        match source.read() {
+            PcmRead::Sample(sample) => return Some(sample),
+            PcmRead::End => return None,
+            PcmRead::Pending => std::thread::yield_now(),
+        }
+    }
 }
 
 /// El hilo va a su ritmo y no al nuestro: se le da un margen en vez de un sleep

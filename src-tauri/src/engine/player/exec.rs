@@ -6,12 +6,11 @@
 //! `build_play_source` (cue y cache) y `SequenceSource` (locuciones).
 use super::deck::Deck;
 use super::deck_track::DeckTrack;
-use super::prefetch::{buffered, deck_source};
 use super::queue::DeckAction;
 use super::resolve::{QueueResolver, ResolvedPlayback};
-use crate::engine::audio::decode::BoxSource;
+use crate::engine::audio::prefetch::PlaybackSource;
 use crate::engine::audio::sequence::SequenceSource;
-use crate::engine::cache::preload::PreloadCache;
+use crate::engine::cache::preload::{build_play_source, PreloadCache};
 use crate::engine::console::Bus;
 use std::sync::{Arc, Mutex};
 
@@ -30,11 +29,11 @@ pub fn exec_all(
 /// Construye la fuente de una entrada ya resuelta. Una sola pista pasa por
 /// `build_play_source` (respeta cue y cache); una locucion son varios archivos
 /// que suenan seguidos, y para eso ya existe `SequenceSource`.
-fn source_for(play: &ResolvedPlayback, cache: &Arc<Mutex<PreloadCache>>) -> Option<BoxSource> {
+fn source_for(play: &ResolvedPlayback, cache: &Arc<Mutex<PreloadCache>>) -> Option<PlaybackSource> {
     match play.paths.as_slice() {
         [] => None,
-        [one] => deck_source(cache, one, play.cue_start_s, play.cue_end_s),
-        many => SequenceSource::from_paths(many).map(|s| buffered(Box::new(s))),
+        [one] => build_play_source(cache, one, false, play.cue_start_s, play.cue_end_s),
+        many => PlaybackSource::buffered(Box::new(SequenceSource::from_paths(many)?)),
     }
 }
 
@@ -105,7 +104,7 @@ fn exec(
             }
             let t = target.track().clone();
             let at = (t.cue_start_s + position_s).max(0.0);
-            if let Some(source) = deck_source(cache, &t.path, at, t.cue_end_s) {
+            if let Some(source) = build_play_source(cache, &t.path, false, at, t.cue_end_s) {
                 target.reload_at(bus, source, position_s);
             }
         }

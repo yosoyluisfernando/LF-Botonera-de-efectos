@@ -10,10 +10,9 @@
 //! El volumen tampoco esta aqui: es el fader del bus. El deck solo aplica la
 //! ganancia de SU pista, que es del archivo.
 use super::deck_track::{DeckStatus, DeckTrack};
-use super::prefetch::deck_source;
 use super::source::{DeckHandle, DeckSource};
-use crate::engine::audio::decode::BoxSource;
-use crate::engine::cache::preload::PreloadCache;
+use crate::engine::audio::prefetch::PlaybackSource;
+use crate::engine::cache::preload::{build_play_source, PreloadCache};
 use crate::engine::console::Bus;
 use std::sync::{Arc, Mutex};
 
@@ -34,7 +33,7 @@ impl Deck {
     }
 
     /// Entrega la fuente al bus y la deja lista en pausa.
-    pub fn load(&mut self, bus: &Bus, source: BoxSource, track: DeckTrack) {
+    pub fn load(&mut self, bus: &Bus, source: PlaybackSource, track: DeckTrack) {
         self.release();
         let (source, handle) = DeckSource::new(source, track.gain.max(0.0));
         bus.add(source);
@@ -46,7 +45,7 @@ impl Deck {
 
     /// Recarga la MISMA pista desde `offset_s` (seek). Conserva si sonaba o
     /// estaba en pausa: saltar de posicion no debe arrancar ni parar nada.
-    pub fn reload_at(&mut self, bus: &Bus, source: BoxSource, offset_s: f64) {
+    pub fn reload_at(&mut self, bus: &Bus, source: PlaybackSource, offset_s: f64) {
         let was_playing = self.status == DeckStatus::Playing;
         self.release();
         let (source, handle) = DeckSource::new(source, self.track.gain.max(0.0));
@@ -88,7 +87,9 @@ impl Deck {
             return;
         }
         let from = (self.track.cue_start_s + at).max(0.0);
-        let Some(source) = deck_source(cache, &self.track.path, from, self.track.cue_end_s) else {
+        let Some(source) =
+            build_play_source(cache, &self.track.path, false, from, self.track.cue_end_s)
+        else {
             self.fail();
             return;
         };

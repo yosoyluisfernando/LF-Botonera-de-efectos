@@ -4,22 +4,27 @@
 /// el bus. Como es un solo flujo continuo, no se puede reposicionar dentro: de
 /// ahi que las locuciones no admitan salto de posicion.
 use crate::engine::audio::decode as audio_decode;
+use rodio::source::UniformSourceIterator;
 use rodio::Source;
 use std::collections::VecDeque;
 use std::time::Duration;
 
+type SequencePart = UniformSourceIterator<audio_decode::BoxSource, f32>;
+const CHANNELS: u16 = 2;
+const SAMPLE_RATE: u32 = 48_000;
+
 pub struct SequenceSource {
-    queue: VecDeque<Box<dyn Source<Item = f32> + Send + 'static>>,
-    current: Box<dyn Source<Item = f32> + Send + 'static>,
+    queue: VecDeque<audio_decode::BoxSource>,
+    current: SequencePart,
 }
 
 impl SequenceSource {
     pub fn from_paths(paths: &[String]) -> Option<Self> {
-        let mut queue: VecDeque<Box<dyn Source<Item = f32> + Send + 'static>> = paths
+        let mut queue: VecDeque<_> = paths
             .iter()
             .filter_map(|p| audio_decode::source_from_path(p, false))
             .collect();
-        let current = queue.pop_front()?;
+        let current = UniformSourceIterator::new(queue.pop_front()?, CHANNELS, SAMPLE_RATE);
         Some(Self { queue, current })
     }
 }
@@ -31,20 +36,20 @@ impl Iterator for SequenceSource {
             if let Some(s) = self.current.next() {
                 return Some(s);
             }
-            self.current = self.queue.pop_front()?;
+            self.current = UniformSourceIterator::new(self.queue.pop_front()?, CHANNELS, SAMPLE_RATE);
         }
     }
 }
 
 impl Source for SequenceSource {
     fn current_frame_len(&self) -> Option<usize> {
-        self.current.current_frame_len()
+        None
     }
     fn channels(&self) -> u16 {
-        self.current.channels()
+        CHANNELS
     }
     fn sample_rate(&self) -> u32 {
-        self.current.sample_rate()
+        SAMPLE_RATE
     }
     fn total_duration(&self) -> Option<Duration> {
         None

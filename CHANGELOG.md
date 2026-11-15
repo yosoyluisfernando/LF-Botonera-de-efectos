@@ -53,6 +53,7 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 ### Corregido
 
 - El botón de la consola de audio restaura y enfoca la ventana que ya estaba abierta.
+- Se corrigen microcortes al combinar efectos de la rejilla o el panel fijo con el reproductor auxiliar.
 
 La salida de audio independiente por pestaña queda fuera de esta entrega.
 

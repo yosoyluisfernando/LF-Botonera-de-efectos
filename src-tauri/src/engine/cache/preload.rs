@@ -1,10 +1,6 @@
-/// Módulo: preload_cache.rs
-/// Propósito: caché en RAM de PCM decodificado (precarga). HashMap por archivo +
-/// LRU + presupuesto de bytes. Al disparar, `build_play_source` sirve desde RAM
-/// si el archivo está cacheado (sin I/O) o decodifica perezoso como hasta hoy.
-/// La caché se LLENA en etapas posteriores (preloader, ver PLAN_PRECARGA.md);
-/// aquí queda la infraestructura y el enganche al motor.
+//! Caché LRU de PCM en RAM y preparación de fuentes de reproducción.
 use crate::engine::audio::decode::{self as audio_decode, BoxSource};
+use crate::engine::audio::prefetch::PlaybackSource;
 use crate::engine::cache::cached_source::{CachedPcm, CachedSource};
 use crate::engine::dsp::cue_source;
 use crate::engine::persist::db;
@@ -66,7 +62,7 @@ impl PreloadCache {
         self.insert_arc(key, Arc::new(pcm));
     }
 
-    /// Inserta PCM ya compartido por otra cache. Evita clonar muestras grandes.
+    /// Inserta PCM compartido sin copiar las muestras.
     pub fn insert_arc(&mut self, key: String, pcm: Arc<CachedPcm>) {
         let bytes = pcm.bytes();
         if bytes == 0 || bytes > self.budget_bytes {
@@ -126,26 +122,37 @@ pub fn decode_pcm(path: &str) -> Option<CachedPcm> {
     })
 }
 
-/// Fuente a reproducir: desde la caché (RAM, sin I/O) si el archivo está; si no,
-/// decodificación perezosa como hasta ahora. Cue y bucle se aplican igual.
+/// Usa el PCM precargado o prepara el primer bloque del decodificador.
 pub fn build_play_source(
     cache: &Arc<Mutex<PreloadCache>>,
     path: &str,
     loop_mode: bool,
     cue_start_s: f64,
     cue_end_s: Option<f64>,
-) -> Option<BoxSource> {
+) -> Option<PlaybackSource> {
+    let (source, in_memory) = build_play_input(cache, path, loop_mode, cue_start_s, cue_end_s)?;
+    if in_memory {
+        Some(PlaybackSource::InMemory(source))
+    } else {
+        PlaybackSource::buffered(source)
+    }
+}
+
+pub(crate) fn build_play_input(
+    cache: &Arc<Mutex<PreloadCache>>,
+    path: &str,
+    loop_mode: bool,
+    cue_start_s: f64,
+    cue_end_s: Option<f64>,
+) -> Option<(BoxSource, bool)> {
     let hit = cache.lock().unwrap().get(&db::normalize_key(path));
     match hit {
-        // Cache: arranca en el offset (seek O(1)); el cue_end pasa a ser
-        // relativo a ese inicio. Sin descartar muestras una a una.
-        Some(pcm) => Some(cue_source::cued_from(
-            CachedSource::new_at(pcm, cue_start_s),
-            loop_mode,
-            0.0,
-            cue_end_s.map(|e| (e - cue_start_s).max(0.0)),
+        Some(pcm) => Some((
+            Box::new(CachedSource::new(pcm, cue_start_s, cue_end_s, loop_mode)),
+            true,
         )),
-        None => cue_source::cued_source(path, loop_mode, cue_start_s, cue_end_s),
+        None => cue_source::cued_source(path, loop_mode, cue_start_s, cue_end_s)
+            .map(|source| (source, false)),
     }
 }
 

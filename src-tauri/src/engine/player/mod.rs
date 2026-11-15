@@ -7,14 +7,11 @@
 //! `Reproductor` de la consola, que suma en el programa. Por eso obedece al
 //! master (decision del autor, 2026-07-16) — en volumen, no en transporte.
 //!
-//! Su volumen es el fader de ese bus: bajar la musica para hablar encima es mover
-//! ese fader, y no toca a los efectos. Dos decks con pre-carga ping-pong.
-//! Guia: Documentacion/PLAN_MODO_REPRODUCTOR.md y PLAN_CONSOLA_VIRTUAL.md.
+//! Dos decks con precarga alternada y fader propio.
 mod deck;
 mod deck_track;
 mod exec;
 pub mod monitor;
-mod prefetch;
 mod queue;
 mod queue_edit;
 mod queue_ops;
@@ -52,9 +49,7 @@ pub enum PlayerCommand {
     Sync(std::sync::mpsc::SyncSender<()>),
 }
 
-/// Estado en vivo que lee la UI (solo pinta). Lo refresca el hilo cada tick.
-/// `current_index` (verde) y `next_index` (naranja) apuntan a la cola.
-/// `PartialEq` permite al monitor emitir solo cuando algo cambia.
+/// Estado en vivo que el monitor envía a la UI cuando cambia.
 #[derive(Clone, Default, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct PlayerSnapshot {

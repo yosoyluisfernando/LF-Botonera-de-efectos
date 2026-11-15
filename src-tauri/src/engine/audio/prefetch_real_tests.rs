@@ -11,10 +11,13 @@
 //! ```text
 //! cargo test --lib prefetch_real -- --ignored --nocapture
 //! ```
+use super::tests::next_wait;
 use super::*;
-use crate::engine::cache::preload::{build_play_source, decode_pcm, PreloadCache};
+use crate::engine::cache::preload::{
+    build_play_input, build_play_source, decode_pcm, PreloadCache,
+};
 use crate::engine::persist::db;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 /// La ruta de la variable, o None para saltar sin fallar.
@@ -24,15 +27,17 @@ fn ruta(var: &str) -> Option<String> {
 
 fn decodifica(path: &str) -> BoxSource {
     let cache = Arc::new(Mutex::new(PreloadCache::new(0)));
-    build_play_source(&cache, path, false, 0.0, None).expect("el archivo deberia decodificar")
+    build_play_input(&cache, path, false, 0.0, None)
+        .expect("el archivo deberia decodificar")
+        .0
 }
 
 /// Compara dos fuentes muestra a muestra SIN juntar las dos en memoria: una
 /// cancion larga son decenas de millones de muestras. Devuelve cuantas hubo.
-fn iguales(mut a: BoxSource, mut b: BoxSource) -> u64 {
+fn iguales(mut a: BoxSource, mut b: PlaybackSource) -> u64 {
     let mut n = 0u64;
     loop {
-        match (a.next(), b.next()) {
+        match (a.next(), next_wait(&mut b)) {
             (Some(x), Some(y)) => {
                 assert!((x - y).abs() < 1e-6, "muestra {n} distinta: {x} vs {y}");
                 n += 1;
@@ -53,7 +58,10 @@ fn el_colchon_no_altera_una_cancion_de_verdad() {
         eprintln!("saltada: define LF_TEST_LONG_SONG");
         return;
     };
-    let n = iguales(decodifica(&path), buffered(decodifica(&path)));
+    let n = iguales(
+        decodifica(&path),
+        PlaybackSource::buffered(decodifica(&path)).unwrap(),
+    );
     println!("  ✓ {n} muestras intactas a traves del colchon");
     assert!(n > 0, "la cancion no dio ni una muestra");
 }
@@ -68,10 +76,10 @@ fn el_colchon_va_muy_por_delante_del_tiempo_real() {
         eprintln!("saltada: define LF_TEST_LONG_SONG");
         return;
     };
-    let fuente = buffered(decodifica(&path));
+    let mut fuente = PlaybackSource::buffered(decodifica(&path)).unwrap();
     let rate = fuente.sample_rate() as f64 * fuente.channels().max(1) as f64;
     let inicio = Instant::now();
-    let muestras = fuente.count() as f64;
+    let muestras = std::iter::from_fn(|| next_wait(&mut fuente)).count() as f64;
     let real = inicio.elapsed().as_secs_f64();
     let audio = muestras / rate;
     println!(
@@ -86,12 +94,10 @@ fn el_colchon_va_muy_por_delante_del_tiempo_real() {
 }
 
 /// El caso que preguntaba el autor: un efecto corto SÍ se precarga en RAM. Aqui
-/// se mete en una caché de verdad, se saca por acierto (cache HIT) y se pasa por
-/// el colchon. Comparado con el mismo acierto SIN colchon, tiene que dar lo
-/// mismo: envolver algo que ya esta en RAM no lo estropea, solo no le hace falta.
+/// se mete en una caché de verdad y se lee directamente desde RAM.
 #[test]
 #[ignore]
-fn un_efecto_precargado_pasa_por_el_colchon_intacto() {
+fn un_efecto_precargado_se_lee_directamente_de_ram() {
     let Some(path) = ruta("LF_TEST_SHORT_FX") else {
         eprintln!("saltada: define LF_TEST_SHORT_FX");
         return;
@@ -104,9 +110,9 @@ fn un_efecto_precargado_pasa_por_el_colchon_intacto() {
         "el efecto deberia estar precargado"
     );
 
-    let sin = build_play_source(&cache, &path, false, 0.0, None).expect("acierto de caché");
-    let con =
-        buffered(build_play_source(&cache, &path, false, 0.0, None).expect("acierto de caché"));
+    let (sin, _) = build_play_input(&cache, &path, false, 0.0, None).expect("acierto de caché");
+    let con = build_play_source(&cache, &path, false, 0.0, None).expect("acierto de caché");
+    assert!(matches!(&con, PlaybackSource::InMemory(_)));
     let n = iguales(sin, con);
-    println!("  ✓ efecto precargado en RAM: {n} muestras iguales con y sin colchon");
+    println!("  ✓ efecto precargado en RAM: {n} muestras");
 }

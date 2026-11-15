@@ -4,6 +4,7 @@ use crate::engine::audio::button::{ButtonStateMap, PlaybackGroup, ReplayInfo};
 /// Modulo: audio_thread_play.rs
 /// Proposito: operaciones auxiliares usadas por el hilo de audio.
 use crate::engine::audio::ops::{self as audio_ops, stop_removed};
+use crate::engine::audio::prefetch::PlaybackSource;
 use crate::engine::audio::sequence::SequenceSource;
 use crate::engine::cache::preload::PreloadCache;
 use crate::engine::console::Bus;
@@ -35,16 +36,16 @@ pub fn play_file(
     args: PlayArgs,
 ) -> bool {
     let Some(bus) = bus else { return false };
-    let mut states = states.lock().unwrap();
-    if args.stop_other {
-        if args.fade_out_stop_s > 0.0 {
-            audio_ops::fade_stop_other_ids(&mut states, &args.id, args.group);
-        } else {
-            audio_ops::stop_other_ids(&mut states, &args.id, args.group);
+    if !args.overlap && !args.restart {
+        let mut states = states.lock().unwrap();
+        if states
+            .get(&args.id)
+            .is_some_and(|group| group.iter().any(|state| !state.is_done()))
+        {
+            apply_stop_other(&mut states, &args);
+            stop_removed(states.remove(&args.id));
+            return false;
         }
-    }
-    if audio_ops::should_skip_existing(&mut states, &args.id, args.overlap, args.restart) {
-        return false;
     }
     let Some(source) = playback_source::build(
         cache,
@@ -55,6 +56,11 @@ pub fn play_file(
     ) else {
         return false;
     };
+    let mut states = states.lock().unwrap();
+    apply_stop_other(&mut states, &args);
+    if !args.overlap {
+        stop_removed(states.remove(&args.id));
+    }
     // La ficha para rehacer esta fuente si su bus muere (un cambio de tarjeta).
     // La lleva el estado, no un mapa por id: con `overlap` hay varias instancias
     // del mismo boton sonando por su sitio, y una ficha compartida las rehariat
@@ -92,6 +98,16 @@ pub fn play_file(
     true
 }
 
+fn apply_stop_other(states: &mut ButtonStateMap, args: &PlayArgs) {
+    if args.stop_other {
+        if args.fade_out_stop_s > 0.0 {
+            audio_ops::fade_stop_other_ids(states, &args.id, args.group);
+        } else {
+            audio_ops::stop_other_ids(states, &args.id, args.group);
+        }
+    }
+}
+
 pub fn play_sequence(
     states: &Arc<Mutex<ButtonStateMap>>,
     bus: Option<&Bus>,
@@ -102,12 +118,14 @@ pub fn play_sequence(
     group: PlaybackGroup,
 ) {
     let Some(bus) = bus else { return };
-    let mut states = states.lock().unwrap();
-    stop_removed(states.remove(&id));
-    if let Some(seq) = SequenceSource::from_paths(&paths) {
+    if let Some(source) =
+        SequenceSource::from_paths(&paths).and_then(|seq| PlaybackSource::buffered(Box::new(seq)))
+    {
+        let mut states = states.lock().unwrap();
+        stop_removed(states.remove(&id));
         let btn_state = attach_button(
             bus,
-            Box::new(seq),
+            source,
             AttachArgs {
                 volume,
                 duration,

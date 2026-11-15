@@ -8,6 +8,7 @@ pub mod last_pressed;
 pub mod meter_monitor;
 pub mod monitor;
 pub mod ops;
+pub mod prefetch;
 pub mod routing;
 pub mod seek_source;
 pub mod sequence;

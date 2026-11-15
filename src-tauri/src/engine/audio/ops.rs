@@ -35,20 +35,6 @@ pub fn fade_stop_other_ids(states: &mut ButtonStateMap, id: &str, target: Playba
     // Sin retain: purge_done() limpiará cuando el fade termine.
 }
 
-/// ¿Saltar porque ya suena este id y no hay overlap? Aplica la regla de restart.
-pub fn should_skip_existing(
-    states: &mut ButtonStateMap,
-    id: &str,
-    overlap: bool,
-    restart: bool,
-) -> bool {
-    if !states.get(id).map_or(false, |group| !group.is_empty()) || overlap {
-        return false;
-    }
-    stop_removed(states.remove(id));
-    !restart
-}
-
 /// Para el id dado con corte inmediato y lo elimina del mapa.
 pub fn stop_id(states: &Arc<Mutex<ButtonStateMap>>, id: &str) {
     stop_removed(states.lock().unwrap().remove(id));

@@ -55,6 +55,12 @@ impl FadeRamp {
         (ramp, fade_out_flag)
     }
 
+    pub fn is_stopping(&self) -> bool {
+        self.fade_out_flag
+            .as_ref()
+            .is_some_and(|flag| flag.load(Ordering::Relaxed))
+    }
+
     /// Avanza la posición y devuelve el factor de ganancia [0.0, 1.0] para la muestra actual.
     /// Devuelve `None` cuando el fade-out ha concluido (la fuente debe terminar).
     pub fn next_gain(&mut self) -> Option<f32> {

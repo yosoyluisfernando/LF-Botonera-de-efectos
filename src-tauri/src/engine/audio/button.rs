@@ -1,5 +1,5 @@
-/// Modulo: master_button.rs
-/// Proposito: estado y fuente controlable de un boton dentro del bus master.
+//! Estado y fuente controlable de un botón dentro de su bus.
+use super::prefetch::{PcmRead, PlaybackSource};
 use crate::engine::dsp::fade::FadeRamp;
 use rodio::Source;
 use std::collections::HashMap;
@@ -108,12 +108,9 @@ impl ButtonState {
     }
 }
 
-/// Envuelve Source<Item=f32> con control atomico de volumen, stop y fade.
-/// Es el CANAL de la consola: aplica lo que es suyo — `file_gain` × `volume`
-/// (trim) × fade — y nada mas. El volumen del bus lo pone el bus con su fader,
-/// una sola vez sobre la suma, no cada fuente por su cuenta.
+/// Aplica ganancia, volumen del botón y fundido antes del fader del bus.
 pub struct ButtonSource {
-    pub inner: Box<dyn Source<Item = f32> + Send + 'static>,
+    pub inner: PlaybackSource,
     pub stop_flag: Arc<AtomicBool>,
     pub done_flag: Arc<AtomicBool>,
     pub file_gain: f32,
@@ -129,6 +126,15 @@ impl Iterator for ButtonSource {
             self.done_flag.store(true, Ordering::Relaxed);
             return None;
         }
+        let sample = match self.inner.read() {
+            PcmRead::Sample(sample) => sample,
+            PcmRead::Pending if !self.fade.is_stopping() => return Some(0.0),
+            PcmRead::Pending => 0.0,
+            PcmRead::End => {
+                self.done_flag.store(true, Ordering::Relaxed);
+                return None;
+            }
+        };
         let fade_gain = match self.fade.next_gain() {
             Some(g) => g,
             None => {
@@ -136,16 +142,8 @@ impl Iterator for ButtonSource {
                 return None;
             }
         };
-        match self.inner.next() {
-            Some(s) => {
-                let local = f32::from_bits(self.volume.load(Ordering::Relaxed));
-                Some(s * self.file_gain * local * fade_gain)
-            }
-            None => {
-                self.done_flag.store(true, Ordering::Relaxed);
-                None
-            }
-        }
+        let local = f32::from_bits(self.volume.load(Ordering::Relaxed));
+        Some(sample * self.file_gain * local * fade_gain)
     }
 }
 

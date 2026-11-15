@@ -24,27 +24,42 @@ impl CachedPcm {
 /// Fuente que reproduce un `CachedPcm` compartido convirtiendo i16→f32 al vuelo.
 pub struct CachedSource {
     pcm: Arc<CachedPcm>,
+    start: usize,
+    end: usize,
     pos: usize,
+    loop_mode: bool,
 }
 
 impl CachedSource {
-    pub fn new(pcm: Arc<CachedPcm>) -> Self {
-        Self { pcm, pos: 0 }
-    }
-
-    /// Empieza en `start_s` segundos: seek O(1) en memoria (scrubbing del editor
-    /// instantáneo, sin descartar muestras una a una).
-    pub fn new_at(pcm: Arc<CachedPcm>, start_s: f64) -> Self {
-        let ch = pcm.channels.max(1) as f64;
-        let pos = ((start_s.max(0.0) * pcm.sample_rate as f64 * ch) as usize).min(pcm.data.len());
-        Self { pcm, pos }
+    /// Delimita la región en frames completos para mantener el orden de canales.
+    pub fn new(pcm: Arc<CachedPcm>, start_s: f64, end_s: Option<f64>, loop_mode: bool) -> Self {
+        let channels = usize::from(pcm.channels.max(1));
+        let frames = pcm.data.len() / channels;
+        let sample_at = |seconds: f64| {
+            ((seconds * f64::from(pcm.sample_rate.max(1))) as usize).min(frames) * channels
+        };
+        let start = sample_at(start_s);
+        let end = end_s.map_or(frames * channels, sample_at).max(start);
+        Self {
+            pcm,
+            start,
+            end,
+            pos: start,
+            loop_mode,
+        }
     }
 }
 
 impl Iterator for CachedSource {
     type Item = f32;
     fn next(&mut self) -> Option<f32> {
-        let s = *self.pcm.data.get(self.pos)?;
+        if self.pos == self.end {
+            if !self.loop_mode || self.start == self.end {
+                return None;
+            }
+            self.pos = self.start;
+        }
+        let s = self.pcm.data[self.pos];
         self.pos += 1;
         Some(s as f32 / 32767.0)
     }
@@ -76,11 +91,34 @@ mod tests {
             channels: 2,
             sample_rate: 48000,
         });
-        let out: Vec<f32> = CachedSource::new(pcm).collect();
+        let out: Vec<f32> = CachedSource::new(pcm, 0.0, None, false).collect();
         assert_eq!(out.len(), 4);
         assert!((out[0] - 0.0).abs() < 1e-6);
         assert!((out[3] - 1.0).abs() < 1e-3);
         assert!(out[2] < 0.0);
+    }
+
+    #[test]
+    fn loop_repeats_only_the_cued_stereo_frames() {
+        let pcm = Arc::new(CachedPcm {
+            data: vec![0, 0, 32767, -32767, -32767, 32767, 0, 0],
+            channels: 2,
+            sample_rate: 10,
+        });
+        let out: Vec<f32> = CachedSource::new(pcm, 0.15, Some(0.35), true)
+            .take(10)
+            .collect();
+        assert_eq!(out, [1.0, -1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0]);
+    }
+
+    #[test]
+    fn empty_loop_ends_without_reading_past_the_pcm() {
+        let pcm = Arc::new(CachedPcm {
+            data: vec![1, 2],
+            channels: 2,
+            sample_rate: 10,
+        });
+        assert_eq!(CachedSource::new(pcm, 1.0, None, true).next(), None);
     }
 
     #[test]
