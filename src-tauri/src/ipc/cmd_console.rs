@@ -29,7 +29,7 @@ pub struct ConsoleView {
     /// La pre-escucha. Va aparte porque **no suma en el programa**, y esa es la
     /// idea entera de la consola: la tira debe verse separada.
     pub cue: StripView,
-    /// "window" | "modal".
+    /// "window" | "modal" | "left" | "right".
     pub mode: String,
 }
 
@@ -101,16 +101,29 @@ pub fn set_bus_fader(
     Ok(())
 }
 
-/// Como se abre la consola: "window" (flotante) | "modal". Se recuerda.
+/// Guarda la presentación y, al redimensionar, el ancho del panel acoplado.
 #[tauri::command]
-pub fn set_console_mode(mode: String, state: tauri::State<AppState>) -> Result<(), String> {
+pub fn set_console_mode(
+    mode: String,
+    width: Option<u16>,
+    state: tauri::State<AppState>,
+) -> Result<(), String> {
+    if !matches!(mode.as_str(), "window" | "modal" | "left" | "right") {
+        return Err("invalid_console_mode".into());
+    }
     let mut cfg = state.config.lock().unwrap();
-    cfg.console_mode = if mode == "window" {
-        mode
+    let mut next = cfg.clone();
+    if let Some(width) = width {
+        if next.console_mode != mode || !matches!(mode.as_str(), "left" | "right") {
+            return Ok(());
+        }
+        next.console.dock_width = width.clamp(280, 640);
     } else {
-        "modal".into()
-    };
-    config::save_config(&cfg)
+        next.console_mode = mode;
+    }
+    config::save_config(&next)?;
+    *cfg = next;
+    Ok(())
 }
 
 fn strip(bus: &'static str, fader: f32, max: f32, in_program: bool) -> StripView {

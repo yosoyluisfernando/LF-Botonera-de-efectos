@@ -65,7 +65,9 @@
         </button>
         <div id="tabs-list" class="tabs-scroll"></div>
         <button id="btn-add-tab" class="btn-add-tab" data-i18n-title="tabs.add_tooltip">+</button>
-        <button id="btn-console" class="btn-settings" data-i18n-title="console.tooltip">🎛️</button>
+        <button id="btn-console" class="btn-settings" aria-haspopup="menu" aria-expanded="false"
+                aria-controls="console-placement-menu" data-i18n-title="console.tooltip"
+                data-i18n-aria-label="console.title">🎛️</button>
         <button id="btn-fixed-panel" class="btn-settings btn-fixed-panel" data-i18n-title="fixed_panel.toggle">▤</button>
         <button id="btn-library" class="btn-settings btn-library"
                 data-i18n-title="library.open_window"
@@ -82,6 +84,12 @@
 
       <p id="touch-hint" data-i18n="mobile.hint"></p>
       <div id="workspace-shell" class="workspace-shell">
+        <aside id="console-dock" class="console-dock hidden" data-i18n-aria-label="console.title">
+          <div id="console-dock-width" class="console-dock-width" role="separator" tabindex="0"
+               aria-orientation="vertical" aria-valuemin="280" aria-valuemax="640"
+               aria-valuenow="320" aria-controls="console-dock"
+               data-i18n-aria-label="console.dock_width"></div>
+        </aside>
         <aside id="fixed-panel" class="fixed-panel">
           <div id="fixed-panel-resize" class="fixed-panel-resize" aria-hidden="true"></div>
           <div class="fixed-panel-header">
@@ -972,8 +980,13 @@
         <div class="modal-header">
           <h3 data-i18n="console.title">Consola de audio</h3>
           <div class="console-header-actions">
-            <button id="console-popout" class="btn-dark console-popout"></button>
-            <button id="close-console" class="close-btn">✕</button>
+            <select id="console-placement" data-i18n-aria-label="console.placement">
+              <option value="left" data-i18n="console.dock_left"></option>
+              <option value="right" data-i18n="console.dock_right"></option>
+              <option value="window" data-i18n="console.popout"></option>
+              <option value="modal" data-i18n="console.dock"></option>
+            </select>
+            <button id="close-console" class="close-btn" data-i18n-aria-label="titlebar.close">✕</button>
           </div>
         </div>
         <p class="console-notice" data-i18n="console.notice">
@@ -991,6 +1004,16 @@
           <div id="console-program" class="console-program"></div>
         </div>
       </div>
+    </div>
+
+    <div id="console-placement-menu" class="hidden context-style console-placement-menu"
+         role="menu" data-i18n-aria-label="console.placement">
+      <ul role="none">
+        <li role="menuitem" tabindex="-1" data-mode="left" data-i18n="console.dock_left"></li>
+        <li role="menuitem" tabindex="-1" data-mode="right" data-i18n="console.dock_right"></li>
+        <li role="menuitem" tabindex="-1" data-mode="window" data-i18n="console.popout"></li>
+        <li role="menuitem" tabindex="-1" data-mode="modal" data-i18n="console.dock"></li>
+      </ul>
     </div>
 
     <!-- Prelisten flotante -->

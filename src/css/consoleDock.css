@@ -1,0 +1,81 @@
+.console-dock {
+  display: flex;
+  width: min(var(--console-dock-width, 320px), 44%);
+  min-width: 0;
+  min-height: 0;
+}
+
+.console-dock[data-side="left"],
+.workspace-shell[data-fixed-side="right"] > .console-dock[data-side="right"] {
+  order: -1;
+}
+
+.console-dock[data-side="right"],
+.workspace-shell[data-fixed-side="right"] > .console-dock[data-side="left"] {
+  order: 1;
+}
+
+.console-dock[data-side="left"] .console-dock-width { order: 1; }
+
+.console-dock-width {
+  flex: 0 0 6px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.console-dock-width:hover,
+.console-dock-width:focus-visible {
+  background: var(--accent-color);
+  outline: none;
+}
+
+.console-dock > .console-content {
+  flex: 1;
+  min-width: 0;
+  max-height: none;
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+.console-dock .console-content > .modal-header,
+.console-dock .console-notice { display: none; }
+
+.console-dock .console-body {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  gap: 4px;
+  padding: 4px;
+}
+
+.console-dock .console-strips,
+.console-dock .console-cue,
+.console-dock .console-program {
+  display: contents;
+}
+
+.console-dock .console-strip {
+  min-width: 0;
+  min-height: 0;
+  padding: 6px 2px;
+}
+
+.console-dock .console-split { display: none; }
+.console-dock .strip-stage { gap: 3px; }
+.console-dock .strip-meters { gap: 2px; }
+.console-dock .meter-bg { width: clamp(4px, 2cqi, 8px); min-height: 0; }
+.console-dock .fader-track,
+.console-dock .fader { width: clamp(10px, 6cqi, 24px); }
+.console-dock .fader::-webkit-slider-thumb { width: 100%; }
+.console-dock .fader::-moz-range-thumb { width: 100%; }
+
+.console-dock .strip-label,
+.console-dock .strip-dest {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.console-dock .strip-label { font-size: 9px; line-height: 10px; min-height: 20px; }
+.console-dock .strip-dest { font-size: 7px; min-height: 18px; }
+.console-dock .strip-db { font-size: 9px; }

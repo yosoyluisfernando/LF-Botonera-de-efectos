@@ -2,7 +2,7 @@
 /// Proposito: lo que la consola de audio recuerda entre sesiones.
 use serde::{Deserialize, Serialize};
 
-/// Los faders de la consola **que no tenian donde vivir**.
+/// Ajustes globales de la consola y faders propios.
 ///
 /// Aqui NO estan ni el master ni el volumen del reproductor, y no es un olvido:
 /// el master es `AudioConfig.master_volume` (por perfil, y con su "recordar" y su
@@ -21,6 +21,12 @@ pub struct ConsoleConfig {
     /// La pre-escucha. Su fader no toca al programa: es la escucha del operador.
     #[serde(default = "unidad")]
     pub cue: f32,
+    #[serde(default = "default_dock_width")]
+    pub dock_width: u16,
+}
+
+fn default_dock_width() -> u16 {
+    320
 }
 
 /// Un fader nuevo nace **abierto**: la consola aparece sin tocar nada de lo que
@@ -35,6 +41,7 @@ impl Default for ConsoleConfig {
             efectos: unidad(),
             panel: unidad(),
             cue: unidad(),
+            dock_width: default_dock_width(),
         }
     }
 }

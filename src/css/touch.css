@@ -98,7 +98,6 @@
 }
 
 body[data-platform="android"] #te-popout,
-body[data-platform="android"] #console-popout { display: none; }
 
 /* Android usa su barra de estado y conserva el transporte dentro del viewport. */
 body[data-platform="android"] #clock-widget,

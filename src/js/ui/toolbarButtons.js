@@ -6,6 +6,7 @@
  */
 import { invoke } from '../bridge/api.js';
 import { isAndroid } from '../bridge/platform.js';
+import { hideDockedConsole } from './consoleWindow.js';
 
 /**
  * Los que se pueden esconder: el botón de la barra, su casilla en Ajustes y el
@@ -24,6 +25,7 @@ const BUTTONS = [
 /** Aplica la configuración a la barra. Se llama al arrancar y al guardar. */
 export function applyToolbarButtons(config) {
     for (const b of BUTTONS) _toggle(b.btn, config[b.flag]);
+    if (config.show_console_button === false) hideDockedConsole();
 }
 
 /** Pone las casillas de Ajustes como está la configuración. */

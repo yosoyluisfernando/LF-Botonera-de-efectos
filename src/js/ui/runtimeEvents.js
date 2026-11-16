@@ -16,7 +16,6 @@ import { updateWeatherPanel } from './settingsLocutions.js';
 import { paintFixedAudioTick } from './fixedPanel.js';
 import { paintPlayerTick } from './playerView.js';
 import { updateConsoleTick } from './consoleView.js';
-import { openModal as openConsoleModal } from './consoleWindow.js';
 import { executeLibraryAction } from './libraryActionDispatch.js';
 
 let _wired = false;
@@ -35,7 +34,6 @@ export async function wireRuntimeEvents({ onRefresh, onDockEditor }) {
         listen('weather-updated', e => updateWeatherPanel(e.payload)),
         listen('global-shortcut-refresh', () => onRefresh()),
         listen('track-editor-dock', e => onDockEditor(e.payload ?? {})),
-        listen('console-dock', () => openConsoleModal()),
         listen('library-window-action', e => {
             const payload = e.payload ?? {};
             return executeLibraryAction(payload.action, payload.selection ?? []);

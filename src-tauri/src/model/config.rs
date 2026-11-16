@@ -47,7 +47,7 @@ pub struct AppConfig {
     pub show_midi_shortcut_labels: bool,
     #[serde(default = "default_editor_mode")]
     pub editor_mode: String,
-    /// Cómo abre la consola de audio: "window" (flotante) | "modal".
+    /// Cómo abre la consola de audio: "window" | "modal" | "left" | "right".
     #[serde(default = "default_console_mode")]
     pub console_mode: String,
     /// Botones de la barra superior que se pueden esconder para dejar la vista

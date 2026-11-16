@@ -1,110 +1,144 @@
-import { isAndroid } from '../bridge/platform.js';
-/**
- * Archivo: consoleWindow.js
- * Propósito: abrir la consola donde toque — ventana flotante o modal — y
- * recordar cuál se eligió. Mismo patrón que el editor de pistas: la preferencia
- * la guarda Rust (`console_mode`), aquí solo se obedece.
- */
 import { invoke, listen } from '../bridge/api.js';
+import { isAndroid } from '../bridge/platform.js';
 import { t } from '../util/i18n.js';
+import { isDocked, setDockWidth, wireDockResize } from './consoleDock.js';
+import { wireConsolePlacementMenu } from './consolePlacementMenu.js';
 import { renderConsole, clearConsole, updateConsoleTick } from './consoleView.js';
 
-const MODAL = 'console-modal';
+const WINDOW_LABEL = 'audio-console';
+let insideMode;
+let openingWindow;
+const byId = id => document.getElementById(id);
 
-/** Abre por donde diga la preferencia. En la propia ventana, siempre modal. */
 export async function openPreferred() {
     if (isAndroid()) return;
     const cfg = await invoke('get_config').catch(() => ({}));
-    if (cfg.console_mode !== 'modal' && !_isWindow() && await _openWindow()) return;
-    await openModal();
+    const mode = cfg.console_mode;
+    if (mode !== 'modal' && !isDocked(mode) && await openWindow()) {
+        closeInside();
+        return;
+    }
+    await showInside(isDocked(mode) ? mode : 'modal', cfg.console?.dock_width);
 }
 
-export async function openModal() {
-    if (isAndroid()) return;
-    await renderConsole();
-    _syncPopout();
-    document.getElementById(MODAL)?.classList.remove('hidden');
+async function showInside(mode, width) {
+    const modal = byId('console-modal');
+    const dock = byId('console-dock');
+    const view = document.querySelector('.console-content');
+    const alreadyOpen = Boolean(insideMode);
+    const sameSide = insideMode === mode;
+    insideMode = mode;
+    if (width !== undefined && !sameSide) setDockWidth(dock, byId('console-dock-width'), width);
+    if (isDocked(mode)) {
+        dock.dataset.side = mode;
+        if (view.parentElement !== dock) dock.append(view);
+        modal.classList.add('hidden');
+        dock.classList.remove('hidden');
+    } else {
+        if (view.parentElement !== modal) modal.append(view);
+        dock.classList.add('hidden');
+        modal.classList.remove('hidden');
+    }
+    byId('console-placement').value = mode;
+    if (!alreadyOpen) {
+        await renderConsole();
+        if (!insideMode) clearConsole();
+    }
 }
 
-export function closeModal() {
-    document.getElementById(MODAL)?.classList.add('hidden');
+function closeInside() {
+    if (!insideMode) return;
+    insideMode = undefined;
+    byId('console-modal').classList.add('hidden');
+    byId('console-dock').classList.add('hidden');
     clearConsole();
 }
 
-/**
- * La consola vive sola en su ventana: no hay botonera detrás que oscurecer.
- *
- * Se cablea su propio tick, que en la ventana principal reparte `runtimeEvents`
- * junto al resto. Llega porque la ventana está en `capabilities/default.json`:
- * sin eso `listen` falla en silencio y los vúmetros no se mueven.
- */
+export function hideDockedConsole() {
+    if (isDocked(insideMode)) closeInside();
+}
+
 export function initWindowMode() {
     document.body.classList.add('console-window-mode');
-    document.getElementById(MODAL)?.classList.remove('hidden');
-    document.getElementById('close-console')?.addEventListener('click', () => {
-        window.__TAURI__?.window?.getCurrentWindow?.().close();
-    });
-    document.getElementById('console-popout')?.addEventListener('click', dockIn);
+    byId('console-modal').classList.remove('hidden');
     renderConsole();
-    _syncPopout();
     listen('meter-tick', e => updateConsoleTick(e.payload ?? {})).catch(console.error);
 }
 
 export function wire() {
-    document.getElementById('btn-console')?.addEventListener('click', openPreferred);
-    document.getElementById('close-console')?.addEventListener('click', closeModal);
-    document.getElementById('console-popout')?.addEventListener('click', popOut);
-}
-
-async function popOut() {
-    if (!await _openWindow()) return;
-    await invoke('set_console_mode', { mode: 'window' }).catch(console.error);
-    closeModal();
-}
-
-/** Vuelve al modal: se guarda la preferencia y se cierra la ventana. */
-async function dockIn() {
-    await invoke('set_console_mode', { mode: 'modal' }).catch(console.error);
-    const events = window.__TAURI__?.event;
-    if (events?.emitTo) await events.emitTo('main', 'console-dock', {});
-    else if (events?.emit) await events.emit('console-dock', {});
-    window.__TAURI__?.window?.getCurrentWindow?.().close();
-}
-
-async function _openWindow() {
-    if (isAndroid()) return false;
-    try {
-        const WindowClass = window.__TAURI__.webviewWindow.WebviewWindow;
-        const existing = await WindowClass.getByLabel('audio-console');
-        if (existing) {
-            await existing.unminimize();
-            await existing.show();
-            await existing.setFocus();
-            return true;
+    if (isAndroid()) return;
+    const trigger = byId('btn-console');
+    trigger.addEventListener('click', () => {
+        if (isDocked(insideMode)) hideDockedConsole();
+        else return openPreferred();
+    });
+    wireConsolePlacementMenu(trigger, byId('console-placement-menu'), changePlacement);
+    byId('close-console').addEventListener('click', closeInside);
+    const select = byId('console-placement');
+    select.addEventListener('change', async () => {
+        select.disabled = true;
+        try {
+            await changePlacement(select.value);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            select.value = insideMode ?? 'modal';
+            select.disabled = false;
+            if (insideMode === 'modal') select.focus();
         }
-        new WindowClass('audio-console', {
-            url: 'index.html?console=1',
-            title: t('console.title'),
-            width: 980,
-            height: 680,
-            center: true,
-            resizable: true,
-        });
-        return true;
-    } catch (e) {
-        console.error('Error al abrir la consola en ventana:', e);
-        return false;
+    });
+    wireDockResize(byId('console-dock'), byId('console-dock-width'));
+}
+
+async function changePlacement(mode) {
+    if (mode === 'window' && !await openWindow()) return;
+    await invoke('set_console_mode', { mode });
+    if (mode === 'window') {
+        closeInside();
+        return;
     }
+    if (!insideMode) await closeNativeConsole().catch(console.error);
+    const cfg = await invoke('get_config').catch(() => ({}));
+    await showInside(mode, cfg.console?.dock_width);
+    byId(mode === 'modal' ? 'console-placement' : 'btn-console').focus();
 }
 
-function _isWindow() {
-    return document.body.classList.contains('console-window-mode');
+async function closeNativeConsole() {
+    await openingWindow;
+    const WindowClass = window.__TAURI__?.webviewWindow?.WebviewWindow;
+    const existing = await WindowClass?.getByLabel(WINDOW_LABEL);
+    await existing?.close();
 }
 
-/** El mismo botón sirve para sacar y para meter: cambia lo que promete. */
-function _syncPopout() {
-    const btn = document.getElementById('console-popout');
-    if (!btn) return;
-    btn.textContent = '⏏️';
-    btn.title = t(_isWindow() ? 'console.dock' : 'console.popout');
+function openWindow() {
+    openingWindow ??= openNativeConsole().then(() => true).catch(error => {
+        console.error('Error abriendo la consola de audio:', error);
+        return false;
+    }).finally(() => {
+        openingWindow = undefined;
+    });
+    return openingWindow;
+}
+
+async function openNativeConsole() {
+    const WindowClass = window.__TAURI__.webviewWindow.WebviewWindow;
+    const existing = await WindowClass.getByLabel(WINDOW_LABEL);
+    if (existing) {
+        await existing.unminimize();
+        await existing.show();
+        await existing.setFocus();
+        return;
+    }
+    const native = new WindowClass(WINDOW_LABEL, {
+        url: 'index.html?console=1',
+        title: t('console.title'),
+        width: 980,
+        height: 680,
+        center: true,
+        resizable: true,
+    });
+    await new Promise((resolve, reject) => {
+        native.once('tauri://created', resolve).catch(reject);
+        native.once('tauri://error', e => reject(e.payload)).catch(reject);
+    });
 }

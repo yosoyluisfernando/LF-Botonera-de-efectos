@@ -761,7 +761,11 @@
     "title": "Console de áudio",
     "tooltip": "Console de áudio",
     "popout": "Abrir em janela",
-    "dock": "Voltar ao modal",
+    "dock": "Modo modal",
+    "placement": "Posição do console",
+    "dock_left": "Acoplar à esquerda",
+    "dock_right": "Acoplar à direita",
+    "dock_width": "Largura do console acoplado",
     "notice": "O console de áudio está em fase de testes e será adaptado a um lugar melhor. Recomenda-se usá-lo em modo janela.",
     "silence": "-inf dB",
     "bus": {

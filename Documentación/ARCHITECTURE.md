@@ -957,3 +957,15 @@ IPC `visible: Option<bool>` permite guardar otros ajustes sin tocar ese estado.
 La antigua preferencia `show_on_start` se ignora al leer configuraciones previas y
 ya no se escribe. Se retiraron ambas casillas de visibilidad del apartado Panel fijo.
 La opción de Principal sigue controlando únicamente el botón de la barra superior.
+
+## Consola acoplable de escritorio
+
+La ventana principal mueve la vista de la consola entre el modal y un lateral
+redimensionable de `workspace-shell`. Cuando se separa, `audio-console` abre
+la misma vista en una ventana nativa. El menú contextual de la barra superior
+cierra esa ventana cuando se elige volver al lateral o al modal.
+Ambos contextos usan los comandos y los eventos de la misma consola de audio.
+Rust conserva la ubicación y el ancho por instalación.
+
+La secuencia de implementación y la prueba funcional están en
+[PANELES_ACOPLABLES.md](PANELES_ACOPLABLES.md).

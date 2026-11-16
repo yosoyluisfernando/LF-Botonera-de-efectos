@@ -35,6 +35,10 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 
 ## [Sin publicar]
 
+### Añadido
+
+- **Consola de audio acoplable en Windows y Linux.** Haz clic derecho en el botón de la consola para acoplarla a la izquierda o a la derecha, abrirla en una ventana independiente o usar el modo modal. Con un clic puedes mostrar u ocultar el panel acoplado. La consola recuerda el ancho y ajusta sus cinco canales al espacio disponible.
+
 ## [1.7.1] — 2026-11-15
 
 ### Corregido

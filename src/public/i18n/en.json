@@ -761,7 +761,11 @@
     "title": "Audio console",
     "tooltip": "Audio console",
     "popout": "Open in window",
-    "dock": "Back to modal",
+    "dock": "Modal mode",
+    "placement": "Console placement",
+    "dock_left": "Dock on the left",
+    "dock_right": "Dock on the right",
+    "dock_width": "Docked console width",
     "notice": "The audio console is in testing and will move to a better place. Using it in window mode is recommended.",
     "silence": "-inf dB",
     "bus": {
