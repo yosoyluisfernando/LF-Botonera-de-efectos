@@ -35,9 +35,13 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 
 ## [Sin publicar]
 
+## [1.7.1] — 2026-11-15
+
 ### Corregido
 
-- Se reducen los microcortes al combinar efectos con el reproductor auxiliar y al reproducir audio bajo carga en Windows.
+- Se reducen los microcortes al reproducir efectos y música del reproductor auxiliar al mismo tiempo.
+- En Windows, la salida de audio tiene mayor prioridad para reducir los microcortes cuando el equipo está bajo carga.
+- El diseño Moderno respeta los degradados de fondo personalizados en los botones de la rejilla y del panel fijo.
 
 ## [1.7.0] — 2026-11-14
 
@@ -362,6 +366,7 @@ reducción de permisos innecesarios.
 ---
 
 [Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.7.0...HEAD
+[1.7.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.7.0...main
 [1.7.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.5.0...v1.6.0
 [1.6.0-beta.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.5.0...v1.6.0-beta.1

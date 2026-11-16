@@ -60,10 +60,19 @@ mod tests {
         let android = for_platform("1.6.0", true);
         assert!(android.contains("teléfonos y tablets"));
         assert!(!android.contains("### Corregido"));
-        let desktop = for_platform(env!("CARGO_PKG_VERSION"), false);
+        let desktop = for_platform("1.7.0", false);
         assert!(desktop.contains("Danilo Wenner"));
         assert!(desktop.contains("colores HEX"));
         assert!(!desktop.contains("### Botonera de sonidos para teléfonos"));
+    }
+
+    #[test]
+    fn desktop_patch_notes_focus_on_fixes() {
+        let notes = for_platform("1.7.1", false);
+        assert!(notes.starts_with("### Corregido"));
+        assert!(notes.contains("microcortes"));
+        assert!(notes.contains("degradados"));
+        assert!(!notes.contains("### Añadido"));
     }
 
     #[test]
