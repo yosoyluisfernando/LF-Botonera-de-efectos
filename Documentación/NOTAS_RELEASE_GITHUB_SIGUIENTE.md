@@ -101,8 +101,8 @@ Botones fijos, Reproductor y Buscador.
 
 ## Audio e interfaz
 
-- El vúmetro principal y los vúmetros de la consola trabajan a 50 FPS mediante
-  telemetría ligera y una caída visual más suave.
+- El vúmetro principal y los vúmetros de la consola muestran los niveles de
+  audio a 50 FPS, con una caída visual más suave.
 - El editor de pistas decodifica por bloques y reutiliza mejor la forma de onda
   persistente, reduciendo la espera al abrir y reabrir canciones largas.
 - Disparar un botón no detiene la escucha previa ni el audio del editor, incluso con
