@@ -74,6 +74,8 @@ for(const theme of ['dark','light']) test(`color editor ${width}x${height} in ${
         set('edit-bg-hex','#FF0000');assert(editStyleError()===null,'valid HEX blocked');
         const actual=document.createElement('div');actual.className='grid-item';actual.innerHTML='<span class="label"><span class="button-visual-text">Aplausos</span></span>';document.body.append(actual);
         const fixed=document.createElement('button');fixed.className='fixed-panel-item';fixed.innerHTML='<span class="fixed-panel-name"><span class="button-visual-text">Aplausos</span></span>';document.body.append(fixed);
+        document.documentElement.dataset.desktopStyle='modern';
+        assert([actual,fixed].every(button=>getComputedStyle(button).backgroundImage.startsWith('linear-gradient(')),'modern highlight missing');
         for(const direction of ['horizontal','vertical','diagonal','diagonal_inv']){
           set('edit-fill',direction,'change');set('edit-custom-bg2','#0000ff');
           assert(visible('edit-second-bg'),'gradient second color hidden');
@@ -90,6 +92,7 @@ for(const theme of ['dark','light']) test(`color editor ${width}x${height} in ${
         set('edit-name','Cambio inmediato');assert(preview.textContent==='Cambio inmediato','name not live');
         actual.classList.add('playing');assert(getComputedStyle(actual).backgroundImage==='none','gradient hides playback state');
         actual.classList.remove('playing');assert(getComputedStyle(actual).backgroundImage!=='none','gradient not restored after playback');
+        delete document.documentElement.dataset.desktopStyle;
         set('edit-fill','preset','change');
         assert(getComputedStyle(preview).backgroundImage==='none' && !preview.querySelector('.label').classList.contains('text-gradient'),'old gradient survived preset');
         assert(document.getElementById('edit-bg-color').value==='#3324db','preset draft not restored');
