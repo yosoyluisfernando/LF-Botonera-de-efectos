@@ -388,6 +388,11 @@ salidas, y por eso no podía existir un punto de suma común. La consola central
 propiedad en un hilo guardián y reparte lo que sí viaja entre hilos: `OutputStreamHandle`
 (`Clone + Send + Sync`) y el controller de cada bus (`Arc`, `Send + Sync`).
 
+En Windows, el primer consumo de un bus conectado a una salida física registra
+el hilo de salida WASAPI en MMCSS con la clase `Audio`. El registro se comparte
+entre los buses del mismo hilo y se libera al terminar el hilo. Si Windows
+rechaza el registro, la reproducción continúa con la prioridad disponible.
+
 Las piezas:
 
 - **`OutputEndpoint`** — una tarjeta física abierta **exactamente una vez**. rodio ya trae

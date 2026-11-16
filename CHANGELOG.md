@@ -35,6 +35,12 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 
 ## [Sin publicar]
 
+### Corregido
+
+- Se reducen los microcortes al combinar efectos con el reproductor auxiliar y al reproducir audio bajo carga en Windows.
+
+## [1.7.0] — 2026-11-14
+
 ### Añadido
 
 - Varias funciones se basan en aportes de **Danilo Wenner** para [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos), adaptados e integrados en esta botonera.
@@ -53,9 +59,6 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 ### Corregido
 
 - El botón de la consola de audio restaura y enfoca la ventana que ya estaba abierta.
-- Se corrigen microcortes al combinar efectos de la rejilla o el panel fijo con el reproductor auxiliar.
-
-La salida de audio independiente por pestaña queda fuera de esta entrega.
 
 ## [1.6.0] — 2026-11-12
 
@@ -358,7 +361,8 @@ reducción de permisos innecesarios.
 
 ---
 
-[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.6.0...HEAD
+[Sin publicar]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.5.0...v1.6.0
 [1.6.0-beta.1]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.5.0...v1.6.0-beta.1
 [1.5.0]: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/compare/v1.4.0...v1.5.0

@@ -74,7 +74,7 @@ pub struct AudioTickPayload {
     pub idle: bool,
 }
 
-/// Telemetría ligera para los vúmetros. Viaja a 50 FPS sin arrastrar posiciones,
+/// Niveles internos para los vúmetros. Viajan a 50 FPS sin arrastrar posiciones,
 /// botones ni relojes, que conservan su pulso de 10 Hz.
 #[derive(Serialize, Clone, Copy)]
 pub struct MeterTickPayload {

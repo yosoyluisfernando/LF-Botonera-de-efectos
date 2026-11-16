@@ -45,6 +45,8 @@ const BUS_SAMPLE_RATE: u32 = 48_000;
 struct BusOutlet<S: Source<Item = f32>> {
     inner: S,
     open: Arc<AtomicBool>,
+    #[cfg(windows)]
+    priority_pending: bool,
 }
 
 impl<S: Source<Item = f32>> Iterator for BusOutlet<S> {
@@ -52,6 +54,10 @@ impl<S: Source<Item = f32>> Iterator for BusOutlet<S> {
     fn next(&mut self) -> Option<f32> {
         if !self.open.load(Ordering::Relaxed) {
             return None;
+        }
+        #[cfg(windows)]
+        if self.priority_pending && super::wasapi_priority::register_on_output_thread() {
+            self.priority_pending = false;
         }
         self.inner.next()
     }
@@ -124,6 +130,8 @@ impl Bus {
         let outlet = BusOutlet {
             inner: measured,
             open: Arc::clone(&open),
+            #[cfg(windows)]
+            priority_pending: matches!(&out, BusOutput::Endpoint(_)),
         };
         match out {
             BusOutput::Endpoint(handle) => handle.play_raw(outlet).ok()?,

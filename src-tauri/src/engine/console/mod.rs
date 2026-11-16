@@ -24,6 +24,8 @@ mod fader;
 mod graph;
 mod level;
 mod thread;
+#[cfg(windows)]
+mod wasapi_priority;
 
 pub use crate::domain::console::{BusId, Routing};
 pub use bus::Bus;
