@@ -49,6 +49,7 @@ pub struct BusLevels {
     pub panel: BusLevel,
     pub reproductor: BusLevel,
     pub cue: BusLevel,
+    pub salidas: [BusLevel; crate::domain::console::MAX_SALIDAS as usize],
 }
 
 #[derive(Serialize, Clone)]
@@ -96,6 +97,7 @@ pub struct LevelTaps {
     panel: (Arc<AtomicU32>, Arc<AtomicU32>),
     reproductor: (Arc<AtomicU32>, Arc<AtomicU32>),
     cue: (Arc<AtomicU32>, Arc<AtomicU32>),
+    salidas: [(Arc<AtomicU32>, Arc<AtomicU32>); crate::domain::console::MAX_SALIDAS as usize],
 }
 
 impl LevelTaps {
@@ -106,6 +108,7 @@ impl LevelTaps {
             panel: console.levels(BusId::Panel),
             reproductor: console.levels(BusId::Reproductor),
             cue: console.levels(BusId::Cue),
+            salidas: std::array::from_fn(|i| console.levels(BusId::Salida(i as u8))),
         }
     }
 
@@ -132,6 +135,7 @@ impl LevelTaps {
             panel: de(&self.panel),
             reproductor: de(&self.reproductor),
             cue: de(&self.cue),
+            salidas: std::array::from_fn(|i| de(&self.salidas[i])),
         }
     }
 

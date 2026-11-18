@@ -37,7 +37,15 @@ Cada plataforma conserva también sus notas históricas de prelanzamiento en su 
 
 ### Añadido
 
+- **Salida de audio independiente por pestaña en Windows y Linux.** Elige una tarjeta al crear o editar una pestaña. Las pestañas con el mismo destino comparten un canal de consola, con fader recordado, vúmetro, máster y Mic. Cambiar la salida de una pestaña conserva el audio del reproductor y de las otras pestañas. Si falta la tarjeta se avisa y su audio queda en silencio, sin desviarse a la salida principal. Basado en la aportación de [Danilo Wenner](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos), adaptada a la consola oficial.
+
 - **Consola de audio acoplable en Windows y Linux.** Haz clic derecho en el botón de la consola para acoplarla a la izquierda o a la derecha, abrirla en una ventana independiente o usar el modo modal. Con un clic puedes mostrar u ocultar el panel acoplado. La consola recuerda el ancho y ajusta sus cinco canales al espacio disponible.
+
+### Corregido
+
+- **Volúmenes de consola sincronizados.** Los faders reflejan los mismos volúmenes del reproductor y del máster, también en ventana independiente y con el audio detenido. Los canales llegan al 100 %; únicamente el máster permite 150 % cuando se habilita. Se corrige el recorrido adicional del reproductor y se actualiza el límite del máster sin reabrir la consola. Todos los faders muestran su porcentaje durante el ajuste; el máster distingue el tramo de 100 a 150 %. Al deshabilitarlo, solo los valores superiores a 100 % bajan suavemente hasta ese límite en medio segundo; los demás se conservan.
+
+- **Recordar salidas de audio de las pestañas.** Se conserva la identidad del dispositivo junto con su nombre para recuperar la misma salida aunque se renombre o cambie su posición en la enumeración. Las asignaciones anteriores se actualizan cuando la tarjeta está disponible y se conserva el volumen guardado.
 
 ## [1.7.1] — 2026-11-15
 

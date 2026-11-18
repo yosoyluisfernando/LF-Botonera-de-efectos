@@ -90,6 +90,7 @@ pub fn import_tab(state: tauri::State<AppState>) -> Result<GridState, String> {
     if let Some(t) = tracks {
         export_tracks::restore(&state.tracks.lock().unwrap(), &t);
     }
+    super::cmd_tab_outputs::apply(&state)?;
     Ok(grid)
 }
 

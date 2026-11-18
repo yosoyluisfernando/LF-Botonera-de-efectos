@@ -37,7 +37,7 @@ fn run(
     loop {
         // Con tope, y no bloqueado del todo: el grafo puede rehacerse por
         // decisión de OTRO motor —cambiar la salida del reproductor lo rehace
-        // entero— y por aquí no pasaría ningún comando que lo delatara. Sin
+        // afectado— y por aquí no pasaría ningún comando que lo delatara. Sin
         // mirarlo cada poco, este hilo se enteraría solo de sus propios cambios.
         let cmd = match rx.recv_timeout(TICK) {
             Ok(cmd) => Some(cmd),
@@ -49,7 +49,7 @@ fn run(
             handle(cmd, &states, &last_pressed, &cache, &console);
         }
         // ¿Se rehizo el grafo? Entonces lo que sonaba murió con su bus, lo haya
-        // pedido quien lo haya pedido. Se rehace por donde iba.
+        // pedido quien lo haya pedido. Solo se rehacen las fuentes cuyo bus cambió.
         let now = console.generation();
         if now != generation {
             generation = now;
@@ -98,7 +98,7 @@ fn handle(
             // comparte el conector, no el bus.
             play_file(
                 &states,
-                console.bus(bus).as_ref(),
+                console.bus(console.button_bus(&id, bus == BusId::Cue, group)).as_ref(),
                 &cache,
                 PlayArgs {
                     id,
@@ -134,7 +134,7 @@ fn handle(
             // (`last_pressed`), asi que reconstruye en el bus de efectos.
             playback_seek::seek_active(
                 &states,
-                console.bus(BusId::Efectos).as_ref(),
+                console,
                 &cache,
                 &last_pressed,
                 delta_s,
@@ -151,7 +151,7 @@ fn handle(
         } => {
             play_sequence(
                 &states,
-                console.bus(bus).as_ref(),
+                console.bus(console.button_bus(&id, bus == BusId::Cue, group)).as_ref(),
                 id,
                 paths,
                 volume,

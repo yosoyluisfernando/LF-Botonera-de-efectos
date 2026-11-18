@@ -19,7 +19,7 @@ pub fn next_id(prefix: &str, existing: &[String]) -> String {
     }
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn set_active_profile(id: String, state: tauri::State<AppState>) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
     if !cfg.profiles.iter().any(|p| p.id == id) {
@@ -31,11 +31,12 @@ pub fn set_active_profile(id: String, state: tauri::State<AppState>) -> Result<A
     let next = cfg.clone();
     drop(cfg);
     state.console.set_fader(BusId::Programa, volume);
+    super::cmd_tab_outputs::apply(&state)?;
     crate::engine::cache::warm::warm_for_strategy(&state);
     Ok(next)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_profile(name: String, state: tauri::State<AppState>) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
     let ids: Vec<String> = cfg.profiles.iter().map(|p| p.id.clone()).collect();
@@ -48,6 +49,7 @@ pub fn create_profile(name: String, state: tauri::State<AppState>) -> Result<App
         rows: 5,
         cols: 5,
         audio_out: String::new(),
+        audio_out_id: String::new(),
         shortcut: String::new(),
         midi: Default::default(),
         tab_bg: String::new(),
@@ -65,10 +67,13 @@ pub fn create_profile(name: String, state: tauri::State<AppState>) -> Result<App
         fixed_buttons: Vec::new(),
     });
     config::save_config(&cfg)?;
-    Ok(cfg.clone())
+    let next = cfg.clone();
+    drop(cfg);
+    super::cmd_tab_outputs::apply(&state)?;
+    Ok(next)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_profile(id: String, state: tauri::State<AppState>) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
     if cfg.profiles.len() <= 1 {
@@ -83,10 +88,13 @@ pub fn delete_profile(id: String, state: tauri::State<AppState>) -> Result<AppCo
         cfg.active_profile_id = cfg.profiles[0].id.clone();
     }
     config::save_config(&cfg)?;
-    Ok(cfg.clone())
+    let next = cfg.clone();
+    drop(cfg);
+    super::cmd_tab_outputs::apply(&state)?;
+    Ok(next)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_profile_meta(
     id: String,
     name: String,
@@ -104,5 +112,8 @@ pub fn update_profile_meta(
     p.bg = bg;
     p.text = text;
     config::save_config(&cfg)?;
-    Ok(cfg.clone())
+    let next = cfg.clone();
+    drop(cfg);
+    super::cmd_tab_outputs::apply(&state)?;
+    Ok(next)
 }

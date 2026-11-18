@@ -2,6 +2,34 @@
 
 Documentación técnica para programadores que colaboran o estudian el proyecto.
 
+## Volúmenes compartidos de consola
+
+Los canales tienen techo lineal 1.0; solo Programa admite 1.5 con boost autorizado.
+Reproductor y consola comparten un único fader, con el mismo límite 0–100 %.
+Los valores anteriores superiores a unidad se normalizan al deserializar.
+get_volume_controls y volume-controls-changed distribuyen el estado real y los
+límites, incluso sin reproducción. Las vistas se actualizan sin reconstruir tiras
+ni reenviar setters; los medidores mantienen su frecuencia independiente.
+Detalles y pruebas en [VOLUMENES_CONSOLA.md](VOLUMENES_CONSOLA.md).
+
+## Salidas independientes por pestaña
+
+PaletaData.audio_out y audio_out_id seleccionan hasta ocho destinos compartidos por tarjeta.
+La consola sigue siendo dueña de los endpoints y resuelve aliases físicos para
+no abrir una tarjeta por cada nombre. Cada destino tiene mezcla, fader, Mic,
+máster compartido y medidor posterior, sin sumar señales de distintas tarjetas
+en Programa. ConsoleConfig.output_faders es un mapa global opcional por tarjeta.
+Rust reconcilia las conexiones; una salida ausente se silencia sin fallback.
+BusSlot.applied y revision permiten invalidar solo enchufes afectados. Los buses
+intactos conservan su mixer; ButtonState.output identifica las fuentes que deben
+migrar y el reproductor observa solo la revisión de su bus. Agregar una salida o
+mover otra pestaña no reconstruye los sonidos ajenos.
+Windows conserva el ID de MMDevice; Linux la referencia PCM con tarjeta simbólica.
+La migración solo usa nombres únicos, mantiene volumen y no reemplaza IDs ausentes.
+La exportación incluye audioOutId opcional, sin perder audioOut para LFA.
+El frontend recibe tab-outputs-changed y buses.salidas para representar estado.
+Contratos y límites en [SALIDAS_POR_PESTANA.md](SALIDAS_POR_PESTANA.md).
+
 ## Aportaciones de Danilo: primera fase vigente
 
 `AppConfig.show_bottom_bar` nace en true y se persiste mediante el IPC existente

@@ -9,15 +9,7 @@ use super::AppState;
 use crate::engine::console::BusId;
 use crate::engine::persist::config_io as config;
 use crate::model::{AppConfig, AudioConfig};
-use serde::Serialize;
-
-#[derive(Serialize)]
-pub struct MasterVolumeState {
-    pub volume: f32,
-    pub remember: bool,
-    pub boost: bool,
-    pub max: f32,
-}
+pub use crate::engine::console::controls::MasterVolumeState;
 
 #[tauri::command]
 pub fn get_master_volume_state(state: tauri::State<AppState>) -> Result<MasterVolumeState, String> {
@@ -37,6 +29,7 @@ pub fn set_master_volume(
     volume: f32,
     state: tauri::State<AppState>,
 ) -> Result<MasterVolumeState, String> {
+    if !volume.is_finite() { return Err("invalid_volume".into()); }
     let mut cfg = state.config.lock().unwrap();
     let audio = active_audio_mut(&mut cfg)?;
     let volume = clamp_volume(volume, audio.master_volume_boost);
@@ -46,8 +39,8 @@ pub fn set_master_volume(
     if remember {
         config::save_config(&cfg)?;
     }
-    drop(cfg);
     state.console.set_fader(BusId::Programa, volume);
+    drop(cfg);
     Ok(MasterVolumeState {
         volume,
         remember,
@@ -66,17 +59,12 @@ pub fn set_master_volume_options(
     let audio = active_audio_mut(&mut cfg)?;
     audio.master_volume_remember = remember;
     audio.master_volume_boost = boost;
-    audio.master_volume = clamp_volume(audio.master_volume, boost);
-    let volume = if remember {
-        audio.master_volume
-    } else {
-        state.console.fader(BusId::Programa)
-    };
-    let volume = clamp_volume(volume, boost);
+    // Cambiar opciones parte siempre del volumen en vivo, incluso al activar recordar.
+    let volume = clamp_volume(state.console.fader(BusId::Programa), boost);
     audio.master_volume = volume;
     config::save_config(&cfg)?;
+    if !boost { state.console.limit_master_to_unity(); }
     drop(cfg);
-    state.console.set_fader(BusId::Programa, volume);
     Ok(MasterVolumeState {
         volume,
         remember,

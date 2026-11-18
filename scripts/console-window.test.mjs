@@ -46,6 +46,7 @@ function fixture({existing=true,mode='window',android=false,fail=false,creationF
             return {console_mode:mode,console:{dock_width:420}};
         },
         listen:async()=>()=>{},t:key=>key,renderConsole:async()=>calls.push(['render']),
+        initVolumeSync:async()=>{},
         clearConsole:()=>calls.push(['clear']),updateConsoleTick:()=>{},
         document,placeMenu:menu=>menu.classList.remove('hidden'),
         window:{__TAURI__:{webviewWindow:{WebviewWindow}}},

@@ -1,35 +1,20 @@
-/// Modulo: engine/console/device.rs
-/// Proposito: localizar tarjetas de sonido por nombre y listar las disponibles.
-/// Vive en la consola porque es ella quien abre las salidas fisicas: los demas
-/// motores le piden buses o endpoints, no tarjetas.
-use rodio::cpal::traits::{DeviceTrait, HostTrait};
-
-/// Lista las salidas disponibles. "default" siempre va primero: no es el nombre
-/// de ninguna tarjeta, es "la que diga el sistema".
+//! Salidas: nombres heredados, alias del sistema e identidades persistentes.
+pub use super::device_catalog::{OutputDevice, descriptor, label as display_name, list as output_devices, refresh as refresh_outputs};
 pub fn available_devices() -> Vec<String> {
     if cfg!(target_os = "android") { return vec!["default".into()]; }
-    let host = rodio::cpal::default_host();
-    let mut devices = vec!["default".to_string()];
-    if let Ok(devs) = host.output_devices() {
-        for device in devs {
-            if let Ok(name) = device.name() {
-                devices.push(name);
-            }
-        }
-    }
+    let mut devices = vec!["default".into()];
+    devices.extend(refresh_outputs().into_iter().map(|d| d.name));
     devices
 }
-
-pub fn device_available(device_name: &str) -> bool {
-    find_device(device_name).is_some()
-}
-
-pub fn find_device(device_name: &str) -> Option<rodio::cpal::Device> {
-    let host = rodio::cpal::default_host();
-    if cfg!(target_os = "android") || device_name == "default" {
-        return host.default_output_device();
+pub fn device_available(name: &str) -> bool { find_device(name).is_some() }
+pub fn find_device(name: &str) -> Option<rodio::cpal::Device> {
+    if cfg!(target_os = "android") {
+        use rodio::cpal::traits::HostTrait;
+        return rodio::cpal::default_host().default_output_device();
     }
-    host.output_devices().ok().and_then(|mut devices| {
-        devices.find(|device| device.name().unwrap_or_default() == device_name)
-    })
+    super::device_catalog::find(name)
+}
+pub fn canonical_name(name: &str) -> String {
+    if cfg!(target_os = "android") { return "default".into(); }
+    super::device_catalog::resolve(name)
 }

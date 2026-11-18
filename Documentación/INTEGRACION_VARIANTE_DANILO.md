@@ -1,5 +1,15 @@
 # Integración de aportaciones de Danilo Wenner
 
+## Actualización vigente — 2026-11-18
+
+Salidas por pestaña autorizadas e implementadas localmente en codex/desarrollo.
+Máster, Mic y medición por destino integrados; silencio ante fallo sin desvío.
+Ver SALIDAS_POR_PESTANA.md. main y desarrollo se igualaron con autorización
+antes de empezar. El autor autorizó el 2026-11-18 subir las mejoras actuales de
+audio y consola solo a desarrollo; main permanece intacta. Vista dividida aún
+en propuesta, sin implementación ni autorización de subida para esa función.
+Los apartados siguientes describen el plan y entorno históricos de integración.
+
 ## Estado y alcance — 2026-11-13
 
 Primera fase vigente: rueda, barra inferior y reproducción nativa de audio

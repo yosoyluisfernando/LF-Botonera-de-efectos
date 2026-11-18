@@ -43,7 +43,7 @@ pub fn player_set_volume(
     persist: Option<bool>,
     state: tauri::State<AppState>,
 ) -> Result<(), String> {
-    if !volume.is_finite() || !(0.0..=1.5).contains(&volume) {
+    if !volume.is_finite() || !(0.0..=1.0).contains(&volume) {
         return Err("invalid_volume".into());
     }
     {

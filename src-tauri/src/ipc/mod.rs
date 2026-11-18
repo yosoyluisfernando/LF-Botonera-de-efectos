@@ -58,3 +58,7 @@ pub mod register;
 pub use crate::core::AppState;
 pub mod cmd_obs;
 pub mod cmd_remote;
+
+pub mod cmd_tab_outputs;
+
+pub mod cmd_volume_controls;

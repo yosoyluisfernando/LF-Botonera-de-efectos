@@ -1,4 +1,18 @@
 {
+  "tab_outputs": {
+    "ambiguous": "Nome duplicado; renomeie o dispositivo no sistema",
+    "label": "Saída de áudio desta aba",
+    "main": "Saída principal",
+    "default": "Padrão do sistema",
+    "help": "Abas com o mesmo dispositivo compartilham um canal. Master e Mic controlam estas saídas. Se um dispositivo faltar, seu áudio fica em silêncio; edite a aba para escolher outra saída.",
+    "missing": "Dispositivo desconectado",
+    "unavailable": "Não foi possível abrir o dispositivo",
+    "too_many": "Foi atingido o limite de oito destinos independentes",
+    "silent": "Há abas sem saída disponível.",
+    "retry": "Tentar saídas novamente",
+    "channel": "Abas",
+    "controlled": "Master + Mic"
+  },
   "app": {
     "title": "LF Botonera de Efectos",
     "loading": "Carregando motor de áudio...",
@@ -695,6 +709,7 @@
     "reminder_title": "Atualização disponível"
   },
   "release_notes": {
+    "android_launch": "Agora também no Android: primeira versão pública para celulares e tablets, com efeitos sonoros, editor de faixas e MIDI USB/Bluetooth. Disponível no GitHub.",
     "support_title": "A LF Botonera é útil para você?",
     "support_message": "Compartilhe sua experiência na Microsoft Store ou deixe uma estrela no GitHub. Você ajuda mais pessoas a conhecer o software e incentiva novas colaborações com o projeto. Obrigado pelo apoio!",
     "rate_store": "Avaliar na Microsoft Store",
@@ -766,7 +781,6 @@
     "dock_left": "Acoplar à esquerda",
     "dock_right": "Acoplar à direita",
     "dock_width": "Largura do console acoplado",
-    "notice": "O console de áudio está em fase de testes e será adaptado a um lugar melhor. Recomenda-se usá-lo em modo janela.",
     "silence": "-inf dB",
     "bus": {
       "efectos": "EFEITOS",

@@ -9,10 +9,6 @@
 /// mismo valor. Aqui es una etapa real, en un sitio real, por la que pasa toda
 /// la señal del bus una sola vez.
 ///
-/// Sin rampa, a proposito: el master ya saltaba de golpe cuando lo aplicaba cada
-/// fuente, asi que suavizarlo aqui seria cambiar el sonido en la misma fase que
-/// mueve la aritmetica de sitio, y ya no se sabria que causo que. Cuando el
-/// fader sea visible y se arrastre de verdad (Fase 6) se decide si hace falta.
 use rodio::Source;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
@@ -22,6 +18,8 @@ pub struct FaderSource<S: Source<Item = f32>> {
     inner: S,
     gain: Arc<AtomicU32>,
     duck: Option<super::duck::DuckStage>,
+    master: Option<Arc<AtomicU32>>,
+    ramp: Option<Arc<super::master_ramp::MasterRamp>>,
     channel: u16,
     frame_gain: f32,
 }
@@ -32,9 +30,21 @@ impl<S: Source<Item = f32>> FaderSource<S> {
             inner,
             gain,
             duck: None,
+            master: None,
+            ramp: None,
             channel: 0,
             frame_gain: 1.0,
         }
+    }
+
+    pub fn with_master(mut self, master: Option<Arc<AtomicU32>>) -> Self {
+        self.master = master;
+        self
+    }
+
+    pub fn with_ramp(mut self, ramp: Option<Arc<super::master_ramp::MasterRamp>>) -> Self {
+        self.ramp = ramp;
+        self
     }
 
     pub fn with_duck(mut self, duck: Option<super::duck::DuckStage>) -> Self {
@@ -48,12 +58,19 @@ impl<S: Source<Item = f32>> Iterator for FaderSource<S> {
     fn next(&mut self) -> Option<f32> {
         let s = self.inner.next()?;
         if self.channel == 0 {
-            let base = f32::from_bits(self.gain.load(Ordering::Relaxed));
+            let mut base = f32::from_bits(self.gain.load(Ordering::Relaxed));
+            if self.master.is_none() {
+                if let Some(ramp) = &self.ramp { base = ramp.gain(base); }
+            }
             self.frame_gain = self
                 .duck
                 .as_ref()
                 .map(|d| d.gain(base, self.inner.sample_rate()))
                 .unwrap_or(base);
+            if let Some(master) = &self.master {
+                let target = f32::from_bits(master.load(Ordering::Relaxed));
+                self.frame_gain *= self.ramp.as_ref().map(|r| r.gain(target)).unwrap_or(target);
+            }
         }
         self.channel = (self.channel + 1) % self.inner.channels();
         Some(s * self.frame_gain)

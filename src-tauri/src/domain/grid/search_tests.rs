@@ -10,6 +10,7 @@ fn paleta(id: &str, nombre: &str, buttons: &[(u32, &str, &str)]) -> PaletaData {
         rows: 5,
         cols: 5,
         audio_out: String::new(),
+        audio_out_id: String::new(),
         shortcut: String::new(),
         midi: Default::default(),
         tab_bg: String::new(),

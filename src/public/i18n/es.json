@@ -1,4 +1,18 @@
 {
+  "tab_outputs": {
+    "ambiguous": "Nombre duplicado; cambia el nombre del dispositivo en el sistema",
+    "label": "Salida de audio de esta pestaña",
+    "main": "Salida principal",
+    "default": "Predeterminada del sistema",
+    "help": "Las pestañas con la misma tarjeta comparten canal. Máster y Mic controlan estas salidas. Si falta una tarjeta, su audio queda en silencio; edita la pestaña para elegir otra salida.",
+    "missing": "Tarjeta desconectada",
+    "unavailable": "No se pudo abrir la tarjeta",
+    "too_many": "Se alcanzó el límite de ocho destinos independientes",
+    "silent": "Hay pestañas sin salida disponible.",
+    "retry": "Reintentar salidas",
+    "channel": "Pestañas",
+    "controlled": "Máster + Mic"
+  },
   "app": {
     "title": "LF Botonera de Efectos",
     "loading": "Cargando motor de audio...",
@@ -695,6 +709,7 @@
     "reminder_title": "Actualizacion disponible"
   },
   "release_notes": {
+    "android_launch": "Ahora también en Android: primera versión pública para teléfonos y tablets, con efectos de sonido, editor de pistas y MIDI USB/Bluetooth. Disponible en GitHub.",
     "support_title": "¿Te resulta útil LF Botonera?",
     "support_message": "Comparte tu experiencia en Microsoft Store o deja una estrella en GitHub. Nos ayudas a dar a conocer el software y a sumar nuevas personas que colaboren con el proyecto. ¡Gracias por tu apoyo!",
     "rate_store": "Valorar en Microsoft Store",
@@ -766,7 +781,6 @@
     "dock_left": "Acoplar a la izquierda",
     "dock_right": "Acoplar a la derecha",
     "dock_width": "Ancho de la consola acoplada",
-    "notice": "La consola de audio está en fase de prueba y se irá adaptando a un sitio mejor. Se recomienda usarla en modo ventana.",
     "silence": "-inf dB",
     "bus": {
       "efectos": "EFECTOS",

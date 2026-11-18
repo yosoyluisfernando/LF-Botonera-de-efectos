@@ -22,6 +22,7 @@ pub fn to_lfa_paleta(p: &PaletaData) -> LfaPaleta {
         } else {
             p.audio_out.clone()
         },
+        audio_out_id: p.audio_out_id.clone(),
         shortcut: p.shortcut.clone(),
         midi: p.midi.clone(),
         tab_bg: p.tab_bg.clone(),
@@ -96,6 +97,7 @@ pub fn from_lfa_paleta(p: LfaPaleta, id: String) -> PaletaData {
         } else {
             p.audio_out
         },
+        audio_out_id: p.audio_out_id,
         shortcut: p.shortcut,
         midi: p.midi,
         tab_bg: p.tab_bg,
@@ -156,6 +158,7 @@ mod tests {
             rows: 1,
             cols: 1,
             audio_out: String::new(),
+            audio_out_id: String::new(),
             shortcut: String::new(),
             midi: Default::default(),
             tab_bg: String::new(),

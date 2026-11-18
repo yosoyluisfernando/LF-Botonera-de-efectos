@@ -120,11 +120,20 @@ impl Bus {
         gain: Arc<AtomicU32>,
         duck: Option<super::duck::DuckStage>,
     ) -> Option<Self> {
+        Self::open_controlled(out, level_l, level_r, gain, duck, None, None)
+    }
+
+    pub fn open_controlled(
+        out: BusOutput, level_l: Arc<AtomicU32>, level_r: Arc<AtomicU32>,
+        gain: Arc<AtomicU32>, duck: Option<super::duck::DuckStage>,
+        master: Option<Arc<AtomicU32>>,
+        ramp: Option<Arc<super::master_ramp::MasterRamp>>,
+    ) -> Option<Self> {
         let (controller, mixer) = dynamic_mixer::mixer::<f32>(BUS_CHANNELS, BUS_SAMPLE_RATE);
         // SIN esto el DynamicMixer devuelve None en cuanto se queda vacio, la
         // salida lo da por terminado y las fuentes anadidas despues no suenan.
         controller.add(Zero::<f32>::new(BUS_CHANNELS, BUS_SAMPLE_RATE));
-        let faded = FaderSource::new(mixer, gain).with_duck(duck);
+        let faded = FaderSource::new(mixer, gain).with_duck(duck).with_master(master).with_ramp(ramp);
         let measured = LevelSource::new(faded, Arc::clone(&level_l), Arc::clone(&level_r));
         let open = Arc::new(AtomicBool::new(true));
         let outlet = BusOutlet {
@@ -168,6 +177,8 @@ impl Bus {
     {
         self.controller.add(source);
     }
+
+    pub fn same_as(&self, other: &Self) -> bool { Arc::ptr_eq(&self.controller, &other.controller) }
 
     /// Nivel medido del bus: (L, R). Pico de la ventana mas reciente.
     pub fn levels(&self) -> (Arc<AtomicU32>, Arc<AtomicU32>) {

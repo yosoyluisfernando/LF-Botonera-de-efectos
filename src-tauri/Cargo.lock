@@ -4694,6 +4694,7 @@ dependencies = [
  "unicode-normalization",
  "ureq",
  "uuid",
+ "windows 0.54.0",
  "windows-sys 0.59.0",
 ]
 

@@ -9,7 +9,7 @@
 /// OutputStream NO es Send (lleva un cpal::Stream dentro): por eso el registro
 /// entero vive en el hilo guardian de la consola y no se mueve de ahi. Lo que
 /// viaja a los demas motores es OutputStreamHandle, que si es Clone + Send + Sync.
-use super::device::find_device;
+use super::device::{canonical_name, find_device};
 use rodio::{OutputStream, OutputStreamHandle};
 use std::collections::HashMap;
 
@@ -45,6 +45,8 @@ impl EndpointRegistry {
     /// construye el grafo necesita enchufar varios buses seguidos, y una
     /// referencia dejaria el registro prestado durante todo el montaje.
     pub fn ensure(&mut self, device_name: &str) -> Option<OutputStreamHandle> {
+        let name = canonical_name(device_name);
+        let device_name = name.as_str();
         if !self.open.contains_key(device_name) {
             self.open
                 .insert(device_name.to_string(), OutputEndpoint::open(device_name)?);
@@ -55,7 +57,12 @@ impl EndpointRegistry {
     /// Cierra las tarjetas que ya no usa ningun bus. Se llama tras cada cambio de
     /// ruteo: una tarjeta abierta que nadie escucha puede dejar sin ella a otro
     /// programa (WASAPI en exclusivo) y no aporta nada.
+    pub fn discard_missing(&mut self, available: &[String]) {
+        self.open.retain(|name, _| available.contains(name));
+    }
+
     pub fn retain_only(&mut self, in_use: &[String]) {
-        self.open.retain(|name, _| in_use.contains(name));
+        let names: Vec<_> = in_use.iter().map(|n| canonical_name(n)).collect();
+        self.open.retain(|name, _| names.contains(name));
     }
 }

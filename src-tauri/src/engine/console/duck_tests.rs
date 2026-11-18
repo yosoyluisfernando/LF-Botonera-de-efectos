@@ -11,6 +11,7 @@ fn ramps_are_stereo_coherent_and_preserve_base_faders() {
     let mut source = FaderSource::new(samples, Arc::clone(&gain)).with_duck(Some(DuckStage {
         control: Arc::clone(&control),
         parent: None,
+        parent_ramp: None,
     }));
     let mut last = 0.6;
     for _ in 0..100 {
@@ -36,6 +37,7 @@ fn reverse_and_rebuild_continue_existing_envelope() {
     let stage = DuckStage {
         control: Arc::clone(&control),
         parent: None,
+        parent_ramp: None,
     };
     for _ in 0..50 {
         stage.gain(1.0, 1000);
@@ -45,6 +47,7 @@ fn reverse_and_rebuild_continue_existing_envelope() {
     let rebuilt = DuckStage {
         control,
         parent: None,
+        parent_ramp: None,
     };
     let after = rebuilt.gain(1.0, 1000);
     assert!(after > before && after - before < 0.01);
@@ -58,6 +61,7 @@ fn absolute_level_accounts_for_master_and_new_user_volume() {
     let stage = DuckStage {
         control: Arc::clone(&control),
         parent: Some(Arc::clone(&master)),
+        parent_ramp: None,
     };
     assert!((stage.gain(1.0, 48000) * 0.6 - 0.2).abs() < 0.00001);
     master.store(0.4f32.to_bits(), Ordering::Relaxed);
@@ -76,6 +80,7 @@ fn all_target_combinations_preserve_unselected_groups() {
             let stage = DuckStage {
                 control,
                 parent: None,
+                parent_ramp: None,
             };
             assert!((stage.gain(0.6, 48000) - if selected { 0.2 } else { 0.6 }).abs() < 0.00001);
         }

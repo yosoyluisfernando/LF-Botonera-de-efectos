@@ -1,9 +1,10 @@
+import { initVolumeSync } from './volumeSync.js';
 import { invoke, listen } from '../bridge/api.js';
 import { isAndroid } from '../bridge/platform.js';
 import { t } from '../util/i18n.js';
 import { isDocked, setDockWidth, wireDockResize } from './consoleDock.js';
 import { wireConsolePlacementMenu } from './consolePlacementMenu.js';
-import { renderConsole, clearConsole, updateConsoleTick } from './consoleView.js';
+import { renderConsole, clearConsole, updateConsoleTick, refreshConsoleOutputs } from './consoleView.js';
 
 const WINDOW_LABEL = 'audio-console';
 let insideMode;
@@ -60,8 +61,10 @@ export function hideDockedConsole() {
 
 export function initWindowMode() {
     document.body.classList.add('console-window-mode');
+    initVolumeSync().catch(console.error);
     byId('console-modal').classList.remove('hidden');
     renderConsole();
+    listen('tab-outputs-changed', () => refreshConsoleOutputs()).catch(console.error);
     listen('meter-tick', e => updateConsoleTick(e.payload ?? {})).catch(console.error);
 }
 

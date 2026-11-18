@@ -176,12 +176,13 @@ Si esta herramienta te resulta útil en radio, producción o streaming, puedes a
 
 **Autor y creador:** Luis Fernando Velásquez
 
-**Aportaciones de Danilo Wenner:** acceso contextual a los atajos de pestaña,
+**Aportaciones de Danilo Wenner:** base de las salidas por pestaña, acceso contextual a los atajos de pestaña,
 colores HEX y degradados, buscador de botones,
 cambio de pestaña con la rueda, barra inferior
 ocultable y base de la detección de perfiles AAC, publicadas originalmente
 en [LF Botonera Radio](https://github.com/danilo-wenner-1/LF-Botonera-de-efectos).
-Integradas y adaptadas en la rama `variante-danilo`; todavía sin nueva publicación.
+Las salidas por pestaña se adaptan localmente en `codex/desarrollo`; ver
+[su documentación](Documentación/SALIDAS_POR_PESTANA.md).
 
 
 Este proyecto fue desarrollado con asistencia de herramientas de inteligencia artificial:

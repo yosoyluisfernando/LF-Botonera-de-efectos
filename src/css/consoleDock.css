@@ -37,8 +37,7 @@
   container-type: inline-size;
 }
 
-.console-dock .console-content > .modal-header,
-.console-dock .console-notice { display: none; }
+.console-dock .console-content > .modal-header { display: none; }
 
 .console-dock .console-body {
   display: grid;

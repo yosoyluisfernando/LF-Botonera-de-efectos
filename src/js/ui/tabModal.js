@@ -9,6 +9,7 @@ import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
 import { attachPalette, refreshColorInputs } from './colorPalette.js';
 import { appAlert } from './appDialog.js';
+import { fillTabOutput, selectedTabOutput, selectedTabOutputId, checkTabOutputs } from './tabOutputs.js';
 
 /**
  * Abre el modal de pestaña.
@@ -50,6 +51,7 @@ export async function openTabModal(config, paleta, onRefresh) {
         textEl.value  = '#ffffff';
     }
     await refreshColorInputs();
+    await fillTabOutput(paleta);
 
     modal.classList.remove('hidden');
     nameEl.focus();
@@ -62,6 +64,8 @@ export async function openTabModal(config, paleta, onRefresh) {
             cols:      parseInt(colsEl.value) || 5,
             tabBg:     bgEl.value,
             tabText:   textEl.value,
+            audioOut:  selectedTabOutput(paleta),
+            audioOutId: selectedTabOutputId(paleta),
         };
         try {
             if (isEdit) {
@@ -71,6 +75,7 @@ export async function openTabModal(config, paleta, onRefresh) {
             }
             modal.classList.add('hidden');
             onRefresh?.();
+            checkTabOutputs().catch(console.error);
         } catch (e) {
             const key = `errors.${e}`;
             const msg = t(key);

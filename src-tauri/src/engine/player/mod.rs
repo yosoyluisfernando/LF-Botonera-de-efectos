@@ -66,7 +66,7 @@ pub struct PlayerSnapshot {
     /// La barra de progreso solo deja arrastrar si esto es cierto: una locucion
     /// son varios archivos encadenados y no se puede reposicionar.
     pub can_seek: bool,
-    /// Volumen propio del reproductor (0.0..=1.5). Va en el tick para que el
+    /// Volumen propio del reproductor (0.0..=1.0). Va en el tick para que el
     /// boton de volumen se pinte solo, sin tener que preguntar por su cuenta.
     pub volume: f32,
     pub queue_len: u32,
@@ -175,7 +175,7 @@ impl PlayerEngine {
     /// motor este ocupado resolviendo la siguiente pista.
     pub fn set_volume(&self, volume: f32) {
         self.console
-            .set_fader(BusId::Reproductor, volume.clamp(0.0, 1.5));
+            .set_fader(BusId::Reproductor, volume.clamp(0.0, 1.0));
     }
     pub fn volume(&self) -> f32 {
         self.console.fader(BusId::Reproductor)

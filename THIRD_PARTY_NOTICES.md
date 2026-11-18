@@ -149,3 +149,9 @@ publicados en https://github.com/danilo-wenner-1/LF-Botonera-de-efectos,
 bajo GPL-3.0-or-later. Procedencia: commit
 7c1f1ae484cdb4bd0110b4761b8a221023bdea6f. Las adaptaciones al proyecto oficial
 se registran por separado. La reproducción nativa no añade dependencias externas.
+
+La implementación local de salidas por pestaña reutiliza y adapta el reparto de
+carriles, sus pruebas y la selección de destino de ese mismo commit de Danilo.
+La integración con máster, Mic, consola actual, aislamiento ante fallos y
+persistencia por tarjeta corresponde a la adaptación oficial, documentada en
+Documentación/SALIDAS_POR_PESTANA.md. No añade dependencias externas.

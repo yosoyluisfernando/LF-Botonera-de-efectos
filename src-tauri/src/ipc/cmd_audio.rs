@@ -35,7 +35,7 @@ pub fn get_audio_device_status(state: tauri::State<AppState>) -> AudioDeviceStat
     }
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn apply_configured_audio_devices(
     state: tauri::State<AppState>,
 ) -> Result<AudioDeviceStatus, String> {
@@ -50,17 +50,20 @@ pub fn apply_configured_audio_devices(
         &status.pre
     };
     state.audio.lock().unwrap().set_pre_device(effective_pre)?;
+    super::cmd_tab_outputs::apply(&state)?;
     Ok(status)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn set_audio_device(device_name: String, state: tauri::State<AppState>) -> Result<(), String> {
     state.audio.lock().unwrap().set_device(&device_name)?;
     let mut cfg = state.config.lock().unwrap();
     if let Some(p) = cfg.active_profile_mut() {
         p.audio.out_main = device_name;
     }
-    config::save_config(&cfg)
+    config::save_config(&cfg)?;
+    drop(cfg);
+    super::cmd_tab_outputs::apply(&state)
 }
 
 /// Reproduce un archivo directo, usado por pre-escucha. Los botones normales

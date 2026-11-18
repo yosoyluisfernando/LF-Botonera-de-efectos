@@ -6,7 +6,7 @@ use crate::engine::audio::last_pressed::LastPressedInfo;
 /// Proposito: estado de reconstruccion y seek para botones principales.
 use crate::engine::audio::ops as audio_ops;
 use crate::engine::cache::preload::PreloadCache;
-use crate::engine::console::Bus;
+use crate::engine::console::ConsoleEngine;
 use std::sync::{Arc, Mutex};
 
 pub use crate::engine::audio::button::ReplayInfo;
@@ -18,18 +18,16 @@ pub use crate::engine::audio::button::ReplayInfo;
 /// se contradijeran.
 pub fn seek_active(
     states: &Arc<Mutex<ButtonStateMap>>,
-    bus: Option<&Bus>,
+    console: &ConsoleEngine,
     cache: &Arc<Mutex<PreloadCache>>,
     last_pressed: &Mutex<Option<LastPressedInfo>>,
     delta_s: Option<f64>,
     position_s: Option<f64>,
 ) {
-    let Some(bus) = bus else {
-        return;
-    };
     let Some(id) = last_pressed.lock().unwrap().as_ref().map(|i| i.id.clone()) else {
         return;
     };
+    let Some(bus) = console.bus(console.button_bus(&id, false, PlaybackGroup::Main)) else { return; };
     // Ficha y posicion de una vez, soltando el candado antes de decodificar: es
     // lento y el resto del motor no debe esperar a que acabe.
     let Some((info, current)) = current_state(states, &id) else {
@@ -51,7 +49,7 @@ pub fn seek_active(
     };
     audio_ops::stop_id(states, &id);
     let state = attach_button(
-        bus,
+        &bus,
         source,
         AttachArgs {
             volume: info.volume,

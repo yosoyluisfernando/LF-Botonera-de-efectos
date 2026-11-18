@@ -18,7 +18,11 @@ pub enum BusId {
     /// El programa (PGM): la suma de los buses que van al aire. Su fader es el
     /// volumen master y su medidor es el vumetro de la barra inferior.
     Programa,
+    /// Destino independiente de pestañas, con máster compartido y medidor propio.
+    Salida(u8),
 }
+
+pub const MAX_SALIDAS: u8 = 8;
 
 /// A donde entrega un bus su señal.
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -60,8 +64,19 @@ impl BusId {
             // La pre-escucha comparte tarjeta con el programa mientras no tenga
             // una propia, pero JAMAS se suma a el.
             BusId::Cue => Routing::ProgramDevice,
+            BusId::Salida(_) => Routing::Device(String::new()),
             _ => Routing::Program,
         }
+    }
+
+    pub fn salidas() -> impl Iterator<Item = BusId> {
+        (0..MAX_SALIDAS).map(BusId::Salida)
+    }
+    pub fn every() -> impl Iterator<Item = BusId> {
+        Self::ALL.into_iter().chain(Self::salidas())
+    }
+    pub fn wants_output(self, routing: &Routing) -> bool {
+        !matches!((self, routing), (BusId::Salida(_), Routing::Device(name)) if name.is_empty())
     }
 
     /// Si este bus puede sumar en el programa.
@@ -99,6 +114,7 @@ pub fn sanitize(bus: BusId, requested: Routing) -> Routing {
 /// Android ignora nombres de dispositivos sin modificar la configuraci?n compartida.
 pub fn single_output(bus: BusId) -> Routing {
     match bus {
+        BusId::Salida(_) => Routing::Device(String::new()),
         BusId::Programa => Routing::Device("default".into()),
         BusId::Cue => Routing::ProgramDevice,
         _ => Routing::Program,

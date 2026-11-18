@@ -1,5 +1,81 @@
 # Continuidad de sesión — estado actual
 
+## Cierre de consola y autorización de subida — 2026-11-18
+
+Retirado por petición del autor el aviso de consola en fase de prueba, incluido
+su HTML, estilos y traducciones sin uso. Autorizado commit y push de las mejoras
+actuales de audio/consola únicamente en codex/desarrollo; main conserva 407b374.
+Usar [skip ci] para evitar compilaciones remotas. Conservar fuera de este commit
+los ajustes previos de empaquetado, notas Store y destino local de Cargo.
+Nueva petición: dos espacios simultáneos de pestañas, principal y auxiliar,
+con modos independientes y traslado de pestañas. Aún en propuesta: requiere
+aprobar el plan antes de cambiar modelo, IPC y módulos, según AGENTS.md §2.9.
+
+
+## Suavidad y porcentajes de consola — 2026-11-18
+
+Al desactivar 150 %, únicamente un máster superior a 100 % baja a unidad con
+una rampa Rust de 500 ms, común a Programa y salidas de pestaña. Valores hasta
+100 % se conservan; cambiar recordar usa el volumen en vivo. Movimiento manual
+cancela la rampa. CUE independiente. Porcentaje visible durante arrastre/teclado
+en todos los faders y tramo boost coloreado con marca 100 % en máster.
+Validación: 492 pruebas Rust aprobadas, 23 omitidas; frontend y pruebas HTML
+correctos. No abrir app; el autor comprueba sonido con DEV.bat. Todo local.
+Ver VOLUMENES_CONSOLA.md.
+
+## Volúmenes y sincronización de consola — 2026-11-18
+
+El autor confirmó continuidad e identidad y pidió faders de canal 0–100 %,
+sin potenciador adicional; solo el máster puede llegar a 150 % si lo permite.
+Corregido el recorrido de Reproductor (antes 1.5) en consola, IPC y motor.
+Los valores antiguos por encima de 1.0 se normalizan al deserializar.
+Nuevo estado común get_volume_controls / volume-controls-changed, independiente
+de ticks de audio y del reposo. Se sincronizan consola, VOL inferior y volumen
+del reproductor en ambos sentidos; boost actualiza el máximo sin reabrir consola.
+Protección del arrastre y de respuestas IPC atrasadas; sin ganancias duplicadas.
+Ver VOLUMENES_CONSOLA.md. Validación: 488 pruebas Rust aprobadas, 23 omitidas,
+14 pruebas HTML/consola aprobadas; cargo build --lib y npm run build correctos.
+Pendiente la prueba del autor con DEV.bat; todo local, sin commits ni GitHub.
+
+
+## Salidas: continuidad e identidad estable — 2026-11-18
+
+El autor confirmó que la integración inicial funciona y autorizó las mejoras 1 y 5.
+Cambiar una pestaña conserva los buses/fuentes ajenos. BusSlot.applied/revision
+permiten actualización incremental; ButtonState.output evita reconstruir efectos
+y locuciones intactos; el reproductor observa la revisión de su propio bus.
+Identidad opcional audio_out_id/audioOutId junto al nombre: MMDevice en Windows,
+PCM de ALSA con tarjeta simbólica en Linux. Migración de nombres únicos y faders;
+ID ausente no se sustituye por otra tarjeta con igual nombre. CPAL 0.15 limita
+nombres duplicados: se informa y se pide renombrar en el sistema, sin adivinar.
+El selector recibe get_tab_output_devices y la consola separa ID/etiqueta.
+El changelog presenta salidas como novedad y memoria de tarjetas como corrección,
+según petición expresa. Referencia de Danilo sigue retirada, sin otra descarga.
+Todo permanece local en codex/desarrollo; no commits, push ni builds en GitHub.
+Ver SALIDAS_POR_PESTANA.md. La prueba auditiva corresponde al autor con DEV.bat.
+Validación: 485 pruebas Rust aprobadas, 23 omitidas; una prueba opcional de
+enumeración Windows aprobada (sin streams), 12 pruebas HTML/consola aprobadas.
+cargo build --lib y npm run build correctos; sin app ni compilaciones remotas.
+
+
+## Salidas por pestaña — implementación local autorizada, 2026-11-18
+
+El autor autorizó igualar main y codex/desarrollo, local y GitHub, en 407b374.
+Hecho; desde entonces todo cambio nuevo permanece local, sin commits ni push
+hasta autorización. Trabajo vigente en C:/OVERLAY/BOTONERA, codex/desarrollo;
+la excepción antigua de trabajar en variante-danilo queda histórica.
+Implementadas salidas por pestaña con hasta ocho destinos adicionales en consola,
+fader por tarjeta, máster compartido una vez, Mic según selección principal y
+medición real por destino. Ausencia/fallo conserva asignación y queda en silencio,
+sin fuga a Principal; reconexión Rust y reintento explícito. CUE separado.
+Android conserva audio_out pero no activa salidas múltiples; OBS no tiene selector.
+Ver SALIDAS_POR_PESTANA.md para contratos, procedencia y prueba con DEV.bat.
+No abrir la app ni compilar en GitHub. Conservar todos los cambios previos sin commit.
+Validación: 471 pruebas Rust aprobadas, 22 omitidas; cargo build --lib y npm run
+build correctos, 12 pruebas de interfaz/consola aprobadas. Pendiente la prueba
+física con tarjetas del autor. Retirada la referencia limpia .references/danilo
+(57 MB); procedencia conservada, sin dependencia de esa carpeta.
+
 
 ## Consola y atajo de pestaña — 2026-11-13
 
@@ -166,6 +242,94 @@ completo ni cambiar la identidad oficial. La copia principal sigue en
 `codex/desarrollo` con cambios sin commit que deben preservarse y conciliarse.
 Este apartado prevalece para el worktree de la variante sobre la instrucción
 histórica de trabajar exclusivamente en `codex/desarrollo`.
+
+## Microsoft Store 1.6.0 publicada — 2026-11-12
+
+Comprobación posterior a la consulta del autor: Partner Center confirma
+Congrats! Your product is now updated y Your latest product is now available
+on Microsoft Store. Store presence muestra Submission 7 como entrega vigente,
+con View product details de solo lectura y Start update para futuras entregas.
+La certificación y publicación automática de 1.6.0.0 han terminado. No crear
+otra submission para este mismo cierre. GitHub y Microsoft Store ya distribuyen
+la estable 1.6.0. Main sigue siendo una referencia anterior y no se ha movido.
+
+## Microsoft Store 1.6.0 enviada a certificación — 2026-11-12
+
+El autor autorizó enviar a Microsoft y publicar al estar lista. Submission 7,
+ID 1152921505702388079, enviada desde Partner Center. Paquete 1.6.0.0 x64
+validado, con el SHA256 registrado abajo. Las novedades de ES, EN, pt-BR y pt-PT
+se guardaron y se reabrieron para verificar coincidencia con NOTAS_1.6.0.md;
+Android figura primero. Identidad y disponibilidad conservadas. Sin despliegue
+gradual ni actualización obligatoria.
+
+Estado observado al cerrar: Update in certification; Submission completa,
+Pre-processing en curso, Certification y Publishing aún no iniciadas. La UI
+confirma: Your product will start publishing as soon as it passes certification.
+No queda una pulsación manual de publicación pendiente. La entrega anterior
+Submission 6 permanece publicada mientras Microsoft procesa la nueva.
+URL: https://partner.microsoft.com/en-us/dashboard/products/9NJ8ST39QP7V/overview
+La preparación histórica que decía no enviar queda superada por esta autorización.
+
+## Microsoft Store 1.6.0: paquete preparado — 2026-11-12
+
+El autor pidió preparar la versión Store y consultar estadísticas en el navegador
+integrado. Sesión comprobada abierta en Partner Center; Submission 6 publicada.
+Adquisiciones 2026-10-11 a 2026-11-12: 298 instalaciones, 623 visitas, conversión
+47,83 %, éxito 100 %. No es un desglose por versión ni por nuevos usuarios.
+No se creó una nueva submission ni se envió a certificación.
+
+Compilación local Store iniciada con scripts/build-store-msix.ps1, entorno MSVC y
+SDK existentes en D:. build-msix.ps1 ahora respeta CARGO_TARGET_DIR para no usar
+un ejecutable antiguo de C:/OVERLAY/BOTONERA/src-tauri/target. Licencias Rust/Node
+regeneradas correctamente. El código funcional parte de la estable publicada.
+
+Durante la compilación el autor pidió Android como primera novedad en Store,
+con el mismo tamaño/formato que las demás. Añadido un párrafo release-note-item
+localizado en la bienvenida, solo canal store y versión 1.6.0. Usa el IPC de
+metadatos existente; es presentación visual, no cambia modelo ni lógica Rust.
+La edición GitHub publicada y las notas propias de Android no se modifican.
+Notas preparadas para Partner Center: Documentación/store/NOTAS_1.6.0.md,
+también con Android primero en los cuatro idiomas. Tres pruebas DOM aprobadas
+(390/768/1366 px), frontend compilado y JSON de idiomas válido.
+Compilación final terminada, incluido el frontend main-B8IFl2j4.js verificado
+dentro del ejecutable del MSIX. El MakeAppx de la copia del SDK en D: falla por
+configuración en paralelo; usar el oficial instalado en
+C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/makeappx.exe.
+Entrega: D:/BOTONERA/Compilados/Microsoft-Store-1.6.0/
+LF-Botonera-1.6.0.0-x64-unsigned.msix, 18.094.902 bytes, SHA256
+aa4c6a5819e460a163e85dc458ab70a637b2185197efe659ab256fefa5fbb4a9.
+Identidad, Publisher y arquitectura iguales al MSIX Store 1.5.0; versión
+1.6.0.0, EXE 1.6.0, canal store, cuatro idiomas. Integridad ZIP, ejecutable y
+seis archivos legales comprobados. Firma a cargo de Store; sin firma local.
+Incluye verificacion.json, SHA256SUMS.txt y NOTAS_1.6.0.md en la misma carpeta.
+No publicar en Store sin petición del autor; este paso solo prepara el paquete.
+
+## Estable 1.6.0 publicada en GitHub — 2026-11-12
+
+El autor aprobó el borrador y autorizó su publicación. Release ID 442932997
+publicado a las 13:17:44 UTC, draft=false, prerelease=false y marcado como latest.
+URL pública: https://github.com/yosoyluisfernando/LF-Botonera-de-efectos/releases/tag/v1.6.0
+Tag v1.6.0 verificado en 18f27b728302e73627d7f75ee1b510c9a2e85945,
+el mismo commit de las compilaciones aprobadas. Conservados el texto revisado,
+seis instaladores y SHA256SUMS.txt; hashes remotos iguales a los archivos locales.
+API pública latest y consulta por tag verificadas sin credenciales. Descargas de
+APK, EXE y AppImage responden HTTP 200 sin autenticación. Main no se movió;
+Microsoft Store no recibió una nueva entrega. OBS y Control remoto siguen como
+funciones en desarrollo. Las restricciones históricas de no publicar quedan
+superadas por esta autorización expresa. No se recompiló para publicar.
+
+## Borrador: Android destacado y título sin repetición — 2026-11-12
+
+El autor pidió únicamente ajustar la presentación, sin publicar release ni tag.
+Release ID 442932997 actualizado: título corto LF Botonera de Efectos 1.6.0 · PC
+y Android; eliminado el H1 duplicado del cuerpo. Android abre las notas con bloque
+propio y enlace destacado al APK, también en EN/pt-BR/pt-PT. Se mantienen intactos
+descargas, invitación de apoyo y siete adjuntos. Sigue draft=true, published_at=null
+y se verificó por GET que no existe ref final tags/v1.6.0. Sin compilar.
+La revisión automática rechazó un intento adicional de modificar tag_name por
+exceder la autorización; no reintentarlo sin instrucción explícita del autor.
+URL de revisión: releases/tag/untagged-acd7d16faf618af8bded del mismo repositorio.
+Markdown local sincronizado; HTML local enlaza a la vista actual de GitHub.
 
 ## Preparación estable multiplataforma y borrador GitHub — 2026-11-12
 

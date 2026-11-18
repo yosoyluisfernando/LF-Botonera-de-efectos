@@ -2,17 +2,20 @@
  * Archivo: playerVolume.js
  * Propósito: el volumen propio del reproductor desde el panel. El panel es
  * estrecho, así que el control se despliega ENCIMA del botón, no a los lados.
- * El recorrido es 0–100 %; este es el único control de su volumen.
+ * El recorrido es 0–100 % y comparte su estado con la consola.
  */
 
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
+import { registerVolumeView } from './volumeSync.js';
+import { bindVolumeSlider, paintVolumeSlider } from './volumeSlider.js';
 import { placeMenu } from '../util/menuPosition.js';
 
 let _panel = null;
 let _percent = 100;
 
 export function initPlayerVolume() {
+    registerVolumeView('player', state => paintPlayerVolume(state.player_volume));
     const button = document.getElementById('player-volume-btn');
     button.addEventListener('click', _togglePanel);
     document.addEventListener('click', e => {
@@ -21,15 +24,15 @@ export function initPlayerVolume() {
     });
 }
 
-/** El volumen llega en cada tick: el icono se pinta solo. */
+/** El estado común de Rust actualiza icono, deslizador y porcentaje. */
 export function paintPlayerVolume(volume) {
     const next = Math.round(Math.min(Number(volume) || 0, 1) * 100);
-    if (next === _percent) return;
     _percent = next;
     _paintButton();
     const slider = document.getElementById('player-volume-slider');
-    // No se pisa mientras se arrastra: el tick llega cada 100 ms.
-    if (slider && document.activeElement !== slider) slider.value = _percent;
+    paintVolumeSlider(slider, _percent, 100);
+    const readout = document.getElementById('player-volume-value');
+    if (readout) readout.textContent = `${_percent}%`;
 }
 
 function _paintButton() {
@@ -61,8 +64,7 @@ function _build() {
     const slider = el.querySelector('#player-volume-slider');
     // Mientras se arrastra se aplica pero NO se guarda: aplicar es instantáneo,
     // guardar en cada píxel sería una escritura a disco por movimiento.
-    slider.addEventListener('input', () => _send(Number(slider.value), false));
-    slider.addEventListener('change', () => _send(Number(slider.value), true));
+    bindVolumeSlider(slider, (value, persist) => _send(Number(value), persist));
     return el;
 }
 
@@ -71,7 +73,7 @@ function _send(percent, persist) {
     _paintButton();
     const value = document.getElementById('player-volume-value');
     if (value) value.textContent = `${percent}%`;
-    invoke('player_set_volume', { volume: percent / 100, persist }).catch(console.error);
+    return invoke('player_set_volume', { volume: percent / 100, persist }).catch(console.error);
 }
 
 function _close() {

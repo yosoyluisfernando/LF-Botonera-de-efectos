@@ -13,16 +13,18 @@ use serde::{Deserialize, Serialize};
 /// Es global, como el reproductor: la consola es del equipo, no del perfil.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct ConsoleConfig {
-    #[serde(default = "unidad")]
+    #[serde(default = "unidad", deserialize_with = "deserialize_unit_volume")]
     pub efectos: f32,
     /// El bus de los botones fijos.
-    #[serde(default = "unidad")]
+    #[serde(default = "unidad", deserialize_with = "deserialize_unit_volume")]
     pub panel: f32,
     /// La pre-escucha. Su fader no toca al programa: es la escucha del operador.
-    #[serde(default = "unidad")]
+    #[serde(default = "unidad", deserialize_with = "deserialize_unit_volume")]
     pub cue: f32,
     #[serde(default = "default_dock_width")]
     pub dock_width: u16,
+    #[serde(default, deserialize_with = "deserialize_output_faders")]
+    pub output_faders: std::collections::BTreeMap<String, f32>,
 }
 
 fn default_dock_width() -> u16 {
@@ -42,6 +44,7 @@ impl Default for ConsoleConfig {
             panel: unidad(),
             cue: unidad(),
             dock_width: default_dock_width(),
+            output_faders: Default::default(),
         }
     }
 }
@@ -68,4 +71,28 @@ mod tests {
         assert_eq!(cfg.panel, 0.5);
         assert_eq!(cfg.efectos, 1.0);
     }
+}
+
+#[cfg(test)]
+mod output_tests {
+    #[test]
+    fn destination_faders_round_trip_by_device_and_old_configs_default_empty() {
+        let mut cfg: super::ConsoleConfig = serde_json::from_str("{}").unwrap();
+        assert!(cfg.output_faders.is_empty());
+        cfg.output_faders.insert("USB".into(), 0.4);
+        let saved = serde_json::to_string(&cfg).unwrap();
+        let restored: super::ConsoleConfig = serde_json::from_str(&saved).unwrap();
+        assert_eq!(restored.output_faders["USB"], 0.4);
+    }
+}
+
+/// Los faders de canal solo atenúan; 1.0 conserva la señal original.
+pub fn unit_volume(value: f32) -> f32 { if value.is_finite() { value.clamp(0.0,1.0) } else { 1.0 } }
+pub fn deserialize_unit_volume<'de, D: serde::Deserializer<'de>>(d: D) -> Result<f32,D::Error> {
+    f32::deserialize(d).map(unit_volume)
+}
+fn deserialize_output_faders<'de, D: serde::Deserializer<'de>>(d: D) -> Result<std::collections::BTreeMap<String,f32>,D::Error> {
+    let mut values=std::collections::BTreeMap::<String,f32>::deserialize(d)?;
+    for value in values.values_mut() { *value=unit_volume(*value); }
+    Ok(values)
 }

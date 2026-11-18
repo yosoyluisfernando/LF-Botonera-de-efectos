@@ -1,0 +1,18 @@
+.tab-output-notice {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 8px 12px; background: var(--bg-secondary); color: var(--text-primary);
+  border-bottom: 2px solid var(--accent-color); font-size: 12px;
+  max-height: 120px; overflow-y: auto;
+}
+.tab-output-notice[hidden] { display: none; }
+.tab-output-notice span { flex: 1; min-width: 180px; overflow-wrap: anywhere; }
+.tab-output-help { font-size: 12px; color: var(--text-secondary); }
+.console-strip.is-unavailable { border-color: var(--vu-yellow); }
+.console-strip .strip-device { max-width: 108px; overflow-wrap: anywhere; }
+.console-dock .console-body.has-tab-outputs {
+  display: flex; justify-content: flex-start; overflow-x: auto;
+}
+.console-dock .has-tab-outputs .console-strips,
+.console-dock .has-tab-outputs .console-program,
+.console-dock .has-tab-outputs .console-cue { display: flex; gap: 4px; }
+.console-dock .has-tab-outputs .console-strip { flex: 0 0 64px; }

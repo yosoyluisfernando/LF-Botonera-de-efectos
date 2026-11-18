@@ -116,6 +116,7 @@ mod tests {
             rows: 1,
             cols: 3,
             audio_out: String::new(),
+            audio_out_id: String::new(),
             shortcut: String::new(),
             midi: Default::default(),
             tab_bg: String::new(),

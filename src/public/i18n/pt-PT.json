@@ -1,4 +1,18 @@
 {
+  "tab_outputs": {
+    "ambiguous": "Nome duplicado; altere o nome do dispositivo no sistema",
+    "label": "Saída de áudio deste separador",
+    "main": "Saída principal",
+    "default": "Predefinição do sistema",
+    "help": "Separadores com o mesmo dispositivo partilham um canal. Master e Mic controlam estas saídas. Se faltar um dispositivo, o seu áudio fica em silêncio; edite o separador para escolher outra saída.",
+    "missing": "Dispositivo desligado",
+    "unavailable": "Não foi possível abrir o dispositivo",
+    "too_many": "Foi atingido o limite de oito destinos independentes",
+    "silent": "Há separadores sem saída disponível.",
+    "retry": "Tentar saídas novamente",
+    "channel": "Separadores",
+    "controlled": "Master + Mic"
+  },
   "app": {
     "title": "LF Botonera de Efectos",
     "loading": "A carregar o motor de áudio...",
@@ -695,6 +709,7 @@
     "reminder_title": "Atualização disponível"
   },
   "release_notes": {
+    "android_launch": "Agora também no Android: primeira versão pública para telemóveis e tablets, com efeitos sonoros, editor de faixas e MIDI USB/Bluetooth. Disponível no GitHub.",
     "support_title": "A LF Botonera é-lhe útil?",
     "support_message": "Partilhe a sua experiência na Microsoft Store ou deixe uma estrela no GitHub. Ajuda mais pessoas a conhecer o software e incentiva novas colaborações com o projeto. Obrigado pelo apoio!",
     "rate_store": "Avaliar na Microsoft Store",
@@ -766,7 +781,6 @@
     "dock_left": "Acoplar à esquerda",
     "dock_right": "Acoplar à direita",
     "dock_width": "Largura da consola acoplada",
-    "notice": "A consola de áudio está em fase de testes e será adaptada a um local melhor. Recomenda-se usá-la em modo janela.",
     "silence": "-inf dB",
     "bus": {
       "efectos": "EFEITOS",

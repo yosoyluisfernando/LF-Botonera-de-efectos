@@ -69,6 +69,7 @@ pub fn attach_button(
         fade,
     });
     ButtonState {
+        output: Some(bus.clone()),
         group: args.group,
         done_flag,
         stop_flag,

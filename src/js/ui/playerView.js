@@ -14,7 +14,8 @@ import { appConfirm3 } from './appDialog.js';
 import { alertIpcError } from './ipcError.js';
 import { initPlayerProgress, paintPlayerProgress, setQueueTotal } from './playerProgress.js';
 import { initPlayerModes, paintPlayerModes } from './playerModes.js';
-import { initPlayerVolume, paintPlayerVolume } from './playerVolume.js';
+import { initPlayerVolume } from './playerVolume.js';
+import { refreshVolumeControls } from './volumeSync.js';
 import {
     clearPlayerSelection, handlePlayerSelectionClick, initPlayerSelection,
     isPlayerSelected, prunePlayerSelection, selectionForContext,
@@ -96,6 +97,7 @@ export async function drawPlayerView() {
     // El total lo suma Rust: que cuenta y que no es regla de negocio, no de la UI.
     setQueueTotal(view.total_s, view.time_display);
     paintPlayerTick(view.snapshot);
+    refreshVolumeControls();
 }
 /** Pinta el estado en vivo: verde (sonando), naranja (siguiente) y el tiempo. */
 export function paintPlayerTick(snapshot) {
@@ -117,7 +119,6 @@ export function paintPlayerTick(snapshot) {
     document.getElementById('player-play').classList.toggle('active', !!snapshot.playing);
     paintPlayerProgress(snapshot);
     paintPlayerModes(snapshot.mode);
-    paintPlayerVolume(snapshot.volume);
 }
 /** El cartel de la lista vacía. Se cae solo en cuanto entre la primera canción:
  *  `drawPlayerView` vacía las filas y solo lo vuelve a poner si sigue sin haber. */

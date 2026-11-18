@@ -28,6 +28,7 @@ fn display_time_uses_latest_instance_of_last_pressed_button() {
 fn state_started_ago(duration: f64, elapsed: Duration) -> ButtonState {
     ButtonState {
         group: PlaybackGroup::Main,
+        output: None,
         done_flag: Arc::new(AtomicBool::new(false)),
         stop_flag: Arc::new(AtomicBool::new(false)),
         fade_out_flag: None,

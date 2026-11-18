@@ -6,6 +6,8 @@
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
 import { placeMenu } from '../util/menuPosition.js';
+import { registerVolumeView, refreshVolumeControls } from './volumeSync.js';
+import { bindVolumeSlider, paintVolumeSlider } from './volumeSlider.js';
 import { appConfirm } from './appDialog.js';
 
 let _state = { volume: 1, remember: false, boost: false, max: 1 };
@@ -16,16 +18,15 @@ export function initMasterVolume() {
     refreshMasterVolume();
     if (_wired) return;
     _wired = true;
+    registerVolumeView('master', state => _applyState(state.master));
     _button()?.addEventListener('click', _togglePanel);
     _button()?.addEventListener('contextmenu', _showMenu);
-    _slider()?.addEventListener('input', _onSlide);
+    if (_slider()) bindVolumeSlider(_slider(), _onSlide);
     document.addEventListener('click', _closeMenuOutside, { capture: true });
 }
 
 export function refreshMasterVolume() {
-    invoke('get_master_volume_state')
-        .then(state => _applyState(state ?? _state))
-        .catch(console.error);
+    return refreshVolumeControls();
 }
 
 function _togglePanel(event) {
@@ -36,11 +37,9 @@ function _togglePanel(event) {
     _button()?.setAttribute('aria-expanded', String(open));
 }
 
-function _onSlide(event) {
-    const volume = Number(event.target.value) / 100;
-    invoke('set_master_volume', { volume })
-        .then(state => _applyState(state ?? _state))
-        .catch(console.error);
+function _onSlide(value) {
+    const volume = Number(value) / 100;
+    return invoke('set_master_volume', { volume });
 }
 
 function _showMenu(event) {
@@ -65,8 +64,7 @@ function _showMenu(event) {
 
 function _setOptions(remember, boost) {
     invoke('set_master_volume_options', { remember, boost })
-        .then(state => _applyState(state ?? _state))
-        .catch(console.error);
+        .catch(console.error).finally(refreshVolumeControls);
 }
 
 function _menuButton(active, label, onClick) {
@@ -92,8 +90,7 @@ function _applyState(state) {
     const percent = Math.round(_state.volume * 100);
     if (slider) {
         const max = Math.round(_state.max * 100);
-        slider.max = max;
-        slider.value = String(percent);
+        paintVolumeSlider(slider, percent, max);
         const fill = (percent / max) * 100;
         const safe = (100 / max) * 100;
         slider.style.setProperty('--vol-fill', `${fill}%`);

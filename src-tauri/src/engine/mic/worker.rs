@@ -21,9 +21,8 @@ pub fn run(
     snapshot: Arc<Mutex<Snapshot>>,
     app: tauri::AppHandle,
 ) {
-    let controls: Vec<_> = BusId::PROGRAM_INPUTS
-        .iter()
-        .map(|b| console.duck_handle(*b))
+    let controls: Vec<_> = BusId::PROGRAM_INPUTS.into_iter().chain(BusId::salidas())
+        .map(|b| console.duck_handle(b))
         .collect();
 
     let mut state = MicState::default();
@@ -169,7 +168,7 @@ pub fn run(
         } else {
             Default::default()
         };
-        for (control, selected) in controls.iter().zip([cfg.main, cfg.panel, cfg.player]) {
+        for (control, selected) in controls.iter().zip([cfg.main, cfg.panel, cfg.player].into_iter().chain(std::iter::repeat(cfg.main))) {
             control.set(
                 active && selected && valid,
                 parameters.level,

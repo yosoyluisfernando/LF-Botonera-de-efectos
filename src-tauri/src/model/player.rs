@@ -18,8 +18,8 @@ pub struct PlayerConfig {
     /// finalizar", que es un interruptor aparte y no se persiste.
     #[serde(default = "default_mode")]
     pub playback_mode: String,
-    /// Volumen propio del reproductor, independiente del master (0.0..=1.5).
-    #[serde(default = "default_volume")]
+    /// Volumen propio del reproductor, independiente del master (0.0..=1.0).
+    #[serde(default = "default_volume", deserialize_with = "super::console::deserialize_unit_volume")]
     pub volume: f32,
     /// Dispositivo de salida propio. "" = el mismo dispositivo principal de los
     /// efectos; "default" = predeterminado del sistema; otro = nombre exacto.

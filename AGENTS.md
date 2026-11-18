@@ -1,5 +1,17 @@
 # AGENTS.md — LF Botonera de Efectos
 
+**Vigente — 2026-11-18:** el autor autorizó igualar main y codex/desarrollo,
+local y remoto, en 407b374. Continuar únicamente en local, codex/desarrollo,
+en C:/OVERLAY/BOTONERA. El autor autorizó subir las mejoras actuales de audio y
+consola a codex/desarrollo el 2026-11-18, manteniendo main intacta. Cambios
+posteriores siguen locales hasta nueva autorización; vista dividida en propuesta.
+Salidas por pestaña probadas por el autor; autorizadas continuidad de audio ajeno
+y memoria de tarjetas por identidad estable, implementadas localmente. Leer
+Documentación/SALIDAS_POR_PESTANA.md y Documentación/VOLUMENES_CONSOLA.md.
+Faders de canal 0–100 %; solo máster admite 150 % autorizado. Controles
+sincronizados en todas las vistas, incluso en reposo. Las instrucciones antiguas sobre rama
+variante-danilo y salidas pendientes quedan históricas. Preservar cambios previos.
+
 
 **Excepción autorizada — integración Danilo (2026-11-13):** este worktree usa
 `variante-danilo` desde la base oficial 1.6.0. Leer primero
@@ -21,7 +33,8 @@ comparten este repositorio. Main conserva la versión estable publicada.
 Las referencias posteriores a la antigua rama local de OBS son históricas.
 Android prepara su primera estable 1.6.0 con override e identidad propios;
 ver `Documentación/ANDROID_ESTABLE.md`. Escritorio restaura la identidad estable de 1.5.0.
-Preparar compilaciones y borrador de GitHub; no publicar ni mover main.
+GitHub estable 1.6.0 publicada con autorización expresa el 2026-11-12;
+tag v1.6.0 en 18f27b728302e73627d7f75ee1b510c9a2e85945. Main no se movió.
 Leer primero la sección vigente de `Documentación/CONTINUIDAD_SESION.md`.
 
 Guía para cualquier IA colaboradora (independientemente del modelo o plataforma).
@@ -43,7 +56,7 @@ Los apartados históricos de este archivo pueden mencionar ramas ya integradas.
 
 **LF Botonera de Efectos** es una botonera de sonidos (*soundboard*) para radio y *streaming* en directo. Los operadores de radio asignan archivos de audio a botones en una rejilla, organizados en pestañas (paletas) dentro de perfiles, y los disparan en tiempo real durante transmisiones.
 
-- **Versión del código:** 1.6.0, estable preparada en borrador (estable publicada: 1.5.0)
+- **Versión del código:** 1.6.0, estable publicada en GitHub (Microsoft Store: 1.5.0)
 - **Stack:** Tauri v2 (backend Rust) + Vanilla JS + Vite (frontend)
 - **Repositorio local:** `C:\OVERLAY\BOTONERA`
 - **GitHub:** https://github.com/yosoyluisfernando/LF-Botonera-de-efectos
@@ -135,7 +148,7 @@ AppConfig
   ├── player: PlayerConfig          ← reproductor auxiliar, global (uno solo)
   │     ├── tracks: Vec<ButtonData>   (la cola; reutiliza ButtonData, admite todos los tipos)
   │     ├── playback_mode: "normal"|"repeat"|"random"
-  │     ├── volume: f32               (0.0..=1.5, independiente del master)
+  │     ├── volume: f32               (0.0..=1.0, independiente del master)
   │     └── output_device: String     ("" = el mismo de los efectos)
   └── profiles: Vec<ProfileData>
         └── ProfileData
@@ -405,7 +418,7 @@ La prueba funcional la hace el usuario en su equipo. No hay harness de integraci
 
 ## 12. Estado del proyecto y pendientes
 
-**Preparación estable actual: 1.6.0, rama `codex/desarrollo`, instaladores en release borrador. Estable publicada: 1.5.0, rama `main`.**
+**Estable publicada en GitHub: 1.6.0, tag `v1.6.0`. Rama de trabajo: `codex/desarrollo`. Main y Microsoft Store conservan 1.5.0.**
 
 El trabajo cerrado de Biblioteca, Buscador y MIDI está integrado en `main`.
 Se retiraron las ramas auxiliares ya integradas; no hay una fusión pendiente.

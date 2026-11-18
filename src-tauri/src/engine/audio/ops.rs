@@ -143,6 +143,7 @@ mod tests {
     fn state(group: PlaybackGroup) -> ButtonState {
         ButtonState {
             group,
+            output: None,
             done_flag: Arc::new(AtomicBool::new(false)),
             stop_flag: Arc::new(AtomicBool::new(false)),
             fade_out_flag: None,

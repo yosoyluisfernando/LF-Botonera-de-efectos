@@ -13,6 +13,10 @@ pub fn run(rx: Receiver<ConsoleCommand>, state: Arc<Mutex<ConsoleState>>) {
     let mut endpoints = EndpointRegistry::default();
     for cmd in rx {
         match cmd {
+            ConsoleCommand::TabRoutes { plan, available, retry, done } => {
+                super::tab_routes::apply(plan, available, retry, &mut endpoints, &state);
+                let _ = done.send(());
+            }
             ConsoleCommand::SetBusRouting { bus, routing, done } => {
                 let same = state
                     .lock()
@@ -20,7 +24,7 @@ pub fn run(rx: Receiver<ConsoleCommand>, state: Arc<Mutex<ConsoleState>>) {
                     .slots
                     .get(&bus)
                     .is_some_and(|slot| slot.routing == routing);
-                // Rehacer el grafo mata las fuentes que estuvieran sonando, asi
+                // Cambiar este bus invalida sus fuentes, asi
                 // que no se hace por gusto: reaplicar el mismo ruteo (al
                 // arrancar, al reconectar) no debe tocar nada. Que el bus no
                 // exista si obliga: hay que abrirlo.
@@ -29,7 +33,7 @@ pub fn run(rx: Receiver<ConsoleCommand>, state: Arc<Mutex<ConsoleState>>) {
                     if let Some(slot) = state.lock().unwrap().slots.get_mut(&bus) {
                         slot.routing = routing;
                     }
-                    graph::rebuild(&mut endpoints, &state);
+                    graph::update(&mut endpoints, &state, if live { &[] } else { std::slice::from_ref(&bus) });
                 }
                 // Se avisa siempre, tambien cuando no hubo nada que hacer: quien
                 // espera necesita seguir, no quedarse colgado hasta el tope.

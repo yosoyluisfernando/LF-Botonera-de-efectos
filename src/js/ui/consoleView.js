@@ -10,19 +10,28 @@ import '../../css/consoleMeter.css';
 import '../../css/consoleFader.css';
 import { invoke } from '../bridge/api.js';
 import { t } from '../util/i18n.js';
+import { wireConsoleFader, paintConsoleFaders } from './consoleFaders.js';
+import { registerVolumeView, refreshVolumeControls } from './volumeSync.js';
 import { activeMeterTransition } from './meterBallistics.js';
 
 /** Los faders vivos, por bus, para no rehacer el DOM en cada tick. */
 const _strips = new Map();
+registerVolumeView('console', state => paintConsoleFaders(_strips, state));
 
 export async function renderConsole() {
     const view = await invoke('get_console_view').catch(() => null);
     if (!view) return null;
     _strips.clear();
+    document.querySelector('.console-body')?.classList.toggle('has-tab-outputs', view.strips.some(s => s.device));
     _fill('console-strips', view.strips);
     _fill('console-program', [view.program]);
     _fill('console-cue', [view.cue]);
+    refreshVolumeControls();
     return view;
+}
+
+export function refreshConsoleOutputs() {
+    if (_strips.size) renderConsole().catch(console.error);
 }
 
 /** Con la consola cerrada no hay nada que pintar: el tick sigue llegando cincuenta
@@ -39,6 +48,7 @@ export function updateConsoleTick(payload) {
     _paint('panel', buses.panel);
     _paint('reproductor', buses.reproductor);
     _paint('cue', buses.cue);
+    (buses.salidas ?? []).forEach((level, i) => _paint(`salida${i}`, level));
     // El programa no viaja en `buses`: es master_level_*, donde el vúmetro de la
     // barra inferior lo lee desde siempre.
     _paint('programa', {
@@ -63,7 +73,7 @@ function _buildStrip(strip) {
     // Aviso de que este bus tiene tarjeta propia y no obedece al máster. Solo
     // cuando es una DECISIÓN del usuario: la pre-escucha nunca suma en el
     // programa, y marcarla siempre no informaría de nada — sería ruido fijo.
-    else if (strip.bus !== 'cue' && !strip.in_program) el.classList.add('is-direct');
+    else if (strip.bus !== 'cue' && !strip.in_program && !strip.follows_master) el.classList.add('is-direct');
     el.innerHTML = `
       <div class="strip-stage">
         <div class="strip-meters">
@@ -78,7 +88,16 @@ function _buildStrip(strip) {
       <span class="strip-label">${t(`console.bus.${strip.bus}`)}</span>
       <span class="strip-dest">${t(`console.dest.${strip.bus}`)}</span>
       <span class="strip-db">${_fmtDb(null)}</span>`;
-    _wireFader(el.querySelector('.fader'), strip.bus);
+    if (strip.device) {
+        el.classList.toggle('is-unavailable', !strip.available);
+        const label = t('tab_outputs.channel');
+        const deviceName = strip.device_name || strip.device;
+        el.querySelector('.strip-label').textContent = label;
+        el.querySelector('.fader').setAttribute('aria-label', `${label}: ${deviceName}`);
+        const dest = el.querySelector('.strip-dest'); dest.classList.add('strip-device');
+        dest.textContent = `${deviceName} · ${t(strip.available ? 'tab_outputs.controlled' : 'tab_outputs.unavailable')}`;
+    }
+    wireConsoleFader(el.querySelector('.fader'), strip.bus, strip.device);
     _strips.set(strip.bus, el);
     return el;
 }
@@ -93,21 +112,6 @@ function _meter(ch) {
               <span class="meter-ch">${ch}</span>
               <div class="meter-bg"><div class="meter-mask" data-ch="${ch}"></div></div>
             </div>`;
-}
-
-/**
- * Mientras se arrastra se aplica pero NO se guarda: aplicar es un atómico, y
- * guardar en cada píxel sería una tormenta de escrituras a disco. Al soltar, se
- * persiste. Es el mismo cuidado que ya tenían el máster y el reproductor.
- */
-function _wireFader(fader, bus) {
-    if (!fader) return;
-    fader.addEventListener('input', () => _send(bus, fader.value, false));
-    fader.addEventListener('change', () => _send(bus, fader.value, true));
-}
-
-function _send(bus, value, persist) {
-    invoke('set_bus_fader', { bus, value: Number(value), persist }).catch(console.error);
 }
 
 function _paint(bus, level) {

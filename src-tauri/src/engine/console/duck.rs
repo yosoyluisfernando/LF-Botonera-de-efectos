@@ -47,6 +47,7 @@ impl DuckControl {
 pub struct DuckStage {
     pub control: Arc<DuckControl>,
     pub parent: Option<Arc<AtomicU32>>,
+    pub parent_ramp: Option<Arc<super::master_ramp::MasterRamp>>,
 }
 
 impl DuckStage {
@@ -60,6 +61,7 @@ impl DuckStage {
             .as_ref()
             .map(|p| f32::from_bits(p.load(Ordering::Relaxed)))
             .unwrap_or(1.0);
+        let parent = self.parent_ramp.as_ref().map(|r| r.gain(parent)).unwrap_or(parent);
         let cap = f32::from_bits(self.control.ceiling.load(Ordering::Relaxed));
         base * (1.0 - wet * (1.0 - attenuation(base, parent, cap)))
     }

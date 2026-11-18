@@ -5,6 +5,8 @@
  * niveles usan el evento ligero "meter-tick" a 50 FPS.
  */
 
+import { initVolumeSync } from './volumeSync.js';
+import { initTabOutputs } from './tabOutputs.js';
 import { paintObsState } from './obsView.js';
 import { listen } from '../bridge/api.js';
 import { updateTabPlayback } from './tabs.js';
@@ -39,6 +41,8 @@ export async function wireRuntimeEvents({ onRefresh, onDockEditor }) {
             return executeLibraryAction(payload.action, payload.selection ?? []);
         }),
     ]);
+    await initVolumeSync();
+    await initTabOutputs();
     _wired = true;
 }
 

@@ -63,6 +63,8 @@ pub struct LfaPaleta {
     pub cols: u32,
     #[serde(default = "default_out", rename = "audioOut")]
     pub audio_out: String,
+    #[serde(default, skip_serializing_if = "String::is_empty", rename = "audioOutId")]
+    pub audio_out_id: String,
     #[serde(default)]
     pub shortcut: String,
     #[serde(default, skip_serializing_if = "crate::model::MidiBinding::is_empty")]

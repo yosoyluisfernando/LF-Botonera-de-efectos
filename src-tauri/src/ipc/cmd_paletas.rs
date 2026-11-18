@@ -11,7 +11,6 @@ use crate::engine::input::rules as shortcut_rules;
 use crate::engine::persist::config_io as config;
 use crate::ipc::cmd_profiles::next_id;
 use crate::model::{AppConfig, MidiBinding, PaletaData};
-
 #[tauri::command]
 pub fn set_active_paleta(
     profile_id: String,
@@ -34,8 +33,7 @@ pub fn set_active_paleta(
     crate::engine::cache::warm::warm_visible_tab(&state);
     Ok(next)
 }
-
-#[tauri::command]
+#[tauri::command(async)]
 pub fn create_paleta(
     obs: Option<bool>,
     profile_id: String,
@@ -45,10 +43,13 @@ pub fn create_paleta(
     tab_bg: Option<String>,
     tab_text: Option<String>,
     audio_out: Option<String>,
+    audio_out_id: Option<String>,
     state: tauri::State<AppState>,
 ) -> Result<AppConfig, String> {
     let mut cfg = state.config.lock().unwrap();
     let obs = obs.unwrap_or(false);
+    let audio_out = audio_out.unwrap_or_default();
+    let audio_out_id = if audio_out.is_empty() || audio_out == "default" { String::new() } else { audio_out_id.unwrap_or_default() };
     if obs && cfg!(target_os = "android") { return Err("platform_unavailable".into()); }
     if obs && !cfg.obs.enabled { return Err("obs_disabled".into()); }
     if rows == Some(0) || cols == Some(0) {return Err("invalid_grid_size".into());}
@@ -65,7 +66,8 @@ pub fn create_paleta(
         nombre,
         rows: rows.unwrap_or(5),
         cols: cols.unwrap_or(5),
-        audio_out: audio_out.unwrap_or_default(),
+        audio_out,
+        audio_out_id,
         shortcut: String::new(),
         midi: Default::default(),
         tab_bg: tab_bg.unwrap_or_default(),
@@ -74,10 +76,9 @@ pub fn create_paleta(
     });
     profile.active_paleta_id = id;
     config::save_config(&cfg)?;
-    Ok(cfg.clone())
+    super::cmd_tab_outputs::finish_config(cfg, &state)
 }
-
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_paleta(
     profile_id: String,
     paleta_id: String,
@@ -106,10 +107,9 @@ pub fn delete_paleta(
         profile.active_paleta_id = profile.paletas[0].id.clone();
     }
     config::save_config(&cfg)?;
-    Ok(cfg.clone())
+    super::cmd_tab_outputs::finish_config(cfg, &state)
 }
-
-#[tauri::command]
+#[tauri::command(async)]
 #[allow(clippy::too_many_arguments)]
 pub fn update_paleta_meta(
     profile_id: String,
@@ -120,6 +120,7 @@ pub fn update_paleta_meta(
     tab_bg: Option<String>,
     tab_text: Option<String>,
     audio_out: Option<String>,
+    audio_out_id: Option<String>,
     shortcut: Option<String>,
     midi: Option<MidiBinding>,
     replace_shortcut: Option<bool>,
@@ -180,9 +181,7 @@ pub fn update_paleta_meta(
     if let Some(v) = tab_text {
         paleta.tab_text = v;
     }
-    if let Some(v) = audio_out {
-        paleta.audio_out = v;
-    }
+    crate::domain::console::device_identity::set_selection(paleta, audio_out, audio_out_id);
     if let Some(v) = shortcut {
         paleta.shortcut = v;
     }
@@ -194,7 +193,7 @@ pub fn update_paleta_meta(
     if grid_changed {
         grid_reorder::remap_active_audio_ids(&state, &id_mappings);
     }
+    super::cmd_tab_outputs::apply(&state)?;
     global_shortcuts::sync(&app)?;
-    let cfg = state.config.lock().unwrap();
-    Ok(cfg.clone())
+    Ok(state.config.lock().unwrap().clone())
 }

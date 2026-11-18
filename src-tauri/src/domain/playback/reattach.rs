@@ -1,19 +1,7 @@
-//! Modulo: domain/playback/reattach.rs
-//! Proposito: devolver al aire lo que estaba sonando cuando el grafo de la
-//! consola se rehace (un cambio de tarjeta).
-//!
-//! Rehacer el grafo mata los buses viejos, y con ellos las fuentes que tenian
-//! dentro: rodio no sabe sacarlas de un mixer para llevarlas a otro. Asi que no
-//! se mueven — **se vuelven a crear en el segundo por el que iban**. La musica da
-//! un salto de milisegundos (el altavoz fisico tambien cambia, asi que algo se
-//! nota igual) pero no se pierde.
-//!
-//! Lo que no se puede rehacer se deja caer, y se dice cual: las locuciones son
-//! varios archivos encadenados en una sola fuente y no admiten reposicionarse.
+//! Conserva las fuentes de buses intactos; migra solo los sonidos cuyo destino cambió.
 use crate::domain::playback::source as playback_source;
 use crate::engine::audio::attach::{attach_button, AttachArgs};
 use crate::engine::audio::button::{ButtonState, ButtonStateMap};
-use crate::engine::audio::routing::bus_for;
 use crate::engine::cache::preload::PreloadCache;
 use crate::engine::console::ConsoleEngine;
 use std::sync::{Arc, Mutex};
@@ -34,6 +22,12 @@ pub fn reattach_all(
             if state.is_done() {
                 continue;
             }
+            let target = console.bus(console.button_bus(&id, state.group == crate::engine::audio::button::PlaybackGroup::Cue, state.group));
+            if state.output.as_ref().zip(target.as_ref()).is_some_and(|(old, now)| old.same_as(now)) {
+                map.entry(id.clone()).or_default().push(state);
+                continue;
+            }
+            state.stop_immediate();
             if let Some(fresh) = rebuild_one(&state, console, cache) {
                 map.entry(id.clone()).or_default().push(fresh);
             }
@@ -48,7 +42,7 @@ fn rebuild_one(
     cache: &Arc<Mutex<PreloadCache>>,
 ) -> Option<ButtonState> {
     let replay = state.replay.clone()?;
-    let bus = console.bus(bus_for(false, state.group))?;
+    let bus = console.bus(console.button_bus(&replay.id, state.group == crate::engine::audio::button::PlaybackGroup::Cue, state.group))?;
     let at = resume_position(state);
     let source = playback_source::build_seek(
         cache,

@@ -5,7 +5,7 @@ use crate::engine::input::keyboard as global_shortcuts;
 use crate::engine::persist::config_io as config;
 use crate::model::AppConfig;
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn undo_config(
     app: tauri::AppHandle,
     state: tauri::State<AppState>,
@@ -13,7 +13,7 @@ pub fn undo_config(
     restore(app, state, true)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn redo_config(
     app: tauri::AppHandle,
     state: tauri::State<AppState>,
@@ -48,6 +48,7 @@ fn restore(
     if !cfg!(target_os = "android") && obs_changed {
         state.obs.configure(out.obs.clone(), None)?;
     }
+    super::cmd_tab_outputs::apply(&state)?;
     global_shortcuts::sync(&app)?;
     Ok(out)
 }

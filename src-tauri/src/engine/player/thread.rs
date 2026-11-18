@@ -41,7 +41,7 @@ pub fn run(
         decks: vec![Deck::new(), Deck::new()],
         queue: QueueState::new(),
     };
-    let mut generation = console.generation();
+    let mut generation = console.bus_revision(BusId::Reproductor);
     loop {
         let sync = match rx.recv_timeout(TICK) {
             Ok(PlayerCommand::Sync(done)) => Some(done),
@@ -52,10 +52,9 @@ pub fn run(
             Err(RecvTimeoutError::Timeout) => None,
             Err(RecvTimeoutError::Disconnected) => break,
         };
-        // ¿Se rehizo el grafo? Entonces la cancion que sonaba murio con su bus.
-        // Se rehace por donde iba, antes de mirar si el deck "termino": si no,
-        // el motor lo tomaria por fin de pista y saltaria a la siguiente.
-        let now = console.generation();
+        // Solo reconstruir decks cuando cambie SU bus. Otra pestaña no toca
+        // ni las fuentes, ni el precargado, ni la posición del reproductor.
+        let now = console.bus_revision(BusId::Reproductor);
         if now != generation {
             generation = now;
             rebuild_decks(&mut motor, &cache, &console);
@@ -172,8 +171,8 @@ fn resume(motor: &mut Motor) -> Vec<DeckAction> {
 /// programa, asi que obedece al master; `Device(x)` = sale por su tarjeta, ajeno
 /// a el.
 ///
-/// **No detiene la musica.** Rehacer el grafo mata las fuentes, pero el bucle
-/// principal ve subir la generacion y devuelve al deck su cancion por donde iba.
+/// Un cambio propio reconstruye los decks desde su posición. Los cambios
+/// en otros buses mantienen la revisión y no entran en esa reconstrucción.
 /// Se pide sincrono para que el grafo ya este listo cuando eso ocurra.
 fn set_routing(routing: Routing, console: &Arc<ConsoleEngine>) {
     console.set_bus_routing_sync(BusId::Reproductor, routing);

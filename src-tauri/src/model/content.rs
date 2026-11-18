@@ -71,6 +71,8 @@ pub struct PaletaData {
     pub cols: u32,
     #[serde(default)]
     pub audio_out: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub audio_out_id: String,
     #[serde(default)]
     pub shortcut: String,
     #[serde(default, skip_serializing_if = "MidiBinding::is_empty")]

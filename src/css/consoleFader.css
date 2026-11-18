@@ -117,3 +117,41 @@
   border-color: var(--console-cap-master-border);
   background: var(--console-cap-master);
 }
+
+/* Información junto al capuchón, sin interceptar el gesto ni tapar la consola. */
+.fader-value {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  left: 50%;
+  top: clamp(0px, calc((100% - 15px) * var(--fader-position, 0) - 23px), calc(100% - 22px));
+  transform: translateX(-50%);
+  padding: 2px 4px;
+  border: 1px solid var(--console-strip-border);
+  border-radius: 4px;
+  background: var(--console-strip-top);
+  color: var(--console-label);
+  font: 11px/16px sans-serif;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.show-value .fader-value { display: block; }
+.fader-track.has-boost::before {
+  background: linear-gradient(to bottom,
+    var(--slider-boost-bg) 0 calc(7.5px + (100% - 15px) * var(--fader-unity)),
+    var(--console-rail) calc(7.5px + (100% - 15px) * var(--fader-unity)) 100%);
+}
+.fader-unity { display: none; }
+.has-boost .fader-unity {
+  display: block;
+  position: absolute;
+  pointer-events: none;
+  left: 2px;
+  right: 2px;
+  top: calc(7.5px + (100% - 15px) * var(--fader-unity));
+  border-top: 1px solid var(--console-label);
+  color: var(--console-dim);
+  font: 8px/12px sans-serif;
+  text-align: center;
+}

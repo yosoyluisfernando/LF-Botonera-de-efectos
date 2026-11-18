@@ -1,4 +1,18 @@
 {
+  "tab_outputs": {
+    "ambiguous": "Duplicate name; rename the device in the system",
+    "label": "Audio output for this tab",
+    "main": "Main output",
+    "default": "System default",
+    "help": "Tabs using the same device share a channel. Master and Mic control these outputs. If a device is missing, its audio stays silent; edit the tab to choose another output.",
+    "missing": "Device disconnected",
+    "unavailable": "Could not open device",
+    "too_many": "The limit of eight independent destinations was reached",
+    "silent": "Some tabs have no available output.",
+    "retry": "Retry outputs",
+    "channel": "Tabs",
+    "controlled": "Master + Mic"
+  },
   "app": {
     "title": "LF Botonera de Efectos",
     "loading": "Loading audio engine...",
@@ -695,6 +709,7 @@
     "reminder_title": "Update available"
   },
   "release_notes": {
+    "android_launch": "Now on Android too: our first public release for phones and tablets, with sound effects, a track editor and USB/Bluetooth MIDI. Available on GitHub.",
     "support_title": "Finding LF Botonera useful?",
     "support_message": "Share your experience on Microsoft Store or give the project a star on GitHub. Your support helps more people discover the software and encourages new contributors to join. Thank you!",
     "rate_store": "Rate on Microsoft Store",
@@ -766,7 +781,6 @@
     "dock_left": "Dock on the left",
     "dock_right": "Dock on the right",
     "dock_width": "Docked console width",
-    "notice": "The audio console is in testing and will move to a better place. Using it in window mode is recommended.",
     "silence": "-inf dB",
     "bus": {
       "efectos": "EFFECTS",

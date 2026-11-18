@@ -1,14 +1,4 @@
-//! Modulo: engine/console/graph.rs
-//! Proposito: montar el grafo de buses de la consola segun el ruteo pedido.
-//!
-//! Se reconstruye ENTERO ante cualquier cambio, y no es pereza: rodio no sabe
-//! sacar una fuente de un mixer. Remendar el grafo dejaria el mixer de un bus
-//! viejo colgado dentro del programa para siempre, produciendo silencio y sin
-//! que nadie pueda quitarlo. Reconstruir corta lo que suene —igual que ya hacia
-//! cambiar de tarjeta— pero no acumula basura.
-//!
-//! El orden importa: el programa se abre PRIMERO, porque los buses que suman en
-//! el se cuelgan de su controller.
+//! Reconciliación incremental: conserva buses, fuentes y medidores ajenos al cambio.
 use super::bus::{Bus, BusOutput};
 use super::endpoint::EndpointRegistry;
 use super::ConsoleState;
@@ -17,50 +7,45 @@ use crate::domain::console::{device_of, effective, BusId, Routing};
 use std::sync::atomic::AtomicU32;
 use std::sync::{Arc, Mutex};
 
-pub fn rebuild(endpoints: &mut EndpointRegistry, state: &Arc<Mutex<ConsoleState>>) {
+pub fn update(endpoints: &mut EndpointRegistry, state: &Arc<Mutex<ConsoleState>>, force: &[BusId]) -> bool {
     let mut guard = state.lock().unwrap();
-    // Cerrarlos ANTES de soltarlos, y no solo soltarlos: a un mixer de rodio no
-    // se le quita una fuente, asi que un bus soltado seguiria dentro de su
-    // tarjeta sonando y midiendo. Y como los atomicos del medidor son del slot y
-    // sobreviven, el viejo y el nuevo escribirian el mismo nivel a la vez —el
-    // viejo, ya sin fuentes, escribiendo cero— y el vumetro parpadearia.
-    for bus in guard.live.values() {
-        bus.close();
-    }
-    guard.live.clear();
-    // Los buses viejos acaban de morir, y con ellos las fuentes que tenian
-    // dentro. Subir la generacion es como se enteran los motores de que lo que
-    // estaban tocando ya no existe y hay que rehacerlo.
-    guard.generation = guard.generation.wrapping_add(1);
-
-    let program_device = program_device(&guard);
-    open_program(endpoints, &mut guard, &program_device);
-    for bus in BusId::ALL {
-        if bus != BusId::Programa {
-            open_bus(endpoints, &mut guard, bus, &program_device);
-        }
-    }
-
+    let program_device = super::device::canonical_name(&program_device(&guard));
+    let targets: std::collections::HashMap<_, _> = BusId::every().filter_map(|bus| {
+        let routing = effective_of(&guard, bus, &program_device)?;
+        let target = if !bus.wants_output(&routing) { routing } else {
+            device_of(&routing, &program_device).map(|d| Routing::Device(super::device::canonical_name(&d))).unwrap_or(Routing::Program)
+        };
+        Some((bus, target))
+    }).collect();
+    let changed = super::graph_update::apply(&mut guard, &targets, force, |bus, state| {
+        if bus == BusId::Programa { open_program(endpoints, state, &program_device); }
+        else { open_bus(endpoints, state, bus, &program_device); }
+    });
+    if !changed { return false; }
     let live = live_routings(&guard, &program_device);
     drop(guard);
     endpoints.retain_only(&devices_in_use(&live, &program_device));
+    true
 }
 
 /// El ruteo que se aplica de verdad a un bus: el pedido, ya resuelto contra la
 /// tarjeta del programa.
 fn effective_of(state: &ConsoleState, bus: BusId, program_device: &str) -> Option<Routing> {
     let slot = state.slots.get(&bus)?;
-    Some(effective(bus, &slot.routing, program_device))
+    let routing = match &slot.routing {
+        Routing::Device(name) if bus.wants_output(&slot.routing) => Routing::Device(super::device::canonical_name(name)),
+        other => other.clone(),
+    };
+    Some(effective(bus, &routing, program_device))
 }
 
 /// El ruteo EFECTIVO de los buses que han quedado vivos, para saber que tarjetas
 /// siguen haciendo falta. El efectivo y no el pedido: un bus que pidio la tarjeta
 /// del programa acaba sumado en el, y entonces no retiene tarjeta propia.
 fn live_routings(state: &ConsoleState, program_device: &str) -> Vec<(BusId, Routing)> {
-    BusId::ALL
-        .iter()
+    BusId::every()
         .filter(|bus| state.live.contains_key(bus))
-        .filter_map(|bus| effective_of(state, *bus, program_device).map(|r| (*bus, r)))
+        .filter_map(|bus| effective_of(state, bus, program_device).map(|r| (bus, r)))
         .collect()
 }
 
@@ -77,7 +62,7 @@ fn open_program(endpoints: &mut EndpointRegistry, state: &mut ConsoleState, devi
         return;
     };
     let (level_l, level_r, gain) = atomics(state, BusId::Programa);
-    if let Some(bus) = Bus::open(BusOutput::Endpoint(&handle), level_l, level_r, gain) {
+    if let Some(bus) = Bus::open_controlled(BusOutput::Endpoint(&handle), level_l, level_r, gain, None, None, Some(Arc::clone(&state.master_ramp))) {
         state.live.insert(BusId::Programa, bus);
     }
 }
@@ -91,10 +76,15 @@ fn open_bus(
     let Some(routing) = effective_of(state, bus, program_device) else {
         return;
     };
+    if !bus.wants_output(&routing) { return; }
     let (level_l, level_r, gain) = atomics(state, bus);
-    let duck = bus.can_sum_into_program().then(|| super::duck::DuckStage {
+    let independent = matches!(bus, BusId::Salida(_));
+    let master = independent.then(|| Arc::clone(&state.slots[&BusId::Programa].volume));
+    let duck = (bus.can_sum_into_program() || independent).then(|| super::duck::DuckStage {
         control: Arc::clone(&state.slots[&bus].duck),
-        parent: (routing == Routing::Program)
+        parent_ramp: (routing == Routing::Program || independent)
+            .then(|| Arc::clone(&state.master_ramp)),
+        parent: (routing == Routing::Program || independent)
             .then(|| Arc::clone(&state.slots[&BusId::Programa].volume)),
     });
     let opened = match device_of(&routing, program_device) {
@@ -110,7 +100,7 @@ fn open_bus(
             })
         }
         Some(device) => endpoints.ensure(&device).and_then(|handle| {
-            Bus::open_with_duck(BusOutput::Endpoint(&handle), level_l, level_r, gain, duck)
+            Bus::open_controlled(BusOutput::Endpoint(&handle), level_l, level_r, gain, duck, master, independent.then(|| Arc::clone(&state.master_ramp)))
         }),
     };
     if let Some(opened) = opened {

@@ -87,6 +87,9 @@ pub fn on_setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> 
         Arc::clone(&state.console),
     );
     drop(engine);
+    crate::engine::console::controls::start(app.handle().clone(), Arc::clone(&state.config), Arc::clone(&state.console));
+    #[cfg(not(target_os = "android"))]
+    crate::engine::console::tab_outputs::start(app.handle().clone(), Arc::clone(&state.config), Arc::clone(&state.console));
     // Sincroniza el modo y la cola guardados con el motor del reproductor.
     crate::ipc::cmd_player::apply_startup(&state);
 

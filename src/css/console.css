@@ -49,18 +49,6 @@
   outline-offset: -1px;
 }
 
-/* El aviso de que esto está en pruebas: una nota al margen, no una alarma. */
-.console-notice {
-  margin: 0 0 12px;
-  padding: 7px 12px;
-  border-left: 3px solid var(--accent-color);
-  border-radius: 4px;
-  background: var(--console-strip-bottom);
-  color: var(--console-dim);
-  font-size: 11.5px;
-  line-height: 1.45;
-}
-
 /* Las tiras se centran y ocupan el alto disponible: la consola no tiene por qué
    dejar un hueco muerto debajo. */
 .console-body {
@@ -171,8 +159,7 @@
 body.console-window-mode { overflow: hidden; }
 body.console-window-mode .titlebar { display: none; }
 body.console-window-mode #console-modal { background: none; }
-body.console-window-mode .console-content > .modal-header,
-body.console-window-mode .console-notice { display: none; }
+body.console-window-mode .console-content > .modal-header { display: none; }
 body.console-window-mode .console-content {
   width: 100vw !important;
   max-width: none;
